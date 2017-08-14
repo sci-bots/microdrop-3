@@ -1,0 +1,29 @@
+{
+  "name": "mosca_plugin",
+  "version": "1.0.0",
+  "description": "Mosca Plugin for Microdrop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lucaszw/mosca_plugin.git"
+  },
+  "keywords": [
+    "Microdrop",
+    "Mosca"
+  ],
+  "author": "Lucas Zeer",
+  "license": "LGPL",
+  "bugs": {
+    "url": "https://github.com/Lucaszw/mosca_plugin/issues"
+  },
+  "homepage": "https://github.com/Lucaszw/mosca_plugin#readme",
+  "dependencies": {
+    "connect": "^3.6.3",
+    "express": "^4.15.4",
+    "mosca": "^2.5.2",
+    "serve-static": "^1.12.4"
+  }
+}
