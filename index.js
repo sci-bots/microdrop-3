@@ -29,6 +29,8 @@ class DataController {
     this.addRoute("microdrop/{*}/protocols", this.onGetProtocols.bind(this));
     this.addRoute("microdrop/{*}/save-protocol", this.onSaveProtocol.bind(this));
     this.addRoute("microdrop/{*}/protocol-swapped", this.onProtocolSwapped.bind(this));
+    this.addRoute("microdrop/{*}/delete-protocol", this.onDeleteProtocol.bind(this));
+
     this.addPostRoute("/protocols","update-protocols", true);
     this.addPostRoute("/load-protocol", "load-protocol");
 
@@ -54,16 +56,33 @@ class DataController {
     this.client.publish(topic, message, options);
   }
 
+  deleteProtocolAtIndex(index) {
+    this.protocols.splice(index, 1);
+    this.trigger("update-protocols", this.protocols);
+  }
+
+  getProtocolIndex(name){
+    const protocols = this.protocols;
+    return _.findIndex(protocols, (p) => {return p.name == name});
+  }
+
   // ** Getters and Setters **
   get messages(){
     const messages = new Object();
     messages.noProtocol = "No protocol available to save. Refusing to add protocol";
+    messages.protocolDoesNotExist = "Protocol does not exist."
     return messages;
   }
 
   // ** Event Handlers **
   onConnect() {
     this.client.subscribe('microdrop/#');
+  }
+
+  onDeleteProtocol(payload){
+    const protocol = payload;
+    const index = this.getProtocolIndex(protocol.name);
+    this.deleteProtocolAtIndex(index);
   }
 
   onMessage(topic, buf){
@@ -87,13 +106,16 @@ class DataController {
   }
 
   onProtocolSwapped(payload) {
-    console.log("Payload::");
-    console.log(payload);
+    this.protocol = payload;
   }
 
-  onSaveProtocol(protocol) {
-    this.protocols.push(protocol);
-    _.each(this.protocols, (p,i) => p.name = "protocol"+i);
+  onSaveProtocol(payload) {
+    const name  = payload;
+    const index = this.getProtocolIndex(name);
+    this.protocol.name = name;
+    if (index < 0)  this.protocols.push(this.protocol);
+    if (index >= 0) this.protocols[index] = this.protocol;
+
     this.trigger("update-protocols", this.protocols);
   }
 
