@@ -10,45 +10,37 @@ class ProtocolDataController extends DataController {
 
   // ** Event Listeners **
   listen() {
-    // Experiment Controller (Load, Save, Import, and Export Protocols):
-    //  "change-protocol": Changes that active/loaded protocol in data controller
-    //  "mqtt-plugin": bridge between ProtocolDataController and old Microdrop ProtocolController
-    //  "experiment-controller": load, save, import and export protocols
 
-    this.addRoute("microdrop/dmf-device-ui/change-protocol", this.onSetProtocol.bind(this));
-    this.addPutRoute("mqtt-plugin", "protocol", "protocol-set");
-    this.addPutRoute("experiment-controller", "protocol", "protocol-set");
-
+    // Protocol
     this.addRoute("microdrop/{*}/protocols", this.onGetProtocols.bind(this));
     this.addRoute("microdrop/{*}/save-protocol", this.onSaveProtocol.bind(this));
     this.addRoute("microdrop/{*}/delete-protocol", this.onDeleteProtocol.bind(this));
     this.addRoute("microdrop/{*}/request-protocol-export", this.onExportProtocolRequested.bind(this));
     this.addRoute("microdrop/{*}/upload-protocol", this.onUploadProtocol.bind(this));
     this.addRoute("microdrop/dmf-device-ui/update-protocol-running-state", this.onUpdateProtocolRunningState.bind(this));
+    this.addRoute("microdrop/dmf-device-ui/change-protocol", this.onSetProtocol.bind(this));
+    this.addPutRoute("mqtt-plugin", "protocol", "protocol-set");
+    this.addPutRoute("experiment-controller", "protocol", "protocol-set");
     this.addPostRoute("/protocols","update-protocols", true);
     this.addPostRoute("/send-protocol", "send-protocol");
 
-    // Protocol Controller (Updated Protocol Steps, Running State, and Number of Repeats)
-    //  "delete-step"  delete selected step
-    //  "insert-step"  inserts step at end of protocol
-    //  "update-step"  change the value of on of the step values
-    //  "step-changed" request made from Microdrop UI to change step
-
+    // Steps:
     this.addRoute("microdrop/dmf-device-ui/delete-step", this.onDeleteStep.bind(this));
     this.addRoute("microdrop/dmf-device-ui/insert-step", this.onInsertStep.bind(this));
     this.addRoute("microdrop/dmf-device-ui/update-step-number", this.onUpdateStepNumber.bind(this));
     this.addRoute("microdrop/dmf-device-ui/update-step", this.onUpdateStep.bind(this));
-    // this.addRoute("microdrop/mqtt-plugin/step-changed",this.onStepChanged.bind(this));
-
     this.addPutRoute("protocol-controller", "steps", "steps-set");
     this.addPutRoute("mqtt-plugin", "steps", "steps-set");
     this.addPutRoute("mqtt-plugin", "step-number", "step-number-set");
     this.addPutRoute("protocol-controller", "step-number", "step-number-set");
 
-    // Routes (TODO: Migrate to own DataController):
-    this.addPostRoute("/route-options", "update-route-options", true);
+    // Route Options:
     this.addRoute("microdrop/put/data-controller/state/route-options", this.oneRouteOptionsUpdated.bind(this));
+    this.addPostRoute("/route-options", "update-route-options", true);
 
+    // Electrodes:
+    this.addRoute("microdrop/put/protocol-data-controller/state/electrodes", this.onElectrodesUpdated.bind(this));
+    this.addPostRoute("/electrode-options", "update-electrode-options", true);
   }
 
   // ** Getters and Setters **
@@ -128,6 +120,8 @@ class ProtocolDataController extends DataController {
     this.trigger("step-number-set", this.stepNumber);
     if ("droplet_planning_plugin" in this.step)
       this.trigger("update-route-options", this.step.droplet_planning_plugin);
+    if ("microdrop.electrode_controller_plugin" in this.step)
+      this.trigger("update-electrode-options", this.step["microdrop.electrode_controller_plugin"]);
   }
 
   onSetProtocol(payload) {
@@ -141,11 +135,22 @@ class ProtocolDataController extends DataController {
     this.trigger("step-number-set", this.stepNumber);
     if ("droplet_planning_plugin" in this.step)
       this.trigger("update-route-options", this.step.droplet_planning_plugin);
+    if ("microdrop.electrode_controller_plugin" in this.step)
+      this.trigger("update-electrode-options", this.step["microdrop.electrode_controller_plugin"]);
   }
 
   onGetProtocols(payload) {
     if (!_.isArray(payload)) return;
     this.protocols = payload;
+  }
+
+  onElectrodesUpdated(payload) {
+    if (!this.step) return;
+    if (!this.steps) return;
+
+    const step = this.step;
+    step["microdrop.electrode_controller_plugin"] = {electrode_states: payload};
+    this.step = step;
   }
 
   onExportProtocolRequested(payload) {
@@ -189,6 +194,8 @@ class ProtocolDataController extends DataController {
     this.trigger("step-number-set", this.stepNumber);
     if ("droplet_planning_plugin" in this.step)
       this.trigger("update-route-options", this.step.droplet_planning_plugin);
+    if ("microdrop.electrode_controller_plugin" in this.step)
+      this.trigger("update-electrode-options", this.step["microdrop.electrode_controller_plugin"]);
   }
 
   onUpdateStep(payload) {
@@ -205,6 +212,7 @@ class ProtocolDataController extends DataController {
     this.trigger("steps-set", steps);
     if ("droplet_planning_plugin" in this.step)
       this.trigger("update-route-options", this.step.droplet_planning_plugin);
+
   }
 
   oneRouteOptionsUpdated(payload) {
@@ -219,10 +227,11 @@ class ProtocolDataController extends DataController {
   onUpdateStepNumber(payload) {
     const stepNumber = payload;
     this.stepNumber = stepNumber;
-    console.log("step number changed!!");
     this.trigger("step-number-set", this.stepNumber);
     if ("droplet_planning_plugin" in this.step)
       this.trigger("update-route-options", this.step.droplet_planning_plugin);
+    if ("microdrop.electrode_controller_plugin" in this.step)
+      this.trigger("update-electrode-options", this.step["microdrop.electrode_controller_plugin"]);
   }
 
   onUpdateProtocolRunningState(payload) {

@@ -30,6 +30,7 @@
     "mosca": "^2.5.2",
     "mqtt": "^2.11.0",
     "mqtt-router": "^0.5.0",
+    "pandas-helpers": "^1.0.0",
     "serve-static": "^1.12.4"
   }
 }
