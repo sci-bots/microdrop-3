@@ -35,6 +35,11 @@ class DataController {
     this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
   }
 
+  addStateRoute(state, event, retain=true, qos=0, dup=false){
+    const channel = "microdrop/state"+state;
+    this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
+  }
+
   addPostRoute(topic, event, retain=false, qos=0, dup=false){
     // Route endpoint used for publishing
     // topic: mqtt topic
@@ -70,7 +75,7 @@ class DataController {
       const msg = JSON.parse(buf.toString());
       this.parse(topic, [msg]);
     } catch (e) {
-      console.log("Could not parse message");
+      console.error("Could not parse message");
     }
   }
 

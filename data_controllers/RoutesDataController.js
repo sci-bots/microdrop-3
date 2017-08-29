@@ -12,8 +12,8 @@ class RoutesDataController extends DataController {
     this.addRoute("microdrop/droplet-planning-plugin/routes",  this.onRoutesUpdated.bind(this));
     this.addRoute("microdrop/data-controller/route-options", this.onUpdateRouteOptions.bind(this));
 
-    this.addPutRoute("droplet-planning-plugin", "routes","routes-set");
     this.addPutRoute("data-controller", "route-options", "route-options-set");
+    this.addPutRoute("droplet-planning-plugin", "routes","routes-set");
     this.addPutRoute("dmf-device-ui", "routes", "routes-set");
 
     this.addPutRoute("droplet-planning-plugin", "route-repeats", "route-repeats-set");
@@ -79,6 +79,8 @@ class RoutesDataController extends DataController {
 
   // ** Methods **
   updateDropletPlanningPlugin(d) {
+    // XXX: Assuming no dropRoutes in options means to set to undefined
+    this.dropRoutes = null;
     if ("drop_routes" in d) this.dropRoutes = d.drop_routes;
     if ("trail_length" in d) this.trailLength = d.trail_length;
     if ("transition_duration_ms" in d) this.transitionDurationMilliseconds = d.transition_duration_ms;

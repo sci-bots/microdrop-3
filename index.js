@@ -9,6 +9,7 @@ const level = require('level');
 const mosca = require('mosca');
 const serveStatic = require('serve-static');
 
+const DeviceDataController    = require("./data_controllers/DeviceDataController");
 const ElectrodeDataController = require('./data_controllers/ElectrodeDataController');
 const ProtocolDataController  = require('./data_controllers/ProtocolDataController');
 const RoutesDataController    = require('./data_controllers/RoutesDataController');
@@ -143,12 +144,14 @@ class MoscaServer {
     console.log('Mosca server is up and running on port: ' + this.settings.port +
                  ' and http port: ' + this.settings.http.port);
 
+    this.deviceDataController    = new DeviceDataController();
     this.electrodeDataController = new ElectrodeDataController();
     this.routesDataController    = new RoutesDataController();
     this.protocolDataController  = new ProtocolDataController();
   }
 
   onExit(options, err) {
+    this.deviceDataController.trigger("exit");
     this.electrodeDataController.trigger("exit");
     this.routesDataController.trigger("exit");
     this.protocolDataController.trigger("exit");

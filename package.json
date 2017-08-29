@@ -15,7 +15,7 @@
     "Mosca"
   ],
   "author": "Lucas Zeer",
-  "license": "LGPL",
+  "license": "mit",
   "bugs": {
     "url": "https://github.com/Lucaszw/mosca_plugin/issues"
   },
