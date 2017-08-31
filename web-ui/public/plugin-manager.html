@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" media="screen" href="property-table.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="phosphor-menus.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="formatPlane.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="index.css" />
+  <script type="text/javascript" src="two.min.js"></script>
+  <script type="text/javascript" src="libDeviceUIPlugin.js"></script>
+  <script type="text/javascript" src="static/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="static/mqttws31.min.js"></script>
+  <script type="text/javascript" src="static/js-signals.min.js"></script>
+  <script type="text/javascript" src="static/crossroads.min.js"></script>
+  <script type="text/javascript" src="card-mixins.js"></script>
+  <script type="text/javascript" src="main.js"></script>
+  <script type="text/javascript" src="mqtt-client.js"></script>
+  <script type="text/javascript" src="plugin-controller.js"></script>
+  <script type="text/javascript" src="plugin-process-manager.js"></script>
+</head>
+
+<body>
+
+  <script>
+  class WebPluginManager extends PluginController {
+    constructor(element, focusTracker) {
+      super(element, focusTracker, "UIPluginManager");
+      this.listen();
+      this.controls = this.Controls();
+    }
+    listen() {
+      this.on("add-plugin", this.onAddPlugin.bind(this));
+      this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
+      this.addGetRoute("microdrop/state/error/web-plugins", this.onChangeWebPluginsFailed.bind(this));
+      this.addPostRoute("/add-web-plugin", "add-web-plugin");
+    }
+    set controls(controls) {
+      if (this.controls) this.element.removeChild(this.controls);
+      this.element.appendChild(controls);
+      this.controls = controls;
+    }
+    onAddPlugin(path) {
+      this.trigger("add-web-plugin", path);
+    }
+    onChangeWebPluginsFailed(payload) {
+      console.error("Failed to add webplugin:::");
+      console.error(payload);
+    }
+    onWebPluginsChanged(payload) {
+      console.log("Web plugins changed..");
+      console.log(payload);
+    }
+    Controls() {
+      const controls = document.createElement("div");
+      const inputField = D('<input type="text" />').el;
+      const addBtn = D('<button>Add Plugin</button').el;
+      addBtn.onclick = () => this.trigger("add-plugin", inputField.value);
+      controls.appendChild(inputField);
+      controls.appendChild(addBtn);
+      return controls;
+    }
+  }
+
+  let focusTracker, panel, widgets;
+  const load = () => {
+    widgets = new Object();
+    widgets.pluginProcessManager = new PhosphorWidget.Widget();
+    widgets.pluginProcessManager.title.text = "Process Manager";
+    widgets.webPluginManager = new PhosphorWidget.Widget();
+    widgets.webPluginManager.title.text = "Web Plugin Manager";
+
+    focusTracker = new FocusTracker();
+
+    panel = new DockPanel();
+    panel.id = 'main';
+    panel.insertLeft(widgets.pluginProcessManager);
+    panel.insertBottom(widgets.webPluginManager, widgets.pluginProcessManager);
+    panel.attach(document.body);
+
+    window.pluginProcessManager = new PluginProcessManager(widgets.pluginProcessManager.node, focusTracker);
+    window.webPluginManager = new WebPluginManager(widgets.webPluginManager.node, focusTracker);
+  };
+  $(window).on("load", load);
+  </script>
+</body>
+
+<html>

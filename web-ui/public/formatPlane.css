@@ -1,0 +1,25 @@
+#container * {
+  position: absolute;
+}
+
+svg {
+  /*width: 100%;*/
+  /*height: 100%;*/
+  display: block;
+}
+
+circle.control-point {
+  fill: green;
+  fill-opacity: 0.5;
+  display: block;
+}
+
+circle.control-point:hover {
+  stroke: yellow;
+  stroke-width: 2px;
+}
+
+body{
+  margin:0;
+  padding:0;
+}
