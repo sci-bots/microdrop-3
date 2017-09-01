@@ -494,6 +494,15 @@ class DeviceUIPlugin {
     listen(client){
       this.event_handler = new EventHandler(this.device_view);
       this.event_handler.listen();
+
+      function send(message){
+        if (client.isConnected() == false){
+          console.error("Cannot send message, client is disconnected");
+          return;
+        }
+        client.send(message);
+      }
+
       this.event_handler.on("set_electrode_state", (kwargs) => {
           let data, message, topic;
 
@@ -502,9 +511,8 @@ class DeviceUIPlugin {
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;
-          client.send(message);
+          send(message);
       });
-
       this.event_handler.on("electrode_queue_updated", (electrode_ids) => {
           if (this.queue_mesh) {
               this.device_view.three_widget.scene.remove(this.queue_mesh);
@@ -532,7 +540,7 @@ class DeviceUIPlugin {
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;
-          client.send(message);
+          send(message);
       });
 
       this.event_handler.on("clear-electrode-states", () => {
@@ -546,7 +554,7 @@ class DeviceUIPlugin {
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;
-          client.send(message);
+          send(message);
       });
 
       this.event_handler.on("clear-routes", (electrode_id) => {
@@ -558,7 +566,7 @@ class DeviceUIPlugin {
           data = {electrode_id: electrode_id};
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;
-          client.send(message);
+          send(message);
       });
 
       this.event_handler.on("execute-routes", (electrode_id) => {
@@ -570,7 +578,7 @@ class DeviceUIPlugin {
           data  = {electrode_i: electrode_id};
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;
-          client.send(message);
+          send(message);
       });
 
       this.event_handler.on("mouseover", (data) => {
