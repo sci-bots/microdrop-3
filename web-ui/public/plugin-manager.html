@@ -23,35 +23,67 @@
 </head>
 
 <body>
-
   <script>
   class WebPluginManager extends PluginController {
     constructor(element, focusTracker) {
       super(element, focusTracker, "UIPluginManager");
-      this.listen();
+      Object.assign(this, CardMixins);
       this.controls = this.Controls();
+      this.pluginCards = new Backbone.Model();
+      this.listen();
     }
     listen() {
+      this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
       this.on("add-plugin", this.onAddPlugin.bind(this));
       this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
       this.addGetRoute("microdrop/state/error/web-plugins", this.onChangeWebPluginsFailed.bind(this));
       this.addPostRoute("/add-web-plugin", "add-web-plugin");
     }
-    set controls(controls) {
-      if (this.controls) this.element.removeChild(this.controls);
-      this.element.appendChild(controls);
-      this.controls = controls;
+    get cards(){return this._cards}
+    set cards(item) {this.changeElement("cards", item)}
+    get controls(){return this._controls}
+    set controls(item) {this.changeElement("controls", item)}
+    changeElement(k,item) {
+      if (this[k]) this.element.removeChild(this[k]);
+      this.element.appendChild(item);
+      this[`_${k}`] = item;
     }
     onAddPlugin(path) {
       this.trigger("add-web-plugin", path);
     }
     onChangeWebPluginsFailed(payload) {
-      console.error("Failed to add webplugin:::");
-      console.error(payload);
+      console.error(`Failed to add webplugin:  ${payload}`);
+    }
+    onPluginCardsChanged(msg) {
+      this.cards = this.Cards(this.pluginCards);
     }
     onWebPluginsChanged(payload) {
-      console.log("Web plugins changed..");
-      console.log(payload);
+      // TODO: Auto convert payload to json before triggering event
+      const paths = JSON.parse(payload);
+      for (const filepath of paths){
+        const filename = filepath.replace(/^.*[\\\/]/, '');
+        this.pluginCards.set(filename, filepath);
+      }
+    }
+    Card(filename,filepath) {
+      const card = D("<div class='card'></div>");
+      const removeEvent = () => {this.trigger("remove-plugin", filename)};
+      const styles = this.Styles();
+
+      card.setStyles(styles.card);
+      card.appendChild(this.Title(filename));
+      card.appendChild(this.InputField("Plugin:", filepath));
+      card.appendChild(this.Button(removeEvent, "Remove","btn-secondary"));
+      
+      return card.el;
+    }
+    Cards(pluginCards) {
+      const entries = Object.entries(pluginCards.attributes);
+      console.log(entries);
+      const cards = D("<div></div>").el;
+      for (const [filename,filepath] of entries)
+        cards.appendChild(this.Card(filename,filepath));
+      return cards;
     }
     Controls() {
       const controls = document.createElement("div");
@@ -82,6 +114,7 @@
 
     window.pluginProcessManager = new PluginProcessManager(widgets.pluginProcessManager.node, focusTracker);
     window.webPluginManager = new WebPluginManager(widgets.webPluginManager.node, focusTracker);
+    console.log(webPluginManager);
   };
   $(window).on("load", load);
   </script>

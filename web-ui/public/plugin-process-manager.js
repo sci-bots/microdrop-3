@@ -1,8 +1,8 @@
 class PluginProcessManager extends PluginController {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "PluginProcessManager");
-    // ** Mixins **
     Object.assign(this, CardMixins);
+    
     // ** Init **
     this.listen();
     this.plugins = new Object();
