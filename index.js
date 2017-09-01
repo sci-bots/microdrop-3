@@ -8,7 +8,7 @@ const express = require('express');
 const MoscaServer  = require('./MoscaServer');
 const NodeMqttClient = require('./NodeMqttClient');
 
-class WebServer extends NodeMqttClient{
+class WebServer extends NodeMqttClient {
   constructor() {
     super("localhost", 1883, "microdrop");
     _.extend(this, this.ExpressServer());

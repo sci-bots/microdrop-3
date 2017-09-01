@@ -48,7 +48,10 @@ class MQTTClient {
     console.log(this.subscriptions);
     for (var s of this.subscriptions) this.client.subscribe(s);
   }
-
+  onConnectionLost() {
+    console.warn("Connection lost with broker");
+    this.client.connect({onSuccess: this.onConnect.bind(this)});
+  }
   onMessageArrived(msg) {
     const receiver = this.name + " : " + msg.destinationName;
     console.log(receiver);
@@ -63,6 +66,7 @@ class MQTTClient {
   Client() {
     const client = new Paho.MQTT.Client("localhost", 8083, this.name);
     client.onMessageArrived = this.onMessageArrived.bind(this);
+    client.onConnectionLost = this.onConnectionLost.bind(this);
     client.connect({onSuccess: this.onConnect.bind(this)});
     return client;
   }
