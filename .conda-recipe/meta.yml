@@ -1,0 +1,23 @@
+# source will be downloaded prior to filling in jinja templates
+# Example assumes that this folder has setup.py in it
+source:
+  git_url: ../
+
+package:
+  name: microdrop-3.0
+{% if GIT_DESCRIBE_NUMBER > '0' %}
+  version: {{ GIT_DESCRIBE_TAG[1:] }}.post{{ GIT_DESCRIBE_NUMBER }}
+{% else %}
+  version: {{ GIT_DESCRIBE_TAG[1:] }}
+{% endif %}
+
+requirements:
+  build:
+    - nodejs
+
+  run:
+    - nodejs
+
+about:
+  home: https://github.com/Lucaszw/microdrop-3.0
+  license: BSD

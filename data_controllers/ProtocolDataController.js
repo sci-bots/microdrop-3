@@ -159,11 +159,10 @@ class ProtocolDataController extends DataController {
 
     this.trigger("steps-set", this.steps);
     this.trigger("step-number-set", this.stepNumber);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   onDeviceUpdated(payload){
     const protocol = this.protocol;
@@ -199,10 +198,10 @@ class ProtocolDataController extends DataController {
     this.stepNumber = stepNumber + 1;
     this.trigger("steps-set", this.steps);
     this.trigger("step-number-set", this.stepNumber);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   onRouteOptionsUpdated(payload) {
     if (!this.step) return;
@@ -215,9 +214,15 @@ class ProtocolDataController extends DataController {
   onSaveProtocol(payload) {
     const name  = payload;
     const index = this.getProtocolIndexByName(name);
-    this.protocol.name = name;
-    if (index < 0)  this.protocols.push(this.protocol);
-    if (index >= 0) this.protocols[index] = this.protocol;
+
+    if (index < 0) {
+      this.protocol = _.cloneDeep(this.protocol);
+      this.protocol.name = name;
+      this.protocols.push(this.protocol);
+    } else {
+      this.protocols[index] = this.protocol;
+    }
+
     this.trigger("update-protocols", this.protocols);
     this.trigger("update-protocol-skeletons", this.createProtocolSkeletons());
   }
@@ -228,16 +233,16 @@ class ProtocolDataController extends DataController {
     if (index == -1) return;
     this.protocol = this.protocols[index];
     this.stepNumber = 0;
+
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
     this.trigger("steps-set", this.steps);
     this.trigger("step-number-set", this.stepNumber);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("device" in this.protocol)
       this.trigger("update-device", this.protocol["device"])
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   onStart(payload) {
     this.trigger("schema-updated", this.schema);
@@ -270,12 +275,11 @@ class ProtocolDataController extends DataController {
     step[pluginName] = defaults;
     this.step = step;
     this.trigger("steps-set", this.steps);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
 
     // Trigger plugins attached to data controller to update their steps
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   onUpdateStep(payload) {
     const key = payload.key;
@@ -288,11 +292,10 @@ class ProtocolDataController extends DataController {
 
     // Trigger plugins attached to data controller to update their steps
     this.trigger("steps-set", this.steps);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   onUpdateStepNumber(payload) {
     const stepNumber = payload;
@@ -300,11 +303,10 @@ class ProtocolDataController extends DataController {
     console.log(stepNumber);
     this.stepNumber = stepNumber;
     this.trigger("step-number-set", this.stepNumber || 0);
+    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
       this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
-    if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"]);
   }
   // ** Initializers **
   Protocol() {

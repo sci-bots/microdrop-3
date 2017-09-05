@@ -12,8 +12,8 @@ class WebServer extends NodeMqttClient {
   constructor() {
     super("localhost", 1883, "microdrop");
     _.extend(this, this.ExpressServer());
-    this.use(express.static(__dirname+"/mqtt-admin",    {extensions:['html']}));
-    this.use(express.static(__dirname+"/web-ui/public", {extensions:['html']}));
+    this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
+    this.use(express.static(path.join(__dirname,"web-ui/public"), {extensions:['html']}));
     this.plugins = new Set();
   }
   listen() {
@@ -63,5 +63,16 @@ class WebServer extends NodeMqttClient {
   }
 }
 
-const moscaServer = new MoscaServer();
-const webServer = new WebServer();
+const launchMicrodrop = function() {
+  const moscaServer = new MoscaServer();
+  const webServer = new WebServer();
+}
+
+module.exports = {
+  WebServer: WebServer,
+  launchMicrodrop: launchMicrodrop
+};
+
+if (require.main === module) {
+  launchMicrodrop();
+}

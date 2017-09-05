@@ -37,6 +37,9 @@ class UIController extends MQTTClient {
   }
   get electrodeStates() {return this._electrodeStates}
   set electrodeStates(electrodeStates) {
+    console.log("SETTING ELECTRODE STATES:::");
+    console.log(electrodeStates);
+    
     this._electrodeStates = electrodeStates;
     if (this.device) {
       try {

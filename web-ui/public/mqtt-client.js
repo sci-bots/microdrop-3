@@ -61,7 +61,7 @@ class MQTTClient {
   }
   onMessageArrived(msg) {
     const receiver = this.name + " : " + msg.destinationName;
-    console.log(receiver);
+    // console.log(receiver);
 
     const payloadIsValid = IsJsonString(msg.payloadString);
 

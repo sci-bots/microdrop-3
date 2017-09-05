@@ -9,8 +9,6 @@ class ProtocolController extends PluginController {
 
   // ** Listeners **
   listen() {
-    console.log("adding listeners....");
-
     // State Routes (Ties to Data Controllers used by plugin):
     this.addGetRoute("microdrop/put/protocol-controller/state/steps", this.onStepsUpdated.bind(this));
     this.addGetRoute("microdrop/put/protocol-controller/state/step-number", this.onStepNumberUpdated.bind(this));
@@ -105,8 +103,6 @@ class ProtocolController extends PluginController {
 
   onStepsUpdated(payload) {
     const steps = JSON.parse(payload);
-    console.log("!!!STEPS::::");
-    console.log(steps);
     this.updateSteps(steps);
   }
 
@@ -122,8 +118,6 @@ class ProtocolController extends PluginController {
   }
 
   onSchemaUpdated(payload) {
-    console.log("Updating Schema:::");
-    console.log(payload);
     const schemas = JSON.parse(payload);
     this.schemas = schemas;
   }

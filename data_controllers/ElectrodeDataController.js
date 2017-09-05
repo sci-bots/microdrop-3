@@ -149,11 +149,16 @@ class ElectrodeDataController extends DataController {
       this.updateStatesByElectrodeId(id,state || false);
     });
     this.trigger("electrodes-set", this.electrodesAsDataFrame);
+    console.log("SETTING ELECTRODE STATES:::");
+    console.log(_.countBy(_.map(this.electrodes, (e) => {return e.state})));
   }
 
   onUpdateElectrodeOptions (payload) {
     this.clearElectrodes();
-    this.onSetElectrodeStates(payload);
+    console.log("Cleared electrode states:::");
+    console.log(_.countBy(_.map(this.electrodes, (e) => {return e.state})));
+
+    if (payload) this.onSetElectrodeStates(payload);
   }
 }
 

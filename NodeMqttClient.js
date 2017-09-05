@@ -96,6 +96,7 @@ class NodeMqttClient {
   }
   onMessage(topic, buf){
     if (!topic) return;
+
     if (!buf.toString().length) return;
     try {
       const msg = JSON.parse(buf.toString());
