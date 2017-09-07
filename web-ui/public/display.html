@@ -5,10 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <link href="static/bootstrap.min.css" rel="stylesheet" />
   <link href="static/jquery.dataTables.min.css" rel="stylesheet" />
-  <link rel="stylesheet" type="text/css" media="screen" href="property-table.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="phosphor-menus.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="formatPlane.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="index.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="styles/phosphor/index.css" />
   <script type="text/javascript" src="two.min.js"></script>
   <script type="text/javascript" src="libDeviceUIPlugin.js"></script>
   <script type="text/javascript" src="static/jquery.dataTables.min.js"></script>
@@ -21,9 +18,9 @@
   <script type="text/javascript" src="experiment-controller.js"></script>
   <script type="text/javascript" src="protocol-controller.js"></script>
   <script type="text/javascript" src="device-loader.js"></script>
-  <script type="text/javascript" src="ui-controller.js"></script>
+  <!-- <script type="text/javascript" src="ui-controller.js"></script> -->
   <script type="text/javascript" src="protocol-execution-ui.js"></script>
-
+  <style>body{background: rgb(227, 227, 227)}</style>
   <!--Include PhosphorJS bundle-->
   <!--<script type="text/javascript" src="bundle.js"></script>-->
 </head>
@@ -34,97 +31,118 @@
     <div id="Stats-output"></div>
     <svg id="controlHandles"></svg>
   </div>
-
   <script type='text/javascript'>
   let config, data, datatable, deviceView, focusTracker,
-      layout, panel, widgets;
+      layout;
 
   // Disable alert messages in datatables:
   $.fn.dataTable.ext.errMode = 'throw';
+  window.widgets = new Object();
 
-  class DummyPlugin extends MQTTClient {
-    constructor() {
-      super("DummyPlugin");
-      this.listen();
-    }
-    listen() {
-      this.addGetRoute("microdrop/{*}/run-step", this.onRunStep.bind(this));
-      this.addGetRoute("microdrop/{*}/find-executable-plugins", this.onFindExecutablePlugins.bind(this));
-      this.addPostRoute("/executable-plugin-found", "executable-plugin-found");
-      this.addPostRoute("/step-complete", "step-complete");
-    }
-    get channel() {return "microdrop/dummy-plugin"}
-    onFindExecutablePlugins(payload) {
-      this.trigger("executable-plugin-found", null);
-    }
-    onRunStep(payload) {
-      setTimeout(()=>this.trigger("step-complete", null), 100000);
-    }
+  function createDock(title) {
+	    var widget = new PhosphorWidgets.DockPanel();
+      widget.title.className = "dock hidden";
+	    return widget;
+	}
+
+  function setSizes(dockPanel, sizes) {
+  	function rec(splitLayout, [me, ...children]) {
+  		let childLayoutList = splitLayout.children.filter(
+  			(child) => child instanceof splitLayout.constructor
+  		);
+
+  		let childNum = 0;
+  		let num = 0;
+
+  		for(let child of children) {
+  			if(typeof(child) != 'number') {
+  				rec(childLayoutList[childNum++], child);
+  				child = child[0];
+  			}
+  			splitLayout.sizers[num++].sizeHint = child;
+  		}
+
+  		splitLayout.normalized = true;
+  	}
+
+  	rec(dockPanel.layout._root, sizes);
+  	dockPanel.update();
   }
 
+  class ThreeRenderer {
+    static Widget(panel, dock, focusTracker) {
+      const widget = new Widgets.ThreeRendererWidget();
+      widget.title.label = "Device view";
+      widget.title.closable = true;
+      panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+      panel.activateWidget(widget);
+
+      // XXX: Currently typing three with dat hackishly using window variable
+      window.widgets.three = widget;
+    }
+    static position() {
+      /* topLeft, topRight, bottomLeft, or bottomRight */
+      return "topLeft";
+    }
+  }
+  if (!window.microdropPlugins) window.microdropPlugins = new Map();
+  window.microdropPlugins.set("ThreeRenderer", ThreeRenderer);
+
+  class DatGui {
+    static Widget(panel, dock, focusTracker) {
+      const widget = new Widgets.DatGuiWidget({autoPlace: false});
+      widget.title.label = "Options";
+      widget.title.closable = true;
+      panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+      panel.activateWidget(widget);
+
+      // XXX: Currently typing three with dat hackishly using window variable
+      window.widgets.dat = widget;
+    }
+    static position() {
+      /* topLeft, topRight, bottomLeft, or bottomRight */
+      return "bottomLeft";
+    }
+  }
+  if (!window.microdropPlugins) window.microdropPlugins = new Map();
+  window.microdropPlugins.set("DatGui", DatGui);
+
+
   const load = () => {
+    window.box = new PhosphorWidgets.DockPanel();
+    // box.title.label = 'Demo';
+    // box.title.closable = true;
+    box.spacing = 10;
+    const docks = new Object();
+    docks.topLeft     = createDock("top-left");
+    docks.bottomLeft  = createDock("bottom-left");
+    docks.topRight    = createDock("top-right");
+    docks.bottomRight = createDock("bottom-right");
 
-    data = new Object();
-    data.x    = _.range(5);
-    data.y    = _.range(5);
-    data.type = "scatter";
-    data.mode = "markers";
+    box.id = 'main';
+    box.addWidget(docks.topLeft);
+    box.addWidget(docks.bottomLeft, {mode: "split-bottom", ref: docks.topLeft});
+    box.addWidget(docks.bottomRight, {mode: "split-right", ref: docks.bottomLeft});
+    box.addWidget(docks.topRight, {mode: "split-right", ref: docks.topLeft});
 
-    layout = new Object();
-    layout.margin = {l: 40, r: 10, b: 40, t: 10};
-    layout.xaxis  = {title: "time (s)"};
-    layout.yaxis  = {title: "capacitance (F)"};
+    // Set default sizes
+    // Tree structure [parent, left-subtree, right-subtree]
+    // for leafs dont surround in brackets
+    const defaultSize = [1.0, [.70,.67,.33],[.30,.6,.4]];
+    setSizes(box, defaultSize);
+    PhosphorWidget.attach(box, document.body);
 
-    config = new Object();
-    config.showLink = false;
-    config.displaylogo = false;
+    for (const [pluginName,pluginClass] of microdropPlugins) {
+      const dock = docks[pluginClass.position()];
+      pluginClass.Widget(box, dock, focusTracker);
+    }
 
-    widgets = new Object();
-    widgets.dat =  new Widgets.DatGuiWidget({autoPlace: false});
-    widgets.dat.title.text = "Options";
-    widgets.three = new Widgets.ThreeRendererWidget();
-    widgets.three.title.text = "Device view";
-    widgets.electrode = new PhosphorWidget.Widget();
-    widgets.electrode.title.text = "Electrode settings";
-    widgets.plot = new PlotlyWidget({data: data, layout: layout, config: config});
-    widgets.plot.title.text = "Plot";
-    widgets.protocolTable = new PhosphorWidget.Widget();
-    widgets.protocolTable.title.text = "Protocol Table";
-    widgets.experimentView = new PhosphorWidget.Widget();
-    widgets.experimentView.title.text = "Experiments";
-    widgets.deviceLoader = new PhosphorWidget.Widget();
-    widgets.deviceLoader.title.text = "Device Loader";
-    widgets.protocolExecution = new PhosphorWidget.Widget();
-    widgets.protocolExecution.title.text = "Protocol Execution";
-
-    panel = new DockPanel();
-    panel.id = 'main';
-    panel.insertLeft(widgets.three);
-
-    panel.insertBottom(widgets.protocolTable, widgets.three);
-    panel.insertTabAfter(widgets.deviceLoader, widgets.protocolTable);
-    panel.insertTabAfter(widgets.electrode, widgets.deviceLoader);
-    panel.insertTabAfter(widgets.plot, widgets.deviceLoader);
-    panel.insertTabAfter(widgets.dat, widgets.plot);
-    panel.insertRight(widgets.experimentView);
-    panel.insertBottom(widgets.protocolExecution, widgets.experimentView);
-    panel.attach(document.body);
-
-    window.onresize = () => {panel.update()};
-
-    focusTracker = new FocusTracker();
-    // focusTracker.add(widgets.experimentView);
-    _.each(widgets,(w)=>focusTracker.add(w));
-
-    // Initialize Plugins:
     deviceView = new DeviceView(widgets.three, widgets.dat.gui);
-    window.experimentController = new ExperimentController(widgets.experimentView.node, focusTracker);
-    window.protocolcontroller   = new ProtocolController(widgets.protocolTable.node, focusTracker);
-    window.deviceLoader = new DeviceLoader(widgets.deviceLoader.node, focusTracker);
-    window.protocolExecution = new ProtocolExecutionUI(widgets.protocolExecution.node, focusTracker);
-    window.uicontroller = new UIController(deviceView);
 
-    window.dummyPlugin = new DummyPlugin();
+    window.onresize = () => {box.update()};
+    focusTracker = new FocusTracker();
+
+    // _.each(widgets,(w)=>focusTracker.add(w));
   }
 
   $(window).on("load", load);

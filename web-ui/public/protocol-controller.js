@@ -380,4 +380,30 @@ class ProtocolController extends PluginController {
     return dataTable
   }
 
+  // ** Static Methods **
+  static Widget(panel, dock, focusTracker) {
+    /* Add plugin to specified dock panel */
+    const widget = new PhosphorWidgets.TabPanel();
+    const content = D(`
+      <div class='content'
+        style='display:block;padding:10px;width:100%;height:100%'>
+      </div class='card'>
+    `).el;
+    widget.node.appendChild(content);
+    const plugin = new ProtocolController(content,focusTracker);
+    widget.title.label = plugin.name;
+    widget.title.closable = true;
+    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+    panel.activateWidget(widget);
+    return widget;
+  }
+
+  static position() {
+    /* topLeft, topRight, bottomLeft, or bottomRight */
+    return "bottomLeft";
+  }
+
 }
+
+if (!window.microdropPlugins) window.microdropPlugins = new Map();
+window.microdropPlugins.set("ProtocolController", ProtocolController);

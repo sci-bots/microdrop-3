@@ -1265,7 +1265,7 @@ class PlotlyOptions {
 }
 
 
-class PlotlyWidget extends PhosphorWidget.Widget {
+class PlotlyWidget extends PhosphorWidgets.Widget {
   /*
    * Widget containing a single plotly plot.
    */

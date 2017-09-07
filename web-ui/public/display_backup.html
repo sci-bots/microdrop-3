@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link href="static/bootstrap.min.css" rel="stylesheet" />
+  <link href="static/jquery.dataTables.min.css" rel="stylesheet" />
+  <link href="styles/phosphor/index.css" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" media="screen" href="formatPlane.css" />
+  <script type="text/javascript" src="two.min.js"></script>
+  <script type="text/javascript" src="libDeviceUIPlugin.js"></script>
+  <script type="text/javascript" src="static/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="static/mqttws31.min.js"></script>
+  <script type="text/javascript" src="static/js-signals.min.js"></script>
+  <script type="text/javascript" src="static/crossroads.min.js"></script>
+  <script type="text/javascript" src="main.js"></script>
+  <script type="text/javascript" src="mqtt-client.js"></script>
+  <script type="text/javascript" src="plugin-controller.js"></script>
+  <script type="text/javascript" src="experiment-controller.js"></script>
+  <script type="text/javascript" src="protocol-controller.js"></script>
+  <script type="text/javascript" src="device-loader.js"></script>
+  <script type="text/javascript" src="ui-controller.js"></script>
+  <script type="text/javascript" src="protocol-execution-ui.js"></script>
+
+  <!--Include PhosphorJS bundle-->
+  <!--<script type="text/javascript" src="bundle.js"></script>-->
+</head>
+
+<body>
+  <div id="two-canvas" style="position: absolute;"></div>
+  <div id="container">
+    <div id="Stats-output"></div>
+    <svg id="controlHandles"></svg>
+  </div>
+
+  <script type='text/javascript'>
+  let config, data, datatable, deviceView, focusTracker,
+      layout, panel, widgets;
+
+  // Disable alert messages in datatables:
+  $.fn.dataTable.ext.errMode = 'throw';
+
+  class DummyPlugin extends MQTTClient {
+    constructor() {
+      super("DummyPlugin");
+      this.listen();
+    }
+    listen() {
+      this.addGetRoute("microdrop/{*}/run-step", this.onRunStep.bind(this));
+      this.addGetRoute("microdrop/{*}/find-executable-plugins", this.onFindExecutablePlugins.bind(this));
+      this.addPostRoute("/executable-plugin-found", "executable-plugin-found");
+      this.addPostRoute("/step-complete", "step-complete");
+    }
+    get channel() {return "microdrop/dummy-plugin"}
+    onFindExecutablePlugins(payload) {
+      this.trigger("executable-plugin-found", null);
+    }
+    onRunStep(payload) {
+      setTimeout(()=>this.trigger("step-complete", null), 100000);
+    }
+  }
+
+  const load = () => {
+
+    data = new Object();
+    data.x    = _.range(5);
+    data.y    = _.range(5);
+    data.type = "scatter";
+    data.mode = "markers";
+
+    layout = new Object();
+    layout.margin = {l: 40, r: 10, b: 40, t: 10};
+    layout.xaxis  = {title: "time (s)"};
+    layout.yaxis  = {title: "capacitance (F)"};
+
+    config = new Object();
+    config.showLink = false;
+    config.displaylogo = false;
+
+    widgets = new Object();
+    widgets.dat = new Widgets.DatGuiWidget({autoPlace: false});
+    widgets.dat.title.label = "Options";
+    widgets.three = new Widgets.ThreeRendererWidget();
+    widgets.three.title.label = "Device view";
+    widgets.electrode = new PhosphorWidgets.Widget();
+    widgets.electrode.title.label = "Electrode settings";
+    widgets.plot = new PlotlyWidget({data: data, layout: layout, config: config});
+    widgets.plot.title.label = "Plot";
+    widgets.protocolTable = new PhosphorWidgets.Widget();
+    widgets.protocolTable.title.label = "Protocol Table";
+    widgets.experimentView = new PhosphorWidgets.Widget();
+    widgets.experimentView.title.label = "Experiments";
+    widgets.deviceLoader = new PhosphorWidgets.Widget();
+    widgets.deviceLoader.title.label = "Device Loader";
+    widgets.protocolExecution = new PhosphorWidgets.Widget();
+    widgets.protocolExecution.title.label = "Protocol Execution";
+
+    panel = new DockPanel();
+    panel.id = 'main';
+    panel.addWidget(widgets.three, {mode: "split-left"});
+    panel.addWidget(widgets.protocolTable, {mode: "split-bottom", ref: widgets.three});
+    panel.addWidget(widgets.deviceLoader, {mode: "tab-after", ref: widgets.protocolTable});
+    panel.addWidget(widgets.electrode, {mode: "tab-after", ref: widgets.deviceLoader});
+    panel.addWidget(widgets.plot, {mode: "tab-after", ref: widgets.deviceLoader});
+    panel.addWidget(widgets.dat, {mode: "tab-after", ref: widgets.plot});
+    panel.addWidget(widgets.experimentView, {mode: "split-right"});
+    panel.addWidget(widgets.protocolExecution, {mode: "split-bottom", ref: widgets.experimentView});
+    PhosphorWidget.attach(panel, document.body);
+
+    window.onresize = () => {panel.update()};
+
+    focusTracker = new FocusTracker();
+    _.each(widgets,(w)=>focusTracker.add(w));
+
+    // Initialize Plugins:
+    deviceView = new DeviceView(widgets.three, widgets.dat.gui);
+    window.experimentController = new ExperimentController(widgets.experimentView.node, focusTracker);
+    window.protocolcontroller = new ProtocolController(widgets.protocolTable.node, focusTracker);
+    window.deviceLoader = new DeviceLoader(widgets.deviceLoader.node, focusTracker);
+    window.protocolExecution = new ProtocolExecutionUI(widgets.protocolExecution.node, focusTracker);
+    window.uicontroller = new UIController(deviceView);
+
+    // window.dummyPlugin = new DummyPlugin();
+  }
+
+  $(window).on("load", load);
+
+  </script>
+</body>
+</html>

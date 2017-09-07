@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const _ = require('lodash');
-const Backbone = require('backbone');
 const express = require('express');
+const handlebars = require('handlebars');
 
 const MoscaServer  = require('./MoscaServer');
 const NodeMqttClient = require('./NodeMqttClient');
@@ -11,7 +11,7 @@ const NodeMqttClient = require('./NodeMqttClient');
 class WebServer extends NodeMqttClient {
   constructor() {
     super("localhost", 1883, "microdrop");
-    _.extend(this, this.ExpressServer());
+    Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"web-ui/public"), {extensions:['html']}));
     this.plugins = new Set();
@@ -25,10 +25,36 @@ class WebServer extends NodeMqttClient {
     this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
     this._listen(3000);
   }
+  addPlugin(plugin) {
+    this.plugins.add(plugin);
+    this.trigger("set-web-plugins", [...this.plugins]);
+
+    // Generate input data for handlebars template:
+    const pluginPaths = _.map([...this.plugins], (src) => {return {src: src}});
+
+    // Update html file with added / removed plugins:
+    const fileSrc  = path.join(__dirname, "ui/templates/display.hb");
+    const fileDest = path.join(__dirname, "ui/src/html/display.html");
+
+    const file = fs.readFileSync(fileSrc);
+    const template = handlebars.compile(file.toString());
+    const html = template({pluginPaths: pluginPaths});
+    fs.writeFileSync(fileDest, html);
+  }
+  validatePreviousPlugins() {
+    // TODO: Send error to plugin manager if plugin can no longer be found
+    for (const file of this.plugins){
+      const fileExists = fs.existsSync(file);
+      if (!fileExists) this.plugins.delete(file);
+    }
+  }
   onWebPluginsChanged(payload) {
     this.plugins = new Set(payload);
   }
   onAddWebPlugin(payload) {
+    // Validate old plugins (ensure they still exist)
+    this.validatePreviousPlugins();
+
     const file = path.resolve(payload);
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
@@ -40,8 +66,7 @@ class WebServer extends NodeMqttClient {
     if (error) { this.trigger("set-web-plugins-failed", error); return}
 
     // Add plugin to list of web-plugins:
-    this.plugins.add(file);
-    this.trigger("set-web-plugins", [...this.plugins]);
+    this.addPlugin(file);
   }
   onShowIndex(req, res) {
     res.send(

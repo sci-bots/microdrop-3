@@ -22,33 +22,6 @@ body {
 }
 
 
-.content {
-  border: 1px solid black;
-  min-width: 50px;
-  min-height: 50px;
-}
-
-
-.red {
-  background: #E74C3C;
-}
-
-
-.yellow {
-  background: #F1C40F;
-}
-
-
-.green {
-  background: #27AE60;
-}
-
-
-.blue {
-  background: #3498DB;
-}
-
-
 .p-DockTabPanel {
   padding-right: 2px;
   padding-bottom: 2px;
@@ -147,8 +120,8 @@ body {
 
 
 .p-TabBar-tab.p-mod-closable > .p-TabBar-tabCloseIcon:before {
-  content: '\f00d';
-  font-family: FontAwesome;
+  content: '\2716';
+  /*font-family: FontAwesome;*/
 }
 
 
