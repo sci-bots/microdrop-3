@@ -506,7 +506,8 @@ class DeviceUIPlugin {
       this.event_handler.on("set_electrode_state", (kwargs) => {
           let data, message, topic;
 
-          topic = "microdrop/dmf-device-ui/set-electrode-state";
+          topic = "microdrop/put/electrodes-model/electrode-state";
+          // topic = "microdrop/dmf-device-ui/set-electrode-state";
           data  = kwargs;
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
@@ -545,9 +546,9 @@ class DeviceUIPlugin {
 
       this.event_handler.on("clear-electrode-states", () => {
           let data, electrode_ids, message, topic;
-
           electrode_ids = _.keys(this.device.channels_by_electrode_id);
-          topic = "microdrop/dmf-device-ui/set-electrode-states";
+          topic = "microdrop/put/electrodes-model/electrode-states";
+          // topic = "microdrop/dmf-device-ui/set-electrode-states";
           data  = {electrode_states: {index: electrode_ids, values: 0,
                                            index_dtype: "str", dtype: "int",
                                            type: "Series"}};
@@ -601,247 +602,6 @@ class DeviceUIPlugin {
                                      .electrode_bounds[data.electrode_id]
                                      .height}});
       });
-    }
-
-    listen_old(zmq_uri) {
-        this.event_handler = new EventHandler(this.device_view);
-        this.event_handler.listen();
-        Key("escape", {el: this.device_view.three_widget.canvas},
-            () => this.event_handler.abortQueuing());
-
-        // Protocol control keyboard shortcuts
-        Key("shift ; w q enter", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("save_protocol"));
-        Key("shift 1 1", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("save_protocol"));
-        Key("r u n", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("run_protocol"));
-        Key("delete", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("delete_step"));
-        Key("a", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("first_step"));
-        Key("a", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("first_step"));
-        Key("s", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("prev_step"));
-        Key("d", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("next_step"));
-        Key("f", {el: this.device_view.three_widget.canvas},
-            () => this.controlProtocol("last_step"));
-
-        this.event_handler.on("execute-routes", (electrode_id) => {
-            /* Send request to execute routes for the specified electrode (or
-             * all routes if `electrode_id` is `null`) */
-            var request =
-              {"args": ["wheelerlab.droplet_planning_plugin", "execute_routes"],
-               "kwargs": {electrode_id: electrode_id}};
-            this.socket.emit("execute", request);
-        });
-        this.event_handler.on("clear-electrode-states", () => {
-            var electrode_ids = _.keys(this.device.channels_by_electrode_id);
-            var kwargs = {electrode_states: {index: electrode_ids, values: 0,
-                                             index_dtype: "str", dtype: "int",
-                                             type: "Series"}};
-            this.socket.emit("execute",
-                             {args: ['wheelerlab.electrode_controller_plugin',
-                                     'set_electrode_states'], kwargs: kwargs});
-        });
-        this.event_handler.on("clear-routes", (electrode_id) => {
-            /* Send request to clear routes for the specified electrode (or all
-             * routes if `electrode_id` is `null`) */
-            const target = "wheelerlab.droplet_planning_plugin";
-            this.socket.emit("execute", {args: [target, "clear_routes"],
-                                         kwargs: {electrode_id:
-                                                  electrode_id}});
-            // Send request to get updated set of routes to refresh UI.
-            this.socket.emit("execute", {args: [target, "get_routes"],
-                                         kwargs: {}});
-        });
-        this.event_handler.on("execute", (request) => {
-            this.socket.emit("execute", request);
-        });
-        this.event_handler.on("set_electrode_state", (kwargs) => {
-            // Send request to toggle state of clicked electrodes.
-            var request =
-              {"args":
-               ["wheelerlab.electrode_controller_plugin",
-                "set_electrode_state"],
-               "kwargs": kwargs};
-            this.socket.emit("execute", request);
-        });
-        this.event_handler.on("electrode_queue_updated", (electrode_ids) => {
-            if (this.queue_mesh) {
-                this.device_view.three_widget.scene.remove(this.queue_mesh);
-            }
-            var queue_geometry =
-                THREELine2d.Line(this.centerCoordinates(electrode_ids),
-                                 {distances: true});
-            this.queue_mesh = new THREE.Mesh(queue_geometry,
-                                             this.queue_material);
-            this.device_view.three_widget.scene.add(this.queue_mesh);
-        });
-        this.event_handler.on("electrode_queue_finished", (electrode_ids) => {
-            if (this.queue_mesh) {
-                this.device_view.three_widget.scene.remove(this.queue_mesh);
-            }
-            if (!electrode_ids || electrode_ids.length < 0) {
-                return;
-            }
-            // Send request to toggle state of clicked electrodes.
-            var request =
-              {"args":
-               ["wheelerlab.droplet_planning_plugin", "add_route"],
-               "kwargs": {"drop_route": electrode_ids}};
-            this.socket.emit("execute", request);
-        });
-        this.event_handler.on("mouseover", (data) => {
-            const t = _.join(["<dl class=\"Rtable Rtable--2cols Rtable--collapse\">",
-                              "<% _.forEach(properties, (v, k) => { %>  <dt class=\"Rtable-cell Rtable-cell--medium Rtable-cell--1of5\"><strong><%= k %>:</strong></dt>",
-                              "  <dd class=\"Rtable-cell Rtable-cell--4of5\"><%= v %></dd><% }) %>",
-                              "</dl>"], "");
-            const template = _.template(t);
-            widgets.electrode.node.innerHTML =
-                template({properties: {ID: data.electrode_id,
-                                       Channels: _.join(this.device
-                                       .channels_by_electrode_id
-                                       [data.electrode_id], ", "),
-                                       "Area (mm^2)": this.device
-                                       .electrode_areas[data.electrode_id],
-                                       "Width": this.device
-                                       .electrode_bounds[data.electrode_id]
-                                       .width,
-                                       "Height": this.device
-                                       .electrode_bounds[data.electrode_id]
-                                       .height}});
-        });
-        this.event_handler.on("mouseover", (data) => {
-            var circle_mesh = this.device_view.circles[data.electrode_id];
-            if (!circle_mesh.material.visible) {
-              circle_mesh.material.visible = true;
-            }
-        });
-        this.event_handler.on("mouseout", (data) => {
-            widgets.electrode.node.innerHTML = "";
-        });
-        this.event_handler.on("mouseout", (data) => {
-            var circle_mesh = this.device_view.circles[data.electrode_id];
-            if (circle_mesh.material.color ==
-                ThreeHelpers.COLORS["light blue"]) {
-              circle_mesh.material.visible = false;
-            }
-        });
-        this.event_handler.on("set-electrode-channels", (electrode_id) => {
-            this.setElectrodeChannels(electrode_id);
-        });
-
-        this.socket = io.connect(zmq_uri);
-
-        this.refresh_device = () => {
-            this.socket.emit("execute",
-                             {"args": ["wheelerlab.device_info_plugin",
-                                       "get_device"], "kwargs": {}})
-            this.socket.emit("execute",
-                             {"args": ["wheelerlab.command_plugin",
-                                       "get_commands"], "kwargs": {}})
-        }
-        this.device_view.menu.add(this, 'refresh_device');
-
-        this.socket.on('connect', (msg) => this.refresh_device());
-
-        this.socket.on('connect_error', (msg) => this.socket.close());
-
-        this.socket.on('execute_reply', (msg) => {
-            console.log("execute_reply", msg);
-            try {
-                var data = ZmqPlugin.decode_content_data({"content":
-                                                          msg["response"]});
-                if (data) {
-                    // Log execute_reply target, command, and reply data.
-                    _.spread(console.log)(_.concat(msg.request.args, [data]));
-                }
-            } catch(e) {
-                // Write last line of error to console.
-                var error = _.slice(_.split(_.trim(msg.error), "\n"), -1)[0];
-                console.error(error);
-            }
-        });
-
-        this.socket.on('zmq', (msg) => {
-            // A message was received from 0MQ hub subscription.
-            var source = msg.header.source;
-            var target = msg.header.target;
-            var msg_type = msg.header.msg_type;
-
-            var data;
-            try {
-                if ((source == 'wheelerlab.device_info_plugin') &&
-                    (msg_type == 'execute_reply')) {
-                    if (msg.content.command == 'set_electrode_channels') {
-                        data = ZmqPlugin.decode_content_data(msg);
-                        if (data) {
-                            // A plugin updated electrode channel assignments.
-                            // Refresh local device configuration.
-                            this.refresh_device();
-                        }
-                    } else if (msg.content.command == 'get_device') {
-                        // A plugin requested device configuration from device
-                        // info plugin.
-                        data = ZmqPlugin.decode_content_data(msg);
-                        if (data) {
-                            // Refresh local device configuration.
-                            this.setDevice(new Device(data));
-                        }
-                    }
-                } else if ((source == 'wheelerlab.command_plugin') &&
-                           (msg_type == 'execute_reply')) {
-                    if (['get_commands', 'register_command',
-                         'unregister_command']
-                        .indexOf(msg['content']['command']) >= 0) {
-                        /* Registered commands may have changed, so update
-                         * local command registry. */
-                        data = ZmqPlugin.decode_content_data(msg);
-                        this.event_handler.df_commands = new DataFrame(data);
-                    }
-                } else if ((source ==
-                            'wheelerlab.electrode_controller_plugin') &&
-                        (msg_type == 'execute_reply')) {
-                    if (['set_electrode_state', 'set_electrode_states']
-                        .indexOf(msg['content']['command']) >= 0) {
-                        // The state of one or more electrodes has changed.
-                        data = ZmqPlugin.decode_content_data(msg);
-                        var electrode_states = extractElectrodeStates(data);
-                        this.applyElectrodeStates(electrode_states);
-                    } else if (msg['content']['command'] ==
-                               'get_channel_states') {
-                        // A plugin has requested the state of all
-                        // channels/electrodes.
-                        data = ZmqPlugin.decode_content_data(msg);
-                        var electrode_states = extractElectrodeStates(data);
-                        this.applyElectrodeStates(electrode_states);
-                    } else {
-                        console.log('wheelerlab.electrode_controller_plugin',
-                                    data);
-                    }
-                } else if ((source == 'wheelerlab.droplet_planning_plugin')
-                        && (msg_type == 'execute_reply')) {
-                    if (msg['content']['command'] == 'add_route') {
-                        this.socket.emit("execute",
-                                         {"args":
-                                          ["wheelerlab" +
-                                           ".droplet_planning_plugin",
-                                           "get_routes"], "kwargs": {}});
-                    } else if (msg['content']['command'] == 'get_routes') {
-                        data = ZmqPlugin.decode_content_data(msg);
-                        var df_routes = new DataFrame(data);
-                        this.setRoutes(df_routes);
-                    }
-                } else {
-                    this.socket.most_recent = msg;
-                }
-            } catch (e) {
-                console.error('Error processing message from subscription socket.', e);
-            }
-        });
     }
 }
 
@@ -1265,7 +1025,7 @@ class PlotlyOptions {
 }
 
 
-class PlotlyWidget extends PhosphorWidget.Widget {
+class PlotlyWidget extends PhosphorWidgets.Widget {
   /*
    * Widget containing a single plotly plot.
    */

@@ -7,9 +7,9 @@ const crossroads = require('crossroads');
 const level = require('level');
 const mosca = require('mosca');
 
-const DeviceDataController    = require("./data_controllers/DeviceDataController");
-const ElectrodeDataController = require('./data_controllers/ElectrodeDataController');
-const ProtocolDataController  = require('./data_controllers/ProtocolDataController');
+const DeviceModel    = require("./data_controllers/DeviceModel");
+const ElectrodesModel = require('./data_controllers/ElectrodesModel');
+const ProtocolModel  = require('./data_controllers/ProtocolModel');
 const RoutesDataController    = require('./data_controllers/RoutesDataController');
 
 class MoscaServer {
@@ -139,10 +139,10 @@ class MoscaServer {
     console.log('Mosca server is up and running on port: ' + this.settings.port +
                  ' and http port: ' + this.settings.http.port);
 
-    this.deviceDataController    = new DeviceDataController();
-    this.electrodeDataController = new ElectrodeDataController();
+    this.deviceModel     = new DeviceModel();
+    this.electrodesModel = new ElectrodesModel();
     this.routesDataController    = new RoutesDataController();
-    this.protocolDataController  = new ProtocolDataController();
+    this.protocolModel   = new ProtocolModel();
   }
 
   onExit(options, err) {

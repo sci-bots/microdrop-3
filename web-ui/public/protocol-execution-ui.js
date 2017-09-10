@@ -18,17 +18,20 @@ class ProtocolExecutionUI extends PluginController {
     this.on("stop-experiment", this.onStopExperiment.bind(this));
     this.executablePlugins.on("all", this.onExecutablePluginsUpdated.bind(this));
 
-    this.addGetRoute("microdrop/put/protocol-controller/state/steps", this.onStepsUpdated.bind(this));
-    this.addGetRoute("microdrop/put/protocol-controller/state/step-number", this.onStepNumberUpdated.bind(this));
-    this.addGetRoute("microdrop/{pluginName}/executable-plugin-found", this.onExecutablePluginFound.bind(this));
-    this.addGetRoute("microdrop/{pluginName}/step-complete", this.onStepComplete.bind(this));
+    this.onStateMsg("protocol-model", "steps", this.onStepsUpdated.bind(this));
+    this.onStateMsg("protocol-model", "step-number", this.onStepNumberUpdated.bind(this));
+    this.onSignalMsg("{plugin}", "executable-plugin-found", this.onExecutablePluginFound.bind(this));
+    this.onSignalMsg("{plugin}", "step-complete", this.onStepComplete.bind(this));
 
-    this.addPostRoute("/find-executable-plugins", "find-executable-plugins");
-    this.addPostRoute("/update-step-number", "update-step-number");
-    this.addPostRoute("/run-step", "run-step");
+    this.bindPutMsg("protocol-model", "step-number", "update-step-number");
+    this.bindSignalMsg("find-executable-plugins", "find-executable-plugins");
+    this.bindSignalMsg("run-step", "run-step");
+
   }
   // ** Getters and Setters **
   get channel() {return  "microdrop/protocol-execution-ui"};
+  get name() {return "protocol-execution-ui"}
+
   get controls() {return this._controls}
   set controls(controls) {
     if (this.controls) this.element.removeChild(this.controls);
@@ -141,23 +144,6 @@ class ProtocolExecutionUI extends PluginController {
   }
 
   // ** Static Methods **
-  static Widget(panel, dock, focusTracker) {
-    /* Add plugin to specified dock panel */
-    const widget = new PhosphorWidgets.TabPanel();
-    const content = D(`
-      <div class='content'
-        style='display:block;padding:10px;width:100%;height:100%'>
-      </div class='card'>
-    `).el;
-    widget.node.appendChild(content);
-    const plugin = new this(content,focusTracker);
-    widget.title.label = plugin.name;
-    widget.title.closable = true;
-    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
-    panel.activateWidget(widget);
-    return widget;
-  }
-
   static position() {
     /* topLeft, topRight, bottomLeft, or bottomRight */
     return "bottomRight";

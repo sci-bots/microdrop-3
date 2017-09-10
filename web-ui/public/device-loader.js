@@ -5,7 +5,8 @@ class DeviceLoader extends PluginController {
     this.listen();
   }
   listen() {
-    this.addPostRoute("/load-device", "send-file", false);
+    this.bindTriggerMsg("device-model", "load-device", "send-file");
+    // this.addPostRoute("/load-device", "send-file", false);
     this.on("open-file-upload", this.onOpenFileUpload.bind(this));
     this.on("load-file", this.onLoadFile.bind(this));
   }
@@ -38,4 +39,13 @@ class DeviceLoader extends PluginController {
     container.appendChild(uploadButton.el);
     return container;
   }
+
+  // ** Static Methods **
+  static position() {
+    /* topLeft, topRight, bottomLeft, or bottomRight */
+    return "bottomLeft";
+  }
 }
+
+if (!window.microdropPlugins) window.microdropPlugins = new Map();
+window.microdropPlugins.set("DeviceLoader", DeviceLoader);

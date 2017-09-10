@@ -15,7 +15,7 @@ class PluginController extends MQTTClient {
    _onDelete(){
      if (this.hasFocus) this.trigger("delete");
    }
-   
+
   // ** Getters and Setters **
   set element(element) {
     // XXX: Must set tabIndex property for FocusTracker to work
@@ -30,4 +30,24 @@ class PluginController extends MQTTClient {
   get hasFocus() {
     return this.element == this.focusTracker.currentWidget.node;
   }
+
+  // ** Static Methods **
+  static Widget(panel, dock, focusTracker) {
+    /* Add plugin to specified dock panel */
+    const widget = new PhosphorWidgets.Widget();
+    widget.addClass("content");
+    const plugin = new this(widget.node,focusTracker);
+    widget.title.label = plugin.name;
+    widget.title.closable = true;
+    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+    panel.activateWidget(widget);
+    focusTracker.add(widget);
+    return widget;
+  }
+
+  static position() {
+    /* topLeft, topRight, bottomLeft, or bottomRight */
+    return "topLeft";
+  }
+
 };

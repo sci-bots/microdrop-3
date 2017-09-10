@@ -13,7 +13,7 @@ class WebServer extends NodeMqttClient {
     super("localhost", 1883, "microdrop");
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
-    this.use(express.static(path.join(__dirname,"web-ui/public"), {extensions:['html']}));
+    this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
     this.plugins = new Set();
   }
   listen() {
@@ -29,12 +29,20 @@ class WebServer extends NodeMqttClient {
     this.plugins.add(plugin);
     this.trigger("set-web-plugins", [...this.plugins]);
 
+    // Serve directory containing file:
+    this.use(express.static(path.dirname(plugin), {extensions:['html']}));
+
+    // Re-generate display template
+    this.generateDisplayTemplate();
+  }
+  generateDisplayTemplate() {
     // Generate input data for handlebars template:
-    const pluginPaths = _.map([...this.plugins], (src) => {return {src: src}});
+    const pluginPaths = _.map([...this.plugins], (src) => {
+      return {src: path.basename(src)}});
 
     // Update html file with added / removed plugins:
     const fileSrc  = path.join(__dirname, "ui/templates/display.hb");
-    const fileDest = path.join(__dirname, "ui/src/html/display.html");
+    const fileDest = path.join(__dirname, "ui/src/display.html");
 
     const file = fs.readFileSync(fileSrc);
     const template = handlebars.compile(file.toString());
@@ -50,6 +58,10 @@ class WebServer extends NodeMqttClient {
   }
   onWebPluginsChanged(payload) {
     this.plugins = new Set(payload);
+    for (const filepath of this.plugins) {
+      this.use(express.static(path.dirname(filepath), {extensions:['html']}));
+    }
+    generateDisplayTemplate();
   }
   onAddWebPlugin(payload) {
     // Validate old plugins (ensure they still exist)

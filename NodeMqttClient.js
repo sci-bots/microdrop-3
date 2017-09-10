@@ -3,6 +3,8 @@ const crossroads = require('crossroads');
 const Backbone = require('backbone');
 const mqtt = require('mqtt')
 
+const MQTTMessages = require('./ui/src/mqtt-messages');
+
 function resolveTarget(target){
   // TODO: allow for local, and absolute target paths
   // i.e. /execute => microdrop/plugin/execute
@@ -15,6 +17,7 @@ class NodeMqttClient {
   constructor(host="localhost", port=1883, base="microdrop") {
     _.extend(this, Backbone.Events);
     _.extend(this, crossroads.create());
+    _.extend(this, MQTTMessages);
 
     this.base = base;
     this.port = port;
@@ -27,8 +30,9 @@ class NodeMqttClient {
   listen() {
     console.error(`No listen method implemented for ${this.name}`);
   }
-  get name() {return this.constructor.name}
-
+  get name() {
+    return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
+  }
   // ** Methods **
   addGetRoute(topic, method) {
     /*
@@ -96,7 +100,6 @@ class NodeMqttClient {
   }
   onMessage(topic, buf){
     if (!topic) return;
-
     if (!buf.toString().length) return;
     try {
       const msg = JSON.parse(buf.toString());
@@ -104,6 +107,7 @@ class NodeMqttClient {
     } catch (e) {
       console.error("Could not parse the following message:");
       console.log(buf.toString());
+      console.log(e);
     }
   }
   // ** Initializers **
