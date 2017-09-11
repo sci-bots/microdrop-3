@@ -102,6 +102,7 @@ All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that co
     header.plugin_name = this.name;
     header.plugin_version = this.version;
     // TODO: header.microdrop_version = this.microdrop_version
+    return header;
   }
 ```
 ```javascript
