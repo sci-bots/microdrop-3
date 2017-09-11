@@ -31,6 +31,7 @@ class UIPlugin extends MQTTClient {
     const header = new Object();
     header.plugin_name = this.name;
     header.plugin_version = this.version;
+    return header;
   }
 
   // ** Static Methods **
