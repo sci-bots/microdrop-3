@@ -7,7 +7,7 @@ However, you are free to use
 or
 [ui-plugin.js (which inherits from mqtt-client.js)](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/ui-plugin.js) as parents for you UI Plugins.
 
-An API for the various core microdrop plugins is coming soon, but in the meantime the various messaging topics for each protocol can be found through investiating the plugin's source which using [mqtt-messages.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/mqtt-messages.js) as reference.
+An API for the various core microdrop plugins is coming soon, but in the meantime the various messaging topics for each protocol can be found through investigating the plugin's source and [mqtt-messages.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/mqtt-messages.js) as reference.
 
 Plugins should be ES6 classes, and accept a dom node (elem), and a PhosphorJS FocusTracker object:
 ```javascript
@@ -30,6 +30,21 @@ topLeft, topRight, bottomLeft, or bottomRight. This will determine where the plu
   static position() {
     /* topLeft, topRight, bottomLeft, or bottomRight */
     return "bottomLeft";
+  }
+```
+
+## PhosphorJS Widget
+
+The plugin class must contain a static method called Widget that returns a PhosphorWidget object. This is already included if your plugin inherits from [ui-plugin.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/ui-plugin.js)
+
+```javascript
+  static Widget(panel, dock, focusTracker) {
+    /* Add plugin to specified dock panel */
+    const widget = new PhosphorWidgets.Widget();
+    ...
+    panel.activateWidget(widget);
+    focusTracker.add(widget);
+    return widget;
   }
 ```
 
@@ -77,6 +92,70 @@ If you are inheriting from MQTTClient or UI Plugin then these topics are wrapped
   }
 ```
 
+## Message Payload
+
+All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that contains the plugin name, plugin version, and (TODO: microdrop version). This is to ensure compatibility of plugins across plugin and microdrop versions. 
+
+```javascript
+  DefaultHeader() {
+    const header = new Object();
+    header.plugin_name = this.name;
+    header.plugin_version = this.version;
+    // TODO: header.microdrop_version = this.microdrop_version
+  }
+```
+```javascript
+  wrapData(key, value) {
+    """ Sample method for wrapping __head__ key around message payload"""
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
+  
+  ...
+  
+  this.trigger("put-some-propert", this.wrapData("keyname",some_property));
+  
+```
+
+## DOM Node
+
+The plugin launcher will pass in the dom node as the first input to the constructor. To render your plugin, add child element nodes.
+
+```javascript
+class SamplePlugin extends UIPlugin {
+  constructor(elem, focusTracker) {
+    super(elem, focusTracker, "SamplePlugin");
+    this.ui = this.UI();
+    ...
+  }
+  get ui() {return this._ui}
+  set ui(ui) {
+    if (this.ui) this.element.removeChild(this.ui);
+    if (ui) this.element.appendChild(ui);
+    this._ui = ui;
+  }
+  ...
+  UI() {
+    // Textfield:
+    const node = $("<b>Hello World</b>")[0];
+    return node;
+  }
+```
+
+## Global Map Object
+
+Finally the plugin must be added to a global map called microdropPlugins
+
+```javascript
+if (!window.microdropPlugins) window.microdropPlugins = new Map();
+window.microdropPlugins.set("SamplePlugin", SamplePlugin);
+```
+
 ## Sample Web Plugin Skeleton:
 ```javascript
 class SamplePlugin extends UIPlugin {
@@ -98,9 +177,12 @@ class SamplePlugin extends UIPlugin {
     this.trigger("put-some-propert", this.wrapData("keyname",some_property));
   }
   wrapData(key, value) {
-    const msg = new Object();
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
     msg.__head__ = this.DefaultHeader();
-    msg[key] = value;
     return msg;
   }
   get ui() {return this._ui}
