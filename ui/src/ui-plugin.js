@@ -1,4 +1,4 @@
-class PluginController extends MQTTClient {
+class UIPlugin extends MQTTClient {
   constructor(element, focusTracker, name="dmf-device-ui") {
     super(name);
     this.element = element;
@@ -22,13 +22,15 @@ class PluginController extends MQTTClient {
     element.tabIndex = 0;
     this._element = element;
   }
+  get element() {return this._element}
+  get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
+  get version() {return "0.0"}
 
-  get element() {
-    return this._element;
-  }
-
-  get hasFocus() {
-    return this.element == this.focusTracker.currentWidget.node;
+  // ** Initializers **
+  DefaultHeader() {
+    const header = new Object();
+    header.plugin_name = this.name;
+    header.plugin_version = this.version;
   }
 
   // ** Static Methods **

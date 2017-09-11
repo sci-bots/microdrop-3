@@ -1,8 +1,8 @@
 const _ = require('lodash');
 
-const DataController = require('./DataController');
+const PluginModel = require('./PluginModel');
 
-class ProtocolModel extends DataController {
+class ProtocolModel extends PluginModel {
   constructor() {
     super();
     this.protocols  = new Array();
@@ -11,24 +11,27 @@ class ProtocolModel extends DataController {
 
   // ** Event Listeners **
   listen() {
+    // Persistent Messages:
+    this.onStateMsg("protocol-model", "protocols", this.onProtocolsSet.bind(this));
+    this.onStateMsg("electrodes-model", "electrodes", this.onElectrodesUpdated.bind(this));
+    this.onStateMsg("electrodes-model", "channels", this.onElectrodeChannelsUpdated.bind(this));
+    this.onStateMsg("device-model", "device", this.onDeviceUpdated.bind(this));
 
     // Protocol
+    this.onNotifyMsg("request-protocol-export", this.onExportProtocolRequested.bind(this));
     this.onTriggerMsg("new-protocol", this.onNewProtocol.bind(this));
     this.onTriggerMsg("save-protocol", this.onSaveProtocol.bind(this));
     this.onTriggerMsg("change-protocol", this.onSetProtocol.bind(this));
     this.onTriggerMsg("delete-protocol", this.onDeleteProtocol.bind(this));
     this.onTriggerMsg("upload-protocol", this.onUploadProtocol.bind(this));
-    this.onNotifyMsg("request-protocol-export", this.onExportProtocolRequested.bind(this));
 
-    this.bindTriggerMsg("experiment-controller", "send-protocol", "send-protocol");
+    this.bindTriggerMsg("experiment-ui", "send-protocol", "send-protocol");
     this.bindStateMsg("protocol-skeleton", "protocol-skeleton-set");
     this.bindStateMsg("protocol-skeletons", "protocol-skeletons-set");
-
-    this.addRoute("microdrop/{*}/protocols", this.onGetProtocols.bind(this));
-    this.addPostRoute("/protocols","update-protocols", true);
+    this.bindStateMsg("protocols", "protocols-set");
 
     // Schema:
-    this.addRoute("microdrop/{pluginName}/update-schema", this.onUpdateSchema.bind(this));
+    this.onSignalMsg("{pluginName}", "update-schema", this.onUpdateSchema.bind(this));
     this.bindStateMsg("schema", "schema-set");
 
     // Steps:
@@ -36,28 +39,17 @@ class ProtocolModel extends DataController {
     this.onTriggerMsg("update-step", this.onUpdateStep.bind(this));
     this.onTriggerMsg("delete-step", this.onDeleteStep.bind(this));
     this.onTriggerMsg("insert-step", this.onInsertStep.bind(this));
-
     this.bindStateMsg("step-number", "step-number-set");
     this.bindStateMsg("steps", "steps-set");
 
-    this.addRoute("microdrop/dmf-device-ui/delete-step", this.onDeleteStep.bind(this));
-    this.addRoute("microdrop/dmf-device-ui/insert-step", this.onInsertStep.bind(this));
-
-    this.addPutRoute("protocol-controller", "steps", "steps-set");
-    this.addPutRoute("mqtt-plugin", "steps", "steps-set");
-    this.addPutRoute("mqtt-plugin", "step-number", "step-number-set");
-    this.addPutRoute("protocol-controller", "step-number", "step-number-set");
-
-    // Route Options:
-    this.addRoute("microdrop/put/data-controller/state/route-options", this.onRouteOptionsUpdated.bind(this));
-    this.addPostRoute("/route-options", "update-route-options", true);
+    // Routes:
+    this.onPutMsg("route-options", this.onRouteOptionsUpdated.bind(this));
+    this.bindPutMsg("routes-model", "route-options", "put-route-options");
 
     // Electrodes:
-    this.onStateMsg("electrodes-model", "electrodes", this.onElectrodesUpdated.bind(this));
-    this.onStateMsg("electrodes-model", "channels", this.onElectrodeChannelsUpdated.bind(this));
-    this.addPostRoute("/electrode-options", "update-electrode-options", true);
+    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
 
-    this.onStateMsg("device-model", "device", this.onDeviceUpdated.bind(this));
+    // Device:
     this.bindPutMsg("device-model", "device", "put-device");
   }
 
@@ -116,10 +108,10 @@ class ProtocolModel extends DataController {
     this.protocol = this.Protocol();
     this.protocols.push(this.protocol);
     this.stepNumber = 0;
-    this.trigger("update-protocols", this.protocols);
+    this.trigger("protocols-set", this.protocols);
     this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
     this.trigger("steps-set", this.steps);
-    this.trigger("step-number-set", this.stepNumber);
+    this.trigger("step-number-set", this.wrapData("stepNumber", this.stepNumber));
   }
 
   createProtocolSkeletons() {
@@ -132,7 +124,7 @@ class ProtocolModel extends DataController {
 
   deleteProtocolAtIndex(index) {
     this.protocols.splice(index, 1);
-    this.trigger("update-protocols", this.protocols);
+    this.trigger("protocols-set", this.protocols);
     this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
   }
 
@@ -149,16 +141,23 @@ class ProtocolModel extends DataController {
     }
     return steps;
   }
-
-
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
   // ** Event Handlers **
   onDeleteProtocol(payload) {
-    const protocol = payload;
+    const protocol = payload.protocol;
     const index = this.getProtocolIndexByName(protocol.name);
     this.deleteProtocolAtIndex(index);
   }
   onDeleteStep(payload) {
-    const prevStepNumber = payload;
+    const prevStepNumber = payload.stepNumber;
     let nextStepNumber;
     if (prevStepNumber == 0) nextStepNumber = 0;
     if (prevStepNumber != 0) nextStepNumber = prevStepNumber - 1;
@@ -168,12 +167,12 @@ class ProtocolModel extends DataController {
     this.steps = steps;
     this.stepNumber = nextStepNumber;
 
-    this.trigger("steps-set", this.steps);
-    this.trigger("step-number-set", this.stepNumber);
-    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+    this.trigger("steps-set", this.wrapData(null, this.steps));
+    this.trigger("step-number-set", this.wrapData("stepNumber", this.stepNumber));
+    this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onDeviceUpdated(payload){
     const protocol = this.protocol;
@@ -202,28 +201,29 @@ class ProtocolModel extends DataController {
     this.step = step;
   }
   onExportProtocolRequested(payload) {
+    console.log("Export protocol is requested...");
     const protocol = this.protocol;
     const str = protocol;
     this.trigger("send-protocol", str);
   }
-  onGetProtocols(payload) {
+  onProtocolsSet(payload) {
     if (!_.isArray(payload)) return;
     this.protocols = payload;
   }
   onInsertStep(payload) {
-    // payload: {stepNumber}
-    const stepNumber = payload;
+    // payload: {stepNumber: ...}
+    const stepNumber = payload.stepNumber;
     const steps = this.steps;
     const step = _.cloneDeep(this.step);
     steps.splice(stepNumber, 0, step);
     this.steps = steps;
     this.stepNumber = stepNumber + 1;
     this.trigger("steps-set", this.steps);
-    this.trigger("step-number-set", this.stepNumber);
-    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+    this.trigger("step-number-set", this.wrapData("stepNumber",this.stepNumber));
+    this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onNewProtocol(payload) {
     // Create a blank protocol from the schema
@@ -238,8 +238,9 @@ class ProtocolModel extends DataController {
     this.step = step;
   }
   onSaveProtocol(payload) {
-    const name  = payload;
+    const name  = payload.name;
     const index = this.getProtocolIndexByName(name);
+
     if (index < 0) {
       this.protocol = _.cloneDeep(this.protocol);
       this.protocol.name = name;
@@ -248,12 +249,12 @@ class ProtocolModel extends DataController {
       this.protocols[index] = this.protocol;
     }
 
-    this.trigger("update-protocols", this.protocols);
+    this.trigger("protocols-set", this.protocols);
     this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
   }
   onSetProtocol(payload) {
     // Set the active / loaded protocol in the data controller
-    const name = payload;
+    const name = payload.name;
     const index = this.getProtocolIndexByName(name);
     if (index == -1) return;
 
@@ -263,22 +264,22 @@ class ProtocolModel extends DataController {
 
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
     this.trigger("steps-set", this.steps);
-    this.trigger("step-number-set", this.stepNumber);
+    this.trigger("step-number-set", this.wrapData("stepNumber", this.stepNumber));
 
     if ("electrode-data-controller" in this.step)
-      this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+      this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
     if ("device" in this.protocol)
       this.trigger("put-device", this.protocol["device"])
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onStart(payload) {
     this.trigger("schema-set", this.schema);
   }
   onUploadProtocol(payload) {
-    const protocol = payload;
+    const protocol = payload.protocol;
     this.protocols.push(protocol);
-    this.trigger("update-protocols", this.protocols);
+    this.trigger("protocols-set", this.protocols);
     this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
   }
   onUpdateSchema(payload, pluginName) {
@@ -293,16 +294,19 @@ class ProtocolModel extends DataController {
     step[pluginName] = defaults;
     this.step = step;
     this.trigger("steps-set", this.steps);
-    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+    this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
 
     // Trigger plugins attached to data controller to update their steps
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onUpdateStep(payload) {
-    const key = payload.key;
-    const val = payload.val;
-    const stepNumber = payload.stepNumber;
+    console.log("UPDATING STEP:::")
+    console.log(payload);
+    const data = payload.data;
+    const key = data.key;
+    const val = data.val;
+    const stepNumber = data.stepNumber;
     if (!this.steps) this.createNewProtocol();
 
     // XXX: Attributes distributed accross many plugins (so traverse all of them)
@@ -310,19 +314,19 @@ class ProtocolModel extends DataController {
 
     // Trigger plugins attached to data controller to update their steps
     this.trigger("steps-set", this.steps);
-    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+    this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onUpdateStepNumber(payload) {
-    const stepNumber = payload;
+    const stepNumber = payload.stepNumber;
     this.stepNumber = stepNumber;
-    this.trigger("step-number-set", this.stepNumber || 0);
-    this.trigger("update-electrode-options", this.step["electrode-data-controller"] || false);
+    this.trigger("step-number-set", this.wrapData("stepNumber", this.stepNumber || 0));
+    this.trigger("put-electrode-options", this.step["electrode-data-controller"] || false);
 
     if ("droplet-planning-plugin" in this.step)
-      this.trigger("update-route-options", this.step["droplet-planning-plugin"]);
+      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   // ** Initializers **
   Protocol() {

@@ -1,25 +1,24 @@
 const _ = require('lodash');
 
-const DataController = require('./DataController');
+const PluginModel = require('./PluginModel');
 
-class RoutesDataController extends DataController {
+class RoutesModel extends PluginModel {
   constructor() {
     super();
   }
 
   // ** Event Listeners **
   listen() {
-    this.addRoute("microdrop/droplet-planning-plugin/routes",  this.onRoutesUpdated.bind(this));
-    this.addRoute("microdrop/data-controller/route-options", this.onUpdateRouteOptions.bind(this));
+    this.onPutMsg("route-options", this.onUpdateRouteOptions.bind(this));
+    this.onPutMsg("routes", this.onRoutesUpdated.bind(this));
+    this.bindPutMsg("protocol-model", "route-options", "put-route-options");
+    this.bindPutMsg("ui-controller", "routes", "put-routes");
 
-    this.addPutRoute("data-controller", "route-options", "route-options-set");
-    this.addPutRoute("droplet-planning-plugin", "routes","routes-set");
-    this.addPutRoute("dmf-device-ui", "routes", "routes-set");
-
-    this.addPutRoute("droplet-planning-plugin", "route-repeats", "route-repeats-set");
-    this.addPutRoute("droplet-planning-plugin", "repeat-duration-s", "repeat-duration-s-set");
-    this.addPutRoute("droplet-planning-plugin", "trail-length", "trail-length-set");
-    this.addPutRoute("droplet-planning-plugin", "transition-duration-ms", "transition-duration-ms-set");
+    this.bindPutMsg("droplet_planning_plugin", "routes", "put-routes");
+    this.bindPutMsg("droplet_planning_plugin", "route-repeats", "put-route-repeats");
+    this.bindPutMsg("droplet_planning_plugin", "repeat-duration-s", "put-repeat-duration");
+    this.bindPutMsg("droplet_planning_plugin", "trail-length", "put-trail-length");
+    this.bindPutMsg("droplet_planning_plugin", "transition-duration-ms", "put-transition-duration-ms");
   }
 
   // ** Getters and Setters **
@@ -47,14 +46,18 @@ class RoutesDataController extends DataController {
   }
   set repeatDurationSeconds(repeatDurationSeconds) {
     this._repeatDurationSeconds = repeatDurationSeconds;
-    this.trigger("repeat-duration-s-set", this.repeatDurationSeconds);
+    this.trigger("put-repeat-duration-s",
+      this.wrapData("repeatDurationSeconds", this.repeatDurationSeconds)
+    );
   }
   get routeRepeats() {
     return this._routeRepeats;
   }
   set routeRepeats(routeRepeats) {
     this._routeRepeats = routeRepeats;
-    this.trigger("route-repeats-set", this.routeRepeats);
+    this.trigger("put-route-repeats",
+      this.wrapData("routeRepeats", this.routeRepeats)
+    );
   }
   get stepNumber() {
     return this._stepNumber;
@@ -67,14 +70,18 @@ class RoutesDataController extends DataController {
   }
   set transitionDurationMilliseconds(transitionDurationMilliseconds) {
     this._transitionDurationMilliseconds = transitionDurationMilliseconds;
-    this.trigger("transition-duration-ms-set", this.transitionDurationMilliseconds);
+    this.trigger("put-transition-duration-ms",
+      this.wrapData("transitionDurationMilliseconds",
+                    this.transitionDurationMilliseconds)
+    );
   }
   get trailLength() {
     return this._trailLength;
   }
   set trailLength(trailLength) {
     this._trailLength = trailLength;
-    this.trigger("trail-length-set", this.trailLength);
+    this.trigger("put-trail-length",
+                 this.wrapData("trailLength",this.trailLength));
   }
 
   // ** Methods **
@@ -87,12 +94,20 @@ class RoutesDataController extends DataController {
     if ("repeat_duration_s" in d) this.repeatDurationSeconds = d.repeat_duration_s;
     if ("route_repeats" in d) this.routeRepeats = d.route_repeats;
   }
-
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
   // ** Event Handlers **
   onRoutesUpdated(payload) {
     this.dropRoutes = payload;
-    this.trigger("route-options-set", this.state);
-    this.trigger("routes-set", this.dropRoutes);
+    this.trigger("put-route-options", this.wrapData(null, this.state));
+    this.trigger("put-routes", this.wrapData(null, this.dropRoutes));
   }
 
   onStepSwapped(payload) {
@@ -105,9 +120,9 @@ class RoutesDataController extends DataController {
 
   onUpdateRouteOptions(payload) {
     this.updateDropletPlanningPlugin(payload);
-    this.trigger("routes-set", this.dropRoutes);
+    this.trigger("put-routes", this.wrapData(null, this.dropRoutes));
   }
 
 }
 
-module.exports = RoutesDataController;
+module.exports = RoutesModel;

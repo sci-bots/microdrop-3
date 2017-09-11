@@ -33,53 +33,29 @@ class NodeMqttClient {
   get name() {
     return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
   }
+  get version() {return "0.0"}
+
   // ** Methods **
   addGetRoute(topic, method) {
-    /*
-        Add route and mqtt subscription
-        topic: mqtt topic <str>
-        state: name of state variable to update <str>
-    */
     this.addRoute(topic, method);
     // Replace content within curly brackets with "+" wildcard
     this.subscriptions.push(topic.replace(/\{(.+?)\}/g, "+"));
   }
   addPostRoute(topic, event, retain=false, qos=0, dup=false){
-    /*
-        General endpoint used for publishing
-        topic: tail of mqtt topic <str>
-        event: event name <str>
-    */
     // TODO: Depricate channel (instead use base/plugin)
     topic = resolveTarget(topic);
     this.on(event, (d) => this.sendMessage(this.channel+topic, d, retain, qos, dup));
   }
   addPutRoute(plugin, state, event, retain=true, qos=0, dup=false){
-    /*
-        Request plugin to update state variable
-        plugin: name of pluggin to update <str>
-        state: name of state variable to update <str>
-        event: name of event that triggers publish <str>
-    */
     const channel = `${this.base}/put/${plugin}/state/${state}`;
     this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
   }
   addStateErrorRoute(state, event, retain=true, qos=0, dup=false){
-    /*
-        Publish to when failed to update state
-        state: state name <str>
-        event: event name <str>
-    */
     state = resolveTarget(state);
     const channel = `${this.base}/state/error${state}`;
     this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
   }
   addStateRoute(state, event, retain=true, qos=0, dup=false){
-    /*
-        Use state routes after validating output of "put"
-        state: state name <str>
-        event: event name <str>
-    */
     state = resolveTarget(state);
     const channel = `${this.base}/state${state}`;
     this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));

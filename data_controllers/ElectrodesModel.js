@@ -2,12 +2,12 @@ const _ = require('lodash');
 const _fp = require('lodash/fp');
 const { DataFrame } = require("pandas-helpers");
 
-const DataController = require('./DataController');
+const PluginModel = require('./PluginModel');
 
 const extractElectrodeStates = _fp.flow(_fp.at(["electrode_states.index",
   "electrode_states.values"]),_fp.spread(_.zipObject));
 
-class ElectrodesModel extends DataController {
+class ElectrodesModel extends PluginModel {
   constructor () {
     super();
     this.electrodes = new Object();
@@ -15,14 +15,13 @@ class ElectrodesModel extends DataController {
 
   // ** Event Listeners **
   listen () {
-    this.bindStateMsg("electrodes", "electrodes-set");
-    this.bindStateMsg("channels", "channels-set");
-
-    this.addRoute("microdrop/data-controller/electrode-options", this.onUpdateElectrodeOptions.bind(this));
-
+    this.onPutMsg("electrode-options", this.onUpdateElectrodeOptions.bind(this));
     this.onPutMsg("electrode-state", this.onSetElectrodeState.bind(this));
     this.onPutMsg("electrode-states", this.onSetElectrodeStates.bind(this));
     this.onStateMsg("device-model", "device", this.onDeviceSwapped.bind(this));
+
+    this.bindStateMsg("electrodes", "electrodes-set");
+    this.bindStateMsg("channels", "channels-set");
   }
 
   // ** Methods **
@@ -46,7 +45,7 @@ class ElectrodesModel extends DataController {
     const channelsByElectrodeID = this.channelsByElectrodeID(electrodeChannelsDataFrame);
     const electrodeIds   = _.keys(channelsByElectrodeID);
 
-    this.trigger("channels-set", channels);
+    this.trigger("channels-set", this.wrapData(null,channels));
     // For each electrode, store the channel, id , and state (off by default)
 
     this.channels = new Object();
@@ -81,6 +80,16 @@ class ElectrodesModel extends DataController {
       if (visitedMap[id]) return;
       this.updateStatesByElectrodeId(id, state, visitedMap);
     });
+  }
+
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
   }
 
   // ** Getters and Setters **
@@ -139,7 +148,8 @@ class ElectrodesModel extends DataController {
     const id = payload.electrode_id;
     const state = payload.state;
     this.updateStatesByElectrodeId(id,state);
-    this.trigger("electrodes-set", this.electrodesAsDataFrame);
+    this.trigger("electrodes-set",
+                 this.wrapData(null, this.electrodesAsDataFrame));
   }
 
   onSetElectrodeStates (payload) {
@@ -149,7 +159,8 @@ class ElectrodesModel extends DataController {
       // if (!this.electrodes[id]) return;
       this.updateStatesByElectrodeId(id,state || false);
     });
-    this.trigger("electrodes-set", this.electrodesAsDataFrame);
+    this.trigger("electrodes-set",
+                 this.wrapData(null, this.electrodesAsDataFrame));
   }
 
   onUpdateElectrodeOptions (payload) {

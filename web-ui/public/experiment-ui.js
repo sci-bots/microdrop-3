@@ -1,4 +1,4 @@
-class ExperimentUI extends PluginController {
+class ExperimentUI extends UIPlugin {
   constructor(elem, focusTracker){
     super(elem, focusTracker, "Experiment Controller");
     this.controls = this.Controls();
@@ -22,7 +22,6 @@ class ExperimentUI extends PluginController {
     this.on("item-clicked", this.onItemClicked.bind(this));
     this.on("delete", this.onDelete.bind(this));
   }
-
   download(str) {
     const anchor = D('<a style="display:none"></a>');
     const data = "data:text/json;charset=utf-8," + encodeURIComponent(str);
@@ -30,18 +29,22 @@ class ExperimentUI extends PluginController {
     anchor.setAttribute("download", "protocol.json");
     anchor.click();
   }
-
   readFile(input) {
     const file   = input.el.files[0];
     const reader = new FileReader();
     reader.onload = this.onFileUploaded.bind(this);
     reader.readAsText(file);
   }
-
   upload() {
     const input = D('<input type="file" name="name" style="display: none;" />');
     input.on("change", () => this.readFile(input));
     input.click();
+  }
+  wrapData(key, value) {
+    const msg = new Object();
+    msg.__head__ = this.DefaultHeader();
+    msg[key] = value;
+    return msg;
   }
 
   // ** Getters and Setters **
@@ -54,7 +57,8 @@ class ExperimentUI extends PluginController {
   set protocols(protocols) {
     this._protocols = protocols;
     if (!this.protocol)
-      this.trigger("change-protocol", _.last(this._protocols).name);
+      this.trigger("change-protocol",
+                   this.wrapData("name", _.last(this._protocols).name));
     this.list = this.List(this._protocols);
   }
 
@@ -105,15 +109,16 @@ class ExperimentUI extends PluginController {
 
   // ** Event Handlers **
   onDelete(){
-    this.trigger("delete-protocol", this.protocol);
+    this.trigger("delete-protocol", this.wrapData("protocol", this.protocol));
     this.protocol = undefined;
   }
   onDuplicate(msg){
     const name = "Protocol: " + this.time;
-    this.trigger("save", name);
+    this.trigger("save", this.wrapData("name", name));
   }
   onExport(msg) {
-    this.trigger("request-protocol-export", null);
+    console.log("REQUESTING ExPORT!!");
+    this.trigger("request-protocol-export", this.wrapData("body", null));
   }
   onImport(msg) {
     this.upload();
@@ -121,16 +126,17 @@ class ExperimentUI extends PluginController {
   onFileUploaded(msg) {
     const protocol = JSON.parse(msg.target.result);
     protocol.name = "Protocol: " + this.time;
-    this.trigger("upload-protocol", protocol);
+    this.trigger("upload-protocol", this.wrapData("protocol", protocol));
   }
   onProtocolsUpdated(msg) {
     this.protocols = JSON.parse(msg);
   }
   onItemClicked(protocol) {
-    this.trigger("change-protocol", protocol.name);
+    this.trigger("change-protocol", this.wrapData("name", protocol.name));
   }
   onNew() {
-    this.trigger("new-protocol", null);
+    this.trigger("new-protocol",
+                 this.wrapData("body",null));
   }
   onProtocolUpdated(msg){
     this.protocol = JSON.parse(msg);
@@ -140,7 +146,7 @@ class ExperimentUI extends PluginController {
     this.download(str);
   }
   onSave(msg){
-    this.trigger("save", this.protocol.name);
+    this.trigger("save", this.wrapData("name", this.protocol.name));
   }
 
   // ** Initializers **

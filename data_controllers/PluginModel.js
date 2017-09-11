@@ -5,7 +5,7 @@ const mqtt = require('mqtt')
 
 const NodeMqttClient = require('../NodeMqttClient');
 
-class DataController extends NodeMqttClient {
+class PluginModel extends NodeMqttClient {
   constructor() {
     super("localhost", 1883, "microdrop");
     this._listen();
@@ -25,6 +25,14 @@ class DataController extends NodeMqttClient {
   onStart(payload) {
     this.trigger("plugin-started",__dirname);
   }
+
+  // ** Initializers **
+  DefaultHeader() {
+    const header = new Object();
+    header.plugin_name = this.name;
+    header.plugin_version = this.version;
+  }
+
 };
 
-module.exports = DataController;
+module.exports = PluginModel;

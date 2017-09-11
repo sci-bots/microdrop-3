@@ -1,4 +1,4 @@
-class DeviceLoader extends PluginController {
+class DeviceLoader extends UIPlugin {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "DeviceLoader");
     this.controls = this.Controls();
@@ -6,9 +6,17 @@ class DeviceLoader extends PluginController {
   }
   listen() {
     this.bindTriggerMsg("device-model", "load-device", "send-file");
-    // this.addPostRoute("/load-device", "send-file", false);
     this.on("open-file-upload", this.onOpenFileUpload.bind(this));
     this.on("load-file", this.onLoadFile.bind(this));
+  }
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
   }
   get controls() {return this._controls}
   set controls(controls) {
@@ -18,7 +26,8 @@ class DeviceLoader extends PluginController {
   }
   onLoadFile(file) {
     const reader = new FileReader();
-    reader.onload = () => this.trigger("send-file", this.File(file,reader));
+    reader.onload = () => {
+      this.trigger("send-file", this.wrapData(null, this.File(file,reader)))}
     reader.readAsText(file);
   }
   onOpenFileUpload() {
@@ -39,7 +48,6 @@ class DeviceLoader extends PluginController {
     container.appendChild(uploadButton.el);
     return container;
   }
-
   // ** Static Methods **
   static position() {
     /* topLeft, topRight, bottomLeft, or bottomRight */

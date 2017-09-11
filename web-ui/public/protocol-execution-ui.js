@@ -1,4 +1,4 @@
-class ProtocolExecutionUI extends PluginController {
+class ProtocolExecutionUI extends UIPlugin {
   constructor(element, focusTracker) {
     super(element, focusTracker, "ProtocolExecutionUI");
     this.executablePlugins = new Backbone.Model();
@@ -26,7 +26,6 @@ class ProtocolExecutionUI extends PluginController {
     this.bindPutMsg("protocol-model", "step-number", "update-step-number");
     this.bindSignalMsg("find-executable-plugins", "find-executable-plugins");
     this.bindSignalMsg("run-step", "run-step");
-
   }
   // ** Getters and Setters **
   get channel() {return  "microdrop/protocol-execution-ui"};
@@ -50,8 +49,16 @@ class ProtocolExecutionUI extends PluginController {
       this.trigger("refresh-executable-plugins", null);
       return;
     }
-    this.trigger("update-step-number", this.stepNumber+1);
+    this.trigger("update-step-number", this.wrapData("stepNumber",
+                                        this.stepNumber+1));
   }
+  wrapData(key, value) {
+    const msg = new Object();
+    msg.__head__ = this.DefaultHeader();
+    msg[key] = value;
+    return msg;
+  }
+
   // ** Event Handlers **
   onExecutablePluginFound(payload, pluginName) {
     if (this.executablePlugins.has(pluginName)) return;
@@ -70,7 +77,7 @@ class ProtocolExecutionUI extends PluginController {
     for (const [pluginName,] of deadPlugins){
       console.error(`Max time reached for plugin: ${pluginName}`);
       this.executablePlugins.unset(pluginName);
-      this.trigger("update-step-number", step+1);
+      this.trigger("update-step-number", this.wrapData("stepNumber", step+1));
     }
   }
   onStepComplete(payload, pluginName) {
@@ -83,10 +90,11 @@ class ProtocolExecutionUI extends PluginController {
     this.steps = JSON.parse(payload);
   }
   onStepNumberUpdated(payload) {
-    this.stepNumber = JSON.parse(payload);
+    this.stepNumber = JSON.parse(payload).stepNumber;
     this.executablePlugins.trigger("change");
     if (this.running) {
-      this.trigger("run-step", this.steps[this.stepNumber]);
+      this.trigger("run-step",
+                   this.wrapData("step", this.steps[this.stepNumber]));
       const step = this.stepNumber;
       setTimeout(()=>{this.trigger("reached-max-wait-time", step)}, this.maxWaitTime);
     }
@@ -99,12 +107,14 @@ class ProtocolExecutionUI extends PluginController {
   onRefreshExecutablePlugins() {
     this.running = false;
     this.executablePlugins.clear();
-    this.trigger("find-executable-plugins", null);
+    this.trigger("find-executable-plugins", this.wrapData("body",null));
   }
   onRunExperiment() {
     this.running = true;
-    this.trigger("update-step-number", this.stepNumber || 0);
+    this.trigger("update-step-number",
+                 this.wrapData("stepNumber", this.stepNumber || 0));
   }
+
   // ** Initializers **
   Controls() {
     const btnClasses = 'btn btn-sm';
@@ -117,7 +127,7 @@ class ProtocolExecutionUI extends PluginController {
       <button class='${btnClasses} btn-secondary'>&#9724;</button>`);
     const maxWaitTimeField  = D(`
       <input type='number' value='${this.maxWaitTime}' style='width: 100px'/>`);
-    console.log(maxWaitTimeField);
+
     getExecutablePluginsBtn.on("click", () => this.trigger("refresh-executable-plugins"));
     runExperimentBtn.on("click", () => this.trigger("run-experiment"));
     stopExperimentBtn.on("click", () => {this.trigger("stop-experiment")});

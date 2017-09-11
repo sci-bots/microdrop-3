@@ -15,66 +15,6 @@ class MQTTClient {
     // XXX: ignoreState variable used internally by crossroads
     this.ignoreState = true;
   }
-  // addSubscription(channel, method) {
-  //   console.log("ADDING SUBSCRIPTION:::");
-  //   console.log(channel);
-  //   console.log(method);
-  //   this.addRoute(channel, method);
-  //   this.subscriptions.push(channel.replace(/\{(.+?)\}/g, "+"));
-  // }
-  // addBinding(channel, event, retain=false, qos=0, dup=false) {
-  //   this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
-  // }
-  //
-  // onStateMsg(sender, val, method) {
-  //   this.addSubscription(`${this.base}/${sender}/state/${val}`, method);
-  // }
-  // bindStateMsg(val, event) {
-  //   /* Notify plugins that state has successfully been modified */
-  //   this.addBinding(`${this.base}/${this.name}/state/${val}`, event, true);
-  // }
-  // onStateErrorMsg(sender, val, method) {
-  //   this.addSubscription(`${this.base}/${sender}/error/${val}`, method);
-  // }
-  // bindStateErrorMsg(val, event) {
-  //   /* Notify plugins upon failure to change state */
-  //   this.addBinding(`${this.base}/${this.name}/error/${val}`, event);
-  // }
-  // onPutMsg(val, method) {
-  //   this.addSubscription(`${this.base}/put/${this.name}/${val}`, method);
-  // }
-  // bindPutMsg(receiver, val, event) {
-  //   /* Request plugin to change the state of one of its variables */
-  //   this.addBinding(`${this.base}/put/${receiver}/${val}`, event);
-  // }
-  // onNotifyMsg(topic, method) {
-  //   this.addSubscription(`${this.base}/notify/${this.name}/${topic}`, method);
-  // }
-  // bindNotifyMsg(receiver, topic, event) {
-  //   /* Similar to trigger; notify plugin regarding a particular topic */
-  //   this.addBinding(`${this.base}/notify/${receiver}/${topic}`, event);
-  // }
-  // onStatusMsg(sender, method) {
-  //   this.addSubscription(`${this.base}/status/${sender}`, method);
-  // }
-  // bindStatusMsg(event) {
-  //   /* Broadcast plugin status */
-  //   this.addBinding(`${this.base}/status/${this.name}`, event);
-  // }
-  // onTriggerMsg(action, method) {
-  //   this.addSubscription(`${this.base}/trigger/${this.name}/${action}`, method);
-  // }
-  // bindTriggerMsg(receiver, action, event) {
-  //   /* Trigger another plugin to perform an action */
-  //   this.addBinding(`${this.base}/trigger/${receiver}/${action}`, event);
-  // }
-  // onSignalMsg(sender, topic, method) {
-  //   this.addSubscription(`${this.base}/${sender}/signal/${topic}`, method);
-  // }
-  // bindSignalMsg(topic, event) {
-  //   /* Signal other plugins about a topic (without knowledge of those plugins)*/
-  //   this.addBinding(`${this.base}/${this.name}/signal/${topic}`, event);
-  // }
 
   /* Old Route Methods (Depricating) */
   addGetRoute(topic, method) {
@@ -90,10 +30,29 @@ class MQTTClient {
   }
 
   sendMessage(topic, payload, retain=false, qos=0, dup=false){
+    let hasHeader = true;
+
+    // Check if message does not contain header
+    if (typeof(payload) != "object" || payload === null) hasHeader = false;
+    if (typeof(payload) == "object" && payload !== null){
+      if (!("__head__" in payload)) hasHeader = false;
+    }
+
+    // Send warning if message does not contain header
+    if (!hasHeader) {
+      console.warn(
+        `payload.__head__ returned undefined:
+        Message for topic: ${topic} does not container header.`
+       );
+    }
+
+    // Ensure client is connected
     if (this.client.isConnected() == false){
       console.error("Cannot send message, client is disconnected");
       return;
     }
+
+    // Send message
     const message = this.Message(topic,payload,retain,qos,dup);
     this.client.send(message);
   }
@@ -123,10 +82,7 @@ class MQTTClient {
   }
   onMessageArrived(msg) {
     const receiver = this.name + " : " + msg.destinationName;
-    // console.log(receiver);
-
     const payloadIsValid = IsJsonString(msg.payloadString);
-
     if (payloadIsValid)  this.parse(msg.destinationName, [msg.payloadString]);
     if (!payloadIsValid) console.error("Could not parse message for " + receiver);
   }

@@ -8,7 +8,6 @@ MqttMessages.addSubscription = function(channel, method){
 MqttMessages.addBinding = function(channel, event, retain=false, qos=0, dup=false){
   this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
 }
-
 MqttMessages.onStateMsg = function(sender, val, method){
   this.addSubscription(`${this.base}/${sender}/state/${val}`, method);
 }

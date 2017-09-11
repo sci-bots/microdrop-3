@@ -1,40 +1,36 @@
 const _ = require('lodash');
 const _fp = require('lodash/fp');
 
-const DataController = require('./DataController');
+const PluginModel = require('./PluginModel');
 
-class DeviceModel extends DataController {
+class DeviceModel extends PluginModel {
   constructor () {
     super();
   }
-
   listen() {
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
     this.onPutMsg("device", this.onPutDevice.bind(this));
     this.bindPutMsg("device-info-plugin", "device", "put-device");
     this.bindStateMsg("device", "device-set");
-
-    // this.addRoute("microdrop/device-info-plugin/state/device", this.onDeviceSet.bind(this));
-
-    // this.addStateRoute("/device", "device-set", true);
-    // this.addPutRoute("device-info-plugin", "device", "put-device",false);
-    // this.addRoute("microdrop/{*}/load-device", this.onLoadDevice.bind(this));
-    // this.addRoute("microdrop/data-controller/device", this.onDevicePut.bind(this));
-    // this.addPostRoute("/device", "update-device", true);
   }
-
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
   get name() {return "device-model" }
   get channel() {return "microdrop/device"}
   get device() {return this._device}
   set device(device) {this._device = device}
 
   onPutDevice(payload) {
-    this.trigger("device-set", payload);
+    this.trigger("device-set", this.wrapData(null,payload))
   }
-
-  onLoadDevice(payload) {
-    this.trigger("put-device", payload);
-  }
+  onLoadDevice(payload) { this.trigger("put-device", this.wrapData(null,payload)) }
 
   // ** Overrides **
   onStart(payload) {

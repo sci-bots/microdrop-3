@@ -16,13 +16,13 @@
   <script type="text/javascript" src="main.js"></script>
   <script type="text/javascript" src="mqtt-messages.js"></script>
   <script type="text/javascript" src="mqtt-client.js"></script>
-  <script type="text/javascript" src="plugin-controller.js"></script>
+  <script type="text/javascript" src="ui-plugin.js"></script>
   <script type="text/javascript" src="plugin-process-manager.js"></script>
 </head>
 
 <body>
   <script>
-  class WebPluginManager extends PluginController {
+  class WebPluginManager extends UIPlugin {
     constructor(element, focusTracker) {
       super(element, focusTracker, "UIPluginManager");
       Object.assign(this, CardMixins);

@@ -7,10 +7,10 @@ const crossroads = require('crossroads');
 const level = require('level');
 const mosca = require('mosca');
 
-const DeviceModel    = require("./data_controllers/DeviceModel");
+const DeviceModel     = require("./data_controllers/DeviceModel");
 const ElectrodesModel = require('./data_controllers/ElectrodesModel');
-const ProtocolModel  = require('./data_controllers/ProtocolModel');
-const RoutesDataController    = require('./data_controllers/RoutesDataController');
+const ProtocolModel   = require('./data_controllers/ProtocolModel');
+const RoutesModel     = require('./data_controllers/RoutesModel');
 
 class MoscaServer {
   constructor() {
@@ -126,13 +126,9 @@ class MoscaServer {
   }
 
   onPluginExited(payload, pluginName) {
-    console.log("Attempting to remove plugin:::");
-    console.log(pluginName);
     if (pluginName in this.runningPlugins)
       delete this.runningPlugins[pluginName];
     this.trigger("running-plugins-set", this.runningPlugins);
-    console.log("REMOVING PLUGIN::");
-    console.log(this.runningPlugins);
   }
 
   onSetup() {
@@ -141,7 +137,7 @@ class MoscaServer {
 
     this.deviceModel     = new DeviceModel();
     this.electrodesModel = new ElectrodesModel();
-    this.routesDataController    = new RoutesDataController();
+    this.routesModel     = new RoutesModel();
     this.protocolModel   = new ProtocolModel();
   }
 

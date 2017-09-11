@@ -1,6 +1,6 @@
-class ProtocolUI extends PluginController {
+class ProtocolUI extends UIPlugin {
   constructor(elem, focusTracker) {
-    super(elem, focusTracker, "ProtocolController");
+    super(elem, focusTracker, "ProtocolUI");
     this.controls = this.Controls();
     this.data = new Array();
     this.initialSteps = null;
@@ -10,7 +10,6 @@ class ProtocolUI extends PluginController {
   // ** Listeners **
   listen() {
     // State Routes (Ties to Data Controllers used by plugin):
-
     this.onStateMsg("protocol-model", "steps", this.onStepsUpdated.bind(this));
     this.onStateMsg("protocol-model", "step-number", this.onStepNumberUpdated.bind(this));
     this.onStateMsg("protocol-model", "schema", this.onSchemaUpdated.bind(this));
@@ -19,6 +18,8 @@ class ProtocolUI extends PluginController {
     this.bindTriggerMsg("protocol-model", "update-step", "update");
     this.bindTriggerMsg("protocol-model", "delete-step", "delete-step");
     this.bindTriggerMsg("protocol-model", "insert-step", "insert-step");
+
+    // Implement these::
     this.bindTriggerMsg("protocol-model", "update-protocol-running-state", "update-protocol-running-state");
     this.bindTriggerMsg("protocol-model", "change-repeat", "change-repeat");
 
@@ -33,7 +34,7 @@ class ProtocolUI extends PluginController {
 
   // ** Event Handlers (Between action and trigger) **
   onDelete(e) {
-    this.trigger("delete-step", this.step);
+    this.trigger("delete-step", this.wrapData("stepNumber", this.step));
   }
 
   onMouseout(e) {
@@ -49,7 +50,7 @@ class ProtocolUI extends PluginController {
     // If step not selected, change step and exit
     const step = this.table.row(msg.target)[0][0];
     if (step != this.step){
-      this.trigger("update-step-number", step);
+      this.trigger("update-step-number", this.wrapData("stepNumber",step));
       return;
     }
 
@@ -61,30 +62,35 @@ class ProtocolUI extends PluginController {
 
   onNextStepClicked(e) {
     const lastStep = this.data.length - 1;
-    if (this.step == lastStep) this.trigger("insert-step", lastStep);
-    if (this.step != lastStep) this.trigger("update-step-number", this.step+1);
+    if (this.step == lastStep)
+      this.trigger("insert-step",
+                   this.wrapData("stepNumber", lastStep));
+    if (this.step != lastStep)
+      this.trigger("update-step-number",
+                   this.wrapData("stepNumber", this.step+1));
   }
 
   onPlayClicked(e) {
-    this.trigger("update-protocol-running-state", this.step);
+    this.trigger("update-protocol-running-state",
+                 this.wrapData("stepNumber", this.step));
   }
 
   onPrevStepClicked(e) {
     let prevStep;
     if (this.step == 0) prevStep = this.data.length -1;
     if (this.step != 0) prevStep = this.step-1;
-    this.trigger("update-step-number", prevStep);
+    this.trigger("update-step-number", this.wrapData("stepNumber", prevStep));
   }
 
   onRepeatChanged(msg) {
     const val = parseInt(msg.target.value);
-    this.trigger("change-repeat", val);
+    this.trigger("change-repeat",
+                 this.wrapData("repeat-val", val));
   }
 
   onUpdate(key,val,stepNumber) {
-    // const data = _.cloneDeep(this.data);
-    // data[step][key] = val;
-    this.trigger("update", {stepNumber: stepNumber, key: key, val: val});
+    const data = {stepNumber: stepNumber, key: key, val: val};
+    this.trigger("update", this.wrapData("data", data));
   }
 
   onProtocolChanged(payload) {
@@ -94,7 +100,7 @@ class ProtocolUI extends PluginController {
   }
 
   onStepNumberUpdated(payload) {
-    this.step = payload;
+    this.step = JSON.parse(payload).stepNumber;
   }
 
   onStepsUpdated(payload) {
@@ -138,9 +144,7 @@ class ProtocolUI extends PluginController {
       target_d.empty();
       this.onUpdate(src, new_val, this.step);
     });
-
   }
-
   activateSpinner(msg) {
     const target_d = D(msg.target);
     const input_d  = D('<input type="number">');
@@ -170,7 +174,6 @@ class ProtocolUI extends PluginController {
     // XXX: Setting focus immediately doesn't work (wait 100ms)
     setTimeout(() => input_d.focus(), 100);
   }
-
   addStep() {
     const len = this.columns.length;
     const row = _.zipObject(this.columns, new Array(len).join(".").split("."));
@@ -178,11 +181,16 @@ class ProtocolUI extends PluginController {
     this.table.row.add(row);
     this.table.draw();
   }
-
   createDatatablesHeader(v,k) {
     // Get DataTables header based on schema entry
     // TODO: add more keys like type, width, etc
     return {title: k, data: k};
+  }
+  wrapData(key, value) {
+    const msg = new Object();
+    msg.__head__ = this.DefaultHeader();
+    msg[key] = value;
+    return msg;
   }
 
   // ** Getters and Setters **
