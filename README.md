@@ -22,3 +22,5 @@ Add topics
 **[Installing Process Plugins](docs/InstallProcessPlugins.md)**
 
 **[Installing Web/UI Plugins](docs/InstallWebplugin.md)**
+
+**[Developing Web/UI Plugins](docs/DevelopingUIPlugins.md)**
