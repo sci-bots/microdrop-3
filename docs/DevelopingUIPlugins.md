@@ -9,6 +9,65 @@ or
 
 An API for the various core microdrop plugins is coming soon, but in the meantime the various messaging topics for each protocol can be found through investiating the plugin's source which using [mqtt-messages.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/mqtt-messages.js) as reference.
 
+Plugins should be ES6 classes, and accept a dom node (elem), and a PhosphorJS FocusTracker object:
+```javascript
+  class SamplePlugin extends UIPlugin {
+    constructor(elem, focusTracker) {
+      ...
+    }
+```
+
+## Available Libraries
+
+Currently, plugins cannot access their own external libraries. However, the following libraries are exposed through [libDeviceUIPlugin.js](https://github.com/Lucaszw/webui.js/blob/master/src/libDeviceUIPlugin.js)
+
+## Positioning Plugin
+
+Your plugin class must include a static method called position() which returns either:
+
+topLeft, topRight, bottomLeft, or bottomRight. This will determine where the plugin will be anchored on Microdrops UI.
+```javascript
+  static position() {
+    /* topLeft, topRight, bottomLeft, or bottomRight */
+    return "bottomLeft";
+  }
+```
+
+## Publishing and Subscribing to MQTT Topics
+
+Each plugin should contain it's own MQTT Client. 
+See https://eclipse.org/paho/clients/js/ . If your plugin extends MQTTClient or UIPlugin, then a MQTTClient will be instantuated on super().
+
+The default microdrop plugins all use the following hierarchy depending on the message:
+
+State Messages (persistant storage of microdrop properties such as electrodes, routes, and devices):
+
+**microdrop/{plugin-model/sender}/state/{model property}**
+
+State Error Messages (triggered when microdrop drop property fails to update after put)
+
+**microdrop/{plugin-model/sender}/error/{model property}**
+
+Put Messages (Use for requesting a plugin to change one of its properties)
+
+**microdrop/put/{sender}/{model property}**
+
+Notify Messages (Send notification to another plugin)
+
+**microdrop/notify/{sender}/{topic}**
+
+Status Messages (A non-descriminate status message)
+
+**microdrop/status/{sender}**
+
+Trigger Message (Use to trigger actions between plugins)
+
+**microdrop/trigger/{sender}/{action}**
+
+Signal Message (A non-descriminate message w/ topic)
+
+**microdorp/{sender}/signal/{topic}**
+
 ## Sample Web Plugin Skeleton:
 ```javascript
 class SamplePlugin extends UIPlugin {
