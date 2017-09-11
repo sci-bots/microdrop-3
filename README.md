@@ -16,3 +16,9 @@ Add topics
 > cd microdrop-3.0
 > node index.js
 ```
+
+## Docs
+
+**[Installing Process Plugins](docs/InstallProcessPlugins.md)**
+
+**[Installing Web/UI Plugins](docs/InstallWebplugin.md)**
