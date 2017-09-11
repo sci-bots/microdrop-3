@@ -40,26 +40,42 @@ See https://eclipse.org/paho/clients/js/ . If your plugin extends MQTTClient or 
 
 The default microdrop plugins all use the following hierarchy depending on the message:
 
-State Messages (persistant storage of microdrop properties such as electrodes, routes, and devices)<br />
+**State Messages** (persistant storage of microdrop properties such as electrodes, routes, and devices)<br />
 *microdrop/{plugin-model/sender}/state/{model property}*
 
-State Error Messages (triggered when microdrop drop property fails to update after put)<br />
+**State Error Messages** (triggered when microdrop drop property fails to update after put)<br />
 *microdrop/{plugin-model/sender}/error/{model property}*
 
-Put Messages (Use for requesting a plugin to change one of its properties)<br />
+**Put Messages** (Use for requesting a plugin to change one of its properties)<br />
 *microdrop/put/{sender}/{model property}*
 
-Notify Messages (Send notification to another plugin)<br />
+**Notify Messages** (Send notification to another plugin)<br />
 *microdrop/notify/{sender}/{topic}*
 
-Status Messages (A non-descriminate status message)<br />
+**Status Messages** (A non-descriminate status message)<br />
 *microdrop/status/{sender}*
 
-Trigger Message (Use to trigger actions between plugins)<br />
+**Trigger Message** (Use to trigger actions between plugins)<br />
 *microdrop/trigger/{sender}/{action}*
 
-Signal Message (A non-descriminate message w/ topic)<br />
+**Signal Message** (A non-descriminate message w/ topic)<br />
 *microdorp/{sender}/signal/{topic}*
+
+If you are inheriting from MQTTClient or UI Plugin then these topics are wrapped around backbone events:
+
+```javascript
+  constructor(elem, focusTracker) {
+    ...
+    this.listen();
+  }
+  
+  listen() {
+    // protocol-model, electrode-model, routes-model, device-model...
+    this.onStateMsg("some-model", "some-property", this.onSomePropertyUpdated.bind(this));
+    this.onSignalMsg("{plugin}", "some-signal", this.onSomeSignal.bind(this));
+    this.bindPutMsg("some-model", "some-property", "put-some-property");
+  }
+```
 
 ## Sample Web Plugin Skeleton:
 ```javascript
