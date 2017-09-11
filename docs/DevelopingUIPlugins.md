@@ -41,25 +41,25 @@ See https://eclipse.org/paho/clients/js/ . If your plugin extends MQTTClient or 
 The default microdrop plugins all use the following hierarchy depending on the message:
 
 State Messages (persistant storage of microdrop properties such as electrodes, routes, and devices)<br />
-**microdrop/{plugin-model/sender}/state/{model property}**
+*microdrop/{plugin-model/sender}/state/{model property}*
 
 State Error Messages (triggered when microdrop drop property fails to update after put)<br />
-**microdrop/{plugin-model/sender}/error/{model property}**
+*microdrop/{plugin-model/sender}/error/{model property}*
 
 Put Messages (Use for requesting a plugin to change one of its properties)<br />
-**microdrop/put/{sender}/{model property}**
+*microdrop/put/{sender}/{model property}*
 
 Notify Messages (Send notification to another plugin)<br />
-**microdrop/notify/{sender}/{topic}**
+*microdrop/notify/{sender}/{topic}*
 
 Status Messages (A non-descriminate status message)<br />
-**microdrop/status/{sender}**
+*microdrop/status/{sender}*
 
 Trigger Message (Use to trigger actions between plugins)<br />
-**microdrop/trigger/{sender}/{action}**
+*microdrop/trigger/{sender}/{action}*
 
 Signal Message (A non-descriminate message w/ topic)<br />
-**microdorp/{sender}/signal/{topic}**
+*microdorp/{sender}/signal/{topic}*
 
 ## Sample Web Plugin Skeleton:
 ```javascript
