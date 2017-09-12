@@ -14,8 +14,10 @@ class PluginModel extends NodeMqttClient {
   _listen() {
     this.on("start", this.onStart.bind(this));
     this.on("exit",  this.onExit.bind(this));
-    this.addPostRoute("/plugin-started","plugin-started", true);
-    this.addPostRoute("/plugin-exited", "plugin-exited", true);
+
+    this.bindSignalMsg("plugin-started", "plugin-started");
+    this.bindSignalMsg("plugin-exited", "plugin-exited");
+
   }
 
   // ** Event Handlers **

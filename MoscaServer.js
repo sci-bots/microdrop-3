@@ -1,6 +1,3 @@
-const os = require('os');
-const {spawn} = require('child_process');
-
 const _ = require('lodash');
 const Backbone = require('backbone');
 const crossroads = require('crossroads');
@@ -39,7 +36,6 @@ class MoscaServer {
     this.server = new mosca.Server(settings);
     this.db.wire(this.server);
 
-    this.runningPlugins = new Object();
     this.listen();
   }
 
@@ -48,13 +44,6 @@ class MoscaServer {
     this.server.on('clientConnected', this.onConnected.bind(this));
     this.server.on('published', this.onPublish.bind(this));
     this.server.on('ready', this.onSetup.bind(this));
-
-    this.addPostRoute("/running-plugins", "running-plugins-set", true);
-    this.addRoute("microdrop/{plugin_name}/plugin-started", this.onPluginStarted.bind(this));
-    this.addRoute("microdrop/{plugin_name}/plugin-exited", this.onPluginExited.bind(this));
-    this.addRoute("microdrop/plugin-manager/launch-plugin", this.onLaunchPlugin.bind(this));
-    this.addRoute("microdrop/plugin-manager/close-plugin", this.onClosePlugin.bind(this));
-
   }
 
   // ** Getters and Setters **
@@ -96,39 +85,6 @@ class MoscaServer {
     if (!buf.toString().length) return;
     const msg = JSON.parse(buf.toString());
     this.parse(topic, [msg]);
-  }
-
-  onClosePlugin(pluginName) {
-    const topic = "microdrop/"+pluginName+"/exit";
-    this.sendMessage(topic);
-  }
-
-  onLaunchPlugin(payload) {
-    const pluginPath = payload;
-    const platform = os.platform();
-    let npm;
-
-    // For windows, use npm.cmd to run plugin
-    if (platform == "win32") npm = "npm.cmd";
-    if (platform != "win32") npm = "npm";
-
-    // Spawn child and de-reference so it doesn't close when the broker does
-    const child = spawn(npm, ["start", "--prefix", pluginPath]);
-    child.unref();
-  }
-
-  onPluginStarted(payload, pluginName) {
-    if (!(pluginName in this.runningPlugins))
-      this.runningPlugins[pluginName] = payload;
-    this.trigger("running-plugins-set", this.runningPlugins);
-    console.log("Starting Plugin::");
-    console.log(this.runningPlugins);
-  }
-
-  onPluginExited(payload, pluginName) {
-    if (pluginName in this.runningPlugins)
-      delete this.runningPlugins[pluginName];
-    this.trigger("running-plugins-set", this.runningPlugins);
   }
 
   onSetup() {

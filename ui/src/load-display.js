@@ -1,3 +1,12 @@
+// If microdropPlugins is not defined, alert the user to add a web plugin
+// via the plugin-manager webpage:
+if (!window.microdropPlugins) {
+  alert(`
+    No UI/Web Plugins found!
+    Add them at "http://localhost:PORT/plugin-manager"
+  `);
+}
+
 // Disable alert messages in datatables:
 $.fn.dataTable.ext.errMode = 'throw';
 

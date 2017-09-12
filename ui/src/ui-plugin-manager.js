@@ -9,6 +9,9 @@ class UIPluginManager extends UIPlugin {
   listen() {
     this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
     this.on("add-plugin", this.onAddPlugin.bind(this));
+    this.on("remove-plugin-clicked", this.onRemovePlugin.bind(this));
+    this.bindTriggerMsg("web-server", "remove-plugin", "remove-plugin");
+
     this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
     this.addGetRoute("microdrop/state/error/web-plugins", this.onChangeWebPluginsFailed.bind(this));
     this.addPostRoute("/add-web-plugin", "add-web-plugin");
@@ -17,11 +20,7 @@ class UIPluginManager extends UIPlugin {
   set cards(item) {this.changeElement("cards", item)}
   get controls(){return this._controls}
   set controls(item) {this.changeElement("controls", item)}
-  changeElement(k,item) {
-    if (this[k]) this.element.removeChild(this[k]);
-    this.element.appendChild(item);
-    this[`_${k}`] = item;
-  }
+
   onAddPlugin(path) {
     this.trigger("add-web-plugin", path);
   }
@@ -31,9 +30,13 @@ class UIPluginManager extends UIPlugin {
   onPluginCardsChanged(msg) {
     this.cards = this.Cards(this.pluginCards);
   }
+  onRemovePlugin(filepath) {
+    this.trigger("remove-plugin", this.wrapData("filepath", filepath));
+  }
   onWebPluginsChanged(payload) {
     // TODO: Auto convert payload to json before triggering event
     const paths = JSON.parse(payload);
+    this.pluginCards.clear();
     for (const filepath of paths){
       const filename = filepath.replace(/^.*[\\\/]/, '');
       this.pluginCards.set(filename, filepath);
@@ -41,7 +44,7 @@ class UIPluginManager extends UIPlugin {
   }
   Card(filename,filepath) {
     const card = $("<div class='card'></div>");
-    const removeEvent = () => {this.trigger("remove-plugin", filename)};
+    const removeEvent = () => {this.trigger("remove-plugin-clicked", filepath)};
     const styles = this.Styles();
     card.css(styles.card);
     card.append(this.Title(filename));

@@ -26,6 +26,22 @@ class UIPlugin extends MQTTClient {
   get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
   get version() {return "0.0"}
 
+  // ** Methods **
+  changeElement(k,item) {
+    if (this[k]) this.element.removeChild(this[k]);
+    this.element.appendChild(item);
+    this[`_${k}`] = item;
+  }
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
+  
   // ** Initializers **
   DefaultHeader() {
     const header = new Object();

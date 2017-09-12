@@ -305,8 +305,6 @@ class ProtocolModel extends PluginModel {
       this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
   onUpdateStep(payload) {
-    console.log("UPDATING STEP:::")
-    console.log(payload);
     const data = payload.data;
     const key = data.key;
     const val = data.val;

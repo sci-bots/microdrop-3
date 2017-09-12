@@ -34,7 +34,6 @@ class NodeMqttClient {
     return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
   }
   get version() {return "0.0"}
-
   // ** Methods **
   addGetRoute(topic, method) {
     this.addRoute(topic, method);
