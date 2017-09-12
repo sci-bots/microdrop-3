@@ -19,10 +19,4 @@ Add topics
 
 ## Docs
 
-**[Installing Web/UI Plugins](docs/InstallWebplugin.md)**
-
-**[Installing Process Plugins](docs/InstallProcessPlugins.md)**
-
-**[Developing Web/UI Plugins](docs/DevelopingUIPlugins.md)**
-
-**[Developing Process Plugins](docs/DevelopingProcessPlugins.md)**
+**[Visist project wiki](https://github.com/Lucaszw/microdrop-3.0/wiki)**
