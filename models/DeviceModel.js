@@ -30,8 +30,9 @@ class DeviceModel extends PluginModel {
   onPutDevice(payload) {
     this.trigger("device-set", this.wrapData(null,payload))
   }
-  onLoadDevice(payload) { this.trigger("put-device", this.wrapData(null,payload)) }
-
+  onLoadDevice(payload) {
+    this.trigger("put-device", this.wrapData(null,payload))
+  }
   // ** Overrides **
   onStart(payload) {
     this.trigger("plugin-started",__dirname);

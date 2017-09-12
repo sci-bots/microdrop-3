@@ -64,7 +64,8 @@ class MQTTClient {
   }
   // ** Getters and Setters **
   get name() {
-    return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
+    return encodeURI(
+      this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
   }
 
   get channel() {

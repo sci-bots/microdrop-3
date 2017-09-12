@@ -61,7 +61,7 @@ class WebServer extends NodeMqttClient {
     for (const filepath of this.plugins) {
       this.use(express.static(path.dirname(filepath), {extensions:['html']}));
     }
-    generateDisplayTemplate();
+    this.generateDisplayTemplate();
   }
   onAddWebPlugin(payload) {
     // Validate old plugins (ensure they still exist)

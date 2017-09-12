@@ -273,9 +273,13 @@ class ProtocolModel extends PluginModel {
     if ("droplet-planning-plugin" in this.step)
       this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
   }
+
+  // ** Overrides **
   onStart(payload) {
     this.trigger("schema-set", this.schema);
+    this.trigger("plugin-started",__dirname);
   }
+
   onUploadProtocol(payload) {
     const protocol = payload.protocol;
     this.protocols.push(protocol);

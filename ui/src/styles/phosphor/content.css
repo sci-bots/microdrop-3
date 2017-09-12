@@ -22,7 +22,7 @@
 
 .content > div {
   flex: 1 1 auto;
-  border: 1px solid #505050;
+  /*border: 1px solid #505050;*/
   overflow: auto;
 }
 

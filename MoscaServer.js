@@ -7,10 +7,10 @@ const crossroads = require('crossroads');
 const level = require('level');
 const mosca = require('mosca');
 
-const DeviceModel     = require("./data_controllers/DeviceModel");
-const ElectrodesModel = require('./data_controllers/ElectrodesModel');
-const ProtocolModel   = require('./data_controllers/ProtocolModel');
-const RoutesModel     = require('./data_controllers/RoutesModel');
+const DeviceModel     = require("./models/DeviceModel");
+const ElectrodesModel = require('./models/ElectrodesModel');
+const ProtocolModel   = require('./models/ProtocolModel');
+const RoutesModel     = require('./models/RoutesModel');
 
 class MoscaServer {
   constructor() {
