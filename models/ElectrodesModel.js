@@ -139,13 +139,16 @@ class ElectrodesModel extends PluginModel {
     // Update channels:
     const channels = payload['df_electrode_channels'];
     this.updateElectrodesFromChannels(channels);
-    // Re-apply electrodes:
-    this.electrodes = electrodes;
+
+    // Re-apply electrodes if the previously existed:
+    if (Object.keys(electrodes).length !== 0)
+      this.electrodes = electrodes;
   }
 
   onSetElectrodeState (payload) {
     // Update the state of electrode by id
     const id = payload.electrode_id;
+
     const state = payload.state;
     this.updateStatesByElectrodeId(id,state);
     this.trigger("electrodes-set",

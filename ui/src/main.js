@@ -505,9 +505,7 @@ class DeviceUIPlugin {
 
       this.event_handler.on("set_electrode_state", (kwargs) => {
           let data, message, topic;
-
           topic = "microdrop/put/electrodes-model/electrode-state";
-          // topic = "microdrop/dmf-device-ui/set-electrode-state";
           data  = kwargs;
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
