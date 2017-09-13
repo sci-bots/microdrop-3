@@ -18,12 +18,10 @@ class PluginProcessManager extends UIPlugin {
     this.on("plugin-action", this.onPluginCardAction.bind(this));
   }
   get channel() {return "microdrop/plugin-manager"}
-  get list() {return this._list;}
-  set list(list) {
-    if (list == undefined) this.element.removeChild(this._list.el);
-    if (list != undefined) this.element.appendChild(list.el);
-    this._list = list;
-  }
+
+  get list(){return this._list}
+  set list(item) {this.changeElement("list", item)}
+
   get pluginPathField() {
     return this._pluginPathField;
   }
@@ -44,8 +42,8 @@ class PluginProcessManager extends UIPlugin {
   }
   onPluginCardAction(msg) {
     const plugin = msg.plugin;
-    const element = msg.element;
-    element.setStyles({opacity: 0.5});
+    const element = $(msg.element);
+    element.css({opacity: 0.5});
     if (msg.action == "load") this.trigger("launch-plugin", plugin.dir);
     if (msg.action == "stop") this.trigger("close-plugin", plugin.name);
   }
@@ -72,44 +70,52 @@ class PluginProcessManager extends UIPlugin {
     this.element.appendChild(controls.el);
     return pluginPathsTextField;
   }
-  PluginCard(plugin, pluginName) {
-    const styles = this.Styles();
+  PluginListItem(plugin, pluginName) {
+    const row = $(`<div class="row"></div>`);
+    const col1 = $(`<div class="col-md-3"></div>`).appendTo(row);
+    const col2 = $(`<div class="col-md-6"></div>`).appendTo(row);
+    const col3 = $(`<div class="col-md-1"></div>`).appendTo(row);
+    const col4 = $(`<div class="col-md-1"></div>`).appendTo(row);
 
-    // Init Card (Item):
-    const item = D("<div class='card'></div>");
-    item.setStyles(styles.card);
-    item.appendChild(this.Title(pluginName));
-    item.appendChild(this.InputField("Plugin Location", plugin.dir));
-
-    // Button Events:
-    const loadMsg = {action: "load", plugin: plugin, element: item};
-    const load = () => {this.trigger("plugin-action", loadMsg)};
-    const stopMsg = {action: "stop", plugin: plugin, element: item};
-    const stop = () => {this.trigger("plugin-action", stopMsg)};
-
-    // Buttons:
-    const buttonGroup = document.createElement("div");
-    const loadBtn = this.Button(load, "load","btn-primary");
-    const stopBtn = this.Button(stop, "stop","btn-secondary");
-    if (plugin.state == "running") loadBtn.addClasses("disabled");
-    if (plugin.state == "stopped") stopBtn.addClasses("disabled");
-    buttonGroup.appendChild(loadBtn);
-    buttonGroup.appendChild(stopBtn);
-    item.appendChild(buttonGroup);
+    // Label:
+    col1.append(`<label class="mr-2">${pluginName}</label>`);
 
     // Badge:
-    const statusBadge = new Object();
-    const runningBadge = this.Badge("Running","badge-success");
-    const stoppedBadge = this.Badge("Stopped","badge-danger");
-    if (plugin.state == "running") item.appendChild(runningBadge);
-    if (plugin.state == "stopped") item.appendChild(stoppedBadge);
+    let cls, text;
+    if (plugin.state == "running") {cls = "badge-success"; text = "Running"}
+    if (plugin.state == "stopped") {cls = "badge-danger"; text = "Stopped"}
+    col1.append(`<span class='badge ${cls} mt-2'>${text}</span>`);
 
-    return item;
+    // Input Field:
+    col2.append(`
+      <input type="text" class="form-control form-control-sm mt-1"
+        value="${plugin.dir}">
+    `);
+
+    // Start Btn:
+    const startBtn = $(
+      `<button type="submit" class="btn btn-primary btn-sm mt-1">
+        Start Plugin
+      </button>
+    `).appendTo(col3);
+    startBtn.on("click", () => {this.trigger("plugin-action",
+      {action: "load", plugin: plugin, element: startBtn[0]});
+    });
+
+    // Stop Btn:
+    const stopBtn = $(`
+      <button type="submit" class="btn btn-secondary btn-sm mt-1">
+        Stop Plugin
+      </button>
+    `).appendTo(col4);
+    stopBtn.on("click", () => { this.trigger("plugin-action",
+      {action: "stop", plugin: plugin, element: stopBtn[0]});
+    });
+
+    return row[0];
   }
   PluginsContainer(allPlugins) {
-    if (this.list) this.list = undefined;
-    const list = D("<div></div>");
-    list.appendChild(D("<b>Plugins:</b>").el);
+    const container = $(`<div class="container"></div>`);
 
     // Set all plugins to stopped state
     _.each(this.plugins, (plugin) => plugin.state = "stopped");
@@ -125,11 +131,11 @@ class PluginProcessManager extends UIPlugin {
       plugin.state = obj.state;
     });
 
-    const container = D("<div></div>");
+    // const container = $("<div></div>");
+    //
+    _.each(this.plugins, (v,k) => container.append(this.PluginListItem(v,k)));
+    // list.append(container[0]);
 
-    _.each(this.plugins, (v,k) => container.appendChild(this.PluginCard(v,k).el));
-    list.appendChild(container.el);
-
-    return list;
+    return container[0];
   }
 };
