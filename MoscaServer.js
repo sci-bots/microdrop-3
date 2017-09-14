@@ -8,6 +8,7 @@ const DeviceModel     = require("./models/DeviceModel");
 const ElectrodesModel = require('./models/ElectrodesModel');
 const ProtocolModel   = require('./models/ProtocolModel');
 const RoutesModel     = require('./models/RoutesModel');
+const StepModel       = require('./models/StepModel');
 
 class MoscaServer {
   constructor() {
@@ -95,6 +96,7 @@ class MoscaServer {
     this.electrodesModel = new ElectrodesModel();
     this.routesModel     = new RoutesModel();
     this.protocolModel   = new ProtocolModel();
+    this.stepModel       = new StepModel();
   }
 
   onExit(options, err) {

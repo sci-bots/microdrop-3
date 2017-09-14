@@ -20,6 +20,17 @@ class PluginModel extends NodeMqttClient {
 
   }
 
+  // ** Methods **
+  wrapData(key, value) {
+    let msg = new Object();
+    // Convert message to object if not already
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    // Add header
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
+
   // ** Event Handlers **
   onExit(payload) {
     this.trigger("plugin-exited",__dirname);

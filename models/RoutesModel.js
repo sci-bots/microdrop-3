@@ -11,7 +11,7 @@ class RoutesModel extends PluginModel {
   listen() {
     this.onPutMsg("route-options", this.onUpdateRouteOptions.bind(this));
     this.onPutMsg("routes", this.onRoutesUpdated.bind(this));
-    this.bindPutMsg("protocol-model", "route-options", "put-route-options");
+    this.bindPutMsg("step-model", "route-options", "put-route-options");
     this.bindPutMsg("ui-controller", "routes", "put-routes");
 
     this.bindPutMsg("droplet_planning_plugin", "routes", "put-routes");
@@ -94,20 +94,12 @@ class RoutesModel extends PluginModel {
     if ("repeat_duration_s" in d) this.repeatDurationSeconds = d.repeat_duration_s;
     if ("route_repeats" in d) this.routeRepeats = d.route_repeats;
   }
-  wrapData(key, value) {
-    let msg = new Object();
-    // Convert message to object if not already
-    if (typeof(value) == "object" && value !== null) msg = value;
-    else msg[key] = value;
-    // Add header
-    msg.__head__ = this.DefaultHeader();
-    return msg;
-  }
   // ** Event Handlers **
   onRoutesUpdated(payload) {
     this.dropRoutes = payload;
     this.trigger("put-route-options", this.wrapData(null, this.state));
-    this.trigger("put-routes", this.wrapData(null, this.dropRoutes));
+    this.trigger("put-routes",
+      this.wrapData("dropRoutes", {dropRoutes: this.dropRoutes}));
   }
 
   onStepSwapped(payload) {
@@ -120,7 +112,8 @@ class RoutesModel extends PluginModel {
 
   onUpdateRouteOptions(payload) {
     this.updateDropletPlanningPlugin(payload);
-    this.trigger("put-routes", this.wrapData(null, this.dropRoutes));
+    this.trigger("put-routes",
+      this.wrapData("dropRoutes", {dropRoutes: this.dropRoutes}));
   }
 
 }
