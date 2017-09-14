@@ -1,7 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const {spawn} = require('child_process');
+const {fork, spawn} = require('child_process');
 
 const _ = require('lodash');
 const express = require('express');
@@ -17,8 +17,12 @@ class WebServer extends NodeMqttClient {
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
     this.plugins = new Set();
+
   }
   listen() {
+    const plugin_finder = fork("find-microdrop-plugins");
+    plugin_finder.on('message', this.onPluginFound.bind(this));
+
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
     this.addGetRoute("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
@@ -35,7 +39,6 @@ class WebServer extends NodeMqttClient {
     this.onSignalMsg("{plugin_name}", "plugin-exited", this.onProcessPluginExited.bind(this));
     this.onTriggerMsg("launch-plugin", this.onLaunchProcessPlugin.bind(this));
     this.onTriggerMsg("close-plugin", this.onCloseProcessPlugin.bind(this));
-
 
     this.allPlugins = new Object();
     this.newPlugins = new Object();
@@ -111,7 +114,6 @@ class WebServer extends NodeMqttClient {
     this.allPlugins[pluginName].state = "stopped";
     this.trigger("set-process-plugins", this.allPlugins);
   }
-
   onSaveProcessPlugins(payload) {
     // XXX: Currently using as quick hack to deal with aynchronous updates
     // of process plugins (can avoid with synchronous mqtt messages)
@@ -120,7 +122,6 @@ class WebServer extends NodeMqttClient {
       this.trigger("set-process-plugins", this.allPlugins);
     }
   }
-
   onLaunchProcessPlugin(payload) {
     const pluginPath = payload;
     const platform = os.platform();
@@ -139,7 +140,6 @@ class WebServer extends NodeMqttClient {
     const topic = `microdrop/${pluginName}/exit`;
     this.sendMessage(topic);
   }
-
   onAddWebPlugin(payload) {
     // Validate old plugins (ensure they still exist)
     this.validatePreviousPlugins();
@@ -156,6 +156,11 @@ class WebServer extends NodeMqttClient {
 
     // Add plugin to list of web-plugins:
     this.addPlugin(file);
+  }
+  onPluginFound(payload){
+    const plugin_path = payload.plugin_path;
+    console.log("PLUGIN FOUND:::");
+    console.log(plugin_path);
   }
   onRemovePlugin(payload) {
     const filepath = payload.filepath;
