@@ -52,7 +52,7 @@ function findUserDefinedPlugins() {
   // Load paths stored in JSON file
   const pluginsFile = path.resolve("plugins.json");
   const pluginsData = JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
-  const searchPaths = pluginsData.search_paths;
+  const searchPaths = pluginsData.searchPaths;
 
   // Iterate through each path
   for (const searchPath of searchPaths) {

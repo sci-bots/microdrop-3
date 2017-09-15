@@ -13,10 +13,8 @@ class PluginProcessManager extends UIPlugin {
     this.bindTriggerMsg("web-server", "add-plugin-path", "add-plugin-path");
     this.bindTriggerMsg("web-server", "launch-plugin", "launch-plugin");
     this.bindTriggerMsg("web-server", "close-plugin", "close-plugin");
-
     this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
-
   }
   get channel() {return "microdrop/plugin-manager"}
 
@@ -49,8 +47,6 @@ class PluginProcessManager extends UIPlugin {
   }
   onPluginsUpdated(payload){
     const allPlugins = JSON.parse(payload);
-    console.log("PLUGINS UPDATED:::");
-    console.log(allPlugins);
     this.list = this.PluginsContainer(allPlugins);
   }
   setPluginToStopped(plugin) {

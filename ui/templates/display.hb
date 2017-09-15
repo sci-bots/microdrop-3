@@ -20,7 +20,7 @@
   <script type="text/javascript" src="ui-plugin.js"></script>
   <!-- Plugins -->
   {{#each pluginPaths}}
-  <script type="text/javascript" src="{{src}}"></script>
+  <script type="text/javascript" src="{{this}}"></script>
   {{/each}}
 </head>
 <body>
