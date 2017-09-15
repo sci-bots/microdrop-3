@@ -13,13 +13,10 @@ class PluginProcessManager extends UIPlugin {
     this.bindTriggerMsg("web-server", "add-plugin-path", "add-plugin-path");
     this.bindTriggerMsg("web-server", "launch-plugin", "launch-plugin");
     this.bindTriggerMsg("web-server", "close-plugin", "close-plugin");
-    this.bindTriggerMsg("web-server", "save-process-plugins", "save-plugins");
 
     this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
 
-    // Trigger Save:
-    setTimeout(()=>this.trigger("save-plugins", null), 500);
   }
   get channel() {return "microdrop/plugin-manager"}
 
@@ -46,8 +43,7 @@ class PluginProcessManager extends UIPlugin {
     const plugin = msg.plugin;
     const element = $(msg.element);
     element.css({opacity: 0.5});
-    console.log("LAUNCHING PLUGIN:::");
-    console.log(plugin);
+
     if (msg.action == "load") this.trigger("launch-plugin", plugin.dir);
     if (msg.action == "stop") this.trigger("close-plugin", plugin.name);
   }
@@ -66,10 +62,11 @@ class PluginProcessManager extends UIPlugin {
     const addPathBtn =
       $(`<button class="btn btn-secondary">Add Search Path</button>`);
     const linkPluginBtn =
-      $(`<button class="btn btn-primary">Link Plugin</button>`);
+      $(`<button class="btn btn-primary">Register Plugin</button>`);
 
     addPathBtn.on("click", () => {this.trigger("add-path", field[0].value)});
-    linkPluginBtn.on("click", () => this.trigger("save-plugins", null));
+    linkPluginBtn.on("click", () =>
+      this.trigger("add-plugin-path", this.wrapData("path", field[0].value)));
 
     controls.append(field);
     controls.append(addPathBtn);

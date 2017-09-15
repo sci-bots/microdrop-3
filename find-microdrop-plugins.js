@@ -59,6 +59,15 @@ function findUserDefinedPlugins() {
     // Validate the search path exists
     if (!fs.existsSync(searchPath)) continue;
 
+    // Check if searchPath is itself a plugin
+    if (fs.existsSync(path.join(searchPath, "microdrop.json"))) {
+      if ("send" in process)
+        process.send({plugin_path: searchPath});
+      else
+        console.log(`Plugin Dir: ${searchPath}`);
+      continue;
+    }
+
     // Get all subdirectories:
     const subDirectories = getDirectories(searchPath);
 
