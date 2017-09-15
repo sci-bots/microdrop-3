@@ -12,16 +12,19 @@ const NodeMqttClient = require('./NodeMqttClient');
 
 class WebServer extends NodeMqttClient {
   constructor() {
+    if (!fs.existsSync(path.resolve("plugins.json")))
+      WebServer.generatePackageJSON();
+    // Check if package.json exists, and if not create it:
     super("localhost", 1883, "microdrop");
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
-    this.plugins = new Set();
-
+    this.webPlugins = new Set();
+    this.processPlugins = this.ProcessPlugins();
   }
+
   listen() {
-    const plugin_finder = fork("find-microdrop-plugins");
-    plugin_finder.on('message', this.onPluginFound.bind(this));
+    this.findPlugins();
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
@@ -31,23 +34,34 @@ class WebServer extends NodeMqttClient {
     this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
     this.onTriggerMsg("remove-plugin", this.onRemovePlugin.bind(this));
 
-    this.bindStateMsg("new-process-plugins", "set-new-process-plugins");
     this.bindStateMsg("process-plugins", "set-process-plugins");
-    this.onTriggerMsg("save-process-plugins", this.onSaveProcessPlugins.bind(this));
-    this.onStateMsg("web-server", "process-plugins", this.onProcessPluginsSet.bind(this));
+    this.bindSignalMsg("running-state-requested", "request-running-states");
+    this.onSignalMsg("{plugin_name}", "running", this.onPluginRunning.bind(this));
     this.onSignalMsg("{plugin_name}", "plugin-started", this.onProcessPluginStarted.bind(this));
     this.onSignalMsg("{plugin_name}", "plugin-exited", this.onProcessPluginExited.bind(this));
     this.onTriggerMsg("launch-plugin", this.onLaunchProcessPlugin.bind(this));
     this.onTriggerMsg("close-plugin", this.onCloseProcessPlugin.bind(this));
+    this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
 
-    this.allPlugins = new Object();
-    this.newPlugins = new Object();
-    this.processPluginsHasInitialized = false;
     this._listen(3000);
   }
-  addPlugin(plugin) {
-    this.plugins.add(plugin);
-    this.trigger("set-web-plugins", [...this.plugins]);
+  static generatePackageJSON() {
+    const pluginData = new Object();
+    pluginData.plugins = new Object();
+    pluginData.search_paths = new Array();
+    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+  }
+  findPlugins() {
+    const plugin_finder = fork("find-microdrop-plugins");
+    plugin_finder.on('message', this.onPluginFound.bind(this));
+  }
+  retrieveProcessPlugins() {
+    const pluginsFile = path.resolve("plugins.json");
+    return JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
+  }
+  addWebPlugin(plugin) {
+    this.webPlugins.add(plugin);
+    this.trigger("set-web-plugins", [...this.webPlugins]);
 
     // Serve directory containing file:
     this.use(express.static(path.dirname(plugin), {extensions:['html']}));
@@ -55,9 +69,18 @@ class WebServer extends NodeMqttClient {
     // Re-generate display template
     this.generateDisplayTemplate();
   }
+  addProcessPlugin(plugin) {
+    const pluginData = this.retrieveProcessPlugins();
+    if (plugin.id in pluginData) {
+    } else {
+      pluginData.plugins[plugin.id] = {name: plugin.name, path: plugin.path};
+      fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+    }
+    this.processPlugins = this.ProcessPlugins();
+  }
   generateDisplayTemplate() {
     // Generate input data for handlebars template:
-    const pluginPaths = _.map([...this.plugins], (src) => {
+    const pluginPaths = _.map([...this.webPlugins], (src) => {
       return {src: path.basename(src)}});
 
     // Update html file with added / removed plugins:
@@ -71,56 +94,51 @@ class WebServer extends NodeMqttClient {
   }
   validatePreviousPlugins() {
     // TODO: Send error to plugin manager if plugin can no longer be found
-    for (const file of this.plugins){
+    for (const file of this.webPlugins){
       const fileExists = fs.existsSync(file);
-      if (!fileExists) this.plugins.delete(file);
+      if (!fileExists) this.webPlugins.delete(file);
     }
   }
-  onProcessPluginsSet(payload) {
-    this.allPlugins = payload;
-    if (this.processPluginsHasInitialized == false){
-      this.processPluginsHasInitialized = true;
-      for (const [k,v] of Object.entries(this.newPlugins)){
-        this.allPlugins[k] = v;
-      }
-      this.trigger("set-process-plugins", this.allPlugins);
-    }
-    this.trigger("set-new-process-plugins", this.allPlugins);
+  onAddPluginPath(payload) {
+    const pluginData = this.retrieveProcessPlugins();
+    const pluginPath = path.resolve(payload.path);
+
+    // Retrieve Search Paths:
+    const searchDirectories = new Set(pluginData.search_paths);
+
+    // Validate Search Path:
+    if (!fs.existsSync(pluginPath)) return;
+
+    // Add to searchDirectories
+    searchDirectories.add(pluginPath);
+    pluginData.search_paths = [...searchDirectories];
+
+    // Save plugin data:
+    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+
+    // Find Plugins:
+    this.findPlugins();
+  }
+  onPluginRunning(payload, pluginName) {
+    const pluginPath = payload;
+    const pluginId = `${pluginName}:${pluginPath}`;
+    this.processPlugins[pluginId].state = "running";
+    this.trigger("set-process-plugins", this.processPlugins);
   }
   onProcessPluginStarted(payload, pluginName) {
     const plugin = new Object();
     plugin.name = pluginName;
     plugin.path = payload;
-    plugin.state = "running";
-    if (this.processPluginsHasInitialized == true) {
-      this.allPlugins[pluginName] = plugin;
-      this.trigger("set-process-plugins", this.allPlugins);
-    }
-    if (this.processPluginsHasInitialized == false) {
-      // Don't trigger state update (as to avoid potentially overriding prev
-      // plugins)
-      this.newPlugins[pluginName] = plugin;
-      this.trigger("set-new-process-plugins", this.newPlugins);
-    }
+    plugin.id   = `${plugin.name}:${plugin.path}`;
+    this.addProcessPlugin(plugin);
+    this.processPlugins[plugin.id].state = "running";
+    this.trigger("set-process-plugins", this.processPlugins);
   }
   onProcessPluginExited(payload, pluginName) {
-    if (this.processPluginsHasInitialized == false) {
-      this.allPlugins = this.newPlugins;
-    }
-    if (!this.allPlugins[pluginName]) {
-      console.error(`plugin: ${pluginName} not registered`);
-      return;
-    }
-    this.allPlugins[pluginName].state = "stopped";
-    this.trigger("set-process-plugins", this.allPlugins);
-  }
-  onSaveProcessPlugins(payload) {
-    // XXX: Currently using as quick hack to deal with aynchronous updates
-    // of process plugins (can avoid with synchronous mqtt messages)
-    if (this.processPluginsHasInitialized == false) {
-      this.allPlugins = this.newPlugins;
-      this.trigger("set-process-plugins", this.allPlugins);
-    }
+    const pluginPath = payload;
+    const pluginId = `${pluginName}:${pluginPath}`;
+    this.processPlugins[pluginId].state = "stopped";
+    this.trigger("set-process-plugins", this.processPlugins);
   }
   onLaunchProcessPlugin(payload) {
     const pluginPath = payload;
@@ -155,17 +173,27 @@ class WebServer extends NodeMqttClient {
     if (error) { this.trigger("set-web-plugins-failed", error); return}
 
     // Add plugin to list of web-plugins:
-    this.addPlugin(file);
+    this.addWebPlugin(file);
   }
   onPluginFound(payload){
+    const plugin = new Object();
     const plugin_path = payload.plugin_path;
-    console.log("PLUGIN FOUND:::");
-    console.log(plugin_path);
+    const plugin_file = path.join(payload.plugin_path, "microdrop.json");
+    const plugin_data = JSON.parse(fs.readFileSync(plugin_file, 'utf8'));
+
+    plugin.path = plugin_path;
+    plugin.name = plugin_data.name;
+    plugin.version = plugin_data.version;
+    plugin.state = "stopped";
+    plugin.id = `${plugin.name}:${plugin.path}`;
+
+    this.addProcessPlugin(plugin);
+    this.trigger("set-process-plugins", this.processPlugins);
   }
   onRemovePlugin(payload) {
     const filepath = payload.filepath;
-    this.plugins.delete(filepath);
-    this.trigger("set-web-plugins", [...this.plugins]);
+    this.webPlugins.delete(filepath);
+    this.trigger("set-web-plugins", [...this.webPlugins]);
     this.generateDisplayTemplate();
   }
   onShowIndex(req, res) {
@@ -177,8 +205,8 @@ class WebServer extends NodeMqttClient {
       `);
   }
   onWebPluginsChanged(payload) {
-    this.plugins = new Set(payload);
-    for (const filepath of this.plugins) {
+    this.webPlugins = new Set(payload);
+    for (const filepath of this.webPlugins) {
       this.use(express.static(path.dirname(filepath), {extensions:['html']}));
     }
     this.generateDisplayTemplate();
@@ -192,6 +220,18 @@ class WebServer extends NodeMqttClient {
     app.use  = server.use.bind(server);
     app._listen = server.listen.bind(server);
     return app;
+  }
+  ProcessPlugins() {
+    // Get a list of plugin names from json file
+    const pluginData = this.retrieveProcessPlugins();
+
+    // Set all of their running states to "stopped"
+    for (const [id,plugin] of Object.entries(pluginData.plugins))
+      plugin.state = "stopped"
+
+    // Ping plugins to get their actual running state
+    this.trigger("request-running-states", null);
+    return pluginData.plugins;
   }
 }
 

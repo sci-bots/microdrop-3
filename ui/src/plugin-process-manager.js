@@ -9,13 +9,17 @@ class PluginProcessManager extends UIPlugin {
     this.pluginPathField = this.PluginPathField();
   }
   listen() {
-    this.onStateMsg("web-server", "new-process-plugins", this.onPluginsUpdated.bind(this));
+    this.onStateMsg("web-server", "process-plugins", this.onPluginsUpdated.bind(this));
+    this.bindTriggerMsg("web-server", "add-plugin-path", "add-plugin-path");
     this.bindTriggerMsg("web-server", "launch-plugin", "launch-plugin");
     this.bindTriggerMsg("web-server", "close-plugin", "close-plugin");
     this.bindTriggerMsg("web-server", "save-process-plugins", "save-plugins");
 
-    this.on("add-plugin", this.onAddPlugin.bind(this));
+    this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
+
+    // Trigger Save:
+    setTimeout(()=>this.trigger("save-plugins", null), 500);
   }
   get channel() {return "microdrop/plugin-manager"}
 
@@ -35,42 +39,45 @@ class PluginProcessManager extends UIPlugin {
                    margin: "5px", padding: "5px", "text-align": "center"};
     return styles;
   }
-  onAddPlugin(msg) {
-    // Get path from text field:
-    const path = this.pluginPathField.value;
-    this.trigger("launch-plugin", path);
+  onAddPath(path) {
+    this.trigger("add-plugin-path", this.wrapData("path", path));
   }
   onPluginCardAction(msg) {
     const plugin = msg.plugin;
     const element = $(msg.element);
     element.css({opacity: 0.5});
+    console.log("LAUNCHING PLUGIN:::");
+    console.log(plugin);
     if (msg.action == "load") this.trigger("launch-plugin", plugin.dir);
     if (msg.action == "stop") this.trigger("close-plugin", plugin.name);
   }
-
   onPluginsUpdated(payload){
     const allPlugins = JSON.parse(payload);
+    console.log("PLUGINS UPDATED:::");
+    console.log(allPlugins);
     this.list = this.PluginsContainer(allPlugins);
   }
   setPluginToStopped(plugin) {
     plugin.state = "stopped";
   }
   PluginPathField() {
-    const controls = D("<div></div>");
-    const pluginPathsTextField = D('<input type="text" value="" >');
-    const addBtn = D(`<button class="btn btn-secondary">Add Plugin Path</button>`);
-    const saveBtn = $(`<button class="btn btn-primary">Save Plugins</button>`);
+    const controls = $("<div></div>");
+    const field = $('<input type="text" value="" >');
+    const addPathBtn =
+      $(`<button class="btn btn-secondary">Add Search Path</button>`);
+    const linkPluginBtn =
+      $(`<button class="btn btn-primary">Link Plugin</button>`);
 
-    addBtn.on("click", (e) => this.trigger("add-plugin", e));
-    saveBtn.on("click", () => this.trigger("save-plugins", null));
+    addPathBtn.on("click", () => {this.trigger("add-path", field[0].value)});
+    linkPluginBtn.on("click", () => this.trigger("save-plugins", null));
 
-    controls.appendChild(pluginPathsTextField.el);
-    controls.appendChild(addBtn.el);
-    controls.appendChild(saveBtn[0]);
-    this.element.appendChild(controls.el);
-    return pluginPathsTextField;
+    controls.append(field);
+    controls.append(addPathBtn);
+    controls.append(linkPluginBtn);
+    this.element.appendChild(controls[0]);
+    return field;
   }
-  PluginListItem(plugin, pluginName) {
+  PluginListItem(plugin, id) {
     const row = $(`<div class="row"></div>`);
     const col1 = $(`<div class="col-md-3"></div>`).appendTo(row);
     const col2 = $(`<div class="col-md-6"></div>`).appendTo(row);
@@ -78,7 +85,7 @@ class PluginProcessManager extends UIPlugin {
     const col4 = $(`<div class="col-md-1"></div>`).appendTo(row);
 
     // Label:
-    col1.append(`<label class="mr-2">${pluginName}</label>`);
+    col1.append(`<label class="mr-2">${plugin.name}</label>`);
 
     // Badge:
     let cls, text;
@@ -121,20 +128,18 @@ class PluginProcessManager extends UIPlugin {
     _.each(this.plugins, (plugin) => plugin.state = "stopped");
 
     // Set state of running plugins to running state
-    _.each(allPlugins, (obj, name) => {
+    _.each(allPlugins, (obj, id) => {
       const dir = obj.path;
+      const name = obj.name;
       const state = obj.state;
-      this.plugins[name] = new Object();
-      const plugin = this.plugins[name];
+      this.plugins[id] = new Object();
+      const plugin = this.plugins[id];
       plugin.dir = dir.toString();
       plugin.name = name;
       plugin.state = obj.state;
     });
 
-    // const container = $("<div></div>");
-    //
     _.each(this.plugins, (v,k) => container.append(this.PluginListItem(v,k)));
-    // list.append(container[0]);
 
     return container[0];
   }

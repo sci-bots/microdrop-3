@@ -2,11 +2,33 @@ const {exec} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const walk = require('walk');
+const isDirectory = source =>
+  fs.lstatSync(source).isDirectory() || fs.lstatSync(source).isSymbolicLink()
 
-function conda() {
-  // console.log("GET CONDA INFO::");
+const getDirectories = source =>
+  fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory);
 
+function findPluginsInPaths(paths) {
+  for (const plugin_path of paths) {
+    // Confirm path exists
+    if (!fs.existsSync(plugin_path)) continue;
+
+    // Get list of sub directories
+    const sub_directories = getDirectories(plugin_path);
+
+    // Check each sub directory for a microdrop.json file
+    for (const dir of sub_directories) {
+      if (fs.existsSync(path.join(dir, "microdrop.json"))){
+        if ("send" in process)
+          process.send({plugin_path: dir});
+        else
+          console.log(`Plugin Dir: ${dir}`);
+      }
+    }
+  }
+}
+
+function findCondaPlugins() {
   exec('conda info --json', (error, stdout, stderr) => {
     if (error) {
       console.error('Could not retrieve conda information:::');
@@ -22,27 +44,35 @@ function conda() {
         path.join(env,"/share/microdrop/plugins/available")
       );
     }
-
-    for (const conda_path of conda_paths) {
-
-      const walker = walk.walk(conda_path);
-
-      walker.on("file", function (root, fileStats, next) {
-        fs.readFile(fileStats.name, function () {
-          if (fileStats.name == 'microdrop.json') {
-            // console.log("SENDING PLUGIN PATH::");
-            process.send({plugin_path: root});
-            // console.log(`FOUND PLUGIN: ${root}`);
-          }
-          // console.log(`NAME: ${fileStats.name}`);
-          next();
-        });
-      });
-
-    }
-
+    findPluginsInPaths(conda_paths);
   });
-
 }
 
-conda();
+function findUserDefinedPlugins() {
+  // Load paths stored in JSON file
+  const pluginsFile = path.resolve("plugins.json");
+  const pluginsData = JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
+  const searchPaths = pluginsData.search_paths;
+
+  // Iterate through each path
+  for (const searchPath of searchPaths) {
+    // Validate the search path exists
+    if (!fs.existsSync(searchPath)) continue;
+
+    // Get all subdirectories:
+    const subDirectories = getDirectories(searchPath);
+
+    // Check each sub directory for a microdrop.json file
+    for (const dir of subDirectories) {
+      if (fs.existsSync(path.join(dir, "microdrop.json"))){
+        if ("send" in process)
+          process.send({plugin_path: dir});
+        else
+          console.log(`Plugin Dir: ${dir}`);
+      }
+    }
+  }
+}
+
+findCondaPlugins();
+findUserDefinedPlugins();
