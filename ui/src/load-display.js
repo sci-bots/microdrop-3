@@ -43,32 +43,100 @@ function setSizes(dockPanel, sizes) {
 }
 
 window.panel = new PhosphorWidgets.DockPanel();
-// box.title.label = 'Demo';
-// box.title.closable = true;
+window.widgetMap = new Map();
+window.hasLaunched = false;
+
 panel.spacing = 10;
-const docks = new Object();
-docks.topLeft     = createDock("top-left");
-docks.bottomLeft  = createDock("bottom-left");
-docks.topRight    = createDock("top-right");
-docks.bottomRight = createDock("bottom-right");
+dock = createDock("top-left");
 
 panel.id = 'main';
-panel.addWidget(docks.topLeft);
-panel.addWidget(docks.bottomLeft, {mode: "split-bottom", ref: docks.topLeft});
-panel.addWidget(docks.bottomRight, {mode: "split-right", ref: docks.bottomLeft});
-panel.addWidget(docks.topRight, {mode: "split-right", ref: docks.topLeft});
+panel.addWidget(dock);
 
-// Set default sizes
-// Tree structure [parent, left-subtree, right-subtree]
-// for leafs dont surround in brackets
-const defaultSize = [1.0, [.70,.67,.33],[.30,.6,.4]];
-setSizes(panel, defaultSize);
 PhosphorWidget.attach(panel, document.body);
 
 focusTracker = new FocusTracker();
 for (const [pluginName,pluginClass] of microdropPlugins) {
-  const dock = docks[pluginClass.position()];
+  // const dock = docks[pluginClass.position()];
   const widget = pluginClass.Widget(panel, dock, focusTracker);
+  widgetMap.set(widget.title.label, widget);
+}
+dock.dispose();
+
+function restorePanels() {
+  // Use first widget as anchor for latter added widgets
+  let firstWidget = null;
+
+  function getChildren(obj) {
+    // Traverse the layout structure, replacing widgetNames with widgetObjects
+    const children = obj.children;
+    if ("widgets" in obj) {
+      const widgetObjects = new Array();
+      for (const title of obj.widgets){
+        // Replace each widgetName with widgetObject
+        let widget = widgetMap.get(title);
+        if (!firstWidget) firstWidget = widget;
+        widgetObjects.push(widget);
+        // Delete from widgetMap, to keep track of new
+        // widgets not saved in layout
+        widgetMap.delete(title);
+      }
+      obj.widgets = widgetObjects;
+    }
+    // Continue traversal
+    if (children == undefined) return;
+    for (const child of children) {
+      getChildren(child);
+    }
+  }
+
+  // Fetch the layout, and replace widgetNames with widgetObjects
+  const layout = JSON.parse(localStorage.getItem("microdrop:layout"));
+  getChildren(layout.main);
+  panel.restoreLayout(layout);
+
+  // For any widgets, not mentioned in they layout, add them to the first
+  // widget
+  for (const [title, widget] of widgetMap) {
+    panel.addWidget(widget,  {mode: "tab-after", ref: firstWidget});
+  }
+  return layout;
+}
+
+function savePanels() {
+  // Save layout to local storage
+  function getChildren(obj) {
+    // Traverse layout, replacing widgetObject with widgetName to make
+    // the layout JSON serializable
+    const children = obj.children;
+    if ("widgets" in obj) {
+      const widgetNames = new Array();
+      for (const widget of obj.widgets)
+        widgetNames.push(widget.title.label);
+      obj.widgets = widgetNames;
+    }
+    if (children == undefined) return;
+    for (const child of children) {
+      getChildren(child);
+    }
+  }
+  // Fetch layout, serialize it, and then save to local storage
+  const layout = panel.saveLayout();
+  getChildren(layout.main);
+  localStorage.setItem("microdrop:layout", JSON.stringify(layout));
+  return layout;
+}
+
+panel.onUpdateRequest = (msg) => {
+  // Save layout everytime it is updated
+  if (window.hasLaunched)
+    savePanels();
+  else {
+    window.hasLaunched = true;
+    if ("microdrop:layout" in window.localStorage)
+      restorePanels()
+    else
+      savePanels();
+  }
 }
 
 window.onresize = () => {panel.update()};

@@ -6,9 +6,9 @@ const {fork, spawn} = require('child_process');
 const _ = require('lodash');
 const express = require('express');
 const handlebars = require('handlebars');
+const NodeMqttClient = require('@mqttclient/node');
 
 const MoscaServer  = require('./MoscaServer');
-const NodeMqttClient = require('./NodeMqttClient');
 
 class WebServer extends NodeMqttClient {
   constructor() {
@@ -19,6 +19,10 @@ class WebServer extends NodeMqttClient {
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
+
+    // NPM Packages used in Handlebar template:
+    this.use(express.static(path.join(__dirname,"node_modules/@mqttclient"), {extensions:['html']}));
+
     this.webPlugins     = this.WebPlugins();
     this.processPlugins = this.ProcessPlugins();
   }
@@ -133,6 +137,24 @@ class WebServer extends NodeMqttClient {
     // Find Plugins:
     this.findPlugins();
   }
+  onCloseProcessPlugin(payload) {
+    const pluginName = payload;
+    const topic = `microdrop/${pluginName}/exit`;
+    this.sendMessage(topic);
+  }
+  onLaunchProcessPlugin(payload) {
+    const pluginPath = payload;
+    const platform = os.platform();
+    let npm;
+
+    // For windows, use npm.cmd to run plugin
+    if (platform == "win32") npm = "npm.cmd";
+    if (platform != "win32") npm = "npm";
+
+    // Spawn child and de-reference so it doesn't close when the broker does
+    const child = spawn(npm, ["start", "--prefix", pluginPath]);
+    child.unref();
+  }
   onPluginRunning(payload, pluginName) {
     const pluginPath = payload;
     const pluginId = `${pluginName}:${pluginPath}`;
@@ -154,19 +176,6 @@ class WebServer extends NodeMqttClient {
     this.processPlugins[pluginId].state = "stopped";
     this.trigger("set-process-plugins", this.processPlugins);
   }
-  onLaunchProcessPlugin(payload) {
-    const pluginPath = payload;
-    const platform = os.platform();
-    let npm;
-
-    // For windows, use npm.cmd to run plugin
-    if (platform == "win32") npm = "npm.cmd";
-    if (platform != "win32") npm = "npm";
-
-    // Spawn child and de-reference so it doesn't close when the broker does
-    const child = spawn(npm, ["start", "--prefix", pluginPath]);
-    child.unref();
-  }
   onUpdateUIPluginState(payload) {
     // TODO: Make method more general (i.e. just ui plugin state)
     const plugin = payload;
@@ -181,11 +190,7 @@ class WebServer extends NodeMqttClient {
     this.webPlugins = this.WebPlugins();
     this.trigger("set-web-plugins", this.webPlugins);
   }
-  onCloseProcessPlugin(payload) {
-    const pluginName = payload;
-    const topic = `microdrop/${pluginName}/exit`;
-    this.sendMessage(topic);
-  }
+
   onAddWebPlugin(payload) {
     // Validate old plugins (ensure they still exist)
     const file = path.resolve(payload);

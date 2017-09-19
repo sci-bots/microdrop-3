@@ -1,9 +1,7 @@
 const _ = require('lodash');
 const crossroads = require('crossroads');
 const Backbone = require('backbone');
-const mqtt = require('mqtt')
-
-const NodeMqttClient = require('../NodeMqttClient');
+const NodeMqttClient = require('@mqttclient/node');
 
 class PluginModel extends NodeMqttClient {
   constructor() {

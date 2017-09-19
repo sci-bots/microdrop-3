@@ -15,7 +15,7 @@
   <script type="text/javascript" src="scripts/js-signals.min.js"></script>
   <script type="text/javascript" src="scripts/crossroads.min.js"></script>
   <script type="text/javascript" src="main.js"></script>
-  <script type="text/javascript" src="mqtt-messages.js"></script>
+  <script type="text/javascript" src="mqtt-messages/mqtt-messages.js"></script>
   <script type="text/javascript" src="mqtt-client.js"></script>
   <script type="text/javascript" src="ui-plugin.js"></script>
   <!-- Plugins -->
