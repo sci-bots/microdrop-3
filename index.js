@@ -4,14 +4,16 @@ const path = require('path');
 const {fork, spawn} = require('child_process');
 
 const _ = require('lodash');
+const ArgumentParser = require('argparse').ArgumentParser;
 const express = require('express');
 const handlebars = require('handlebars');
 const NodeMqttClient = require('@mqttclient/node');
 
 const MoscaServer  = require('./MoscaServer');
 
+
 class WebServer extends NodeMqttClient {
-  constructor() {
+  constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve("plugins.json")))
       WebServer.generatePackageJSON();
@@ -23,6 +25,10 @@ class WebServer extends NodeMqttClient {
     // NPM Packages used in Handlebar template:
     this.use(express.static(path.join(__dirname,"node_modules/@mqttclient"), {extensions:['html']}));
 
+    // Get extra search paths from class inputs:
+    this.args = args;
+
+    // Init default plugins
     this.webPlugins     = this.WebPlugins();
     this.processPlugins = this.ProcessPlugins();
   }
@@ -49,7 +55,15 @@ class WebServer extends NodeMqttClient {
     this._listen(3000);
   }
   findPlugins() {
-    const plugin_finder = fork("find-microdrop-plugins");
+    let args = [];
+    if (this.args.path) {
+      for (const searchpath of this.args.path) {
+        args.push("--path");
+        args.push(searchpath);
+      }
+    }
+
+    const plugin_finder = fork("find-microdrop-plugins", args);
     plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
   }
   retrievePluginData() {
@@ -258,8 +272,24 @@ class WebServer extends NodeMqttClient {
 }
 
 const launchMicrodrop = function() {
+
+
+  const parser = new ArgumentParser({
+    version: '0.0.1',
+    addHelp:true,
+    description: 'Microdrop Args Parser'
+  });
+
+  parser.addArgument(
+    [ '-p', '--path' ],
+    {
+      help: 'Additional microdrop plugin searchpath',
+      action: "append"
+    }
+  );
+
   const moscaServer = new MoscaServer();
-  const webServer = new WebServer();
+  const webServer = new WebServer(parser.parseArgs());
 }
 
 module.exports = {

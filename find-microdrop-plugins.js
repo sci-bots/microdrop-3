@@ -2,6 +2,24 @@ const {exec} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const ArgumentParser = require('argparse').ArgumentParser;
+
+const parser = new ArgumentParser({
+  version: '0.0.1',
+  addHelp:true,
+  description: 'Microdrop Find Plugins Args Parser'
+});
+
+parser.addArgument(
+  [ '-p', '--path' ],
+  {
+    help: 'Additional microdrop plugin searchpath',
+    action: "append"
+  }
+);
+
+var args = parser.parseArgs();
+
 const isDirectory = source =>
   fs.lstatSync(source).isDirectory() || fs.lstatSync(source).isSymbolicLink()
 
@@ -28,31 +46,17 @@ function findPluginsInPaths(paths) {
   }
 }
 
-function findCondaPlugins() {
-  exec('conda info --json', (error, stdout, stderr) => {
-    if (error) {
-      console.error('Could not retrieve conda information:::');
-      console.error(error);
-      return;
-    }
-    const conda_info = JSON.parse(stdout);
-    const conda_paths = new Array();
-    conda_paths.push(path.join(conda_info['root_prefix'],
-              "/share/microdrop/plugins/available"));
-    for (const env of conda_info['envs']) {
-      conda_paths.push(
-        path.join(env,"/share/microdrop/plugins/available")
-      );
-    }
-    findPluginsInPaths(conda_paths);
-  });
-}
-
 function findUserDefinedPlugins() {
   // Load paths stored in JSON file
   const pluginsFile = path.resolve("plugins.json");
   const pluginsData = JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
   const searchPaths = pluginsData.searchPaths;
+
+  // Append path arguments to searchpaths:
+  let extraPaths = [];
+  if (args.path) extraPaths = args.path;
+  for (const searchpath of extraPaths)
+    searchPaths.push(path.resolve(searchpath));
 
   // Iterate through each path
   for (const searchPath of searchPaths) {
@@ -83,5 +87,5 @@ function findUserDefinedPlugins() {
   }
 }
 
-findCondaPlugins();
+// findCondaPlugins();
 findUserDefinedPlugins();
