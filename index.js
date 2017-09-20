@@ -38,10 +38,12 @@ class WebServer extends NodeMqttClient {
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
+
     this.addGetRoute("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
-    this.addStateRoute("web-plugins", "set-web-plugins");
+    // this.addStateRoute("web-plugins", "set-web-plugins");
     this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
 
+    this.bindStateMsg("web-plugins", "set-web-plugins");
     this.bindStateMsg("process-plugins", "set-process-plugins");
     this.bindSignalMsg("running-state-requested", "request-running-states");
     this.onSignalMsg("{plugin_name}", "running", this.onPluginRunning.bind(this));
@@ -50,6 +52,7 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("launch-plugin", this.onLaunchProcessPlugin.bind(this));
     this.onTriggerMsg("close-plugin", this.onCloseProcessPlugin.bind(this));
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
+    this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
 
     this._listen(3000);
@@ -149,6 +152,39 @@ class WebServer extends NodeMqttClient {
     fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
 
     // Find Plugins:
+    this.findPlugins();
+  }
+  onRemovePluginPath(payload) {
+    const pluginData = this.retrievePluginData();
+    const pluginPath = path.resolve(payload.path);
+
+    // Remove plugins under this path
+    for (const [id, plugin] of Object.entries(pluginData.processPlugins)){
+      if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
+        delete pluginData.processPlugins[id];
+    }
+    for (const [id, plugin] of Object.entries(pluginData.webPlugins)){
+      if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
+        delete pluginData.webPlugins[id];
+    }
+
+    // Remove entry in pluginData.searchPaths
+    for (const [i, path] of Object.entries(pluginData.searchPaths)){
+      if (path == pluginPath) {
+        pluginData.searchPaths.splice(i, 1);
+        break;
+      }
+    }
+
+    // Write to file
+    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+
+    // Update
+    this.processPlugins = this.ProcessPlugins();
+    this.webPlugins = this.webPlugins();
+    this.trigger("set-process-plugins", this.processPlugins);
+    this.trigger("set-web-plugins", this.webPlugins);
+
     this.findPlugins();
   }
   onCloseProcessPlugin(payload) {

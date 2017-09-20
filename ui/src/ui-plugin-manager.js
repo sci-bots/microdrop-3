@@ -11,7 +11,8 @@ class UIPluginManager extends UIPlugin {
     this.bindTriggerMsg("web-server", "update-ui-plugin-state", "update-state");
     this.on("state-btn-clicked", this.onStateBtnClicked.bind(this));
 
-    this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
+    // this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
+    this.onStateMsg("web-server", "web-plugins", this.onWebPluginsChanged.bind(this));
     this.addGetRoute("microdrop/state/error/web-plugins", this.onChangeWebPluginsFailed.bind(this));
     this.addPostRoute("/add-web-plugin", "add-web-plugin");
   }

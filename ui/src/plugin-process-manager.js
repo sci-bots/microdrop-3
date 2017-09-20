@@ -119,6 +119,7 @@ class PluginProcessManager extends UIPlugin {
 
     // Set all plugins to stopped state
     _.each(this.plugins, (plugin) => plugin.state = "stopped");
+    this.plugins = new Object();
 
     // Set state of running plugins to running state
     _.each(allPlugins, (obj, id) => {
