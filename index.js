@@ -11,6 +11,11 @@ const NodeMqttClient = require('@mqttclient/node');
 
 const MoscaServer  = require('./MoscaServer');
 
+const DeviceModel     = require("./models/DeviceModel");
+const ElectrodesModel = require('./models/ElectrodesModel');
+const ProtocolModel   = require('./models/ProtocolModel');
+const RoutesModel     = require('./models/RoutesModel');
+const StepModel       = require('./models/StepModel');
 
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
@@ -40,7 +45,6 @@ class WebServer extends NodeMqttClient {
     this.get('/', this.onShowIndex.bind(this));
 
     this.addGetRoute("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
-    // this.addStateRoute("web-plugins", "set-web-plugins");
     this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
@@ -54,9 +58,19 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-
     this._listen(3000);
+
+    // Launch models:
+    new DeviceModel();
+    new ElectrodesModel();
+    new RoutesModel();
+    new ProtocolModel();
+    new StepModel();
+
+    // Ping plugins every three seconds
+    setInterval(this.pingRunningStates.bind(this), 3000);
   }
+  get filepath() {return __dirname;}
   findPlugins() {
     let args = [];
     if (this.args.path) {
@@ -138,7 +152,13 @@ class WebServer extends NodeMqttClient {
   getPluginData(pluginPath) {
     /* Read microdrop.json file found at path*/
     const pluginFile = path.join(pluginPath, "microdrop.json");
-    return JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+    if (fs.existsSync(pluginFile))
+      return JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+    else
+      return false;
+  }
+  pingRunningStates() {
+    this.trigger("request-running-states", null);
   }
   onAddPluginPath(payload) {
     const pluginData = this.retrievePluginData();
@@ -201,6 +221,7 @@ class WebServer extends NodeMqttClient {
   onLaunchProcessPlugin(payload) {
     const pluginPath = path.resolve(payload);
     const pluginData = this.getPluginData(pluginPath);
+    if (!pluginData) return false;
 
     try {
       const command = pluginData.scripts.start.split(" ");
@@ -222,10 +243,13 @@ class WebServer extends NodeMqttClient {
   }
 
   onClientConnected(payload) {
+    console.log("CLIENT CONNECTED:::");
+
     const plugin = new Object();
     plugin.name = payload.clientName;
     plugin.path = payload.clientPath;
     plugin.id   = `${plugin.name}:${plugin.path}`;
+    console.log(plugin);
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);

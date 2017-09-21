@@ -46,18 +46,11 @@ class ProtocolModel extends PluginModel {
     // TODO: Change to "microdrop/protocol-data-controller";
     return "microdrop/data-controller";
   }
-  get name() {
-    return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
-  }
-  get protocol() {
-    return this._protocol;
-  }
-  set protocol(protocol) {
-    this._protocol = protocol;
-  }
-  get time() {
-    return new Date(new Date().getTime()).toLocaleString();
-  }
+  get name() {return encodeURI(this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());}
+  get filepath() {return __dirname;}
+  get protocol() {return this._protocol;}
+  set protocol(protocol) {this._protocol = protocol;}
+  get time() {return new Date(new Date().getTime()).toLocaleString();}
 
   // ** Methods **
   createNewProtocol() {

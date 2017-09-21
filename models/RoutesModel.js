@@ -22,9 +22,8 @@ class RoutesModel extends PluginModel {
   }
 
   // ** Getters and Setters **
-  get channel() {
-    return "microdrop/routes-data-controller";
-  }
+  get channel() {return "microdrop/routes-data-controller";}
+  get filepath() {return __dirname;}
   get state() {
     const state = new Object();
     state.drop_routes = this.dropRoutes;

@@ -33,6 +33,11 @@ class StepModel extends PluginModel {
   }
 
   // ** Getters and Setters **
+  get filepath() {return __dirname;}
+  get steps() {return this._steps;}
+  set steps(steps) {this._steps = steps;}
+  get stepNumber() {return this._stepNumber;}
+  set stepNumber(stepNumber) {this._stepNumber = stepNumber;}
   get step() {
     if (this.steps == null) {
       console.error("Failed to get step; this.steps == null");
@@ -46,18 +51,6 @@ class StepModel extends PluginModel {
       return undefined;
     }
     this.steps[this.stepNumber] = step;
-  }
-  get steps() {
-    return this._steps;
-  }
-  set steps(steps) {
-    this._steps = steps;
-  }
-  get stepNumber() {
-    return this._stepNumber;
-  }
-  set stepNumber(stepNumber) {
-    this._stepNumber = stepNumber;
   }
 
   // ** Methods **

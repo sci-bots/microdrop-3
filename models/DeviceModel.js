@@ -26,7 +26,8 @@ class DeviceModel extends PluginModel {
   get channel() {return "microdrop/device"}
   get device() {return this._device}
   set device(device) {this._device = device}
-
+  get filepath() {return __dirname;}
+  
   onPutDevice(payload) {
     this.trigger("device-set", this.wrapData(null,payload))
   }

@@ -93,21 +93,11 @@ class ElectrodesModel extends PluginModel {
   }
 
   // ** Getters and Setters **
-  get channels() {
-    return this._channels;
-  }
-
-  set channels(channels) {
-    this._channels = channels;
-  }
-
-  get electrodes() {
-    return this._electrodes;
-  }
-
-  set electrodes(electrodes) {
-    this._electrodes = electrodes;
-  }
+  get channels() {return this._channels;}
+  set channels(channels) {this._channels = channels;}
+  get electrodes() {return this._electrodes;}
+  set electrodes(electrodes) {this._electrodes = electrodes;}
+  get filepath() {return __dirname;}
 
   get electrodesAsDataFrame() {
     // TODO: Ensure that they remain in the same order (possibly a lodash method)

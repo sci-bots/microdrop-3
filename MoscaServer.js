@@ -4,12 +4,6 @@ const crossroads = require('crossroads');
 const level = require('level');
 const mosca = require('mosca');
 
-const DeviceModel     = require("./models/DeviceModel");
-const ElectrodesModel = require('./models/ElectrodesModel');
-const ProtocolModel   = require('./models/ProtocolModel');
-const RoutesModel     = require('./models/RoutesModel');
-const StepModel       = require('./models/StepModel');
-
 class MoscaServer {
   constructor() {
     _.extend(this, Backbone.Events);
@@ -73,9 +67,13 @@ class MoscaServer {
     const [clientName, clientPath] = client.id.split(">>");
     if (clientPath == undefined)
       console.log('client connected', client.id);
-    else
+    else {
+      console.log(clientName, clientPath);
+      console.log("sending message...", `${this.channel}/signal/client-connected`);
       this.sendMessage(`${this.channel}/signal/client-connected`,
         {clientName: clientName, clientPath: clientPath});
+    }
+
   }
 
   onDisconnected(client) {
@@ -109,19 +107,9 @@ class MoscaServer {
       `Mosca server is up and running on port: ${this.settings.port}
        and http port: ${this.settings.http.port}`
     );
-
-    this.deviceModel     = new DeviceModel();
-    this.electrodesModel = new ElectrodesModel();
-    this.routesModel     = new RoutesModel();
-    this.protocolModel   = new ProtocolModel();
-    this.stepModel       = new StepModel();
   }
 
   onExit(options, err) {
-    this.deviceDataController.trigger("exit");
-    this.electrodeDataController.trigger("exit");
-    this.routesDataController.trigger("exit");
-    this.protocolDataController.trigger("exit");
     if (options.exit)
       setTimeout(() => process.exit(), 500);
   }
