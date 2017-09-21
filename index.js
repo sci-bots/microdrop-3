@@ -66,7 +66,8 @@ class WebServer extends NodeMqttClient {
       }
     }
 
-    const plugin_finder = fork("./find-microdrop-plugins", args);
+    const plugin_finder = fork(
+      path.join(__dirname,"find-microdrop-plugins"), args);
     plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
   }
   retrievePluginData() {
