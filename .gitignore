@@ -59,6 +59,5 @@ typings/
 
 # custom
 db/
-package-lock.json
 plugins.json
 ui/src/display.html
