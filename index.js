@@ -46,9 +46,9 @@ class WebServer extends NodeMqttClient {
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.bindStateMsg("process-plugins", "set-process-plugins");
     this.bindSignalMsg("running-state-requested", "request-running-states");
+    this.onSignalMsg("broker", "client-connected", this.onClientConnected.bind(this));
+    this.onSignalMsg("broker", "client-disconnected", this.onClientDisconnected.bind(this));
     this.onSignalMsg("{plugin_name}", "running", this.onPluginRunning.bind(this));
-    this.onSignalMsg("{plugin_name}", "plugin-started", this.onProcessPluginStarted.bind(this));
-    this.onSignalMsg("{plugin_name}", "plugin-exited", this.onProcessPluginExited.bind(this));
     this.onTriggerMsg("launch-plugin", this.onLaunchProcessPlugin.bind(this));
     this.onTriggerMsg("close-plugin", this.onCloseProcessPlugin.bind(this));
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
@@ -219,20 +219,26 @@ class WebServer extends NodeMqttClient {
     this.processPlugins[pluginId].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
   }
-  onProcessPluginStarted(payload, pluginName) {
+
+  onClientConnected(payload) {
     const plugin = new Object();
-    plugin.name = pluginName;
-    plugin.path = payload;
+    plugin.name = payload.clientName;
+    plugin.path = payload.clientPath;
     plugin.id   = `${plugin.name}:${plugin.path}`;
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
   }
-  onProcessPluginExited(payload, pluginName) {
-    const pluginPath = payload;
+
+  onClientDisconnected(payload){
+    const pluginName = payload.clientName;
+    const pluginPath = payload.clientPath;
     const pluginId = `${pluginName}:${pluginPath}`;
-    this.processPlugins[pluginId].state = "stopped";
-    this.trigger("set-process-plugins", this.processPlugins);
+
+    if (this.processPlugins[pluginId]) {
+      this.processPlugins[pluginId].state = "stopped";
+      this.trigger("set-process-plugins", this.processPlugins);
+    }
   }
   onUpdateUIPluginState(payload) {
     // TODO: Make method more general (i.e. just ui plugin state)

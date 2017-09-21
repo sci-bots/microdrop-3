@@ -43,6 +43,7 @@ class MoscaServer {
   // ** Event Listeners **
   listen() {
     this.server.on('clientConnected', this.onConnected.bind(this));
+    this.server.on('clientDisconnected', this.onDisconnected.bind(this));
     this.server.on('published', this.onPublish.bind(this));
     this.server.on('ready', this.onSetup.bind(this));
   }
@@ -69,7 +70,22 @@ class MoscaServer {
 
   // ** Event Handlers **
   onConnected(client) {
-    console.log('client connected', client.id);
+    const [clientName, clientPath] = client.id.split(">>");
+    if (clientPath == undefined)
+      console.log('client connected', client.id);
+    else
+      this.sendMessage(`${this.channel}/signal/client-connected`,
+        {clientName: clientName, clientPath: clientPath});
+  }
+
+  onDisconnected(client) {
+    const [clientName, clientPath] = client.id.split(">>");
+    if (clientPath == undefined) {
+      console.log('client disconnected', client.id);
+      return;
+    }
+    this.sendMessage(`${this.channel}/signal/client-disconnected`,
+      {clientName: clientName, clientPath: clientPath});
   }
 
   onPublish(packet, client){
@@ -89,8 +105,10 @@ class MoscaServer {
   }
 
   onSetup() {
-    console.log('Mosca server is up and running on port: ' + this.settings.port +
-                 ' and http port: ' + this.settings.http.port);
+    console.log(
+      `Mosca server is up and running on port: ${this.settings.port}
+       and http port: ${this.settings.http.port}`
+    );
 
     this.deviceModel     = new DeviceModel();
     this.electrodesModel = new ElectrodesModel();
