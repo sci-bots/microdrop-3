@@ -20,7 +20,7 @@ const StepModel       = require('./models/StepModel');
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
-    if (!fs.existsSync(path.resolve("plugins.json")))
+    if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
       WebServer.generatePluginJSON();
     super("localhost", 1883, "microdrop");
     Object.assign(this, this.ExpressServer());
@@ -71,6 +71,7 @@ class WebServer extends NodeMqttClient {
     setInterval(this.pingRunningStates.bind(this), 3000);
   }
   get filepath() {return __dirname;}
+  get pluginsfile() {return path.resolve(path.join(__dirname, "plugins.json"));}
   findPlugins() {
     let args = [];
     if (this.args.path) {
@@ -85,8 +86,7 @@ class WebServer extends NodeMqttClient {
     plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
   }
   retrievePluginData() {
-    const pluginsFile = path.resolve("plugins.json");
-    return JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
+    return JSON.parse(fs.readFileSync(this.pluginsfile, 'utf8'));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
     const file = path.resolve(plugin_path, plugin_data.script);
@@ -119,7 +119,8 @@ class WebServer extends NodeMqttClient {
     const pluginData = this.retrievePluginData();
     if (!(file in pluginData.webPlugins)) {
       pluginData.webPlugins[file] = {name: filename, path: file, state: "disabled"};
-      fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+      fs.writeFileSync(this.pluginsfile,
+        JSON.stringify(pluginData,null,4), 'utf8');
     }
     this.webPlugins = this.WebPlugins();
   }
@@ -127,7 +128,8 @@ class WebServer extends NodeMqttClient {
     const pluginData = this.retrievePluginData();
     if (!(plugin.id in pluginData)) {
       pluginData.processPlugins[plugin.id] = {name: plugin.name, path: plugin.path};
-      fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+      fs.writeFileSync(this.pluginsfile,
+        JSON.stringify(pluginData,null,4), 'utf8');
     }
     this.processPlugins = this.ProcessPlugins();
   }
@@ -151,9 +153,9 @@ class WebServer extends NodeMqttClient {
   }
   getPluginData(pluginPath) {
     /* Read microdrop.json file found at path*/
-    const pluginFile = path.join(pluginPath, "microdrop.json");
-    if (fs.existsSync(pluginFile))
-      return JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+    const microdropFile = path.join(pluginPath, "microdrop.json");
+    if (fs.existsSync(microdropFile))
+      return JSON.parse(fs.readFileSync(microdropFile, 'utf8'));
     else
       return false;
   }
@@ -175,7 +177,8 @@ class WebServer extends NodeMqttClient {
     pluginData.searchPaths = [...searchDirectories];
 
     // Save plugin data:
-    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+    fs.writeFileSync(this.pluginsfile,
+      JSON.stringify(pluginData,null,4), 'utf8');
 
     // Find Plugins:
     this.findPlugins();
@@ -203,7 +206,8 @@ class WebServer extends NodeMqttClient {
     }
 
     // Write to file
-    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+    fs.writeFileSync(this.pluginsfile,
+      JSON.stringify(pluginData,null,4), 'utf8');
 
     // Update
     this.processPlugins = this.ProcessPlugins();
@@ -275,7 +279,8 @@ class WebServer extends NodeMqttClient {
       return;
     }
     pluginData.webPlugins[plugin.path].state = plugin.state;
-    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+    fs.writeFileSync(this.pluginsfile,
+      JSON.stringify(pluginData,null,4), 'utf8');
     this.webPlugins = this.WebPlugins();
     this.trigger("set-web-plugins", this.webPlugins);
   }
@@ -340,7 +345,9 @@ class WebServer extends NodeMqttClient {
     pluginData.processPlugins = new Object();
     pluginData.webPlugins = new Object();
     pluginData.searchPaths = new Array();
-    fs.writeFileSync('plugins.json', JSON.stringify(pluginData,null,4), 'utf8');
+    const filepath = this.pluginsfile;
+    const data = JSON.stringify(pluginData,null,4);
+    fs.writeFileSync(filepath, data, 'utf8');
   }
 }
 
