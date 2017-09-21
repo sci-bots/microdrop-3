@@ -71,7 +71,6 @@ class WebServer extends NodeMqttClient {
     setInterval(this.pingRunningStates.bind(this), 3000);
   }
   get filepath() {return __dirname;}
-  get pluginsfile() {return path.resolve(path.join(__dirname, "plugins.json"));}
   findPlugins() {
     let args = [];
     if (this.args.path) {
@@ -86,7 +85,7 @@ class WebServer extends NodeMqttClient {
     plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
   }
   retrievePluginData() {
-    return JSON.parse(fs.readFileSync(this.pluginsfile, 'utf8'));
+    return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
     const file = path.resolve(plugin_path, plugin_data.script);
@@ -119,7 +118,7 @@ class WebServer extends NodeMqttClient {
     const pluginData = this.retrievePluginData();
     if (!(file in pluginData.webPlugins)) {
       pluginData.webPlugins[file] = {name: filename, path: file, state: "disabled"};
-      fs.writeFileSync(this.pluginsfile,
+      fs.writeFileSync(WebServer.pluginsfile(),
         JSON.stringify(pluginData,null,4), 'utf8');
     }
     this.webPlugins = this.WebPlugins();
@@ -128,7 +127,7 @@ class WebServer extends NodeMqttClient {
     const pluginData = this.retrievePluginData();
     if (!(plugin.id in pluginData)) {
       pluginData.processPlugins[plugin.id] = {name: plugin.name, path: plugin.path};
-      fs.writeFileSync(this.pluginsfile,
+      fs.writeFileSync(WebServer.pluginsfile(),
         JSON.stringify(pluginData,null,4), 'utf8');
     }
     this.processPlugins = this.ProcessPlugins();
@@ -177,7 +176,7 @@ class WebServer extends NodeMqttClient {
     pluginData.searchPaths = [...searchDirectories];
 
     // Save plugin data:
-    fs.writeFileSync(this.pluginsfile,
+    fs.writeFileSync(WebServer.pluginsfile(),
       JSON.stringify(pluginData,null,4), 'utf8');
 
     // Find Plugins:
@@ -206,7 +205,7 @@ class WebServer extends NodeMqttClient {
     }
 
     // Write to file
-    fs.writeFileSync(this.pluginsfile,
+    fs.writeFileSync(WebServer.pluginsfile(),
       JSON.stringify(pluginData,null,4), 'utf8');
 
     // Update
@@ -279,7 +278,7 @@ class WebServer extends NodeMqttClient {
       return;
     }
     pluginData.webPlugins[plugin.path].state = plugin.state;
-    fs.writeFileSync(this.pluginsfile,
+    fs.writeFileSync(WebServer.pluginsfile(),
       JSON.stringify(pluginData,null,4), 'utf8');
     this.webPlugins = this.WebPlugins();
     this.trigger("set-web-plugins", this.webPlugins);
@@ -340,12 +339,17 @@ class WebServer extends NodeMqttClient {
     this.generateDisplayTemplate();
     return pluginData.webPlugins;
   }
+
+  static pluginsfile() {
+    return path.resolve(path.join(__dirname, "plugins.json"));
+  }
+
   static generatePluginJSON() {
     const pluginData = new Object();
     pluginData.processPlugins = new Object();
     pluginData.webPlugins = new Object();
     pluginData.searchPaths = new Array();
-    const filepath = this.pluginsfile;
+    const filepath = WebServer.pluginsfile();
     const data = JSON.stringify(pluginData,null,4);
     fs.writeFileSync(filepath, data, 'utf8');
   }
