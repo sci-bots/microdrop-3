@@ -16,7 +16,7 @@ class WebServer extends NodeMqttClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve("plugins.json")))
-      WebServer.generatePackageJSON();
+      WebServer.generatePluginJSON();
     super("localhost", 1883, "microdrop");
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
@@ -134,6 +134,11 @@ class WebServer extends NodeMqttClient {
     const html = template({pluginPaths: pluginPaths});
     fs.writeFileSync(fileDest, html);
   }
+  getPluginData(pluginPath) {
+    /* Read microdrop.json file found at path*/
+    const pluginFile = path.join(pluginPath, "microdrop.json");
+    return JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+  }
   onAddPluginPath(payload) {
     const pluginData = this.retrievePluginData();
     const pluginPath = path.resolve(payload.path);
@@ -193,17 +198,20 @@ class WebServer extends NodeMqttClient {
     this.sendMessage(topic);
   }
   onLaunchProcessPlugin(payload) {
-    const pluginPath = payload;
-    const platform = os.platform();
-    let npm;
+    const pluginPath = path.resolve(payload);
+    const pluginData = this.getPluginData(pluginPath);
 
-    // For windows, use npm.cmd to run plugin
-    if (platform == "win32") npm = "npm.cmd";
-    if (platform != "win32") npm = "npm";
+    try {
+      const command = pluginData.scripts.start.split(" ");
 
-    // Spawn child and de-reference so it doesn't close when the broker does
-    const child = spawn(npm, ["start", "--prefix", pluginPath]);
-    child.unref();
+      // Spawn child and de-reference so it doesn't close when the broker does
+      const child = spawn(command[0],
+        command.slice(1, command.length), {cwd: pluginPath});
+      child.unref();
+    } catch (e) {
+      console.error(`Failed to launch child process with path: ${pluginPath}`);
+      console.error(e);
+    }
   }
   onPluginRunning(payload, pluginName) {
     const pluginPath = payload;
@@ -240,7 +248,6 @@ class WebServer extends NodeMqttClient {
     this.webPlugins = this.WebPlugins();
     this.trigger("set-web-plugins", this.webPlugins);
   }
-
   onAddWebPlugin(payload) {
     // Validate old plugins (ensure they still exist)
     const file = path.resolve(payload);
@@ -248,15 +255,14 @@ class WebServer extends NodeMqttClient {
     this.addWebPlugin(file);
   }
   onPluginFound(payload){
-    const plugin_path = payload.plugin_path;
-    const plugin_file = path.join(payload.plugin_path, "microdrop.json");
-    const plugin_data = JSON.parse(fs.readFileSync(plugin_file, 'utf8'));
+    const pluginPath = payload.plugin_path;
+    const pluginData = this.getPluginData(pluginPath);
 
     // Check if plugin is a ui plugin:
-    if (plugin_data.type == "ui") {
-      this.addFoundWebPlugin(plugin_data, plugin_path);
+    if (pluginData.type == "ui") {
+      this.addFoundWebPlugin(pluginData, pluginPath);
     } else {
-      this.addFoundProcessPlugin(plugin_data, plugin_path);
+      this.addFoundProcessPlugin(pluginData, pluginPath);
     }
   }
   onShowIndex(req, res) {
@@ -298,7 +304,7 @@ class WebServer extends NodeMqttClient {
     this.generateDisplayTemplate();
     return pluginData.webPlugins;
   }
-  static generatePackageJSON() {
+  static generatePluginJSON() {
     const pluginData = new Object();
     pluginData.processPlugins = new Object();
     pluginData.webPlugins = new Object();
