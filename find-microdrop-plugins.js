@@ -48,7 +48,11 @@ function findPluginsInPaths(paths) {
 
 function findUserDefinedPlugins() {
   // Load paths stored in JSON file
-  const pluginsFile = path.resolve("plugins.json");
+
+  // TODO: Use microdrop-server location instead of dirname
+  // incase find-microdrop-plugins.js is in different directory
+  const pluginsFile = path.resolve(path.join(__dirname,"plugins.json"));
+
   const pluginsData = JSON.parse(fs.readFileSync(pluginsFile, 'utf8'));
   const searchPaths = pluginsData.searchPaths;
 
@@ -61,7 +65,11 @@ function findUserDefinedPlugins() {
   // Iterate through each path
   for (const searchPath of searchPaths) {
     // Validate the search path exists
-    if (!fs.existsSync(searchPath)) continue;
+    if (!fs.existsSync(searchPath)) {
+      console.error(`SEARCHPATH DOES NOT EXITS:
+                    Cannot find folder: ${searchPath}`);
+      continue;
+    }
 
     // Check if searchPath is itself a plugin
     if (fs.existsSync(path.join(searchPath, "microdrop.json"))) {
