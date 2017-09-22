@@ -10,7 +10,7 @@ class DeviceModel extends PluginModel {
   listen() {
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
     this.onPutMsg("device", this.onPutDevice.bind(this));
-    this.bindPutMsg("device-info-plugin", "device", "put-device");
+    this.bindPutMsg("device_info_plugin", "device", "put-device");
     this.bindStateMsg("device", "device-set");
   }
   wrapData(key, value) {
@@ -27,7 +27,7 @@ class DeviceModel extends PluginModel {
   get device() {return this._device}
   set device(device) {this._device = device}
   get filepath() {return __dirname;}
-  
+
   onPutDevice(payload) {
     this.trigger("device-set", this.wrapData(null,payload))
   }
