@@ -11,10 +11,11 @@ init:
   - ECHO %PYTHON_VERSION% %MINICONDA%
 
 install:
-  - cmd: setx path "%path%;%MINICONDA%"
-  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
+  - cmd: choco install nodejs
   - cmd: node --version
   - cmd: npm --version
+  - cmd: setx path "%path%;%MINICONDA%"
+  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
   - cmd: npm version patch
   - cmd: npm publish .
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
