@@ -1,4 +1,7 @@
 # Microdrop 3.0
+
+[![Build status](https://ci.appveyor.com/api/projects/status/cnb2m5x6a85kti5d?svg=true)](https://ci.appveyor.com/project/SciBots/microdrop-3-0-wikbc)
+
 Microdrop with MQTT communication and web front end Edit
 Add topics
 
