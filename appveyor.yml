@@ -15,13 +15,12 @@ install:
   - cmd: git config --global user.email "build@sci-bots.com"
   - cmd: git config --global user.name "Sci-Bots Builds"
   # Install Node/NPM
-  # - cmd: choco install nodejs
+  - cmd: choco install nodejs
   - cmd: node --version
   - cmd: npm --version
   # Configure NPM, and Publish
   - ps: $x = "$env:NPM_USERNAME`n$env:NPM_PASSWORD`n$env:NPM_EMAIL`n"
   - ps: $x | Out-File -filepath "adduser.txt" -Encoding ascii
-  - cmd: cat adduser.txt
   - cmd: npm adduser < adduser.txt
   - cmd: npm version patch
   - cmd: npm publish .
