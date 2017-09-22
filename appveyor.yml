@@ -19,6 +19,7 @@ install:
   - cmd: node --version
   - cmd: npm --version
   # Configure NPM, and Publish
+  - ps: echo $env:TESTVAR
   - ps: $env:NPM_AUTHENTICATION | Out-File -filepath "adduser.txt" -Encoding ascii
   - cmd: npm adduser < adduser.txt
   - cmd: npm version patch
