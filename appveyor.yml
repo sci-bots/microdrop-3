@@ -1,5 +1,6 @@
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
+  nodejs_version: "8.2.1"
   matrix:
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
