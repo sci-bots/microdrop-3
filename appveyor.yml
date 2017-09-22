@@ -11,13 +11,21 @@ init:
   - ECHO %PYTHON_VERSION% %MINICONDA%
 
 install:
+  # Configure GIT:
+  - cmd: git config --global user.email "build@sci-bots.com"
+  - cmd: git config --global user.name "Sci-Bots Builds"
+  # Install Node/NPM
   - cmd: choco install nodejs
   - cmd: node --version
   - cmd: npm --version
-  - cmd: setx path "%path%;%MINICONDA%"
-  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
+  # Configure NPM, and Publish
+  - ps: $env:NPM_AUTHENTICATION | Out-File -filepath "adduser.txt" -Encoding ascii
+  - cmd: npm adduser < adduser.txt
   - cmd: npm version patch
   - cmd: npm publish .
+  # Build Conda package
+  - cmd: setx path "%path%;%MINICONDA%"
+  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
   - cmd: conda build .\microdrop-3-conda-recipe
 
