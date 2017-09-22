@@ -24,8 +24,8 @@ install:
   - cmd: npm version patch
   - cmd: npm publish .
   # Build Conda package
-  - cmd: setx path "%path%;%MINICONDA%"
-  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
+  - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
+  - cmd: conda install -y anaconda-client conda-build
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
   - cmd: conda build .\microdrop-3-conda-recipe
 
