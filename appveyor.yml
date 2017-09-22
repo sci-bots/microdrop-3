@@ -26,12 +26,20 @@ install:
   - ps: >-
       if($newVersion -gt $previousVersion){
         npm publish .
+      } ElseIf  ($newVersion -eq $previousVersion) {
+        npm version patch
+        npm publish .
       }
   - # Build Conda package
-  - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
-  - cmd: conda install -y anaconda-client conda-build
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
-  - cmd: conda build .\microdrop-3-conda-recipe
+  - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
+  - cmd: conda config --add channels sci-bots
+  - cmd: powershell -executionpolicy remotesigned -File .\appveyor-conda-install.ps1
+  - # Publish Conda Package
+  - ps: $package_location = $(& cat PACKAGE_LOCATION).Trim();
+  - ps: $build_status = $(& cat BUILD_STATUS).Trim();
+  - ps: $package_name = (( $package_location -split '\\') | Select-Object -Last 1) -split '\.bz2' | Select-Object -First 1;
+  - ps: binstar -t $($env:binstar_token) upload --force $($package_name+'.bz2');
 
 build: false
 test_script:
