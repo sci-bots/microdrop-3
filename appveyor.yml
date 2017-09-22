@@ -14,18 +14,20 @@ install:
   # Configure GIT:
   - cmd: git config --global user.email "build@sci-bots.com"
   - cmd: git config --global user.name "Sci-Bots Builds"
-  # Install Node/NPM
+  - # Install Node/NPM
   - cmd: choco install nodejs
   - cmd: node --version
   - cmd: npm --version
-  # Configure NPM, and Publish
+  - # Configure NPM, and Publish
   - ps: '"//registry.npmjs.org/:_authToken=$env:npm_auth_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
   - cmd: npm whoami
-  - ps: $previousVersion = npm show microdrop-3.0 version
-  - ps: npm version $previousVersion --allow-same-version
-  - cmd: npm version patch
-  - cmd: npm publish .
-  # Build Conda package
+  - ps: $previousVersion = "v$(npm show microdrop-3.0 version)"
+  - ps: $newVersion = npm version patch
+  - ps: >-
+      if($newVersion -gt $previousVersion){
+        npm publish .
+      }
+  - # Build Conda package
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda install -y anaconda-client conda-build
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
