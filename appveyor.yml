@@ -21,6 +21,8 @@ install:
   # Configure NPM, and Publish
   - ps: '"//registry.npmjs.org/:_authToken=$env:npm_auth_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
   - cmd: npm whoami
+  - ps: $previousVersion = npm show microdrop-3.0 version
+  - ps: npm version $previousVersion --allow-same-version
   - cmd: npm version patch
   - cmd: npm publish .
   # Build Conda package
