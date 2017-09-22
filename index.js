@@ -79,7 +79,6 @@ class WebServer extends NodeMqttClient {
         args.push(searchpath);
       }
     }
-
     const plugin_finder = fork(
       path.join(__dirname,"find-microdrop-plugins"), args);
     plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
@@ -210,7 +209,7 @@ class WebServer extends NodeMqttClient {
 
     // Update
     this.processPlugins = this.ProcessPlugins();
-    this.webPlugins = this.webPlugins();
+    this.webPlugins = this.WebPlugins();
     this.trigger("set-process-plugins", this.processPlugins);
     this.trigger("set-web-plugins", this.webPlugins);
 
@@ -239,19 +238,25 @@ class WebServer extends NodeMqttClient {
     }
   }
   onPluginRunning(payload, pluginName) {
-    const pluginPath = payload;
-    const pluginId = `${pluginName}:${pluginPath}`;
-    this.processPlugins[pluginId].state = "running";
+    const plugin = new Object();
+    plugin.name = pluginName
+    plugin.path = payload;
+    plugin.id   = `${plugin.name}:${plugin.path}`;
+    const pluginId = `${plugin.name}:${plugin.path}`;
+    if (this.processPlugins[plugin.id])
+      this.processPlugins[plugin.id].state = "running";
+    else
+      this.addProcessPlugin(plugin);
+    this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
   }
 
   onClientConnected(payload) {
-    console.log("CLIENT CONNECTED:::");
-
     const plugin = new Object();
     plugin.name = payload.clientName;
     plugin.path = payload.clientPath;
     plugin.id   = `${plugin.name}:${plugin.path}`;
+    console.log("CLIENT CONNECTED:::");
     console.log(plugin);
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";

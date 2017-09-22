@@ -13,6 +13,8 @@ class PluginProcessManager extends UIPlugin {
     this.bindTriggerMsg("web-server", "add-plugin-path", "add-plugin-path");
     this.bindTriggerMsg("web-server", "launch-plugin", "launch-plugin");
     this.bindTriggerMsg("web-server", "close-plugin", "close-plugin");
+    this.bindTriggerMsg("web-server", "remove-plugin-path", "remove-plugin-path");
+
     this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
   }
@@ -59,14 +61,22 @@ class PluginProcessManager extends UIPlugin {
       $(`<button class="btn btn-secondary">Add Search Path</button>`);
     const linkPluginBtn =
       $(`<button class="btn btn-primary">Register Plugin</button>`);
+    const removePathBtn =
+      $(`<button class="btn btn-danger">Remove Search Path</button>`);
 
-    addPathBtn.on("click", () => {this.trigger("add-path", field[0].value)});
+    addPathBtn.on("click", () =>
+      this.trigger("add-path", field[0].value));
+    removePathBtn.on("click", () =>
+      this.trigger("remove-plugin-path",
+      this.wrapData("path", field[0].value)));
     linkPluginBtn.on("click", () =>
       this.trigger("add-plugin-path", this.wrapData("path", field[0].value)));
 
     controls.append(field);
     controls.append(addPathBtn);
     controls.append(linkPluginBtn);
+    controls.append(removePathBtn);
+
     this.element.appendChild(controls[0]);
     return field;
   }
