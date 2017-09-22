@@ -15,7 +15,7 @@ install:
   - cmd: git config --global user.email "build@sci-bots.com"
   - cmd: git config --global user.name "Sci-Bots Builds"
   # Install Node/NPM
-  - cmd: choco install nodejs
+  # - cmd: choco install nodejs
   - cmd: node --version
   - cmd: npm --version
   # Configure NPM, and Publish
