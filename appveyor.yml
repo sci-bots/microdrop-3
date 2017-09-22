@@ -37,9 +37,11 @@ install:
   - cmd: conda install --yes conda-build anaconda-client binstar
   - ps: $package_location = conda build $env:conda_recipe --output
   - ps: Write-Host $package_location
+  - # XXX: Building using powershell raises error for no reason
   - cmd: conda build %conda_recipe%
   - # Publish Conda Package
-  - ps: anaconda -t $($env:binstar_token) upload --force $package_location
+  - # XXX: Uploading with powershell raises error for no reason
+  - ps: cmd /c "anaconda -t $env:binstar_token upload --force $package_location"
 
 build: false
 test_script:
