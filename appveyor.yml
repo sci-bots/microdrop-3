@@ -37,7 +37,7 @@ install:
   - cmd: conda install --yes conda-build anaconda-client binstar
   - ps: $package_location = conda build $env:conda_recipe --output
   - ps: Write-Host $package_location
-  - ps: conda build $env:conda_recipe
+  - cmd: conda build %conda_recipe%
   - # Publish Conda Package
   - ps: binstar -t $($env:binstar_token) upload --force $package_location
 
