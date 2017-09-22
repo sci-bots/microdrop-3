@@ -1,0 +1,21 @@
+environment:
+  GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
+  matrix:
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:\Miniconda
+      PYTHON_ARCH: "32"
+
+init:
+  - ECHO %PYTHON_VERSION% %MINICONDA%
+
+install:
+  - cmd: setx path "%path%;%MINICONDA%"
+  - cmd: setx path "%path%;%MINICONDA%\\Scripts"
+  - cmd: npm version patch
+  - cmd: npm publish .
+  - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
+  - cmd: conda build .\microdrop-3-conda-recipe
+
+build: false
+test_script:
+  - echo Build Complete
