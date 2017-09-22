@@ -39,7 +39,7 @@ install:
   - ps: Write-Host $package_location
   - cmd: conda build %conda_recipe%
   - # Publish Conda Package
-  - ps: binstar -t $($env:binstar_token) upload --force $package_location
+  - ps: anaconda -t $($env:binstar_token) upload --force $package_location
 
 build: false
 test_script:
