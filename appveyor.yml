@@ -12,6 +12,8 @@ init:
 install:
   - cmd: setx path "%path%;%MINICONDA%"
   - cmd: setx path "%path%;%MINICONDA%\\Scripts"
+  - cmd: node --version
+  - cmd: npm --version
   - cmd: npm version patch
   - cmd: npm publish .
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
