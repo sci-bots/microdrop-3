@@ -168,7 +168,11 @@ class WebServer extends NodeMqttClient {
     const searchDirectories = new Set(pluginData.searchPaths);
 
     // Validate Search Path:
-    if (!fs.existsSync(pluginPath)) return;
+    if (!fs.existsSync(pluginPath)) {
+      console.error(`FAILED TO ADD PLUGIN:
+                     Plugin path ${pluginPath} does not exist`);
+      return;
+    }
 
     // Add to searchDirectories
     searchDirectories.add(pluginPath);
