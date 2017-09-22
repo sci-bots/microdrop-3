@@ -19,9 +19,8 @@ install:
   - cmd: node --version
   - cmd: npm --version
   # Configure NPM, and Publish
-  - ps: $x = "$env:NPM_USERNAME`n$env:NPM_PASSWORD`n$env:NPM_EMAIL`n"
-  - ps: $x | Out-File -filepath "adduser.txt" -Encoding ascii
-  - cmd: npm adduser < adduser.txt
+  - ps: '"//registry.npmjs.org/:_authToken=$env:npm_auth_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
+  - cmd: npm whoami
   - cmd: npm version patch
   - cmd: npm publish .
   # Build Conda package
