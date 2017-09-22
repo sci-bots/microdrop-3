@@ -41,7 +41,7 @@ install:
   - cmd: conda build %conda_recipe%
   - # Publish Conda Package
   - # XXX: Uploading with powershell raises error for no reason
-  - cmd: anaconda -t $env:binstar_token upload --force $env:package_location
+  - cmd: anaconda -t %binstar_token% upload --force %package_location%
 
 build: false
 test_script:
