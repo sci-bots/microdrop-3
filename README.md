@@ -11,6 +11,16 @@ Microdrop with MQTT communication and web front end
 > microdrop-3.0.cmd
 ```
 
+## Installing From Conda
+
+```sh
+> conda config --add channels lucaszw
+# Install microdrop-3 without plugins:
+> conda install microdrop-3
+# Install microdrop-3 with common plugins:
+> conda install microdrop-3-bundle
+```
+
 ## Installing From Source
 
 ```sh
