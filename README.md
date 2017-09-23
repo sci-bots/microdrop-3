@@ -19,6 +19,7 @@ Microdrop with MQTT communication and web front end
 > conda install microdrop-3
 # Install microdrop-3 with common plugins:
 > conda install microdrop-3-bundle
+> microdrop-3
 ```
 
 ## Installing From Source
