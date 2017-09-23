@@ -1,3 +1,5 @@
+const path = require('path');
+
 const _ = require('lodash');
 const Backbone = require('backbone');
 const crossroads = require('crossroads');
@@ -13,7 +15,7 @@ class MoscaServer {
     const http  = new Object();
     http.port   = 8083;
     http.bundle = true;
-    http.static = "./";
+    http.static = path.resolve(".");
 
     const settings = new Object();
     settings.port  = 1883;
@@ -22,7 +24,7 @@ class MoscaServer {
     // XXX: Assuming setting time to zero with call indefinite timeout
     //      (this should be verified through Mosca's documentation)
     const db_settings         = new Object();
-    db_settings.path          = __dirname+"./db";
+    db_settings.path          = path.join(__dirname, "db");
     db_settings.subscriptions = 0;
     db_settings.packets       = 0;
 
