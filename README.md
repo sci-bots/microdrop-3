@@ -26,6 +26,7 @@ Microdrop with MQTT communication and web front end
 ```sh
 > git clone https://github.com/Lucaszw/microdrop-3.0
 > cd microdrop-3.0
+> npm install
 > node index.js
 ```
 
