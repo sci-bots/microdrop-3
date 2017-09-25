@@ -259,6 +259,7 @@ class WebServer extends NodeMqttClient {
     const plugin = new Object();
     plugin.name = payload.clientName;
     plugin.path = payload.clientPath;
+    if (plugin.path == "web") return;
     plugin.id   = `${plugin.name}:${plugin.path}`;
     console.log("CLIENT CONNECTED:::");
     console.log(plugin);
