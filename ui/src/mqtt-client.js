@@ -71,6 +71,12 @@ class MQTTClient {
   get channel() {
     return  "microdrop/dmf-device-ui";
   }
+
+  get clientId() {
+    const time = new Date().toISOString().replace(">>", "");
+    return `${this.name}>>web>>${time}`;
+  }
+
   // ** Event Handlers **
   onConnect() {
     // MQTT Callback after establishing brocker connection
@@ -78,8 +84,10 @@ class MQTTClient {
     console.log(this.subscriptions);
     for (var s of this.subscriptions) this.client.subscribe(s);
   }
-  onConnectionLost() {
-    this.reconnect();
+  onConnectionLost(status) {
+    console.error(`Connection lost for ${this.name}`);
+    console.error(status.errorMessage);
+    // this.reconnect();
   }
   onMessageArrived(msg) {
     const receiver = this.name + " : " + msg.destinationName;
@@ -90,7 +98,7 @@ class MQTTClient {
 
   // ** Initializers **
   Client() {
-    const client = new Paho.MQTT.Client("localhost", 8083, this.name);
+    const client = new Paho.MQTT.Client("localhost", 8083, this.clientId);
     client.onMessageArrived = this.onMessageArrived.bind(this);
     client.onConnectionLost = this.onConnectionLost.bind(this);
     client.connect({onSuccess: this.onConnect.bind(this)});

@@ -11,14 +11,12 @@ class RoutesModel extends PluginModel {
   listen() {
     this.onPutMsg("route-options", this.onUpdateRouteOptions.bind(this));
     this.onPutMsg("routes", this.onRoutesUpdated.bind(this));
-    this.bindPutMsg("step-model", "route-options", "put-route-options");
-    this.bindPutMsg("ui-controller", "routes", "put-routes");
+    // TODO: Move schema generator from droplet-planning-plugin to RoutesModel
+    this.onTriggerMsg("update-schema", this.onUpdateSchema.bind(this));
+    this.bindSignalMsg("update-schema", "update-schema");
 
-    this.bindPutMsg("droplet_planning_plugin", "routes", "put-routes");
-    this.bindPutMsg("droplet_planning_plugin", "route-repeats", "put-route-repeats");
-    this.bindPutMsg("droplet_planning_plugin", "repeat-duration-s", "put-repeat-duration");
-    this.bindPutMsg("droplet_planning_plugin", "trail-length", "put-trail-length");
-    this.bindPutMsg("droplet_planning_plugin", "transition-duration-ms", "put-transition-duration-ms");
+    this.bindStateMsg("route-options", "set-route-options");
+    this.bindStateMsg("routes", "set-routes");
   }
 
   // ** Getters and Setters **
@@ -33,58 +31,9 @@ class RoutesModel extends PluginModel {
     state.trail_length = this.trailLength;
     return state;
   }
-  get dropRoutes() {
-    return this._dropRoutes;
-  }
-  set dropRoutes(dropRoutes) {
-    // XXX: Be careful not to override _routes class variable (used by crossroads)
-    this._dropRoutes = dropRoutes;
-  }
-  get repeatDurationSeconds() {
-    return this._repeatDurationSeconds;
-  }
-  set repeatDurationSeconds(repeatDurationSeconds) {
-    this._repeatDurationSeconds = repeatDurationSeconds;
-    this.trigger("put-repeat-duration-s",
-      this.wrapData("repeatDurationSeconds", this.repeatDurationSeconds)
-    );
-  }
-  get routeRepeats() {
-    return this._routeRepeats;
-  }
-  set routeRepeats(routeRepeats) {
-    this._routeRepeats = routeRepeats;
-    this.trigger("put-route-repeats",
-      this.wrapData("routeRepeats", this.routeRepeats)
-    );
-  }
-  get stepNumber() {
-    return this._stepNumber;
-  }
-  set stepNumber(stepNumber) {
-    this._stepNumber = stepNumber;
-  }
-  get transitionDurationMilliseconds() {
-    return this._transitionDurationMilliseconds;
-  }
-  set transitionDurationMilliseconds(transitionDurationMilliseconds) {
-    this._transitionDurationMilliseconds = transitionDurationMilliseconds;
-    this.trigger("put-transition-duration-ms",
-      this.wrapData("transitionDurationMilliseconds",
-                    this.transitionDurationMilliseconds)
-    );
-  }
-  get trailLength() {
-    return this._trailLength;
-  }
-  set trailLength(trailLength) {
-    this._trailLength = trailLength;
-    this.trigger("put-trail-length",
-                 this.wrapData("trailLength",this.trailLength));
-  }
 
   // ** Methods **
-  updateDropletPlanningPlugin(d) {
+  updateRouteOptions(d) {
     // XXX: Assuming no dropRoutes in options means to set to undefined
     this.dropRoutes = null;
     if ("drop_routes" in d) this.dropRoutes = d.drop_routes;
@@ -95,24 +44,21 @@ class RoutesModel extends PluginModel {
   }
   // ** Event Handlers **
   onRoutesUpdated(payload) {
-    this.dropRoutes = payload;
-    this.trigger("put-route-options", this.wrapData(null, this.state));
-    this.trigger("put-routes",
-      this.wrapData("dropRoutes", {dropRoutes: this.dropRoutes}));
-  }
-
-  onStepSwapped(payload) {
-    const data = payload.stepData;
-    this.stepNumber = payload.stepNumber;
-
-    if (data.droplet_planning_plugin)
-      this.updateDropletPlanningPlugin(data.droplet_planning_plugin);
+    this.dropRoutes = payload.drop_routes;
+    this.trigger("set-route-options", this.wrapData(null,this.state));
+    this.trigger("set-routes",
+      this.wrapData("drop_routes", {drop_routes: this.dropRoutes}));
   }
 
   onUpdateRouteOptions(payload) {
-    this.updateDropletPlanningPlugin(payload);
-    this.trigger("put-routes",
-      this.wrapData("dropRoutes", {dropRoutes: this.dropRoutes}));
+    this.updateRouteOptions(payload);
+    this.trigger("set-route-options", this.wrapData(null,this.state));
+    this.trigger("set-routes",
+      this.wrapData("drop_routes", {drop_routes: this.dropRoutes}));
+  }
+
+  onUpdateSchema(payload) {
+    this.trigger("update-schema", payload);
   }
 
 }

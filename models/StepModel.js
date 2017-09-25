@@ -12,10 +12,8 @@ class StepModel extends PluginModel {
   listen() {
     this.onStateMsg("electrodes-model", "electrodes", this.onSetElectrodes.bind(this));
     this.onStateMsg("electrodes-model", "channels", this.onSetElectrodeChannels.bind(this));
-    // TODO: Store Schema as its own model:
     this.onStateMsg("protocol-model", "schema", this.onSetSchema.bind(this));
-    // TODO: Route options should be a state message
-    this.onPutMsg("route-options", this.onSetRouteOptions.bind(this));
+    this.onStateMsg("routes-model", "route-options", this.onSetRouteOptions.bind(this));
 
     this.onPutMsg("step", this.onPutStep.bind(this));
     this.onPutMsg("steps", this.onPutSteps.bind(this));
@@ -58,9 +56,8 @@ class StepModel extends PluginModel {
     this.trigger("put-electrode-options",
       this.step["electrode-data-controller"] || false);
 
-    if ("droplet-planning-plugin" in this.step) {
-      this.trigger("put-route-options", this.step["droplet-planning-plugin"]);
-    }
+    if (this.step["routes-model"])
+      this.trigger("put-route-options", this.step["routes-model"]);
   }
 
   // ** Event Handlers **
@@ -91,11 +88,10 @@ class StepModel extends PluginModel {
     if (!this.steps) return;
 
     const step = this.step;
-    step["droplet-planning-plugin"] = payload;
+    step["routes-model"] = payload;
     this.step = step;
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step", this.wrapData("step", step));
-
   }
   onSetSchema(payload) {
     const schema = payload.schema;
