@@ -53,6 +53,10 @@ class StepModel extends PluginModel {
 
   // ** Methods **
   updateStepOptions() {
+    if (!this.step) {
+      console.error(`Failed to update step options: this.step is ${this.step}`);
+      return;
+    }
     this.trigger("put-electrode-options",
       this.step["electrode-data-controller"] || false);
 
@@ -81,7 +85,7 @@ class StepModel extends PluginModel {
       step["electrode-data-controller"] = {channels: payload};
     this.step = step;
     this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step", this.wrapData("step", step));
+    this.trigger("set-step",  this.wrapData("step", step));
   }
   onSetRouteOptions(payload) {
     if (!this.step) return;
@@ -128,6 +132,10 @@ class StepModel extends PluginModel {
     const val = data.val;
     const stepNumber = data.stepNumber;
 
+    if (!this.steps) {
+      console.error(`Cannot update step: this.steps is ${this.steps}`);
+      return;
+    }
     _.each(this.steps[stepNumber], (schema) => {
       if (!schema) return;
       if (key in schema) schema[key] = val

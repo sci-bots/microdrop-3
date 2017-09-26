@@ -9,8 +9,8 @@ class RoutesModel extends PluginModel {
 
   // ** Event Listeners **
   listen() {
-    this.onPutMsg("route-options", this.onUpdateRouteOptions.bind(this));
-    this.onPutMsg("routes", this.onRoutesUpdated.bind(this));
+    this.onPutMsg("route-options", this.onPutRouteOptions.bind(this));
+    this.onPutMsg("routes", this.onPutRoutes.bind(this));
     // TODO: Move schema generator from droplet-planning-plugin to RoutesModel
     this.onTriggerMsg("update-schema", this.onUpdateSchema.bind(this));
     this.bindSignalMsg("update-schema", "update-schema");
@@ -43,14 +43,14 @@ class RoutesModel extends PluginModel {
     if ("route_repeats" in d) this.routeRepeats = d.route_repeats;
   }
   // ** Event Handlers **
-  onRoutesUpdated(payload) {
+  onPutRoutes(payload) {
     this.dropRoutes = payload.drop_routes;
     this.trigger("set-route-options", this.wrapData(null,this.state));
     this.trigger("set-routes",
       this.wrapData("drop_routes", {drop_routes: this.dropRoutes}));
   }
 
-  onUpdateRouteOptions(payload) {
+  onPutRouteOptions(payload) {
     this.updateRouteOptions(payload);
     this.trigger("set-route-options", this.wrapData(null,this.state));
     this.trigger("set-routes",

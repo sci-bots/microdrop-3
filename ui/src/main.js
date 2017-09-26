@@ -534,7 +534,7 @@ class DeviceUIPlugin {
               return;
           }
 
-          topic = "microdrop/dmf-device-ui/add-route"
+          topic = "microdrop/trigger/droplet_planning_plugin/add-route"
           data  = electrode_ids
 
           message = new Paho.MQTT.Message(JSON.stringify(data));
@@ -560,8 +560,7 @@ class DeviceUIPlugin {
           /* Send request to clear routes for the specified electrode (or all
            * routes if `electrode_id` is `null`) */
           let data, message, topic;
-
-          topic = "microdrop/dmf-device-ui/clear-routes";
+          topic = "microdrop/trigger/droplet_planning_plugin/clear-routes"
           data = {electrode_id: electrode_id};
           message = new Paho.MQTT.Message(JSON.stringify(data));
           message.destinationName = topic;

@@ -58,6 +58,7 @@ class ProtocolModel extends PluginModel {
     this.protocols.push(this.protocol);
     this.trigger("protocols-set", this.protocols);
     this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
+    this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
     this.trigger("put-steps", this.wrapData("steps", this.protocol.steps));
     this.trigger("put-step-number", this.wrapData("stepNumber", 0));
   }
