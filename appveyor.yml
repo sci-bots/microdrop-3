@@ -23,13 +23,8 @@ install:
   - cmd: npm whoami
   - ps: $previousVersion = "v$(npm show microdrop-3.0 version)"
   - ps: echo $previousVersion
-  - ps: $newVersion = npm version patch
-  - ps: echo $newVesion
-  - ps: >-
-      while($newVersion -eq $previousVersion) {
-        $newVersion = npm version patch
-        echo $newVersion
-      }
+  - ps: npm version --allow-same-version $previousVersion
+  - cmd: npm version patch
   - cmd: npm publish .
   - # Build Conda package
   - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
