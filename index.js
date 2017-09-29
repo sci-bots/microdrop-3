@@ -88,7 +88,7 @@ class WebServer extends NodeMqttClient {
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
     const file = path.resolve(plugin_path, plugin_data.script);
-    this.addWebPlugin(file);
+    this.addWebPlugin(file, plugin_data);
     this.trigger("set-web-plugins", this.webPlugins);
   }
   addFoundProcessPlugin(plugin_data, plugin_path) {
@@ -102,7 +102,7 @@ class WebServer extends NodeMqttClient {
     this.addProcessPlugin(plugin);
     this.trigger("set-process-plugins", this.processPlugins);
   }
-  addWebPlugin(file) {
+  addWebPlugin(file, packageData) {
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
     const filename = path.basename(file, ".js");
@@ -116,7 +116,12 @@ class WebServer extends NodeMqttClient {
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
     if (!(file in pluginData.webPlugins)) {
-      pluginData.webPlugins[file] = {name: filename, path: file, state: "disabled"};
+      pluginData.webPlugins[file] = {
+        name: filename,
+        path: file,
+        state: "disabled",
+        data: packageData
+      };
       fs.writeFileSync(WebServer.pluginsfile(),
         JSON.stringify(pluginData,null,4), 'utf8');
     }

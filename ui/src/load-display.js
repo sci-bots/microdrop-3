@@ -47,7 +47,7 @@ window.widgetMap = new Map();
 window.hasLaunched = false;
 
 panel.spacing = 10;
-dock = createDock("top-left");
+dock = createDock("Microdrop");
 
 panel.id = 'main';
 panel.addWidget(dock);

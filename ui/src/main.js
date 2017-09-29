@@ -580,24 +580,36 @@ class DeviceUIPlugin {
       });
 
       this.event_handler.on("mouseover", (data) => {
-          const t = _.join(["<dl class=\"Rtable Rtable--2cols Rtable--collapse\">",
+        let msgData, message, topic;
+
+        const t = _.join(["<dl class=\"Rtable Rtable--2cols Rtable--collapse\">",
                             "<% _.forEach(properties, (v, k) => { %>  <dt class=\"Rtable-cell Rtable-cell--medium Rtable-cell--1of5\"><strong><%= k %>:</strong></dt>",
                             "  <dd class=\"Rtable-cell Rtable-cell--4of5\"><%= v %></dd><% }) %>",
                             "</dl>"], "");
-          const template = _.template(t);
-          widgets.electrode.node.innerHTML =
-              template({properties: {ID: data.electrode_id,
-                                     Channels: _.join(this.device
-                                     .channels_by_electrode_id
-                                     [data.electrode_id], ", "),
-                                     "Area (mm^2)": this.device
-                                     .electrode_areas[data.electrode_id],
-                                     "Width": this.device
-                                     .electrode_bounds[data.electrode_id]
-                                     .width,
-                                     "Height": this.device
-                                     .electrode_bounds[data.electrode_id]
-                                     .height}});
+        const template = _.template(t);
+        const html_template =
+            template({
+                properties: {
+                    ID: data.electrode_id,
+                    Channels: _.join(this.device.channels_by_electrode_id
+                                [data.electrode_id], ", "),
+                                "Area (mm^2)": this.device
+                                .electrode_areas[data.electrode_id],
+                                "Width": this.device
+                                .electrode_bounds[data.electrode_id]
+                                .width,
+                                "Height": this.device
+                                .electrode_bounds[data.electrode_id]
+                                .height}
+            });
+        // Send mqtt message (incase using iframes)
+        if (widgets.electrode)
+            widgets.electrode.node.innerHTML = html_template;
+        topic = "microdrop/dmf-device-ui/signal/electrode-info";
+        msgData  = {template: html_template};
+        message = new Paho.MQTT.Message(JSON.stringify(msgData));
+        message.destinationName = topic;
+        send(message);
       });
     }
 }

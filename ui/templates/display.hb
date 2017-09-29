@@ -3,6 +3,9 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <!-- Plugin Title -->
+  <title>Microdrop</title>
+
   <!-- Stylesheets -->
   <link href="styles/bootstrap.min.css" rel="stylesheet" />
   <link href="styles/jquery.dataTables.min.css" rel="stylesheet" />
