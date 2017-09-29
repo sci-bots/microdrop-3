@@ -22,10 +22,13 @@ install:
   - ps: '"//registry.npmjs.org/:_authToken=$env:npm_auth_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
   - cmd: npm whoami
   - ps: $previousVersion = "v$(npm show microdrop-3.0 version)"
+  - ps: echo $previousVersion
   - ps: $newVersion = npm version patch
+  - ps: echo $newVesion
   - ps: >-
-      if($newVersion -eq $previousVersion) {
-        npm version patch
+      while($newVersion -eq $previousVersion) {
+        $newVersion = npm version patch
+        echo $newVersion
       }
   - cmd: npm publish .
   - # Build Conda package
