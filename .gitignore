@@ -60,4 +60,6 @@ typings/
 # custom
 db/
 plugins.json
+models/schema.json
+schema.json
 ui/src/display.html

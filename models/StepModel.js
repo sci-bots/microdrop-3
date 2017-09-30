@@ -9,25 +9,27 @@ class StepModel extends PluginModel {
     this.steps = null;
     this.stepNumber = null;
   }
+
   listen() {
     this.onStateMsg("electrodes-model", "electrodes", this.onSetElectrodes.bind(this));
     this.onStateMsg("electrodes-model", "channels", this.onSetElectrodeChannels.bind(this));
-    this.onStateMsg("protocol-model", "schema", this.onSetSchema.bind(this));
     this.onStateMsg("routes-model", "route-options", this.onSetRouteOptions.bind(this));
+    this.onStateMsg("schema-model", "schema", this.onSchemaSet.bind(this));
 
     this.onPutMsg("step", this.onPutStep.bind(this));
     this.onPutMsg("steps", this.onPutSteps.bind(this));
     this.onPutMsg("step-number", this.onPutStepNumber.bind(this));
 
-    this.bindStateMsg("step", "set-step");
-    this.bindStateMsg("step-number", "set-step-number");
-    this.bindStateMsg("steps", "set-steps");
-    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
-    this.bindPutMsg("routes-model", "route-options", "put-route-options");
-
     this.onTriggerMsg("update-step", this.onUpdateStep.bind(this));
     this.onTriggerMsg("delete-step", this.onDeleteStep.bind(this));
     this.onTriggerMsg("insert-step", this.onInsertStep.bind(this));
+
+    this.bindStateMsg("step", "set-step");
+    this.bindStateMsg("step-number", "set-step-number");
+    this.bindStateMsg("steps", "set-steps");
+
+    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
+    this.bindPutMsg("routes-model", "route-options", "put-route-options");
   }
 
   // ** Getters and Setters **
@@ -97,17 +99,28 @@ class StepModel extends PluginModel {
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step", this.wrapData("step", step));
   }
-  onSetSchema(payload) {
-    const schema = payload.schema;
-    const pluginName = payload.pluginName;
-    const step = this.step;
-    if (!step) return;
-    if (pluginName in step) return;
-
-    step[pluginName] = defaults;
-    this.step = step;
-
-    this.trigger("set-step", this.wrapData("step", this.step));
+  onSchemaSet(payload){
+    const schema = payload;
+    if (!this.steps) {
+      console.error(`
+        <StepModel> COULD NOT UPDATE SCHEMA:
+        this.steps is ${this.steps}
+      `);
+      return;
+    }
+    // Iterate through each step
+    for (const [i, step] of this.steps.entries()){
+      // Iterate through each plugins schema data
+      for (const [pluginName, attrs] of Object.entries(schema)){
+        // If data already exists for this plugin, then don't overrite
+        if (pluginName in step) continue;
+        this.steps[i][pluginName] = new Object();
+        // Fill step with the default values for the plugins attributes
+        for (const [name, attr] of Object.entries(attrs)){
+          this.steps[i][pluginName][name] = attr.default;
+        }
+      }
+    }
     this.trigger("set-steps", this.wrapData("steps",this.steps));
   }
   onPutStep(payload) {

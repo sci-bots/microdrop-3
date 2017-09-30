@@ -16,6 +16,7 @@ const ElectrodesModel = require('./models/ElectrodesModel');
 const ProtocolModel   = require('./models/ProtocolModel');
 const RoutesModel     = require('./models/RoutesModel');
 const StepModel       = require('./models/StepModel');
+const SchemaModel     = require('./models/SchemaModel');
 
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
@@ -66,7 +67,7 @@ class WebServer extends NodeMqttClient {
     new RoutesModel();
     new ProtocolModel();
     new StepModel();
-
+    new SchemaModel();
     // Ping plugins every three seconds
     setInterval(this.pingRunningStates.bind(this), 3000);
   }

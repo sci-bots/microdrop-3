@@ -13,8 +13,8 @@ class RoutesModel extends PluginModel {
     this.onPutMsg("routes", this.onPutRoutes.bind(this));
     // TODO: Move schema generator from droplet-planning-plugin to RoutesModel
     this.onTriggerMsg("update-schema", this.onUpdateSchema.bind(this));
-    this.bindSignalMsg("update-schema", "update-schema");
 
+    this.bindPutMsg("schema-model" ,"schema", "put-schema");
     this.bindStateMsg("route-options", "set-route-options");
     this.bindStateMsg("routes", "set-routes");
   }
@@ -49,16 +49,14 @@ class RoutesModel extends PluginModel {
     this.trigger("set-routes",
       this.wrapData("drop_routes", {drop_routes: this.dropRoutes}));
   }
-
   onPutRouteOptions(payload) {
     this.updateRouteOptions(payload);
     this.trigger("set-route-options", this.wrapData(null,this.state));
     this.trigger("set-routes",
       this.wrapData("drop_routes", {drop_routes: this.dropRoutes}));
   }
-
   onUpdateSchema(payload) {
-    this.trigger("update-schema", payload);
+    this.trigger("put-schema", {schema: payload, pluginName: "routes-model"});
   }
 
 }
