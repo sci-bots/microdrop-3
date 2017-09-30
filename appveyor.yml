@@ -31,6 +31,7 @@ install:
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda config --add channels sci-bots
   - cmd: conda install --yes conda-build anaconda-client binstar
+  - ps: $env:MICRODROP_VERSION = "v$(npm show microdrop-3.0 version)"
   - ps: $env:package_location = conda build $env:conda_recipe --output
   - ps: Write-Host $env:package_location
   - # XXX: Building using powershell raises error for no reason
