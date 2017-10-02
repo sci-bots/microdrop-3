@@ -102,10 +102,9 @@ class StepModel extends PluginModel {
   onSchemaSet(payload){
     const schema = payload;
     if (!this.steps) {
-      console.error(`
-        <StepModel> COULD NOT UPDATE SCHEMA:
-        this.steps is ${this.steps}
-      `);
+      console.error(
+        `<StepModel> COULD NOT UPDATE SCHEMA: this.steps is ${this.steps}`
+      );
       return;
     }
     // Iterate through each step
