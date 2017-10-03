@@ -5,7 +5,8 @@ environment:
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
       PYTHON_ARCH: "32"
-      conda_recipe: microdrop-3-unstable-conda-recipe
+      nodejs_version: "8"
+      conda_recipe: microdrop-3-conda-recipe
 init:
   - ECHO %PYTHON_VERSION% %MINICONDA%
 
@@ -13,19 +14,28 @@ install:
   # Configure GIT:
   - cmd: git config --global user.email "build@sci-bots.com"
   - cmd: git config --global user.name "Sci-Bots Builds"
- 
+  - # Install Node/NPM
+  - cmd: choco install nodejs
+  - cmd: node --version
+  - cmd: npm --version
+  - # Configure NPM, and Publish
+  - ps: '"//registry.npmjs.org/:_authToken=$env:npm_auth_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
+  - cmd: npm whoami
+  - ps: $previousVersion = "v$(npm show microdrop-3.0 version)"
+  - ps: echo $previousVersion
+  - ps: npm version --allow-same-version $previousVersion
+  - cmd: npm version patch
+  - cmd: npm publish .
   - # Build Conda package
-  - cmd: git clone https://github.com/Lucaszw/microdrop-3-unstable-conda-recipe
+  - cmd: git clone https://github.com/Lucaszw/microdrop-3-conda-recipe
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda config --add channels sci-bots
   - cmd: conda install --yes conda-build anaconda-client binstar
-  - ps: $env:MICRODROP_VERSION = $(git describe --tag) -replace '-','.'
+  - ps: $env:MICRODROP_VERSION = "v$(npm show microdrop-3.0 version)"
   - ps: $env:package_location = conda build $env:conda_recipe --output
   - ps: Write-Host $env:package_location
-  
   - # XXX: Building using powershell raises error for no reason
   - cmd: conda build %conda_recipe%
-  
   - # Publish Conda Package
   - # XXX: Uploading with powershell raises error for no reason
   - cmd: anaconda -t %binstar_token% upload --force %package_location%

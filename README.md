@@ -4,14 +4,17 @@
 
 Microdrop with MQTT communication and web front end
 
-## Installing From NPM
+## Installing From NPM (Latest, or Release)
 
 ```sh
+# Install latest:
+> npm install https://github.com/sci-bots/microdrop-3.0
+# Install latest release:
 > npm install microdrop-3.0
 > microdrop-3.0.cmd
 ```
 
-## Installing From Conda
+## Installing From Conda (Release only)
 
 ```sh
 > conda config --add channels lucaszw
@@ -22,7 +25,7 @@ Microdrop with MQTT communication and web front end
 > microdrop-3
 ```
 
-## Installing From Source
+## Installing From Source (Latest)
 
 ```sh
 > git clone https://github.com/Lucaszw/microdrop-3.0
