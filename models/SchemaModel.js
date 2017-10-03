@@ -9,14 +9,13 @@ class SchemaModel extends PluginModel {
   /* Keeps track of custom properties defined by plugins */
   constructor(){
     // Check if plugins.json exists, and if not create it:
-    if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
+    if (!fs.existsSync(path.resolve(path.join(__dirname,"schema.json"))))
       SchemaModel.generateSchemaJSON();
     super();
   }
   listen() {
     this.onPutMsg("schema", this.onPutSchema.bind(this));
     this.bindStateMsg("schema", "set-schema");
-
     this.trigger("set-schema", this.wrapData("schema", this.readSchema()));
   }
   get filepath() {return __dirname;}

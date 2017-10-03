@@ -1,3 +1,6 @@
+if (!window.microdropPlugins)
+  window.microdropPlugins = new Map();
+
 class UIPlugin extends MQTTClient {
   constructor(element, focusTracker, name="dmf-device-ui") {
     super(name);
@@ -41,7 +44,7 @@ class UIPlugin extends MQTTClient {
     msg.__head__ = this.DefaultHeader();
     return msg;
   }
-  
+
   // ** Initializers **
   DefaultHeader() {
     const header = new Object();

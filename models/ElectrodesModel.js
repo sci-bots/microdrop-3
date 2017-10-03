@@ -32,7 +32,6 @@ class ElectrodesModel extends PluginModel {
 
   clearElectrodes () {
     _.each(this.electrodes, (electrode) => {electrode.state = false});
-    // this.trigger("electrodes-set", this.electrodesAsDataFrame);
   }
 
   electrodeIdsByChannels(electrodeChannelsDataFrame) {
@@ -43,7 +42,7 @@ class ElectrodesModel extends PluginModel {
   updateElectrodesFromChannels (channels) {
     const electrodeChannelsDataFrame =  new DataFrame(channels);
     const channelsByElectrodeID = this.channelsByElectrodeID(electrodeChannelsDataFrame);
-    const electrodeIds   = _.keys(channelsByElectrodeID);
+    const electrodeIds = _.keys(channelsByElectrodeID);
 
     this.trigger("channels-set", this.wrapData(null,channels));
     // For each electrode, store the channel, id , and state (off by default)

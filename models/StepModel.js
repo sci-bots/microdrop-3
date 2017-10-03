@@ -24,12 +24,12 @@ class StepModel extends PluginModel {
     this.onTriggerMsg("delete-step", this.onDeleteStep.bind(this));
     this.onTriggerMsg("insert-step", this.onInsertStep.bind(this));
 
+    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
+    this.bindPutMsg("routes-model", "route-options", "put-route-options");
+
     this.bindStateMsg("step", "set-step");
     this.bindStateMsg("step-number", "set-step-number");
     this.bindStateMsg("steps", "set-steps");
-
-    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
-    this.bindPutMsg("routes-model", "route-options", "put-route-options");
   }
 
   // ** Getters and Setters **
@@ -64,10 +64,15 @@ class StepModel extends PluginModel {
 
     if (this.step["routes-model"])
       this.trigger("put-route-options", this.step["routes-model"]);
+
+    for (const [pluginName, data] of Object.entries(this.step)){
+      this.trigger(`${pluginName}-changed`, data);
+    }
   }
 
   // ** Event Handlers **
   onSetElectrodes(payload) {
+    // TODO: Add these properties to schema:
     if (!this.step) return; if (!this.steps) return;
     const step = this.step;
     if ("electrode-data-controller" in step)
@@ -79,6 +84,7 @@ class StepModel extends PluginModel {
     this.trigger("set-step", this.wrapData("step", step));
   }
   onSetElectrodeChannels(payload) {
+    // TODO: Add these properties to schema:
     if (!this.step) return; if (!this.steps) return;
     const step = this.step;
     if ("electrode-data-controller" in step)
@@ -90,6 +96,7 @@ class StepModel extends PluginModel {
     this.trigger("set-step",  this.wrapData("step", step));
   }
   onSetRouteOptions(payload) {
+    // TODO: Add these properties to schema:
     if (!this.step) return;
     if (!this.steps) return;
 
@@ -101,17 +108,24 @@ class StepModel extends PluginModel {
   }
   onSchemaSet(payload){
     const schema = payload;
+
+    // Add event bindings for each plugin in schema:
+    for (const [pluginName, attrs] of Object.entries(schema)){
+      this.bindSignalMsg(`${pluginName}-changed`, `${pluginName}-changed`);
+    }
+
     if (!this.steps) {
       console.error(
         `<StepModel> COULD NOT UPDATE SCHEMA: this.steps is ${this.steps}`
       );
       return;
     }
-    // Iterate through each step
+
+    // Update steps:
     for (const [i, step] of this.steps.entries()){
       // Iterate through each plugins schema data
       for (const [pluginName, attrs] of Object.entries(schema)){
-        // If data already exists for this plugin, then don't overrite
+        // If data already exists for this plugin, then don't overwrite
         if (pluginName in step) continue;
         this.steps[i][pluginName] = new Object();
         // Fill step with the default values for the plugins attributes

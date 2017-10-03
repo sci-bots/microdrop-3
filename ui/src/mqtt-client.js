@@ -3,6 +3,14 @@ const IsJsonString = (str) => {
   return true;
 }
 
+const decamelize = (str, sep='-') => {
+  // https://github.com/sindresorhus/decamelize
+  return str
+    .replace(/([a-z\d])([A-Z])/g, '$1' + sep + '$2')
+    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + sep + '$2')
+    .toLowerCase();
+}
+
 class MQTTClient {
   constructor(name="web-ui", base="microdrop") {
     _.extend(this, Backbone.Events);
@@ -64,8 +72,7 @@ class MQTTClient {
   }
   // ** Getters and Setters **
   get name() {
-    return encodeURI(
-      this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase());
+    return encodeURI(decamelize(this.constructor.name));
   }
 
   get channel() {
