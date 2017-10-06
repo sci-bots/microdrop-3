@@ -17,11 +17,10 @@ class PluginModel extends NodeMqttClient {
 
   // ** Methods **
   wrapData(key, value) {
+    // Add "__head__" key to msg and also convert to object
     let msg = new Object();
-    // Convert message to object if not already
     if (typeof(value) == "object" && value !== null) msg = value;
     else msg[key] = value;
-    // Add header
     msg.__head__ = this.DefaultHeader();
     return msg;
   }
