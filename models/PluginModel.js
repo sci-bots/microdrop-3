@@ -16,6 +16,14 @@ class PluginModel extends NodeMqttClient {
   }
 
   // ** Methods **
+  sameSender(payload) {
+    if (payload.__head__){
+      if (payload.__head__.plugin_name == this.name)
+        return true;
+    }
+    return false;
+  }
+
   wrapData(key, value) {
     // Add "__head__" key to msg and also convert to object
     let msg = new Object();
@@ -37,6 +45,7 @@ class PluginModel extends NodeMqttClient {
     const header = new Object();
     header.plugin_name = this.name;
     header.plugin_version = this.version;
+    return header;
   }
 
 };

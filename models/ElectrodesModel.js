@@ -127,6 +127,7 @@ class ElectrodesModel extends PluginModel {
     const electrodes = _.cloneDeep(this.electrodes);
     // Update channels:
     const channels = payload['df_electrode_channels'];
+
     this.updateElectrodesFromChannels(channels);
 
     // Re-apply electrodes if the previously existed:

@@ -19,8 +19,8 @@
   <script type="text/javascript" src="scripts/crossroads.min.js"></script>
   <script type="text/javascript" src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
   <script type="text/javascript" src="main.js"></script>
-  <script type="text/javascript" src="mqtt-messages/mqtt-messages.js"></script>
-  <script type="text/javascript" src="mqtt-client.js"></script>
+  <script type="text/javascript" src="node_modules/@mqttclient/mqtt-messages/mqtt-messages.js"></script>
+  <script type="text/javascript" src="node_modules/@mqttclient/web/bundle.web.js"></script>
   <script type="text/javascript" src="ui-plugin.js"></script>
   <!-- Plugins -->
   {{#each pluginPaths}}
