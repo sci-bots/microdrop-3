@@ -3,7 +3,6 @@ class UIPluginManager extends UIPlugin {
     super(element, focusTracker, "UIPluginManager");
     Object.assign(this, CardMixins);
     this.pluginCards = new Backbone.Model();
-    this.listen();
   }
   listen() {
     this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
@@ -11,9 +10,7 @@ class UIPluginManager extends UIPlugin {
     this.bindTriggerMsg("web-server", "update-ui-plugin-state", "update-state");
     this.on("state-btn-clicked", this.onStateBtnClicked.bind(this));
 
-    // this.addGetRoute("microdrop/state/web-plugins", this.onWebPluginsChanged.bind(this));
     this.onStateMsg("web-server", "web-plugins", this.onWebPluginsChanged.bind(this));
-    this.addGetRoute("microdrop/state/error/web-plugins", this.onChangeWebPluginsFailed.bind(this));
     this.addPostRoute("/add-web-plugin", "add-web-plugin");
   }
   get list(){return this._list}
@@ -21,9 +18,6 @@ class UIPluginManager extends UIPlugin {
   get controls(){return this._controls}
   set controls(item) {this.changeElement("controls", item)}
 
-  onChangeWebPluginsFailed(payload) {
-    console.error(`Failed to add webplugin:  ${payload}`);
-  }
   onPluginCardsChanged(msg) {
     this.list = this.List(this.pluginCards);
   }

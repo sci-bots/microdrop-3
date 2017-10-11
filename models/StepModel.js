@@ -11,6 +11,9 @@ class StepModel extends PluginModel {
   }
 
   listen() {
+    this.onStateMsg("electrodes-model", "electrodes", this.onSetElectrodes.bind(this));
+    this.onStateMsg("electrodes-model", "channels", this.onSetElectrodeChannels.bind(this));
+    this.onStateMsg("routes-model", "route-options", this.onSetRouteOptions.bind(this));
     this.onStateMsg("schema-model", "schema", this.onSchemaSet.bind(this));
 
     this.onPutMsg("step", this.onPutStep.bind(this));
@@ -56,16 +59,54 @@ class StepModel extends PluginModel {
       console.error(`Failed to update step options: this.step is ${this.step}`);
       return;
     }
+    this.trigger("put-electrode-options",
+      this.step["electrode-data-controller"] || false);
+
+    if (this.step["routes-model"])
+      this.trigger("put-route-options", this.step["routes-model"]);
+
     for (const [pluginName, data] of Object.entries(this.step)){
       this.trigger(`${pluginName}-changed`, data);
     }
   }
 
   // ** Event Handlers **
-  onSchemaSet(payload){
-    console.log("<StepModel>:: Set Schema");
-    console.log(payload.__head__);
+  onSetElectrodes(payload) {
+    // TODO: Add these properties to schema:
+    if (!this.step) return; if (!this.steps) return;
+    const step = this.step;
+    if ("electrode-data-controller" in step)
+      step["electrode-data-controller"].electrode_states = payload;
+    else
+      step["electrode-data-controller"] = {electrode_states: payload};
+    this.step = step;
+    this.trigger("set-steps", this.wrapData("steps",this.steps));
+    this.trigger("set-step", this.wrapData("step", step));
+  }
+  onSetElectrodeChannels(payload) {
+    // TODO: Add these properties to schema:
+    if (!this.step) return; if (!this.steps) return;
+    const step = this.step;
+    if ("electrode-data-controller" in step)
+      step["electrode-data-controller"].channels = payload;
+    else
+      step["electrode-data-controller"] = {channels: payload};
+    this.step = step;
+    this.trigger("set-steps", this.wrapData("steps",this.steps));
+    this.trigger("set-step",  this.wrapData("step", step));
+  }
+  onSetRouteOptions(payload) {
+    // TODO: Add these properties to schema:
+    if (!this.step) return;
+    if (!this.steps) return;
 
+    const step = this.step;
+    step["routes-model"] = payload;
+    this.step = step;
+    this.trigger("set-steps", this.wrapData("steps",this.steps));
+    this.trigger("set-step", this.wrapData("step", step));
+  }
+  onSchemaSet(payload){
     const schema = payload;
 
     // Add event bindings for each plugin in schema:
@@ -96,27 +137,22 @@ class StepModel extends PluginModel {
     this.trigger("set-steps", this.wrapData("steps",this.steps));
   }
   onPutStep(payload) {
-    console.log("<STEP MODEL>:: Putting step");
     this.step = payload;
     this.updateStepOptions();
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step", this.wrapData("step", this.step));
   }
   onPutSteps(payload) {
-    console.log("<STEP MODEL>:: Putting steps");
     this.steps = payload;
     this.trigger("set-steps", this.wrapData("steps",this.steps));
   }
   onPutStepNumber(payload) {
-    console.log("<STEP MODEL>:: Putting step number");
     this.stepNumber = payload.stepNumber;
     this.updateStepOptions();
     this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
     this.trigger("set-step", this.wrapData("step", this.step));
   }
   onUpdateStep(payload) {
-    console.log("<STEP MODEL>:: UpdateStep");
-
     const data = payload.data;
     const key = data.key;
     const val = data.val;
@@ -136,8 +172,6 @@ class StepModel extends PluginModel {
     this.trigger("set-step", this.wrapData("step", this.step));
   }
   onDeleteStep(payload) {
-    console.log("<StepModel>:: Deleting Step");
-
     const prevStepNumber = payload.stepNumber;
     let nextStepNumber;
     if (prevStepNumber == 0) nextStepNumber = 0;
@@ -154,10 +188,6 @@ class StepModel extends PluginModel {
     this.trigger("set-step", this.wrapData("step", this.step));
   }
   onInsertStep(payload) {
-    console.log("<StepModel>:: Inserting Step");
-    console.log(this.clientId);
-    console.log(payload.__head__);
-
     const stepNumber = payload.stepNumber;
     const steps = this.steps;
     const step = _.cloneDeep(this.step);

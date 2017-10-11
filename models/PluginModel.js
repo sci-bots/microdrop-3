@@ -6,7 +6,7 @@ const NodeMqttClient = require('@mqttclient/node');
 class PluginModel extends NodeMqttClient {
   constructor() {
     super("localhost", 1883, "microdrop");
-    this._listen();
+    this.client.on("connect", this._listen.bind(this));
   }
 
   _listen() {
@@ -23,6 +23,13 @@ class PluginModel extends NodeMqttClient {
     }
     return false;
   }
+
+  getReceiver(payload) {
+    if (!payload.__head__) return false;
+    if (!payload.__head__.plugin_name) return false;
+    return payload.__head__.plugin_name;
+  }
+
 
   wrapData(key, value) {
     // Add "__head__" key to msg and also convert to object

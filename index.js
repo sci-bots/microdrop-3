@@ -18,12 +18,14 @@ const RoutesModel     = require('./models/RoutesModel');
 const StepModel       = require('./models/StepModel');
 const SchemaModel     = require('./models/SchemaModel');
 
+
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
       WebServer.generatePluginJSON();
     super("localhost", 1883, "microdrop");
+
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
@@ -45,7 +47,7 @@ class WebServer extends NodeMqttClient {
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
 
-    this.addGetRoute("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
+    // this.addSubscription("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
     this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
 
     this.bindStateMsg("web-plugins", "set-web-plugins");

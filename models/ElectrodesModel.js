@@ -40,6 +40,11 @@ class ElectrodesModel extends PluginModel {
   }
 
   updateElectrodesFromChannels (channels) {
+    if (!channels) {
+      console.error(`<ElectrodesModel>#updateElectrodesFromChannels::
+      channels is ${channels}`);
+      return;
+    }
     const electrodeChannelsDataFrame =  new DataFrame(channels);
     const channelsByElectrodeID = this.channelsByElectrodeID(electrodeChannelsDataFrame);
     const electrodeIds = _.keys(channelsByElectrodeID);

@@ -508,9 +508,7 @@ class DeviceUIPlugin {
           topic = "microdrop/put/electrodes-model/electrode-state";
           data  = kwargs;
 
-          message = new Paho.MQTT.Message(JSON.stringify(data));
-          message.destinationName = topic;
-          send(message);
+          client.sendMessage(topic, data);
       });
       this.event_handler.on("electrode_queue_updated", (electrode_ids) => {
           if (this.queue_mesh) {
@@ -536,24 +534,17 @@ class DeviceUIPlugin {
 
           topic = "microdrop/trigger/droplet_planning_plugin/add-route"
           data  = electrode_ids
-
-          message = new Paho.MQTT.Message(JSON.stringify(data));
-          message.destinationName = topic;
-          send(message);
+          client.sendMessage(topic, data);
       });
 
       this.event_handler.on("clear-electrode-states", () => {
           let data, electrode_ids, message, topic;
           electrode_ids = _.keys(this.device.channels_by_electrode_id);
           topic = "microdrop/put/electrodes-model/electrode-states";
-          // topic = "microdrop/dmf-device-ui/set-electrode-states";
           data  = {electrode_states: {index: electrode_ids, values: 0,
                                            index_dtype: "str", dtype: "int",
                                            type: "Series"}};
-
-          message = new Paho.MQTT.Message(JSON.stringify(data));
-          message.destinationName = topic;
-          send(message);
+          client.sendMessage(topic, data);
       });
 
       this.event_handler.on("clear-routes", (electrode_id) => {
@@ -562,9 +553,7 @@ class DeviceUIPlugin {
           let data, message, topic;
           topic = "microdrop/trigger/droplet_planning_plugin/clear-routes"
           data = {electrode_id: electrode_id};
-          message = new Paho.MQTT.Message(JSON.stringify(data));
-          message.destinationName = topic;
-          send(message);
+          client.sendMessage(topic, data);
       });
 
       this.event_handler.on("execute-routes", (electrode_id) => {
@@ -574,9 +563,7 @@ class DeviceUIPlugin {
 
           topic = "microdrop/dmf-device-ui/execute-routes";
           data  = {electrode_i: electrode_id};
-          message = new Paho.MQTT.Message(JSON.stringify(data));
-          message.destinationName = topic;
-          send(message);
+          client.sendMessage(topic, data);
       });
 
       this.event_handler.on("mouseover", (data) => {
@@ -607,9 +594,7 @@ class DeviceUIPlugin {
             widgets.electrode.node.innerHTML = html_template;
         topic = "microdrop/dmf-device-ui/signal/electrode-info";
         msgData  = {template: html_template};
-        message = new Paho.MQTT.Message(JSON.stringify(msgData));
-        message.destinationName = topic;
-        send(message);
+        client.sendMessage(topic, msgData);
       });
     }
 }

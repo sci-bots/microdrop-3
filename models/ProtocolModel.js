@@ -12,12 +12,12 @@ class ProtocolModel extends PluginModel {
   listen() {
     // Persistent Messages:
     this.onStateMsg("protocol-model", "protocols", this.onProtocolsSet.bind(this));
-    // this.onStateMsg("step-model", "steps", this.onStepsSet.bind(this));
-    // this.onStateMsg("device-model", "device", this.onDeviceSet.bind(this));
-    // this.onStateMsg("schema-model", "schema", this.onSchemaSet.bind(this));
+    this.onStateMsg("step-model", "steps", this.onStepsSet.bind(this));
+    this.onStateMsg("device-model", "device", this.onDeviceSet.bind(this));
+    this.onStateMsg("schema-model", "schema", this.onSchemaSet.bind(this));
 
     // Protocol
-    this.onNotifyMsg("request-protocol-export", this.onExportProtocolRequested.bind(this));
+    this.onTriggerMsg("request-protocol-export", this.onExportProtocolRequested.bind(this));
 
     // Change trigger to automatically bind "notify messages" (with dynamic receiver topics)
     // to be used with Javascript Promises / MicrodropSync
@@ -89,16 +89,19 @@ class ProtocolModel extends PluginModel {
   }
   // ** Event Handlers **
   onDeleteProtocol(payload) {
+    console.log("DELETING PROTOCOL!!");
     const protocol = payload.protocol;
     const index = this.getProtocolIndexByName(protocol.name);
     this.deleteProtocolAtIndex(index);
+
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/delete-protocol`,
+      this.wrapData(null, protocol));
   }
   onDeviceSet(payload){
-    if (this.sameSender(payload))
-      return;
-
     console.log("<ProtocolModel>:: DeviceSet");
-    console.log(this.payload.__head__);
 
     // TODO: Error messages here
     if (!this.protocol) {
@@ -112,13 +115,12 @@ class ProtocolModel extends PluginModel {
 
     this.protocol.device = payload;
     this.save();
-    // this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-    // this.trigger("protocols-set", this.wrapData(null, this.protocols));
-    // this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
+    this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
+    this.trigger("protocols-set", this.wrapData(null, this.protocols));
+    this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
   }
   onStepsSet(payload) {
-    if (this.sameSender(payload))
-      return;
+    console.log("<ProtocolModel>:: onStepsSet");
 
     if (!this.protocol) {
       console.warn("CANNOT SET STEPS: protocol not defined");
@@ -128,21 +130,14 @@ class ProtocolModel extends PluginModel {
       console.warn("CANNOT SET STEPS: protocols not defined");
       return;
     }
-    console.log("<ProtocolModel>:: Setting steps");
-    console.log(payload.__head__);
-    // console.log(payload);
 
     this.protocol.steps = payload;
     this.save();
     this.updateStepNumbers(this.protocol.steps);
   }
   onSchemaSet(payload) {
-    if (this.sameSender(payload))
-      return;
-
     console.log("<ProtocolModel>:: Schema Set");
     console.log(payload.__head__);
-
     this.schema = payload;
   }
   onExportProtocolRequested(payload) {
@@ -151,11 +146,6 @@ class ProtocolModel extends PluginModel {
     this.trigger("send-protocol", str);
   }
   onProtocolsSet(payload) {
-    console.log("SETTING PROTOCOLS:::");
-    console.log(_.keys(payload));
-
-    if (this.sameSender(payload))
-      return;
     console.log("<ProtocolModel>:: ProtocolsSet");
     console.log(payload.__head__);
     if (!_.isArray(payload)) return;
@@ -172,14 +162,10 @@ class ProtocolModel extends PluginModel {
     this.trigger("put-step-number", this.wrapData("stepNumber", 0));
 
     // Should use a recursive promise tree:
-    if (!payload.__head__) return;
-    if (!payload.__head__.plugin_name) return;
-
-    console.log("Called from::");
-    console.log(payload.__head__.plugin_name);
-    const receiver = payload.__head__.plugin_name;
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
     this.sendMessage(
-      `microdrop/notify/${receiver}/new-protocol`,
+      `microdrop/${this.name}/notify/${receiver}/new-protocol`,
       this.wrapData(null, this.protocol));
   }
 
@@ -220,11 +206,12 @@ class ProtocolModel extends PluginModel {
     this.protocol = this.protocols[index];
 
     this.trigger("put-steps", this.wrapData("steps",this.protocol.steps));
-    // this.trigger("put-step-number", this.wrapData("stepNumber", 0));
+    this.trigger("put-step-number", this.wrapData("stepNumber", 0));
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
 
-    // if ("device" in this.protocol)
-    //   this.trigger("put-device", this.protocol["device"])
+    // TODO: Chould have automatic triggers for attributes attached to device
+    if ("device" in this.protocol)
+      this.trigger("put-device", this.protocol["device"])
   }
 
   onLoadProtocol(payload) {
@@ -276,7 +263,13 @@ class ProtocolModel extends PluginModel {
     const step = _.zipObject(_.keys(this.schema), _.map(this.schema, this.SchemaDefaults));
 
     steps.push(step);
-    protocol.name = "Protocol: " + this.time;
+
+    protocol.name = "Protocol: " + this.time
+    while (this.getProtocolIndexByName(protocol.name) != -1) {
+      var id = Math.ceil(100*Math.random());
+      protocol.name = "Protocol: " + this.time + ":" + id;
+    }
+
     protocol.steps = steps;
     return protocol;
   }
