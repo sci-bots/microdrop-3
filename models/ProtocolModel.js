@@ -70,14 +70,6 @@ class ProtocolModel extends PluginModel {
     const protocols = this.protocols;
     return _.findIndex(protocols, (p) => {return p.name == name});
   }
-  updateStepNumbers(steps) {
-    // Update step numbers column for protocol steps
-    for (const [i, step] of steps.entries()) {
-      if (!("defaults" in step)) return;
-      step.defaults.step = i;
-    }
-    return steps;
-  }
   wrapData(key, value) {
     let msg = new Object();
     // Convert message to object if not already
@@ -116,8 +108,8 @@ class ProtocolModel extends PluginModel {
     this.protocol.device = payload;
     this.save();
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-    this.trigger("protocols-set", this.wrapData(null, this.protocols));
-    this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
+    // this.trigger("protocols-set", this.wrapData(null, this.protocols));
+    // this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
   }
   onStepsSet(payload) {
     console.log("<ProtocolModel>:: onStepsSet");
@@ -133,7 +125,6 @@ class ProtocolModel extends PluginModel {
 
     this.protocol.steps = payload;
     this.save();
-    this.updateStepNumbers(this.protocol.steps);
   }
   onSchemaSet(payload) {
     console.log("<ProtocolModel>:: Schema Set");
@@ -151,7 +142,6 @@ class ProtocolModel extends PluginModel {
     if (!_.isArray(payload)) return;
     this.protocols = payload;
   }
-
   onNewProtocol(payload) {
     this.protocol = this.Protocol();
     this.protocols.push(this.protocol);
@@ -211,13 +201,18 @@ class ProtocolModel extends PluginModel {
 
     // TODO: Chould have automatic triggers for attributes attached to device
     if ("device" in this.protocol)
-      this.trigger("put-device", this.protocol["device"])
+      this.trigger("put-device", this.protocol["device"]);
+
+    const receiver = this.getReceiver(payload);
+    console.log("RECEIVER::", receiver);
+    console.log("PROTO::", this.protocol);
+    if (!receiver) return;
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/change-protocol`,
+      this.wrapData(null, this.protocol));
   }
 
   onLoadProtocol(payload) {
-    console.log("Loading Protocol::");
-    console.log(payload.protocol);
-
     const protocol = payload.protocol;
     // Check if protocol exists:
     // TODO: Change this to a "unique id"

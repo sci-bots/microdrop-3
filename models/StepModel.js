@@ -55,6 +55,7 @@ class StepModel extends PluginModel {
 
   // ** Methods **
   updateStepOptions() {
+    this.updateStepNumbers();
     if (!this.step) {
       console.error(`Failed to update step options: this.step is ${this.step}`);
       return;
@@ -69,6 +70,16 @@ class StepModel extends PluginModel {
       this.trigger(`${pluginName}-changed`, data);
     }
   }
+
+  updateStepNumbers() {
+    if (!this.steps) return;
+    // Update step numbers column for protocol steps
+    for (const [i, step] of this.steps.entries()) {
+      if (!("defaults" in step)) return;
+      step.defaults.step = i;
+    }
+  }
+
 
   // ** Event Handlers **
   onSetElectrodes(payload) {
