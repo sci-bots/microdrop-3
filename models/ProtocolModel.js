@@ -81,7 +81,6 @@ class ProtocolModel extends PluginModel {
   }
   // ** Event Handlers **
   onDeleteProtocol(payload) {
-    console.log("DELETING PROTOCOL!!");
     const protocol = payload.protocol;
     const index = this.getProtocolIndexByName(protocol.name);
     this.deleteProtocolAtIndex(index);
@@ -204,8 +203,6 @@ class ProtocolModel extends PluginModel {
       this.trigger("put-device", this.protocol["device"]);
 
     const receiver = this.getReceiver(payload);
-    console.log("RECEIVER::", receiver);
-    console.log("PROTO::", this.protocol);
     if (!receiver) return;
     this.sendMessage(
       `microdrop/${this.name}/notify/${receiver}/change-protocol`,
@@ -213,8 +210,15 @@ class ProtocolModel extends PluginModel {
   }
 
   onLoadProtocol(payload) {
+    let requireConfirmation;
     const protocol = payload.protocol;
-    // Check if protocol exists:
+    const overwrite = payload.overwrite;
+
+    // Ensure the protocol is valid before loading it
+    if (!_.isPlainObject(protocol)) {
+      console.error([`<ProtocolModel>:onLoadProtocol Invalid Type`, protocol]);
+    }
+
     // TODO: Change this to a "unique id"
     const index = this.getProtocolIndexByName(protocol.name);
 
@@ -223,9 +227,17 @@ class ProtocolModel extends PluginModel {
       this.protocols.push(protocol);
       this.trigger("protocols-set", this.wrapData(null, this.protocols));
       this.protocol = protocol;
-    } else {
+      requireConfirmation = false;
+    } else if (!overwrite){
       // Protocol is already loaded, don't overwrite working copy
+      // unless asked to do so
       this.protocol = this.protocols[index];
+      requireConfirmation = true;
+    } else {
+      console.log("overriding protocol");
+      this.protocols[index] = payload.protocol;
+      this.protocol = protocol;
+      requireConfirmation = false;
     }
 
     this.trigger("put-steps", this.wrapData("steps",this.protocol.steps));
@@ -236,6 +248,11 @@ class ProtocolModel extends PluginModel {
     if ("device" in this.protocol)
       this.trigger("put-device", this.protocol["device"])
 
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/load-protocol`,
+      this.wrapData("requireConfirmation", requireConfirmation));
   }
 
   onUploadProtocol(payload) {
