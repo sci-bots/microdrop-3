@@ -29,7 +29,6 @@ class ProtocolModel extends PluginModel {
     this.onTriggerMsg("load-protocol", this.onLoadProtocol.bind(this));
 
     this.bindTriggerMsg("experiment-ui", "send-protocol", "send-protocol");
-
     this.bindStateMsg("protocol-skeleton", "protocol-skeleton-set");
     this.bindStateMsg("protocol-skeletons", "protocol-skeletons-set");
     this.bindStateMsg("protocols", "protocols-set");
@@ -234,7 +233,6 @@ class ProtocolModel extends PluginModel {
       this.protocol = this.protocols[index];
       requireConfirmation = true;
     } else {
-      console.log("overriding protocol");
       this.protocols[index] = payload.protocol;
       this.protocol = protocol;
       requireConfirmation = false;

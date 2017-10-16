@@ -73,6 +73,13 @@ class WebServer extends NodeMqttClient {
     // Ping plugins every three seconds
     setInterval(this.pingRunningStates.bind(this), 3000);
   }
+  getReceiver(payload) {
+    // XXX: Implement this method in NodeMqttClient
+    if (!payload.__head__) return false;
+    if (!payload.__head__.plugin_name) return false;
+    return payload.__head__.plugin_name;
+  }
+
   get filepath() {return __dirname;}
   findPlugins() {
     let args = [];
@@ -228,26 +235,66 @@ class WebServer extends NodeMqttClient {
     this.findPlugins();
   }
   onCloseProcessPlugin(payload) {
-    const pluginName = payload;
+    // Depricate sending payload as string:
+    let pluginName;
+    if (_.isPlainObject(payload)) pluginName = payload.name;
+    if (!_.isPlainObject(payload)) pluginName = payload;
+
+    // Close plugin by publishing to /exit
+    // TODO: Use a trigger endpoint for this
     const topic = `microdrop/${pluginName}/exit`;
     this.sendMessage(topic);
+
+    // Listen for close event
+    this.once(`${pluginName}:closed`, () => {
+      const receiver = this.getReceiver(payload);
+      if (!receiver) return;
+      this.sendMessage(
+        `microdrop/${this.name}/notify/${receiver}/close-plugin`,
+        this.wrapData(null, {success: true}));
+    });
   }
   onLaunchProcessPlugin(payload) {
-    const pluginPath = path.resolve(payload);
-    const pluginData = this.getPluginData(pluginPath);
-    if (!pluginData) return false;
+    let _pluginPath;
+    // Depricating sending payload as string (should be object with key "path")
+    if (_.isPlainObject(payload)) _pluginPath = payload.path;
+    if (!_.isPlainObject(payload)) _pluginPath = payload;
 
+    const pluginPath = path.resolve(_pluginPath);
+    const pluginData = this.getPluginData(pluginPath);
+
+    // Send the status of the plugin (either success, or error message)
+    var sendLaunchStatus = (msg) => {
+      const receiver = this.getReceiver(payload);
+      if (!receiver) return;
+      this.sendMessage(
+        `microdrop/${this.name}/notify/${receiver}/launch-plugin`,
+        this.wrapData(null, msg));
+    }
+
+    // If no plugin data, fail:
+    if (!pluginData) {
+      sendLaunchStatus({success: false, response: "Failed to get plugin data"});
+      return false;
+    }
+
+    // Launch plugin as a child process:
     try {
       const command = pluginData.scripts.start.split(" ");
-
       // Spawn child and de-reference so it doesn't close when the broker does
       const child = spawn(command[0],
         command.slice(1, command.length), {cwd: pluginPath});
       child.unref();
     } catch (e) {
-      console.error(`Failed to launch child process with path: ${pluginPath}`);
-      console.error(e);
+      console.error(
+        `Failed to launch child process with path: ${pluginPath}`, e);
+      sendLaunchStatus({success: false, response: e});
     }
+
+    // Listen for status message from plugin indicating it's ready
+    this.once(`${pluginData.name}:ready`, () => {
+      sendLaunchStatus({success: true});
+    });
   }
   onPluginRunning(payload, pluginName) {
     const plugin = new Object();
@@ -261,6 +308,7 @@ class WebServer extends NodeMqttClient {
       this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
+    this.trigger(`${pluginName}:ready`, null);
   }
 
   onClientConnected(payload) {
@@ -274,6 +322,7 @@ class WebServer extends NodeMqttClient {
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
+    this.trigger(`${plugin.name}:ready`, null);
   }
 
   onClientDisconnected(payload){
@@ -284,8 +333,10 @@ class WebServer extends NodeMqttClient {
     if (this.processPlugins[pluginId]) {
       this.processPlugins[pluginId].state = "stopped";
       this.trigger("set-process-plugins", this.processPlugins);
+      this.trigger(`${pluginName}:closed`, null);
     }
   }
+
   onUpdateUIPluginState(payload) {
     // TODO: Make method more general (i.e. just ui plugin state)
     const plugin = payload;
@@ -358,6 +409,24 @@ class WebServer extends NodeMqttClient {
     return pluginData.webPlugins;
   }
 
+  wrapData(key, value) {
+    // TODO: Move to NodeMqttClient
+    // Add "__head__" key to msg and also convert to object
+    let msg = new Object();
+    if (typeof(value) == "object" && value !== null) msg = value;
+    else msg[key] = value;
+    msg.__head__ = this.DefaultHeader();
+    return msg;
+  }
+
+  DefaultHeader() {
+    // TODO: Move to NodeMqttClient
+    const header = new Object();
+    header.plugin_name = this.name;
+    header.plugin_version = this.version;
+    return header;
+  }
+
   static pluginsfile() {
     return path.resolve(path.join(__dirname, "plugins.json"));
   }
@@ -374,7 +443,6 @@ class WebServer extends NodeMqttClient {
 }
 
 const launchMicrodrop = function() {
-
 
   const parser = new ArgumentParser({
     version: '0.0.1',

@@ -1,3 +1,13 @@
+// Add all window objects that extend UIPlugin to microdropPlugin list
+for (const [key, val] of Object.entries(window)){
+  if (!val) continue;
+  if (!val.prototype) continue;
+  if (Object.getPrototypeOf(val).name == "UIPlugin") {
+    // console.log(key);
+    window.microdropPlugins.set(key, val);
+  }
+}
+
 // If microdropPlugins is not defined, alert the user to add a web plugin
 // via the plugin-manager webpage:
 if (!window.microdropPlugins) {

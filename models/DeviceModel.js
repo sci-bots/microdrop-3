@@ -13,15 +13,6 @@ class DeviceModel extends PluginModel {
     this.bindPutMsg("device_info_plugin", "device", "put-device");
     this.bindStateMsg("device", "device-set");
   }
-  wrapData(key, value) {
-    let msg = new Object();
-    // Convert message to object if not already
-    if (typeof(value) == "object" && value !== null) msg = value;
-    else msg[key] = value;
-    // Add header
-    msg.__head__ = this.DefaultHeader();
-    return msg;
-  }
   get name() {return "device-model" }
   get channel() {return "microdrop/device"}
   get device() {return this._device}
@@ -29,10 +20,10 @@ class DeviceModel extends PluginModel {
   get filepath() {return __dirname;}
 
   onPutDevice(payload) {
-    this.trigger("device-set", this.wrapData(null,payload))
+    this.trigger("device-set", this.wrapData(null,payload));
   }
   onLoadDevice(payload) {
-    this.trigger("put-device", this.wrapData(null,payload))
+    this.trigger("put-device", this.wrapData(null,payload));
   }
   // ** Overrides **
   onStart(payload) {

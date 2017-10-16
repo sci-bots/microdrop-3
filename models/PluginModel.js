@@ -30,7 +30,6 @@ class PluginModel extends NodeMqttClient {
     return payload.__head__.plugin_name;
   }
 
-
   wrapData(key, value) {
     // Add "__head__" key to msg and also convert to object
     let msg = new Object();
