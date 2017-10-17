@@ -23,6 +23,17 @@ class DeviceModel extends PluginModel {
     this.trigger("device-set", this.wrapData(null,payload));
   }
   onLoadDevice(payload) {
+    const receiver = this.getReceiver(payload);
+    const _this = this;
+    let callback;
+    callback = (response) => {
+      this.off("device-set", callback);
+      if (!receiver) return;
+      this.sendMessage(
+        `microdrop/${this.name}/notify/${receiver}/load-device`,
+        this.wrapData(null, {success: true, response: response}));
+    };
+    this.on("device-set", callback);
     this.trigger("put-device", this.wrapData(null,payload));
   }
   // ** Overrides **

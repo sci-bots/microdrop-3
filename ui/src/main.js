@@ -1,3 +1,5 @@
+var _microdrop = new MicrodropAsync();
+
 var two = two || new Two({type: Two.Types['svg']});
 
 // Create function to extract the filled mesh for each shape.
@@ -522,7 +524,7 @@ class DeviceUIPlugin {
           this.device_view.three_widget.scene.add(this.queue_mesh);
       });
 
-      this.event_handler.on("electrode_queue_finished", (electrode_ids) => {
+      this.event_handler.on("electrode_queue_finished", async (electrode_ids) => {
           let data, message, topic;
 
           if (this.queue_mesh) {
@@ -531,10 +533,11 @@ class DeviceUIPlugin {
           if (!electrode_ids || electrode_ids.length < 0) {
               return;
           }
-
-          topic = "microdrop/trigger/droplet_planning_plugin/add-route"
-          data  = electrode_ids
+          await _microdrop.routes.startDropletPlanningPlugin();
+          topic = "microdrop/trigger/droplet_planning_plugin/add-route";
+          data  = electrode_ids;
           client.sendMessage(topic, data);
+          return true;
       });
 
       this.event_handler.on("clear-electrode-states", () => {
@@ -547,20 +550,21 @@ class DeviceUIPlugin {
           client.sendMessage(topic, data);
       });
 
-      this.event_handler.on("clear-routes", (electrode_id) => {
+      this.event_handler.on("clear-routes", async (electrode_id) => {
           /* Send request to clear routes for the specified electrode (or all
            * routes if `electrode_id` is `null`) */
           let data, message, topic;
+          await _microdrop.routes.startDropletPlanningPlugin();
           topic = "microdrop/trigger/droplet_planning_plugin/clear-routes"
           data = {electrode_id: electrode_id};
           client.sendMessage(topic, data);
       });
 
-      this.event_handler.on("execute-routes", (electrode_id) => {
+      this.event_handler.on("execute-routes", async (electrode_id) => {
           /* Send request to execute routes for the specified electrode (or
            * all routes if `electrode_id` is `null`) */
           let data, message, topic;
-
+          await _microdrop.routes.startDropletPlanningPlugin();
           topic = "microdrop/dmf-device-ui/execute-routes";
           data  = {electrode_i: electrode_id};
           client.sendMessage(topic, data);
