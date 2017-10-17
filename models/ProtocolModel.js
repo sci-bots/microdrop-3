@@ -140,14 +140,7 @@ class ProtocolModel extends PluginModel {
     const defaultDevicePath = path.join(__dirname, "../resources/default.svg");
     await this.microdrop.device.loadFromFilePath(defaultDevicePath);
 
-    // Should use a recursive promise tree:
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return this.protocol;
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/new-protocol`,
-      this.wrapData(null, this.protocol));
-
-    return this.protocol;
+    return this.notifySender(payload, this.protocol, "new-protocol");
   }
   save(name=null) {
     if (!this.protocol) {
@@ -180,22 +173,11 @@ class ProtocolModel extends PluginModel {
     if (index == -1) return;
 
     this.protocol = this.protocols[index];
-
     await this.microdrop.steps.putSteps(this.protocol.steps);
     await this.microdrop.steps.putStepNumber(0);
-
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-
-    // TODO: Should have automatic triggers for attributes attached to device
-    if (this.protocol.device)
-      await this.microdrop.device.putDevice(this.protocol.device);
-
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return this.protocol;
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/change-protocol`,
-      this.wrapData(null, this.protocol));
-    return this.protocol;
+    await this.microdrop.device.putDevice(this.protocol.device);
+    return this.notifySender(payload, this.protocol, "change-protocol");
   }
 
   async onLoadProtocol(payload) {
@@ -231,17 +213,9 @@ class ProtocolModel extends PluginModel {
     await this.microdrop.steps.putSteps(this.protocol.steps);
     await this.microdrop.steps.putStepNumber(0);
     this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
+    await this.microdrop.device.putDevice(this.protocol.device);
 
-    // TODO: Store a "default device" when not specified
-    if (this.protocol.device)
-      await this.microdrop.device.putDevice(this.protocol.device);
-
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return;
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/load-protocol`,
-      this.wrapData("requireConfirmation", requireConfirmation));
-    return this.protocol;
+    return this.notifySender(payload, {requireConfirmation}, "load-protocol");
   }
 
   onUploadProtocol(payload) {

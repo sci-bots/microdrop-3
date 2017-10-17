@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const _fp = require('lodash/fp');
+const MicrodropAsync = require('@microdrop/async');
 
 const PluginModel = require('./PluginModel');
 
@@ -8,6 +9,7 @@ class StepModel extends PluginModel {
     super();
     this.steps = null;
     this.stepNumber = null;
+    this.microdrop = new MicrodropAsync();
   }
 
   listen() {
@@ -175,16 +177,17 @@ class StepModel extends PluginModel {
     this.trigger("set-step", this.wrapData("step", this.step));
     const receiver = this.getReceiver(payload);
     if (!receiver) return;
-
     this.sendMessage(
       `microdrop/${this.name}/notify/${receiver}/step-number`,
       this.wrapData(null, {status: "success", response: this.stepNumber}));
   }
-  onUpdateStep(payload) {
+  async onUpdateStep(payload) {
     const data = payload.data;
     const key = data.key;
     const val = data.val;
     const stepNumber = data.stepNumber;
+
+    this.steps = await this.microdrop.steps.steps();
 
     if (!this.steps) {
       console.error(`Cannot update step: this.steps is ${this.steps}`);
@@ -198,14 +201,16 @@ class StepModel extends PluginModel {
     this.updateStepOptions();
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step", this.wrapData("step", this.step));
+
+    return this.notifySender(payload, this.step, 'update-step');
   }
-  onDeleteStep(payload) {
+  async onDeleteStep(payload) {
     const prevStepNumber = payload.stepNumber;
     let nextStepNumber;
     if (prevStepNumber == 0) nextStepNumber = 0;
     if (prevStepNumber != 0) nextStepNumber = prevStepNumber - 1;
 
-    const steps = this.steps;
+    const steps = await this.microdrop.steps.steps();
     steps.splice(prevStepNumber, 1);
     this.steps = steps;
     this.stepNumber = nextStepNumber;
@@ -214,11 +219,13 @@ class StepModel extends PluginModel {
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
     this.trigger("set-step", this.wrapData("step", this.step));
+
+    return this.notifySender(payload, this.stepNumber, 'delete-step');
   }
-  onInsertStep(payload) {
+  async onInsertStep(payload) {
     const stepNumber = payload.stepNumber;
-    const steps = this.steps;
-    const step = _.cloneDeep(this.step);
+    const steps = await this.microdrop.steps.steps();
+    const step = await this.microdrop.steps.currentStep();
     steps.splice(stepNumber, 0, step);
 
     this.steps = steps;
@@ -228,6 +235,8 @@ class StepModel extends PluginModel {
     this.trigger("set-steps", this.wrapData("steps",this.steps));
     this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
     this.trigger("set-step", this.wrapData("step", this.step));
+
+    return this.notifySender(payload, this.stepNumber, 'insert-step');
   }
 }
 module.exports = StepModel;

@@ -30,6 +30,15 @@ class PluginModel extends NodeMqttClient {
     return payload.__head__.plugin_name;
   }
 
+  notifySender(payload, response, endpoint, status='success') {
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return response;
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/${endpoint}`,
+      this.wrapData(null, {status: status, response: response}));
+    return response;
+  }
+
   wrapData(key, value) {
     // Add "__head__" key to msg and also convert to object
     let msg = new Object();
