@@ -173,6 +173,12 @@ class StepModel extends PluginModel {
     this.updateStepOptions();
     this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
     this.trigger("set-step", this.wrapData("step", this.step));
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
+
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/step-number`,
+      this.wrapData(null, {status: "success", response: this.stepNumber}));
   }
   onUpdateStep(payload) {
     const data = payload.data;
