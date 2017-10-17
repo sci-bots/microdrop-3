@@ -80,7 +80,6 @@ class StepModel extends PluginModel {
     }
   }
 
-
   // ** Event Handlers **
   onSetElectrodes(payload) {
     // TODO: Add these properties to schema:
@@ -154,8 +153,20 @@ class StepModel extends PluginModel {
     this.trigger("set-step", this.wrapData("step", this.step));
   }
   onPutSteps(payload) {
-    this.steps = payload;
+    if (payload.steps){
+      this.steps = payload.steps;
+    } else {
+      console.error("<StepModel#putSteps>","expected key: 'steps' in payload");
+      this.steps = payload;
+    }
+
     this.trigger("set-steps", this.wrapData("steps",this.steps));
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
+
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/steps`,
+      this.wrapData(null, {status: "success", response: this.steps}));
   }
   onPutStepNumber(payload) {
     this.stepNumber = payload.stepNumber;

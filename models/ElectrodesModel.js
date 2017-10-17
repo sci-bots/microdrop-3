@@ -40,6 +40,8 @@ class ElectrodesModel extends PluginModel {
   }
 
   updateElectrodesFromChannels (channels) {
+    console.log("<DeviceModel#updateElectrodesFromChannels>");
+
     if (!channels) {
       console.error(`<ElectrodesModel>#updateElectrodesFromChannels::
       channels is ${channels}`);
@@ -127,14 +129,11 @@ class ElectrodesModel extends PluginModel {
   // ** Event Handlers **
   onDeviceSwapped (payload) {
     // When device is swapped, re-initialize channels:
-
     // Backup current state of electrodes
     const electrodes = _.cloneDeep(this.electrodes);
     // Update channels:
     const channels = payload['df_electrode_channels'];
-
     this.updateElectrodesFromChannels(channels);
-
     // Re-apply electrodes if the previously existed:
     if (Object.keys(electrodes).length !== 0)
       this.electrodes = electrodes;
@@ -143,7 +142,6 @@ class ElectrodesModel extends PluginModel {
   onSetElectrodeState (payload) {
     // Update the state of electrode by id
     const id = payload.electrode_id;
-
     const state = payload.state;
     this.updateStatesByElectrodeId(id,state);
     this.trigger("electrodes-set",
@@ -162,6 +160,8 @@ class ElectrodesModel extends PluginModel {
   }
 
   onUpdateElectrodeOptions (payload) {
+    console.log("<DeviceModel#onUpdateElectrodeOptions>");
+
     // Update Electrode Channels (Change per device)
     if (payload) {
       if(payload.channels) {

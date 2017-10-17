@@ -20,7 +20,21 @@ class DeviceModel extends PluginModel {
   get filepath() {return __dirname;}
 
   onPutDevice(payload) {
-    this.trigger("device-set", this.wrapData(null,payload));
+    let device;
+    if (payload.device){
+      device = payload.device;
+    } else {
+      console.error("<DeviceModel#putDevice>",
+        "expected key: 'device' in payload");
+      device = payload;
+    }
+    this.trigger("device-set", this.wrapData(null,device));
+    const receiver = this.getReceiver(payload);
+    if (!receiver) return;
+
+    this.sendMessage(
+      `microdrop/${this.name}/notify/${receiver}/device`,
+      this.wrapData(null, {status: "success", response: device}));
   }
   onLoadDevice(payload) {
     const receiver = this.getReceiver(payload);

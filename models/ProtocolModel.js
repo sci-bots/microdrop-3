@@ -105,9 +105,7 @@ class ProtocolModel extends PluginModel {
 
     this.protocol.device = payload;
     this.save();
-    this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-    // this.trigger("protocols-set", this.wrapData(null, this.protocols));
-    // this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
+    // this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
   }
   onStepsSet(payload) {
     console.log("<ProtocolModel>:: onStepsSet");
@@ -125,8 +123,7 @@ class ProtocolModel extends PluginModel {
     this.save();
   }
   onSchemaSet(payload) {
-    console.log("<ProtocolModel>:: Schema Set");
-    console.log(payload.__head__);
+    console.log("<ProtocolModel>:: Schema Set", payload.__head__);
     this.schema = payload;
   }
   onExportProtocolRequested(payload) {
@@ -135,8 +132,7 @@ class ProtocolModel extends PluginModel {
     this.trigger("send-protocol", str);
   }
   onProtocolsSet(payload) {
-    console.log("<ProtocolModel>:: ProtocolsSet");
-    console.log(payload.__head__);
+    console.log("<ProtocolModel>:: ProtocolsSet", payload.__head__);
     if (!_.isArray(payload)) return;
     this.protocols = payload;
   }
@@ -156,7 +152,6 @@ class ProtocolModel extends PluginModel {
       `microdrop/${this.name}/notify/${receiver}/new-protocol`,
       this.wrapData(null, this.protocol));
   }
-
   save() {
     if (!this.protocol) {
       console.error(`<ProtocolModel> Failed to save(); this.protocol if ${this.protocol}`);
