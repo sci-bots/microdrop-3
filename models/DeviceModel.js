@@ -1,11 +1,11 @@
 const _ = require('lodash');
-const _fp = require('lodash/fp');
-
+const MicrodropAsync = require('@microdrop/async');
 const PluginModel = require('./PluginModel');
 
 class DeviceModel extends PluginModel {
   constructor () {
     super();
+    this.microdrop = new MicrodropAsync();
   }
   listen() {
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
@@ -19,37 +19,37 @@ class DeviceModel extends PluginModel {
   set device(device) {this._device = device}
   get filepath() {return __dirname;}
 
-  onPutDevice(payload) {
-    let device;
-    if (payload.device){
-      device = payload.device;
-    } else {
-      console.error("<DeviceModel#putDevice>",
-        "expected key: 'device' in payload");
-      device = payload;
+  async onPutDevice(payload) {
+    const LABEL = `<DeviceModel#onPutDevice>`; console.log(LABEL);
+    try {
+      let device;
+      // Validate payload
+      if (payload.device){
+        device = payload.device;
+      } else {
+        console.error(LABEL, "expected key: 'device' in payload");
+        device = payload;
+      }
+      this.trigger("device-set", this.wrapData(null,device));
+      await this.microdrop.electrodes.reset();
+      return this.notifySender(payload, device, "device");
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e] , "device");
     }
-    this.trigger("device-set", this.wrapData(null,device));
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return;
-
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/device`,
-      this.wrapData(null, {status: "success", response: device}));
   }
+
   onLoadDevice(payload) {
     const receiver = this.getReceiver(payload);
     const _this = this;
     let callback;
     callback = (response) => {
       this.off("device-set", callback);
-      if (!receiver) return;
-      this.sendMessage(
-        `microdrop/${this.name}/notify/${receiver}/load-device`,
-        this.wrapData(null, {success: true, response: response}));
+      return this.notifySender(payload, response, 'load-device');
     };
     this.on("device-set", callback);
     this.trigger("put-device", this.wrapData(null,payload));
   }
+
   // ** Overrides **
   onStart(payload) {
     this.trigger("plugin-started",__dirname);

@@ -9,9 +9,9 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/async": "0.0.12",
-    "@mqttclient/mqtt-messages": "0.0.7",
-    "@mqttclient/web": "0.0.14",
+    "@microdrop/async": "0.0.17",
+    "@mqttclient/mqtt-messages": "0.0.8",
+    "@mqttclient/web": "0.0.16",
     "html2canvas": "^0.5.0-beta4"
   }
 }

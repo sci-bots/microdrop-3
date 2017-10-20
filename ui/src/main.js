@@ -410,11 +410,11 @@ class DeviceUIPlugin {
     }
 
     applyElectrodeStates(states) {
-        return (_fp.forEach.convert({'cap': false})
-                ((value, key) => {
-                    this.device_view.shapes.shapeMeshes[key].material.opacity =
-                        (value) ? 0.7 : 0.3;
-                 }))(states);
+      for (const [id, electrode] of Object.entries(states)) {
+        const shape = this.device_view.shapes.shapeMeshes[id];
+        if (electrode.state == false) shape.material.opacity = 0.3;
+        if (electrode.state == true)  shape.material.opacity = 0.7;
+      }
     }
 
     setRoutes(df_routes) {
@@ -507,9 +507,9 @@ class DeviceUIPlugin {
 
       this.event_handler.on("set_electrode_state", (kwargs) => {
           let data, message, topic;
-          topic = "microdrop/put/electrodes-model/electrode-state";
+          topic = "microdrop/trigger/electrodes-model/update-electrode";
           data  = kwargs;
-
+          console.log("DATA::", data);
           client.sendMessage(topic, data);
       });
       this.event_handler.on("electrode_queue_updated", (electrode_ids) => {
@@ -543,11 +543,13 @@ class DeviceUIPlugin {
       this.event_handler.on("clear-electrode-states", () => {
           let data, electrode_ids, message, topic;
           electrode_ids = _.keys(this.device.channels_by_electrode_id);
-          topic = "microdrop/put/electrodes-model/electrode-states";
-          data  = {electrode_states: {index: electrode_ids, values: 0,
-                                           index_dtype: "str", dtype: "int",
-                                           type: "Series"}};
-          client.sendMessage(topic, data);
+          topic = "microdrop/trigger/electrodes-model/clear-electrodes";
+          // data  = {electrode_states: {index: electrode_ids, values: 0,
+          //                                  index_dtype: "str", dtype: "int",
+          //                                  type: "Series"}};
+          // data = _.zipObject(electrode_ids, )
+          console.log("Clearing electrodes", electrode_ids);
+          client.sendMessage(topic, electrode_ids);
       });
 
       this.event_handler.on("clear-routes", async (electrode_id) => {

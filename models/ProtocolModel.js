@@ -97,6 +97,13 @@ class ProtocolModel extends PluginModel {
       console.error(LABEL, `this.protocols is ${this.protocols}`);
       return;
     }
+    if (!this.protocol.device) this.protocol.device = payload;
+
+    const prevDeviceName = this.protocol.device.svg_filepath;
+    const nextDeviceName = payload.svg_filepath;
+    if (prevDeviceName != nextDeviceName) {
+      // If device swapped, clear electrodes:
+    }
     this.protocol.device = payload;
     this.save();
   }
@@ -128,19 +135,23 @@ class ProtocolModel extends PluginModel {
     this.protocols = payload;
   }
   async onNewProtocol(payload) {
-    this.protocol = this.Protocol();
-    this.protocols.push(this.protocol);
-    this.trigger("protocols-set", this.wrapData(null, this.protocols));
-    this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
-    this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-
-    await this.microdrop.steps.putSteps(this.protocol.steps);
-    await this.microdrop.steps.putStepNumber(0);
-
-    const defaultDevicePath = path.join(__dirname, "../resources/default.svg");
-    await this.microdrop.device.loadFromFilePath(defaultDevicePath);
-
-    return this.notifySender(payload, this.protocol, "new-protocol");
+    const LABEL = "<ProtocolModel::onNewProtocol>";
+    try {
+      this.protocol = await this.Protocol();
+      this.protocols.push(this.protocol);
+      console.log(LABEL, "PROTOCOLS::", this.protocols);
+      this.trigger("protocols-set", this.wrapData(null, this.protocols));
+      this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
+      this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
+      const defaultDevicePath = path.join(__dirname, "../resources/default.svg");
+      const steps = await this.microdrop.steps.putSteps(this.protocol.steps);
+      console.log(LABEL, "RECEIVED STEPS::", steps);
+      await this.microdrop.device.loadFromFilePath(defaultDevicePath);
+      return this.notifySender(payload, this.protocol, "new-protocol");
+    } catch (e) {
+      console.log(LABEL, e);
+      return this.notifySender(payload, [LABEL, e], "new-protocol", "failed");
+    }
   }
   save(name=null) {
     if (!this.protocol) {
@@ -167,20 +178,27 @@ class ProtocolModel extends PluginModel {
   }
 
   async onChangeProtocol(payload) {
-    // Set the active / loaded protocol in the data controller
-    const name = payload.name;
-    const index = this.getProtocolIndexByName(name);
-    if (index == -1) return;
-
-    this.protocol = this.protocols[index];
-    await this.microdrop.steps.putSteps(this.protocol.steps);
-    await this.microdrop.steps.putStepNumber(0);
-    this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
-    await this.microdrop.device.putDevice(this.protocol.device);
+    const LABEL = "<ProtocolModel::onChangeProtocol>"
+    try {
+      // Set the active / loaded protocol in the data controller
+      const name = payload.name;
+      const index = this.getProtocolIndexByName(name);
+      if (index == -1) return;
+      this.protocol = this.protocols[index];
+      await this.microdrop.steps.putSteps(this.protocol.steps);
+      await this.microdrop.steps.putStepNumber(0);
+      this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
+      await this.microdrop.device.putDevice(this.protocol.device);
+    } catch (e) {
+      var response = [LABEL, e];
+      console.error(LABEL, "FAILED", response);
+      return this.notifySender(payload, response, "change-protocol", "failed");
+    }
     return this.notifySender(payload, this.protocol, "change-protocol");
   }
 
   async onLoadProtocol(payload) {
+    console.log("<ProtocolModel#onLoadProtocol>");
     let requireConfirmation;
     const protocol = payload.protocol;
     const overwrite = payload.overwrite;
@@ -226,7 +244,7 @@ class ProtocolModel extends PluginModel {
   }
 
   // ** Initializers **
-  Protocol() {
+  async Protocol() {
     if (!this.schema) {
       console.error(`
         FAILED TO CREATE PROTOCOL
@@ -234,18 +252,20 @@ class ProtocolModel extends PluginModel {
       return;
     }
     const protocol = new Object();
-    const steps    = new Array();
-    const step = _.zipObject(_.keys(this.schema), _.map(this.schema, this.SchemaDefaults));
+    protocol.steps = await this.microdrop.steps.createSteps();
+    console.log("Protocol.STEPS:::", protocol.steps);
+    protocol.name = "Protocol: " + this.time;
 
-    steps.push(step);
+    const indx = this.getProtocolIndexByName(protocol.name)
+    console.log("INDEX::::", indx);
 
-    protocol.name = "Protocol: " + this.time
     while (this.getProtocolIndexByName(protocol.name) != -1) {
       var id = Math.ceil(100*Math.random());
       protocol.name = "Protocol: " + this.time + ":" + id;
     }
 
-    protocol.steps = steps;
+    console.log("RETURNING::::", protocol);
+
     return protocol;
   }
 

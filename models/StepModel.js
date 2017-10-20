@@ -4,239 +4,147 @@ const MicrodropAsync = require('@microdrop/async');
 
 const PluginModel = require('./PluginModel');
 
+function UpdateStepNumbers(steps) {
+  /* Update the step number column of steps (after insert) */
+  for (const [i, step] of steps.entries()){
+    step.step = i;
+  }
+  return steps;
+}
+
+function AddAttribute(steps, key, val=null) {
+  /* Add attribute to each step (if currently undefined) */
+  for (const [i, step] of steps.entries()){
+    if (step[key] != undefined) continue;
+    step[key] = val;
+  }
+  return steps;
+}
+
+function Steps(schema, length= 1) {
+  /* Create default steps from schema */
+  const steps = new Array(length);
+  for (var i=0;i<length;i++){
+    steps[i] = _.mapValues(schema, "default");
+  }
+  return steps;
+}
+
+
+function Step(schema) {
+  /* Create default step from schema */
+  return Steps(schema, 1)[0];
+}
+
 class StepModel extends PluginModel {
   constructor () {
     super();
-    this.steps = null;
-    this.stepNumber = null;
     this.microdrop = new MicrodropAsync();
   }
 
   listen() {
-    this.onStateMsg("electrodes-model", "electrodes", this.onSetElectrodes.bind(this));
-    this.onStateMsg("electrodes-model", "channels", this.onSetElectrodeChannels.bind(this));
-    this.onStateMsg("routes-model", "route-options", this.onSetRouteOptions.bind(this));
-    this.onStateMsg("schema-model", "schema", this.onSchemaSet.bind(this));
+    this.onPutMsg("steps", this.putSteps.bind(this));
+    this.onPutMsg("step-number", this.putStepNumber.bind(this));
 
-    this.onPutMsg("step", this.onPutStep.bind(this));
-    this.onPutMsg("steps", this.onPutSteps.bind(this));
-    this.onPutMsg("step-number", this.onPutStepNumber.bind(this));
-
-    this.onTriggerMsg("update-step", this.onUpdateStep.bind(this));
-    this.onTriggerMsg("delete-step", this.onDeleteStep.bind(this));
-    this.onTriggerMsg("insert-step", this.onInsertStep.bind(this));
-
-    this.bindPutMsg("electrodes-model", "electrode-options", "put-electrode-options");
-    this.bindPutMsg("routes-model", "route-options", "put-route-options");
-
-    this.bindStateMsg("step", "set-step");
+    this.onTriggerMsg("create-steps", this.createSteps.bind(this));
+    this.onTriggerMsg("update-step", this.updateStep.bind(this));
+    this.onTriggerMsg("delete-step", this.deleteStep.bind(this));
+    this.onTriggerMsg("insert-step", this.insertStep.bind(this));
+    // this.onTriggerMsg("add-attribute", this.addAttribute.bind(this));
     this.bindStateMsg("step-number", "set-step-number");
     this.bindStateMsg("steps", "set-steps");
   }
 
   // ** Getters and Setters **
   get filepath() {return __dirname;}
-  get steps() {return this._steps;}
-  set steps(steps) {this._steps = steps;}
-  get stepNumber() {return this._stepNumber;}
-  set stepNumber(stepNumber) {this._stepNumber = stepNumber;}
-  get step() {
-    if (this.steps == null) {
-      console.error("Failed to get step; this.steps == null");
-      return undefined;
+
+  putSteps(payload) {
+    const LABEL = "<StepModel::putSteps>"; console.log(LABEL);
+    try {
+      if (!_.isArray(payload.steps)) throw([LABEl, "payload.steps not Array"]);
+      this.trigger("set-steps", payload.steps);
+      this.trigger("set-step-number", 0);
+      return this.notifySender(payload, payload.steps, 'steps');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'steps', "failed");
     }
-    return this.steps[this.stepNumber];
   }
-  set step(step) {
-    if (this.steps == null) {
-      console.error("Failed to set step; this.steps == null");
-      return undefined;
-    }
-    this.steps[this.stepNumber] = step;
-  }
-
-  // ** Methods **
-  updateStepOptions() {
-    this.updateStepNumbers();
-    if (!this.step) {
-      console.error(`Failed to update step options: this.step is ${this.step}`);
-      return;
-    }
-    this.trigger("put-electrode-options",
-      this.step["electrode-data-controller"] || false);
-
-    if (this.step["routes-model"])
-      this.trigger("put-route-options", this.step["routes-model"]);
-
-    for (const [pluginName, data] of Object.entries(this.step)){
-      this.trigger(`${pluginName}-changed`, data);
+  putStepNumber(payload) {
+    const LABEL = "<StepModel::putStepNumber>"; console.log(LABEL);
+    try {
+      if (payload.stepNumber == undefined)
+        throw([LABEL, "missing key 'stepNumber'"]);
+      this.trigger("set-step-number", payload.stepNumber);
+      return this.notifySender(payload, payload.stepNumber, 'step-number');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'step-number', "failed");
     }
   }
 
-  updateStepNumbers() {
-    if (!this.steps) return;
-    // Update step numbers column for protocol steps
-    for (const [i, step] of this.steps.entries()) {
-      if (!("defaults" in step)) return;
-      step.defaults.step = i;
+  async createSteps(payload) {
+    const LABEL = "<StepModel::createSteps>"; console.log(LABEL);
+    try {
+      const schema = await this.microdrop.schema.flatten();
+      return this.notifySender(payload, Steps(schema), 'create-steps');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'create-steps', 'failed');
     }
   }
+  async updateStep(payload) {
+    const LABEL = "<StepModel::updateStep>"; console.log(LABEL);
+    try {
+      if (payload.key == undefined) throw([LABEL, "payload.key missing"]);
+      if (payload.val == undefined) throw([LABEL, "payload.val missing"]);
+      if (payload.stepNumber == undefined) throw([LABEL, "payload.stepNumber missing"]);
 
-  // ** Event Handlers **
-  onSetElectrodes(payload) {
-    // TODO: Add these properties to schema:
-    if (!this.step) return; if (!this.steps) return;
-    const step = this.step;
-    if ("electrode-data-controller" in step)
-      step["electrode-data-controller"].electrode_states = payload;
-    else
-      step["electrode-data-controller"] = {electrode_states: payload};
-    this.step = step;
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step", this.wrapData("step", step));
-  }
-  onSetElectrodeChannels(payload) {
-    // TODO: Add these properties to schema:
-    if (!this.step) return; if (!this.steps) return;
-    const step = this.step;
-    if ("electrode-data-controller" in step)
-      step["electrode-data-controller"].channels = payload;
-    else
-      step["electrode-data-controller"] = {channels: payload};
-    this.step = step;
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step",  this.wrapData("step", step));
-  }
-  onSetRouteOptions(payload) {
-    // TODO: Add these properties to schema:
-    if (!this.step) return;
-    if (!this.steps) return;
-
-    const step = this.step;
-    step["routes-model"] = payload;
-    this.step = step;
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step", this.wrapData("step", step));
-  }
-  onSchemaSet(payload){
-    const schema = payload;
-
-    // Add event bindings for each plugin in schema:
-    for (const [pluginName, attrs] of Object.entries(schema)){
-      this.bindSignalMsg(`${pluginName}-changed`, `${pluginName}-changed`);
+      const steps = await this.microdrop.steps.steps();
+      const step = steps[payload.stepNumber];
+      step[payload.key] = payload.val;
+      this.trigger("set-steps", steps);
+      return this.notifySender(payload, step, 'update-step');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'update-step', "failed");
     }
-
-    if (!this.steps) {
-      console.error(
-        `<StepModel> COULD NOT UPDATE SCHEMA: this.steps is ${this.steps}`
-      );
-      return;
-    }
-
-    // Update steps:
-    for (const [i, step] of this.steps.entries()){
-      // Iterate through each plugins schema data
-      for (const [pluginName, attrs] of Object.entries(schema)){
-        // If data already exists for this plugin, then don't overwrite
-        if (pluginName in step) continue;
-        this.steps[i][pluginName] = new Object();
-        // Fill step with the default values for the plugins attributes
-        for (const [name, attr] of Object.entries(attrs)){
-          this.steps[i][pluginName][name] = attr.default;
-        }
+  }
+  async deleteStep(payload) {
+    /* Delete steps at payload.stepNumber */
+    const LABEL = "<StepModel::deleteStep>"; console.log(LABEL);
+    try {
+      if (payload.stepNumber == undefined) throw([LABEL, "missing stepNumber"]);
+      let stepNumber = await this.microdrop.steps.currentStepNumber();
+      let steps = await this.microdrop.steps.steps();
+      // Delete step
+      steps.splice(payload.stepNumber, 1);
+      steps = UpdateStepNumbers(steps);
+      // If step number is now out of range, change it to the last step
+      if (stepNumber >= steps.length) {
+        stepNumber = steps.length -1;
+        this.trigger("set-step-number", stepNumber);
       }
+      // Update steps
+      this.trigger("set-steps", steps);
+      return this.notifySender(payload, steps, 'delete-step');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'delete-step');
     }
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
   }
-  onPutStep(payload) {
-    this.step = payload;
-    this.updateStepOptions();
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step", this.wrapData("step", this.step));
-  }
-  onPutSteps(payload) {
-    if (payload.steps){
-      this.steps = payload.steps;
-    } else {
-      console.error("<StepModel#putSteps>","expected key: 'steps' in payload");
-      this.steps = payload;
+  async insertStep(payload) {
+    /* Insert Step After step number in payload */
+    const LABEL = "<StepModel::insertStep>"; console.log(LABEL);
+    try {
+      if (payload.stepNumber == undefined) throw([LABEL, "missing stepNumber"]);
+      let steps = await this.microdrop.steps.steps();
+      // Create new step
+      const step = _.cloneDeep(steps[payload.stepNumber]);
+      // Insert step into the currently stored steps
+      steps.splice(payload.stepNumber+1, 0, step);
+      steps = UpdateStepNumbers(steps);
+      // Update steps
+      this.trigger("set-steps", steps);
+      return this.notifySender(payload, steps, 'insert-step');
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], 'insert-step', "failed");
     }
-
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return;
-
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/steps`,
-      this.wrapData(null, {status: "success", response: this.steps}));
-  }
-  onPutStepNumber(payload) {
-    this.stepNumber = payload.stepNumber;
-    this.updateStepOptions();
-    this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
-    this.trigger("set-step", this.wrapData("step", this.step));
-    const receiver = this.getReceiver(payload);
-    if (!receiver) return;
-    this.sendMessage(
-      `microdrop/${this.name}/notify/${receiver}/step-number`,
-      this.wrapData(null, {status: "success", response: this.stepNumber}));
-  }
-  async onUpdateStep(payload) {
-    const data = payload.data;
-    const key = data.key;
-    const val = data.val;
-    const stepNumber = data.stepNumber;
-
-    this.steps = await this.microdrop.steps.steps();
-
-    if (!this.steps) {
-      console.error(`Cannot update step: this.steps is ${this.steps}`);
-      return;
-    }
-    _.each(this.steps[stepNumber], (schema) => {
-      if (!schema) return;
-      if (key in schema) schema[key] = val
-    });
-
-    this.updateStepOptions();
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step", this.wrapData("step", this.step));
-
-    return this.notifySender(payload, this.step, 'update-step');
-  }
-  async onDeleteStep(payload) {
-    const prevStepNumber = payload.stepNumber;
-    let nextStepNumber;
-    if (prevStepNumber == 0) nextStepNumber = 0;
-    if (prevStepNumber != 0) nextStepNumber = prevStepNumber - 1;
-
-    const steps = await this.microdrop.steps.steps();
-    steps.splice(prevStepNumber, 1);
-    this.steps = steps;
-    this.stepNumber = nextStepNumber;
-
-    this.updateStepOptions();
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
-    this.trigger("set-step", this.wrapData("step", this.step));
-
-    return this.notifySender(payload, this.stepNumber, 'delete-step');
-  }
-  async onInsertStep(payload) {
-    const stepNumber = payload.stepNumber;
-    const steps = await this.microdrop.steps.steps();
-    const step = await this.microdrop.steps.currentStep();
-    steps.splice(stepNumber, 0, step);
-
-    this.steps = steps;
-    this.stepNumber = stepNumber + 1;
-
-    this.updateStepOptions();
-    this.trigger("set-steps", this.wrapData("steps",this.steps));
-    this.trigger("set-step-number", this.wrapData("stepNumber",this.stepNumber));
-    this.trigger("set-step", this.wrapData("step", this.step));
-
-    return this.notifySender(payload, this.stepNumber, 'insert-step');
   }
 }
 module.exports = StepModel;
