@@ -50,7 +50,7 @@ class StepModel extends PluginModel {
     this.onTriggerMsg("update-step", this.updateStep.bind(this));
     this.onTriggerMsg("delete-step", this.deleteStep.bind(this));
     this.onTriggerMsg("insert-step", this.insertStep.bind(this));
-    // this.onTriggerMsg("add-attribute", this.addAttribute.bind(this));
+
     this.bindStateMsg("step-number", "set-step-number");
     this.bindStateMsg("steps", "set-steps");
   }
@@ -80,7 +80,6 @@ class StepModel extends PluginModel {
       return this.notifySender(payload, [LABEL, e], 'step-number', "failed");
     }
   }
-
   async createSteps(payload) {
     const LABEL = "<StepModel::createSteps>"; console.log(LABEL);
     try {

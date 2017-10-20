@@ -51,6 +51,17 @@ function CountOnElectrodes(electrodes) {
    return _.countBy(Object.values(electrodes), (e)=>{return e.state});
 }
 
+function DataFrameToElectrodes(dataframe) {
+  const LABEL = "<RoutesModel::DataFrameToElectrodes>";
+  try {
+    if (!dataframe.index) throw("dataframe.index missing");
+    if (!dataframe.values) throw("dataframe.values missing");
+    return _.zipObject(dataframe.index, dataframe.values);
+  } catch (e) {
+    throw([LABEL, e]);
+  }
+}
+
 class ElectrodesModel extends PluginModel {
   constructor () {
     super();
@@ -60,6 +71,7 @@ class ElectrodesModel extends PluginModel {
   listen() {
     this.onPutMsg("electrodes", this.onPutElectrodes.bind(this));
     this.onPutMsg("channels", this.onPutChannels.bind(this));
+    this.onTriggerMsg("from-dataframe", this.fromDataframe.bind(this));
     this.onTriggerMsg("update-electrode", this.updateElectrode.bind(this));
     this.onTriggerMsg("clear-electrodes", this.clearElectrodes.bind(this));
     this.onTriggerMsg("reset-electrodes", this.resetElectrodes.bind(this));
@@ -71,6 +83,7 @@ class ElectrodesModel extends PluginModel {
   get filepath() {return __dirname;}
 
   async onStepChange(stepNumber) {
+    /* When step is changed, load the electrodes and channels from this step */
     const LABEL = "<ElectrodesModel::onStepsSet>"; console.log(LABEL);
     try {
       const steps = await this.microdrop.steps.steps();
@@ -80,6 +93,23 @@ class ElectrodesModel extends PluginModel {
       if (channels) this.trigger("set-channels", channels);
     } catch (e) {
       throw([LABEL, e]);
+    }
+  }
+  async fromDataframe(payload) {
+    const LABEL = "<ElectrodesModel::fromDataframe>"; console.log(LABEL);
+    try {
+      if (!payload.df_electrodes) throw("missing payload.df_electrodes");
+      const microdrop = new MicrodropAsync();
+      const electrodes = await microdrop.electrodes.electrodes();
+      const channels = await microdrop.electrodes.channels();
+      const updatedElectrodes = DataFrameToElectrodes(payload.df_electrodes);
+      for (const [id, state] of Object.entries(updatedElectrodes)) {
+        UpdateStatesByElectrode(id, state, electrodes, channels);
+      }
+      await microdrop.electrodes.putElectrodes(electrodes);
+      return this.notifySender(payload, electrodes, "from-dataframe");
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e], "from-dataframe", 'failed');
     }
   }
 

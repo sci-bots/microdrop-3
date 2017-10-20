@@ -137,16 +137,18 @@ class ProtocolModel extends PluginModel {
   async onNewProtocol(payload) {
     const LABEL = "<ProtocolModel::onNewProtocol>";
     try {
-      this.protocol = await this.Protocol();
+      const microdrop = new MicrodropAsync();
+      this.protocol = this.Protocol();
+      this.protocol.steps = await microdrop.steps.createSteps();
       this.protocols.push(this.protocol);
       console.log(LABEL, "PROTOCOLS::", this.protocols);
       this.trigger("protocols-set", this.wrapData(null, this.protocols));
       this.trigger("protocol-skeletons-set", this.createProtocolSkeletons());
       this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
       const defaultDevicePath = path.join(__dirname, "../resources/default.svg");
-      const steps = await this.microdrop.steps.putSteps(this.protocol.steps);
-      console.log(LABEL, "RECEIVED STEPS::", steps);
-      await this.microdrop.device.loadFromFilePath(defaultDevicePath);
+      await microdrop.steps.putSteps(this.protocol.steps);
+      console.log(LABEL, "RECEIVED STEPS::", this.protocol.steps);
+      await microdrop.device.loadFromFilePath(defaultDevicePath);
       return this.notifySender(payload, this.protocol, "new-protocol");
     } catch (e) {
       console.log(LABEL, e);
@@ -244,7 +246,7 @@ class ProtocolModel extends PluginModel {
   }
 
   // ** Initializers **
-  async Protocol() {
+  Protocol() {
     if (!this.schema) {
       console.error(`
         FAILED TO CREATE PROTOCOL
@@ -252,20 +254,14 @@ class ProtocolModel extends PluginModel {
       return;
     }
     const protocol = new Object();
-    protocol.steps = await this.microdrop.steps.createSteps();
-    console.log("Protocol.STEPS:::", protocol.steps);
     protocol.name = "Protocol: " + this.time;
-
     const indx = this.getProtocolIndexByName(protocol.name)
     console.log("INDEX::::", indx);
-
     while (this.getProtocolIndexByName(protocol.name) != -1) {
       var id = Math.ceil(100*Math.random());
       protocol.name = "Protocol: " + this.time + ":" + id;
     }
-
     console.log("RETURNING::::", protocol);
-
     return protocol;
   }
 

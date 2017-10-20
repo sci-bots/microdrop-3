@@ -410,6 +410,7 @@ class DeviceUIPlugin {
     }
 
     applyElectrodeStates(states) {
+      if (!this.device_view.shapes) return;
       for (const [id, electrode] of Object.entries(states)) {
         const shape = this.device_view.shapes.shapeMeshes[id];
         if (electrode.state == false) shape.material.opacity = 0.3;
@@ -417,7 +418,19 @@ class DeviceUIPlugin {
       }
     }
 
-    setRoutes(df_routes) {
+    setRoutes(r) {
+
+        const vals = _.map(r, (v)=>[v.electrode_i, v.route_i, v.transition_i]);
+
+        const df = new Object();
+        df.index  = _.keys(r);
+        df.type   = "DataFrame";
+        df.values = vals;
+        df.index_dtype = "int64" ;
+        df.columns = ["electrode_i", "route_i", "transition_i"];
+
+        const df_routes = new DataFrame(df);
+
         this.routes = df_routes;
         if (this.device_view.circles_group) {
             this.device_view.resetCircleStyles();
@@ -566,9 +579,16 @@ class DeviceUIPlugin {
           /* Send request to execute routes for the specified electrode (or
            * all routes if `electrode_id` is `null`) */
           let data, message, topic;
-          await _microdrop.routes.startDropletPlanningPlugin();
+          const microdrop = new MicrodropAsync();
+          await microdrop.routes.startDropletPlanningPlugin();
+
+          // Get properties from current step
+          const steps = await microdrop.steps.steps();
+          const stepNumber = await microdrop.steps.currentStepNumber();
+
+          console.log("EXECUTING ROUTES" , electrode_id);
           topic = "microdrop/dmf-device-ui/execute-routes";
-          data  = {electrode_i: electrode_id};
+          data  = {electrode_i: electrode_id, props: steps[stepNumber]};
           client.sendMessage(topic, data);
       });
 
