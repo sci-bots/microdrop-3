@@ -9,7 +9,7 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/async": "0.0.17",
+    "@microdrop/async": "0.0.20",
     "@mqttclient/mqtt-messages": "0.0.8",
     "@mqttclient/web": "0.0.16"
   }

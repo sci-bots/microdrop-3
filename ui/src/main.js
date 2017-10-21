@@ -553,16 +553,10 @@ class DeviceUIPlugin {
           return true;
       });
 
-      this.event_handler.on("clear-electrode-states", () => {
-          let data, electrode_ids, message, topic;
-          electrode_ids = _.keys(this.device.channels_by_electrode_id);
-          topic = "microdrop/trigger/electrodes-model/clear-electrodes";
-          // data  = {electrode_states: {index: electrode_ids, values: 0,
-          //                                  index_dtype: "str", dtype: "int",
-          //                                  type: "Series"}};
-          // data = _.zipObject(electrode_ids, )
-          console.log("Clearing electrodes", electrode_ids);
-          client.sendMessage(topic, electrode_ids);
+      this.event_handler.on("clear-electrode-states", async () => {
+        /* Turn of all electrodes */
+        var microdrop = new MicrodropAsync();
+        await microdrop.electrodes.reset();
       });
 
       this.event_handler.on("clear-routes", async (electrode_id) => {
@@ -585,8 +579,7 @@ class DeviceUIPlugin {
           // Get properties from current step
           const steps = await microdrop.steps.steps();
           const stepNumber = await microdrop.steps.currentStepNumber();
-
-          console.log("EXECUTING ROUTES" , electrode_id);
+          
           topic = "microdrop/dmf-device-ui/execute-routes";
           data  = {electrode_i: electrode_id, props: steps[stepNumber]};
           client.sendMessage(topic, data);

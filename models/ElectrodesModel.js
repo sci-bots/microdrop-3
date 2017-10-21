@@ -168,13 +168,9 @@ class ElectrodesModel extends PluginModel {
     }
   }
 
-  clearElectrodes(payload) {
-    /* Turn off all electrodes */
-    console.log("<ElectrodesModel::clearElectrodes>", payload);
-  }
-
   async resetElectrodes(payload) {
-    /* Re-generate electrodes and channels based on loaded device */
+    /* Re-generate electrodes and channels map based on loaded device
+       with all electrode states set to "off" */
     const LABEL = "<ElectrodesModel::resetElectrodes>"; console.log(LABEL);
     try {
       const channelMap = await this.microdrop.device.channels();
