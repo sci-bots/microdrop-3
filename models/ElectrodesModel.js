@@ -73,7 +73,6 @@ class ElectrodesModel extends PluginModel {
     this.onPutMsg("channels", this.onPutChannels.bind(this));
     this.onTriggerMsg("from-dataframe", this.fromDataframe.bind(this));
     this.onTriggerMsg("update-electrode", this.updateElectrode.bind(this));
-    this.onTriggerMsg("clear-electrodes", this.clearElectrodes.bind(this));
     this.onTriggerMsg("reset-electrodes", this.resetElectrodes.bind(this));
     this.bindStateMsg("electrodes", "set-electrodes");
     this.bindStateMsg("channels", "set-channels");
