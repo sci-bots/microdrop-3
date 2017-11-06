@@ -1,8 +1,8 @@
 {
-  "name": "device-ui-controller",
+  "name": "@microdrop/device-controller",
   "version": "1.0.0",
   "description": "Controller DMF device via controlboard",
-  "main": "device-ui-controller.js",
+  "main": "src/device-ui-controller.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,7 +24,6 @@
     "three-orbit-controls": "^82.1.0",
     "three.meshline": "^1.0.3",
     "threex-domevents": "^1.0.0",
-    "threex.videotexture": "^1.0.0",
     "two.js": "github:jonobr1/two.js#dev",
     "url-loader": "^0.6.2"
   }
