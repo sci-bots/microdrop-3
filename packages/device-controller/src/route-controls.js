@@ -46,7 +46,7 @@ function GenerateRoute(localRoute, electrodeControls) {
 
   addPoint(localRoute.start);
   for (const [i, dir] of localRoute.path.entries()){
-    const neighbours = this.electrodeControls.getNeighbours(prev);
+    const neighbours = electrodeControls.getNeighbours(prev);
     const id = _.invert(neighbours)[dir];
     addPoint(id);
     prev = id;
@@ -61,7 +61,7 @@ function RouteIsValid(localRoute, electrodeControls) {
   const objects = electrodeControls.electrodeObjects;
   let prev = localRoute.start;
   for (const [i, dir] of localRoute.path.entries()){
-    const neighbours = this.electrodeControls.getNeighbours(prev);
+    const neighbours = electrodeControls.getNeighbours(prev);
     const id = _.invert(neighbours)[dir];
     if (!id) return false;
     prev = id;

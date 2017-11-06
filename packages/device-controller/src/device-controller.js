@@ -10,7 +10,7 @@ const ElectrodeControls = require('./electrode-controls');
 const {RouteControls, GenerateRoute} = require('./route-controls');
 const VideoControls = require('./video-controls');
 
-var electrodeControls, electrodeObjects, camera, controls, renderer,
+var electrodeControls, electrodeObjects, camera, cameraControls, renderer,
   routeControls, scene, videoControls;
 
 const createScene = async (container=null) => {
@@ -22,10 +22,10 @@ const createScene = async (container=null) => {
   const aspect = bbox.width / bbox.height;
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );
-  controls = new OrbitControls(camera);
-  controls.enableKeys = false;
-  controls.enableRotate = false;
-  controls.enablePan = true;
+  cameraControls = new OrbitControls(camera);
+  cameraControls.enableKeys = false;
+  cameraControls.enableRotate = false;
+  cameraControls.enablePan = true;
 
   renderer = new THREE.WebGLRenderer( { antialias: true} );
   electrodeObjects = null;
@@ -55,8 +55,10 @@ const createScene = async (container=null) => {
 
   routeControls = new RouteControls(scene, camera, electrodeControls, container);
   videoControls = new VideoControls(scene, camera, renderer, updateFcts, electrodeControls.svgGroup);
-  window.onresize = (e) => {console.log("resizing..", e)}
+  // window.onresize = (e) => {console.log("resizing..", e)}
   animate();
+
+  return {cameraControls, electrodeControls, routeControls, videoControls};
 }
 
 function createContextMenu() {
@@ -78,31 +80,36 @@ function createContextMenu() {
   });
 }
 
-function createDatGUI() {
-  const gui = new Dat.GUI();
-  gui.add(controls, 'enableRotate');
-  gui.add(videoControls, "display_anchors");
+function createDatGUI(container=null, menu={}) {
+  if (!container) container = document.body;
+  const gui = new Dat.GUI({autoPlace: false});
+  gui.add(menu.cameraControls || cameraControls, 'enableRotate');
+  gui.add(menu.videoControls || videoControls, "display_anchors");
+  gui.domElement.style.position = "absolute";
+  gui.domElement.style.top = "0px";
+  gui.domElement.style.right = "0px";
+  container.appendChild(gui.domElement);
 }
 
 init = async (container=null) => {
   if (!container) container = document.body;
-  await createScene(container);
+  var controls = await createScene(container);
   // createContextMenu();
-  createDatGUI();
+  createDatGUI(container, controls);
 
   window.$ = $;
   window._ = _;
   window.THREE = THREE;
 
-  window.electrodeControls = electrodeControls;
   window.electrodeObjects = electrodeObjects;
   window.camera = camera;
-  window.controls = controls;
   window.renderer = renderer;
+  window.electrodeControls = electrodeControls;
+  window.cameraControls = cameraControls;
   window.routeControls = routeControls;
   window.scene = scene;
   window.GenerateRoute = GenerateRoute;
   window.videoControls = videoControls;
 }
 
-module.exports = {init, createScene};
+module.exports = {init, createScene, createDatGUI, createContextMenu};
