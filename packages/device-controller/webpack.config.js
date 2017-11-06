@@ -1,8 +1,8 @@
-var webConfig = {
-  entry: './src/device-ui-controller.js',
+var web = {
+  entry: './src/device-controller.js',
   output: {
-    filename: './build/device-ui-controller.web.js',
-    library: 'DeviceUI',
+    filename: './build/device-controller.web.js',
+    library: 'DeviceController',
     libraryTarget: 'var'
   },
   module:{
@@ -12,4 +12,19 @@ var webConfig = {
   }
 };
 
-module.exports = webConfig;
+
+var commonjs = {
+  entry: './src/device-controller.js',
+  output: {
+    filename: './build/device-controller.common.js',
+    library: 'DeviceController',
+    libraryTarget: 'commonjs2'
+  },
+  module:{
+    loaders: [
+      { test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' }
+    ]
+  }
+};
+
+module.exports = [web, commonjs];

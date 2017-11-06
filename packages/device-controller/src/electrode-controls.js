@@ -99,14 +99,16 @@ function FindIntersectsInDirection(obj, dir, collisionObjects ) {
 }
 
 class ElectrodeControls {
-  constructor(scene, camera, renderer) {
+  constructor(scene, camera, renderer, container=null) {
     _.extend(this, Backbone.Events);
-
+    if (!container) container = document.body;
+    
     this.selectedElectrode = null;
     this.svgGroup = null;
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
+    this.container = container;
 
     Key("left", () => this.move(DIRECTIONS.LEFT));
     Key("right", () => this.move(DIRECTIONS.RIGHT));
@@ -117,7 +119,7 @@ class ElectrodeControls {
   }
 
   async loadSvg(f='default.svg') {
-    var d = await RenderSVG(f, this.scene, this.camera, this.renderer, this);
+    var d = await RenderSVG(f, this.scene, this.camera, this.renderer, this.container, this);
     this.electrodeObjects = d.objects;
     this.svgGroup = d.container;
   }

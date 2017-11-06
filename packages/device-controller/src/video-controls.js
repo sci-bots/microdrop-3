@@ -8,7 +8,7 @@ const THREEx = {}
 require('threex-domevents')(THREE, THREEx);
 
 const ThreeHelpers = require('three-helpers.svg-paths-group')(THREE);
-const PlaneTransform = require('../lib/three.planetransform/three.planetransform')(THREE);
+const PlaneTransform = require('three.planetransform')(THREE);
 const MouseEventHandler = require('three-helpers.mouse-event-handler')(THREE);
 
 window.THREEx = THREEx;

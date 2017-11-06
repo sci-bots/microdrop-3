@@ -44,7 +44,7 @@ ExtractShape = function (twojs_shape) {
 }
 
 module.exports = async (url='default.svg', scene, camera,
-  renderer, controller) => {
+  renderer, container, controller) => {
   // Read svg file
   const file = await ReadFile(url);
   const domEvents = new THREEx.DomEvents(camera, renderer.domElement);
@@ -57,7 +57,7 @@ module.exports = async (url='default.svg', scene, camera,
   // Generate ThreeJS Mesh Objects from Shapes
   const svgGroup = new THREE.Group();
 
-  const documentSize = document.body.getBoundingClientRect();
+  const documentSize = container.getBoundingClientRect();
   const resolution = new THREE.Vector2(documentSize.width, documentSize.height);
   for (var i=0; i<shapes3D.length; i++) {
     const shape3D = shapes3D[i];
@@ -127,7 +127,7 @@ module.exports = async (url='default.svg', scene, camera,
 
   // Adjust camera such that its field of view spans entire mesh
   let z;
-  var bodySize = document.body.getBoundingClientRect();
+  var bodySize = container.getBoundingClientRect();
   var fovRadians = THREE.Math.degToRad( camera.fov );
   var r = (1/(2*Math.tan(fovRadians/2)));
   if (bodySize.height <  bodySize.width) z = ho * r;

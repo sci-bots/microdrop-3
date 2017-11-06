@@ -6,12 +6,9 @@ const Backbone = require('backbone');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
-function GenerateLineFromElectrodeIds(id1, id2, objects) {
+function GenerateLineFromElectrodeIds(id1, id2, objects, resolution) {
   const color = new THREE.Color("rgb(190, 97, 91)");
   const lineWidth = 0.2;
-  const bbox = document.body.getBoundingClientRect();
-  const resolution = new THREE.Vector2( bbox.width, bbox.height );
-
   const material = new MeshLineMaterial({color, lineWidth, resolution});
 
   var geometry = new THREE.Geometry();
@@ -73,14 +70,17 @@ function RouteIsValid(localRoute, electrodeControls) {
 }
 
 class RouteControls {
-  constructor(scene, camera, electrodeControls) {
+  constructor(scene, camera, electrodeControls, container=null) {
     _.extend(this, Backbone.Events);
+    if (!container) container = document.body;
+
     electrodeControls.on("mousedown", this.drawRoute.bind(this));
     electrodeControls.on("mouseup", (e) => this.trigger("mouseup", e));
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
     this.electrodeControls = electrodeControls;
     this._lines = null;
     this._scene = scene;
+    this._container = container;
     this.model = new Backbone.Model({routes: []});
     this.model.on("change:routes", this.renderRoutes.bind(this));
   }
@@ -135,6 +135,8 @@ class RouteControls {
     const path = [];
     const routes = _.clone(this.model.get("routes"));
     const objects = this.electrodeControls.electrodeObjects;
+    const bbox = this._container.getBoundingClientRect();
+    const resolution = new THREE.Vector2( bbox.width, bbox.height );
 
     const add = (name) => {
       const prev = _.last(path);
@@ -143,7 +145,7 @@ class RouteControls {
       if (!neighbours[name] && prev != undefined) return;
 
       if (path.length > 0) {
-        const line = GenerateLineFromElectrodeIds(prev, name, objects);
+        const line = GenerateLineFromElectrodeIds(prev, name, objects, resolution);
         lines.push(line);
         this._scene.add(line);
       }
