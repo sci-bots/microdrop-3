@@ -1,0 +1,19 @@
+{
+  "name": "@microdrop/device-ui-plugin",
+  "version": "0.1.0",
+  "description": "UI Plugin to view device, routes, and electrodes",
+  "main": "device-ui-plugin.web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "microdrop",
+    "device-ui-plugin",
+    "ui-plugin"
+  ],
+  "author": "Sci-Bots",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@microdrop/device-controller": "^0.2.2"
+  }
+}

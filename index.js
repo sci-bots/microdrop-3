@@ -29,6 +29,7 @@ class WebServer extends NodeMqttClient {
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
+    this.use(express.static(path.join(__dirname,"resources")));
 
     // NPM Packages used in Handlebar template:
     this.use(express.static(path.join(__dirname,"node_modules/@mqttclient"), {extensions:['html']}));
