@@ -45,6 +45,7 @@
     "mqtt": "^2.13.1",
     "mqtt-router": "^0.5.0",
     "pandas-helpers": "^1.0.0",
+    "three": "^0.88.0",
     "walk": "^2.3.9"
   }
 }

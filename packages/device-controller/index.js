@@ -3,7 +3,7 @@ const PORT = 3001;
 
 const express = require('express');
 const path = require('path');
-const DeviceController = require('./src/device-controller');
+const DeviceController = require('./src/device-controller2');
 
 const app = express();
 
@@ -14,6 +14,7 @@ app.listen(PORT, function () {
 });
 
 function init() {
-  console.log("Creating scene");
   DeviceController.createScene();
 }
+
+init();

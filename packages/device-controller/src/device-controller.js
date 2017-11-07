@@ -10,6 +10,7 @@ const OrbitControls = require('three-orbit-controls')(THREE);
 const ElectrodeControls = require('./electrode-controls');
 const {RouteControls, GenerateRoute} = require('./route-controls');
 const VideoControls = require('./video-controls');
+const SVGRenderer = require('./svg-renderer');
 
 var electrodeControls, camera, cameraControls, renderer,
   routeControls, scene, videoControls, container,
@@ -135,4 +136,7 @@ init = async (container=null) => {
   window.videoControls = videoControls;
 }
 
-module.exports = {init, createScene, createDatGUI, createContextMenu};
+module.exports = {
+  init, createScene, createDatGUI, createContextMenu,
+  ElectrodeControls, RouteControls, GenerateRoute, VideoControls, SVGRenderer
+};

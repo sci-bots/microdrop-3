@@ -1,4 +1,6 @@
 const DeviceController = require('@microdrop/device-controller');
+const MicrodropAsync = require('@microdrop/async');
+
 class DeviceUIPlugin extends UIPlugin {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "DeviceUIPlugin");
@@ -16,11 +18,17 @@ class DeviceUIPlugin extends UIPlugin {
     }
   }
   async render() {
+
+    const microdrop = new MicrodropAsync();
+
     const bbox = this.element.getBoundingClientRect();
     if (bbox.width == 0) return;
 
     this.controls = await DeviceController.createScene(this.element);
     this.gui = DeviceController.createDatGUI(this.element, this.controls);
+
+    var dat = await DeviceController.SVGRenderer.GenerateSvgGroup("default.svg");
+    console.log("dat", dat);
   }
 }
 

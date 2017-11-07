@@ -43,22 +43,12 @@ ExtractShape = function (twojs_shape) {
    return shape;
 }
 
-module.exports = async (url='default.svg', scene, camera,
-  renderer, container, controller) => {
-  // Read svg file
+const GenerateSvgGroup = async (url='default.svg') => {
   const file = await ReadFile(url);
-  const domEvents = new THREEx.DomEvents(camera, renderer.domElement);
-
-  // Compute shape objects from SVG
   const paths = $(file).find('path');
   const shapes2D = _.map(paths, (p) => two.interpret(p));
   const shapes3D = _.map(shapes2D, (s) => ExtractShape(s));
-
-  // Generate ThreeJS Mesh Objects from Shapes
   const svgGroup = new THREE.Group();
-
-  const documentSize = container.getBoundingClientRect();
-  const resolution = new THREE.Vector2(documentSize.width, documentSize.height);
   for (var i=0; i<shapes3D.length; i++) {
     const shape3D = shapes3D[i];
     const shape2D = shapes2D[i];
@@ -67,7 +57,7 @@ module.exports = async (url='default.svg', scene, camera,
     var points = shape3D.createPointsGeometry();
     // var points = new THREE.Geometry().setFromPoints(shape3D.extractPoints().shape);
     points.autoClose = true;
-    var options = {color: new THREE.Color("black"), lineWidth: 0.2, resolution: resolution}
+    var options = {color: new THREE.Color("black"), lineWidth: 0.2};
     var material = new MeshLineMaterial(options);
     var meshLine = new MeshLine();
     meshLine.setGeometry(points);
@@ -97,44 +87,61 @@ module.exports = async (url='default.svg', scene, camera,
     group.fill = fill;
     group.outline = outline;
 
-    const addListener = (name) => {
-      domEvents.addEventListener(fill, name, (e) => {
-        controller.trigger(name, e)
-      }, false);
-    };
-
-    // Add listeners
-    addListener('click');
-    addListener('mousedown');
-    addListener('mouseup');
-    addListener('mouseover');
-    addListener('mouseout');
-
-    // Add to SVG group
     svgGroup.add(group);
   }
-  scene.add(svgGroup);
 
-  // Compute total width and height of grouped SVG objects and center
-  const helper = new THREE.BoundingBoxHelper(svgGroup, 0xff0000);
-  helper.update();
-  helper.geometry.computeBoundingBox();
-  const bbox = helper.geometry.boundingBox;
-  var wo = bbox.max.x - bbox.min.x;
-  var ho = bbox.max.y - bbox.min.y;
-  svgGroup.position.x -= wo/2;
-  svgGroup.position.y -= ho/2;
-
-  // Adjust camera such that its field of view spans entire mesh
-  let z;
-  var bodySize = container.getBoundingClientRect();
-  var fovRadians = THREE.Math.degToRad( camera.fov );
-  var r = (1/(2*Math.tan(fovRadians/2)));
-  if (bodySize.height <  bodySize.width) z = ho * r;
-  if (bodySize.height >= bodySize.width) z = (wo/camera.aspect) * r;
-  camera.position.z = z;
-
-  // Update electrode objects property
-  var keys = _.map(svgGroup.children, "name");
-  return  {objects: _.zipObject(keys, svgGroup.children), container: svgGroup};
+  return svgGroup;
 }
+
+const init = async (url='default.svg', scene, camera, renderer, container,
+  controller) => {
+    const svgGroup = await GenerateSvgGroup(url);
+    const domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+    const documentSize = container.getBoundingClientRect();
+    const resolution = new THREE.Vector2(documentSize.width, documentSize.height);
+
+    for (var i=0; i<svgGroup.children.length; i++) {
+      const group = svgGroup.children[i];
+      group.outline.material.resolution = resolution;
+
+      const addListener = (name) => {
+        domEvents.addEventListener(group.fill, name, (e) => {
+          controller.trigger(name, e)
+        }, false);
+      };
+
+      // Add listeners
+      addListener('click');
+      addListener('mousedown');
+      addListener('mouseup');
+      addListener('mouseover');
+      addListener('mouseout');
+    }
+
+    scene.add(svgGroup);
+
+    // Compute total width and height of grouped SVG objects and center
+    const helper = new THREE.BoundingBoxHelper(svgGroup, 0xff0000);
+    helper.update();
+    helper.geometry.computeBoundingBox();
+    const bbox = helper.geometry.boundingBox;
+    var wo = bbox.max.x - bbox.min.x;
+    var ho = bbox.max.y - bbox.min.y;
+    svgGroup.position.x -= wo/2;
+    svgGroup.position.y -= ho/2;
+
+    // Adjust camera such that its field of view spans entire mesh
+    let z;
+    var bodySize = container.getBoundingClientRect();
+    var fovRadians = THREE.Math.degToRad( camera.fov );
+    var r = (1/(2*Math.tan(fovRadians/2)));
+    if (bodySize.height <  bodySize.width) z = ho * r;
+    if (bodySize.height >= bodySize.width) z = (wo/camera.aspect) * r;
+    camera.position.z = z;
+
+    // Update electrode objects property
+    var keys = _.map(svgGroup.children, "name");
+    return  {objects: _.zipObject(keys, svgGroup.children), container: svgGroup};
+}
+
+module.exports = { GenerateSvgGroup, init };

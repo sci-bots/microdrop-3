@@ -1,3 +1,4 @@
+const THREE = require('three');
 const _ = require('lodash');
 const MicrodropAsync = require('@microdrop/async');
 const PluginModel = require('./PluginModel');
@@ -9,6 +10,7 @@ class DeviceModel extends PluginModel {
   }
   listen() {
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
+    this.onPutMsg("threeSvgGroup", this.onPutThreeSvgGroup.bind(this));
     this.onPutMsg("device", this.onPutDevice.bind(this));
     this.bindPutMsg("device_info_plugin", "device", "put-device");
     this.bindStateMsg("device", "device-set");
@@ -18,6 +20,10 @@ class DeviceModel extends PluginModel {
   get device() {return this._device}
   set device(device) {this._device = device}
   get filepath() {return __dirname;}
+
+  async onPutThreeSvgGroup(payload) {
+    console.log("Putting Three SVG Group::", payload);
+  }
 
   async onPutDevice(payload) {
     const LABEL = `<DeviceModel#onPutDevice>`; console.log(LABEL);

@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/device-controller",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Controller DMF device via controlboard",
   "main": "build/device-controller.common.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "jquery-contextmenu": "^2.6.3",
     "keyboard-shortcut": "^1.2.0",
     "lodash": "^4.17.4",
+    "mqtt": "^2.14.0",
     "three": "^0.87.1",
     "three-helpers.mouse-event-handler": "^1.0.1",
     "three-helpers.svg-paths-group": "^1.0.3",

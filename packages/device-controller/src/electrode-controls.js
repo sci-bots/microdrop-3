@@ -7,7 +7,7 @@ const Two = require('two.js'); const two = new Two();
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
-const RenderSVG = require('./svg-renderer');
+const SVGRenderer = require('./svg-renderer');
 
 const DEFAULT_TIMEOUT = 5000;
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
@@ -38,7 +38,7 @@ class ElectrodeControls {
   }
 
   async loadSvg(f='default.svg') {
-    var d = await RenderSVG(f, this.scene, this.camera, this.renderer, this.container, this);
+    var d = await SVGRenderer.init(f, this.scene, this.camera, this.renderer, this.container, this);
     this.electrodeObjects = d.objects;
     this.svgGroup = d.container;
   }
