@@ -17,92 +17,11 @@ const OFF_COLOR = "rgb(175, 175, 175)";
 const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
 
-function FindNearestIntersectFromEdge(objName, point, direction,
-  collisionObjects) {
-  /* Find neighbour of an object along an edge normal to the rays direction */
-  /*  objName: name of currentObject
-      point: any point inside currentObject (changes start location along edge)
-      direction: direction towards edge
-      collisionObjects: list of possible objects to collide with
-  */
-
-  // Cast ray in direction (to find the edge)
-  const raycaster = new THREE.Raycaster();
-  raycaster.set(point, direction);
-
-  // Filter the intersections for that of the current object (from objName);
-  var intersects = raycaster.intersectObjects( collisionObjects , true);
-
-  var start = _.filter(intersects, {object: {parent: {name: objName}}})[0];
-  if (!start) return undefined;
-
-  // Cast another ray from the objects edge, ignoring starting object
-  raycaster.set(start.point, direction);
-  var intersects = raycaster.intersectObjects( collisionObjects , true);
-  _.remove(intersects, {distance: 0});
-
-  // Return object with smallest distance from start object
-  const intersect = _.min(intersects, "distance");
-  if (!intersect) return undefined;
-  if (intersect.distance > MAX_DISTANCE) return undefined;
-  return intersect;
-}
-
-function FindIntersectsInDirection(obj, dir, collisionObjects ) {
-  /* Get all neighbouring objects around an objects axis*/
-  let direction;
-  if (dir == DIRECTIONS.RIGHT) direction = new THREE.Vector3(1,0,0);
-  if (dir == DIRECTIONS.LEFT)  direction = new THREE.Vector3(-1,0,0);
-  if (dir == DIRECTIONS.UP)    direction = new THREE.Vector3(0,1,0);
-  if (dir == DIRECTIONS.DOWN)  direction = new THREE.Vector3(0,-1,0);
-
-  // Get the origin of the selected electrode (accounting for displacement)
-  const origin = new THREE.Vector3();
-  origin.setFromMatrixPosition( obj.matrixWorld );
-
-  obj.geometry.computeBoundingBox();
-  const bbox   = obj.geometry.boundingBox;
-  const width  = bbox.max.x - bbox.min.x;
-  const height = bbox.max.y - bbox.min.y;
-
-  const numSteps = 10;
-  const intersects = {};
-
-  var point = origin.clone();
-  var n = obj.parent.name;
-
-  if (direction.y == 0) {
-    point.y -= height/2;
-    var step = height/numSteps;
-    for (var i=0;i<numSteps;i++) {
-      point.y += step;
-      const intersect = FindNearestIntersectFromEdge(n, point, direction,
-        collisionObjects);
-      if (!intersect) continue;
-      const uuid = intersect.object.uuid;
-      intersects[uuid] = intersect;
-    }
-  }
-  else if (direction.x == 0) {
-    point.x -= width/2;
-    var step = width/numSteps;
-    for (var i=0;i<numSteps;i++) {
-      point.x += step;
-      const intersect = FindNearestIntersectFromEdge(n, point, direction,
-        collisionObjects);
-      if (!intersect) continue;
-      const uuid = intersect.object.uuid;
-      intersects[uuid] = intersect;
-    }
-  }
-  return _.values(intersects);
-}
-
 class ElectrodeControls {
   constructor(scene, camera, renderer, container=null) {
     _.extend(this, Backbone.Events);
     if (!container) container = document.body;
-    
+
     this.selectedElectrode = null;
     this.svgGroup = null;
     this.scene = scene;
@@ -269,6 +188,87 @@ class ElectrodeControls {
     }
   }
 
+}
+
+function FindNearestIntersectFromEdge(objName, point, direction,
+  collisionObjects) {
+  /* Find neighbour of an object along an edge normal to the rays direction */
+  /*  objName: name of currentObject
+      point: any point inside currentObject (changes start location along edge)
+      direction: direction towards edge
+      collisionObjects: list of possible objects to collide with
+  */
+
+  // Cast ray in direction (to find the edge)
+  const raycaster = new THREE.Raycaster();
+  raycaster.set(point, direction);
+
+  // Filter the intersections for that of the current object (from objName);
+  var intersects = raycaster.intersectObjects( collisionObjects , true);
+
+  var start = _.filter(intersects, {object: {parent: {name: objName}}})[0];
+  if (!start) return undefined;
+
+  // Cast another ray from the objects edge, ignoring starting object
+  raycaster.set(start.point, direction);
+  var intersects = raycaster.intersectObjects( collisionObjects , true);
+  _.remove(intersects, {distance: 0});
+
+  // Return object with smallest distance from start object
+  const intersect = _.min(intersects, "distance");
+  if (!intersect) return undefined;
+  if (intersect.distance > MAX_DISTANCE) return undefined;
+  return intersect;
+}
+
+function FindIntersectsInDirection(obj, dir, collisionObjects ) {
+  /* Get all neighbouring objects around an objects axis*/
+  let direction;
+  if (dir == DIRECTIONS.RIGHT) direction = new THREE.Vector3(1,0,0);
+  if (dir == DIRECTIONS.LEFT)  direction = new THREE.Vector3(-1,0,0);
+  if (dir == DIRECTIONS.UP)    direction = new THREE.Vector3(0,1,0);
+  if (dir == DIRECTIONS.DOWN)  direction = new THREE.Vector3(0,-1,0);
+
+  // Get the origin of the selected electrode (accounting for displacement)
+  const origin = new THREE.Vector3();
+  origin.setFromMatrixPosition( obj.matrixWorld );
+
+  obj.geometry.computeBoundingBox();
+  const bbox   = obj.geometry.boundingBox;
+  const width  = bbox.max.x - bbox.min.x;
+  const height = bbox.max.y - bbox.min.y;
+
+  const numSteps = 10;
+  const intersects = {};
+
+  var point = origin.clone();
+  var n = obj.parent.name;
+
+  if (direction.y == 0) {
+    point.y -= height/2;
+    var step = height/numSteps;
+    for (var i=0;i<numSteps;i++) {
+      point.y += step;
+      const intersect = FindNearestIntersectFromEdge(n, point, direction,
+        collisionObjects);
+      if (!intersect) continue;
+      const uuid = intersect.object.uuid;
+      intersects[uuid] = intersect;
+    }
+  }
+  else if (direction.x == 0) {
+    point.x -= width/2;
+    var step = width/numSteps;
+    for (var i=0;i<numSteps;i++) {
+      point.x += step;
+      const intersect = FindNearestIntersectFromEdge(n, point, direction,
+        collisionObjects);
+      if (!intersect) continue;
+      const uuid = intersect.object.uuid;
+      intersects[uuid] = intersect;
+    }
+  }
+  return _.values(intersects);
 }
 
 module.exports = ElectrodeControls;

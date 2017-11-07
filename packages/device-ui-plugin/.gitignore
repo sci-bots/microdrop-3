@@ -60,3 +60,4 @@ typings/
 
 #other
 device-ui-plugin.web.js
+build/

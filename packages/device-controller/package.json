@@ -19,6 +19,7 @@
     "three-helpers.mouse-event-handler": "^1.0.1",
     "three-helpers.svg-paths-group": "^1.0.3",
     "three-orbit-controls": "^82.1.0",
+    "three-window-resize": "^1.0.4",
     "three.meshline": "^1.0.3",
     "three.planetransform": "^1.0.0",
     "threex-domevents": "^1.0.0",

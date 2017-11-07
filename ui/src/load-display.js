@@ -17,9 +17,6 @@ if (!window.microdropPlugins) {
   `);
 }
 
-// Disable alert messages in datatables:
-$.fn.dataTable.ext.errMode = 'throw';
-
 let focusTracker;
 
 function createDock(title) {
@@ -52,9 +49,10 @@ function setSizes(dockPanel, sizes) {
   dockPanel.update();
 }
 
-window.panel = new PhosphorWidgets.DockPanel();
-window.widgetMap = new Map();
 window.hasLaunched = false;
+window.panel = new PhosphorWidgets.DockPanel();
+window.pluginInstances = [];
+window.widgetMap = new Map();
 
 panel.spacing = 10;
 dock = createDock("Microdrop");
@@ -69,6 +67,7 @@ for (const [pluginName,pluginClass] of microdropPlugins) {
   // const dock = docks[pluginClass.position()];
   const widget = pluginClass.Widget(panel, dock, focusTracker);
   widgetMap.set(widget.title.label, widget);
+  if (widget.plugin) pluginInstances.push(widget.plugin);
 }
 dock.dispose();
 
@@ -137,6 +136,11 @@ function savePanels() {
 }
 
 panel.onUpdateRequest = (msg) => {
+  // Trigger update event in children:
+  for (const [i, plugin] of pluginInstances.entries()) {
+    plugin.trigger("updateRequest", msg);
+  }
+  
   // Save layout everytime it is updated
   if (window.hasLaunched)
     savePanels();

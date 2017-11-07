@@ -61,6 +61,7 @@ class UIPlugin extends MQTTClient {
     const plugin = new this(widget.node,focusTracker);
     widget.title.label = plugin.name;
     widget.title.closable = true;
+    widget.plugin = plugin;
     panel.addWidget(widget,  {mode: "tab-before", ref: dock});
     panel.activateWidget(widget);
     focusTracker.add(widget);

@@ -2,6 +2,7 @@ require('style-loader!css-loader!jquery-contextmenu/dist/jquery.contextMenu.css'
 
 const $ = require('jquery'); require('jquery-contextmenu');
 const _ = require('lodash');
+const Backbone = require('backbone');
 const Dat = require('dat.gui/build/dat.gui');
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
@@ -10,56 +11,79 @@ const ElectrodeControls = require('./electrode-controls');
 const {RouteControls, GenerateRoute} = require('./route-controls');
 const VideoControls = require('./video-controls');
 
-var electrodeControls, electrodeObjects, camera, cameraControls, renderer,
-  routeControls, scene, videoControls;
+var electrodeControls, camera, cameraControls, renderer,
+  routeControls, scene, videoControls, container,
+  lastTimeMsec, updateFcts;
 
-const createScene = async (container=null) => {
-  if (!container) container = document.body;
-  const updateFcts = [];
+function animate(nowMsec) {
+  requestAnimationFrame( animate.bind(this) );
+  lastTimeMsec	= lastTimeMsec || nowMsec - 1000/60;
+  var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
+  lastTimeMsec	= nowMsec;
 
-  // Create ThreeJS scene
-  const bbox = container.getBoundingClientRect();
-  const aspect = bbox.width / bbox.height;
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );
-  cameraControls = new OrbitControls(camera);
+  updateFcts.forEach(function(updateFn){
+    updateFn(deltaMsec/1000, nowMsec/1000);
+  });
+
+  renderer.render( scene, camera );
+}
+
+function initCameraControls() {
+  cameraControls = new OrbitControls(camera, container);
   cameraControls.enableKeys = false;
   cameraControls.enableRotate = false;
   cameraControls.enablePan = true;
+  _.extend(cameraControls, Backbone.Events);
+}
+
+function initRenderer() {
+  var bbox = container.getBoundingClientRect();
+  var aspect = bbox.width / bbox.height;
 
   renderer = new THREE.WebGLRenderer( { antialias: true} );
-  electrodeObjects = null;
   container.appendChild( renderer.domElement );
-
-  camera.position.z = 100;
   renderer.setSize( bbox.width, bbox.height );
-  renderer.setPixelRatio(window.devicePixelRatio);
+  if (window) renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setClearColor( "rgb(55, 55, 55)", 1 );
+}
 
-  var lastTimeMsec = null;
-  function animate(nowMsec) {
-    requestAnimationFrame( animate.bind(this) );
-    lastTimeMsec	= lastTimeMsec || nowMsec - 1000/60;
-    var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
-    lastTimeMsec	= nowMsec;
+const createScene = async (_container=null) => {
+  container = _container;
+  if (!container) container = document.body;
+  var bbox = container.getBoundingClientRect();
+  var aspect = bbox.width / bbox.height;
 
-    updateFcts.forEach(function(updateFn){
-      updateFn(deltaMsec/1000, nowMsec/1000);
-    });
+  updateFcts = [];
 
-    renderer.render( scene, camera );
-  }
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );
+  camera.position.z = 100;
+
+  initCameraControls();
+  initRenderer();
 
   electrodeControls = new ElectrodeControls(scene, camera, renderer, container);
   await electrodeControls.loadSvg('default.svg');
-
   routeControls = new RouteControls(scene, camera, electrodeControls, container);
   videoControls = new VideoControls(scene, camera, renderer, updateFcts, electrodeControls.svgGroup);
-  // window.onresize = (e) => {console.log("resizing..", e)}
+  cameraControls.on("updateRequest", updateRequest.bind(this));
   animate();
 
   return {cameraControls, electrodeControls, routeControls, videoControls};
 }
+
+function updateRequest() {
+  var bbox = container.getBoundingClientRect();
+  var aspect = bbox.width / bbox.height;
+
+  // notify the renderer of the size change
+  renderer.setSize(bbox.width, bbox.height)
+
+  // update the camera
+  camera.aspect	= aspect;
+  camera.updateProjectionMatrix()
+}
+
 
 function createContextMenu() {
   $.contextMenu({
@@ -101,7 +125,6 @@ init = async (container=null) => {
   window._ = _;
   window.THREE = THREE;
 
-  window.electrodeObjects = electrodeObjects;
   window.camera = camera;
   window.renderer = renderer;
   window.electrodeControls = electrodeControls;
