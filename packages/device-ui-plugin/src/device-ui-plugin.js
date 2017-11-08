@@ -17,8 +17,8 @@ class DeviceUIPlugin extends UIPlugin {
       this.controls.cameraControls.trigger("updateRequest", this);
     }
   }
+  
   async render() {
-
     const microdrop = new MicrodropAsync();
 
     const bbox = this.element.getBoundingClientRect();
@@ -28,6 +28,8 @@ class DeviceUIPlugin extends UIPlugin {
     this.gui = DeviceController.createDatGUI(this.element, this.controls);
 
     var dat = await DeviceController.SVGRenderer.GenerateSvgGroup("default.svg");
+    microdrop.device.putThreeSvgGroup(dat);
+
     console.log("dat", dat);
   }
 }

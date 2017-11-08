@@ -68,7 +68,7 @@ class Device {
     try {
       const msg = {
         __head__: {plugin_name: this.ms.name},
-        svgGroup: svgGroup
+        svgGroup: svgGroup.toJSON()
       };
       const response = await this.ms.putPlugin(
         "device-model", "threeSvgGroup", msg, timeout);

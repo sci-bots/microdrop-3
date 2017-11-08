@@ -3,6 +3,8 @@ const _ = require('lodash');
 const MicrodropAsync = require('@microdrop/async');
 const PluginModel = require('./PluginModel');
 
+const loader = new THREE.ObjectLoader();
+
 class DeviceModel extends PluginModel {
   constructor () {
     super();
@@ -22,7 +24,11 @@ class DeviceModel extends PluginModel {
   get filepath() {return __dirname;}
 
   async onPutThreeSvgGroup(payload) {
-    console.log("Putting Three SVG Group::", payload);
+    console.log("putting svg group!!");
+    const object = loader.parse( payload );
+    console.log("Putting Three SVG Group::", _.keys(payload));
+    console.log("Object::", _.keys(object));
+    return object;
   }
 
   async onPutDevice(payload) {
