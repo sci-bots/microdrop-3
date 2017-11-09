@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/device-controller",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Controller DMF device via controlboard",
   "main": "build/device-controller.common.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/async": "0.0.20",
+    "@microdrop/async": "0.1.0",
     "backbone": "^1.3.3",
     "jquery": "^3.2.1",
     "keyboard-shortcut": "^1.2.0",
