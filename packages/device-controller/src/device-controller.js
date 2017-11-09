@@ -1,9 +1,5 @@
-require('style-loader!css-loader!jquery-contextmenu/dist/jquery.contextMenu.css');
-
-const $ = require('jquery'); require('jquery-contextmenu');
 const _ = require('lodash');
 const Backbone = require('backbone');
-const Dat = require('dat.gui/build/dat.gui');
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -85,58 +81,7 @@ function updateRequest() {
   camera.updateProjectionMatrix()
 }
 
-
-function createContextMenu() {
-  $.contextMenu({
-      selector: 'body',
-      callback: function(key, options) {
-          var m = "clicked: " + key;
-          window.console && console.log(m) || alert(m);
-      },
-      items: {
-          clearElectrodes: {name: "Clear Electrodes"},
-          "sep1": "---------",
-          clearRoute: {name: "Clear Route"},
-          executeRoute: {name: "Execute Route"},
-          "sep2": "---------",
-          clearRoutes: {name: "Clear Routes"},
-          executeRoutes: {name: "Execute Routes"}
-      }
-  });
-}
-
-function createDatGUI(container=null, menu={}) {
-  if (!container) container = document.body;
-  const gui = new Dat.GUI({autoPlace: false});
-  gui.add(menu.cameraControls || cameraControls, 'enableRotate');
-  gui.add(menu.videoControls || videoControls, "display_anchors");
-  gui.domElement.style.position = "absolute";
-  gui.domElement.style.top = "0px";
-  gui.domElement.style.right = "0px";
-  container.appendChild(gui.domElement);
-}
-
-init = async (container=null) => {
-  if (!container) container = document.body;
-  var controls = await createScene(container);
-  // createContextMenu();
-  createDatGUI(container, controls);
-
-  window.$ = $;
-  window._ = _;
-  window.THREE = THREE;
-
-  window.camera = camera;
-  window.renderer = renderer;
-  window.electrodeControls = electrodeControls;
-  window.cameraControls = cameraControls;
-  window.routeControls = routeControls;
-  window.scene = scene;
-  window.GenerateRoute = GenerateRoute;
-  window.videoControls = videoControls;
-}
-
 module.exports = {
-  init, createScene, createDatGUI, createContextMenu,
+  createScene,
   ElectrodeControls, RouteControls, GenerateRoute, VideoControls, SVGRenderer
 };

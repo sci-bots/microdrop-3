@@ -7,10 +7,14 @@ class Routes {
       this.ms = ms;
   }
 
-  async routes() {
+  async routes(timeout=DEFAULT_TIMEOUT) {
     const LABEL = "<MicrodropAsync::Routes::routes>"; console.log(LABEL);
-    const routes = await this.ms.getState("routes-model", "routes");
-    return routes;
+    try {
+      const routes = await this.ms.getState("routes-model", "routes", timeout);
+      return routes;
+    } catch (e) {
+      throw(lo.flattenDeep([LABEL, routes]));
+    }
   }
 
   async execute(props={}, onComplete=lo.noop, timeout=DEFAULT_TIMEOUT) {
@@ -47,8 +51,27 @@ class Routes {
       __head__: {plugin_name: this.ms.name},
       routes: routes
     };
-    const response = await this.ms.putPlugin("routes-model", "routes", msg, timeout);
-    return response;
+    const payload = await this.ms.putPlugin("routes-model", "routes", msg, timeout);
+    return payload.response;
+  }
+
+  async putRoute(start, path, timeout=DEFAULT_TIMEOUT) {
+    const LABEL = "<MicrodropAsync::Routes::putRoute>";
+    try {
+      const r = start;
+      if (_.isObject(start)) { start = r.start; path = r.path; }
+      if (!_.isString(start)) throw("arg 1 should be string");
+      if (!_.isArray(path)) throw("arg 2 should be array");
+      const msg = {
+        __head__: {plugin_name: this.ms.name},
+        start: start,
+        path: path
+      };
+      const payload = await this.ms.putPlugin("routes-model", "route", msg, timeout);
+      return payload.response;
+    } catch (e) {
+      throw(lo.flattenDeep([LABEL, e]));
+    }
   }
 
 }

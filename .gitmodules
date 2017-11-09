@@ -1,0 +1,6 @@
+[submodule "packages/mqttclient-web"]
+	path = packages/mqttclient-web
+	url = https://github.com/Lucaszw/mqttclient-web
+[submodule "packages/mqtt-messages-js"]
+	path = packages/mqtt-messages-js
+	url = https://github.com/Lucaszw/mqtt-messages-js

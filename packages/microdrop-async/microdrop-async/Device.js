@@ -189,6 +189,26 @@ class Device {
     return (await this.loadFromFile(f.file, f.name, timeout));
   }
 
+  async electrodesFromPath(start, path, timeout=DEFAULT_TIMEOUT) {
+    const LABEL = "<MicrodropAsync::Device::electrodesFromPath>";
+    try {
+      const r = start;
+      if (lo.isObject(start)) { start = r.start; path = r.path; }
+      if (!lo.isString(start)) throw("arg 1 should be string");
+      if (!lo.isArray(path)) throw("arg 2 should be array");
+      const msg = {
+        __head__: {plugin_name: this.ms.name},
+        start: start,
+        path: path
+      };
+      const payload = await this.ms.triggerPlugin("device-model",
+        "electrodes-from-path", msg, timeout);
+      return payload.response;
+    } catch (e) {
+      throw(lo.flattenDeep([LABEL, e]));
+    }
+  }
+
 }
 
 module.exports = Device;

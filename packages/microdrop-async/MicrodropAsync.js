@@ -186,4 +186,7 @@ class MicrodropAsync extends MqttClient {
     }
 }
 
+MicrodropAsync.MqttClient = MqttClient;
+MicrodropAsync.environment = environment;
+
 module.exports = MicrodropAsync;

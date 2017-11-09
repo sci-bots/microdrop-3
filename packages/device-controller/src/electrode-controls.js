@@ -5,7 +5,7 @@ const Key = require('keyboard-shortcut');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
-const MicrodropAsync = require('@microdrop/async');
+const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
 
 const SVGRenderer = require('./svg-renderer');
 
@@ -62,27 +62,22 @@ class ElectrodeControls {
     if (!this.selectedElectrode) return;
     const id = this.selectedElectrode.name;
     const neighbours = await microdrop.device.getNeighbouringElectrodes(id);
-
     const neighbour = neighbours[dir];
 
     if (!neighbour) return;
     this.turnOffElectrode(id);
     this.selectElectrode(neighbour);
-
-  //   const neighbour = this.findNeighbour(dir, electrodeId);
-  //   if (!neighbour) return;
-  //   this.turnOffElectrode(this.selectedElectrode.name);
-  //   this.selectElectrode(neighbour.electrodeId);
   }
 
   getNeighbours(electrodeId) {
+    const LABEL = "<ElectrodeControls::getNeighbours>";
     if (!this.electrodeObjects[electrodeId]) return [];
 
     const neighbours = {};
     for (const [k, dir] of Object.entries(DIRECTIONS)) {
-      const neighbour = this.findNeighbour(dir, electrodeId);
+      const neighbour = FindNeighbourInDirection(this.svgGroup, electrodeId, dir);
       if (neighbour) {
-        neighbours[neighbour.electrodeId] = dir;
+        neighbours[neighbour.name] = dir;
       }
     }
     return neighbours;
@@ -109,26 +104,14 @@ class ElectrodeControls {
     return neighbour;
   }
 
-  _clearNeighbourColors() {
-    /* Update opacity of neighbours back to 0.4 */
-    const n = _.filter(this.electrodeObjects, {fill:{material:{opacity: 0.3}}});
-    for (const [i, obj] of n.entries()) {
-      obj.fill.material.opacity = 0.4;
-    }
-  }
-
   unselectElectrode() {
     this.selectedElectrode.outline.material = new MeshLineMaterial({
       color: new THREE.Color("black"), lineWidth: 0.2 });
     this.selectedElectrode = null;
-    this._clearNeighbourColors();
   }
 
   selectElectrode(electrodeId) {
     /* Change the electrode currently being tracked*/
-
-    // Reset the fill color of neighbours
-    this._clearNeighbourColors();
 
     // Reset the outline of the previously selected electrode
     if (this.selectedElectrode) {
@@ -142,14 +125,6 @@ class ElectrodeControls {
       color: new THREE.Color("red"), lineWidth: 0.2 });
 
     this.selectedElectrode = electrodeObject;
-
-    // Change opacity of neighbour electrodes to guide user
-    for (const [k, dir] of Object.entries(DIRECTIONS)) {
-      const neighbour = this.findNeighbour(dir);
-      if (!neighbour) continue;
-      const material = neighbour.electrodeObject.fill.material;
-      material.opacity = 0.3;
-    }
   }
 
   async mousedown(event) {
@@ -201,6 +176,7 @@ class ElectrodeControls {
 
 const FindAllNeighbours = function(group, object) {
   const LABEL = "<ElectrodeControls::FindAllNeighbours>";
+
   /* Find neighbours in all directions */
   const neighbours = {};
   if (_.isString(object)) {object = _.filter(group.children, {name: object})[0]};
@@ -217,8 +193,8 @@ const FindNeighbourInDirection = function(group, object, dir) {
   /* Find neighbours in a particular direction */
   // XXX: Only returning first intersect (not 100% accuracte since multiple
   // electrodes can be in contact along one edge)
-
   if (_.isString(object)) {object = _.filter(group.children, {name: object})[0]};
+
   const intersects = FindIntersectsInDirection(object, dir, group);
   const intersect = intersects[0];
   if (!intersect) return undefined;
@@ -313,4 +289,4 @@ function FindIntersectsInDirection(obj, dir, group ) {
   return _.values(intersects);
 }
 
-module.exports = {ElectrodeControls, FindAllNeighbours};
+module.exports = {ElectrodeControls, FindAllNeighbours, FindNeighbourInDirection};

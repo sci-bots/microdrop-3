@@ -136,7 +136,7 @@ const GenerateSvgGroup = async (url='default.svg') => {
     group.name = obj.id;
     group.fill = fill;
     group.outline = outline;
-
+    group.geometry = fill.geometry;
     svgGroup.add(group);
   }
 
