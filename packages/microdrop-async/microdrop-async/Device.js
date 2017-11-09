@@ -8,7 +8,6 @@ try {
 
 DEFAULT_TIMEOUT = 10000;
 
-
 class Device {
   constructor(ms) {
     this.ms = ms;
@@ -61,18 +60,34 @@ class Device {
     }
   }
 
-  async putThreeSvgGroup(svgGroup, timeout=DEFAULT_TIMEOUT) {
+  async putThreeObject(threeObject, timeout=DEFAULT_TIMEOUT) {
     /* Send three js group object to backend for physics manipulation */
-    const LABEL = "<MicrodropAsync::Device::putThreeSvgGroup>";
-    console.log(LABEL);
+    const LABEL = "<MicrodropAsync::Device::putThreeObject>";
     try {
       const msg = {
         __head__: {plugin_name: this.ms.name},
-        svgGroup: svgGroup.toJSON()
+        threeObject: threeObject
       };
       const response = await this.ms.putPlugin(
-        "device-model", "threeSvgGroup", msg, timeout);
+        "device-model", "threeObject", msg, timeout);
       return response;
+    } catch (e) {
+      throw(lo.flattenDeep([LABEL, e]));
+    }
+  }
+
+  async getNeighbouringElectrodes(electrodeID, timeout=DEFAULT_TIMEOUT) {
+    /* Get electrodes in all four directions */
+    const LABEL = "<MicrodropAsync::Device::getNeighbouringElectrodes>";
+    try {
+      const msg = {
+        __head__: {plugin_name: this.ms.name},
+        electrodeId: electrodeID
+      };
+      const r = await this.ms.triggerPlugin(
+        "device-model", "get-neighbouring-electrodes", msg, timeout
+      );
+      return r.response;
     } catch (e) {
       throw(lo.flattenDeep([LABEL, e]));
     }
@@ -90,7 +105,6 @@ class Device {
 
   async loadFromFile(file, name, timeout=DEFAULT_TIMEOUT) {
     const LABEL = `<MicrodropAsync::Device::loadFromFile>`;
-    console.log(LABEL);
     try {
       const msg = {
         __head__: {plugin_name: this.ms.name},

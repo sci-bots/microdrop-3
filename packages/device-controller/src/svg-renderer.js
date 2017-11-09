@@ -1,6 +1,6 @@
 const $ = require('jquery');
 const _ = require('lodash');
-const Two = require('two.js'); const two = new Two();
+const Two = require('two.js');
 const THREE = require('three');
 const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
@@ -9,7 +9,7 @@ const DEFAULT_TIMEOUT = 5000;
 const OFF_COLOR = "rgb(175, 175, 175)";
 const SVG_SAMPLE_LENGTH = 30;
 
-ReadFile = (url, timeout=DEFAULT_TIMEOUT) => {
+const ReadFile = (url, timeout=DEFAULT_TIMEOUT) => {
   /* Read file from local url */
   return new Promise((resolve, reject) => {
     $.get(url).done((data) => {
@@ -19,7 +19,7 @@ ReadFile = (url, timeout=DEFAULT_TIMEOUT) => {
   });
 }
 
-ExtractShape = function (twojs_shape) {
+const ExtractShape = function (twojs_shape) {
    var shape = new THREE.Shape();
 
    for (var i = 0; i < twojs_shape.vertices.length; i++) {
@@ -40,29 +40,81 @@ ExtractShape = function (twojs_shape) {
      }
    }
    shape.closePath();
+   shape.autoClose = true;
    return shape;
 }
 
-const GenerateSvgGroup = async (url='default.svg') => {
+const ConstructScene = function(objects) {
+  const scene = new THREE.Scene();
+  const amount = 0.0001;
+  const bevelEnabled = false;
+  const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+
+  const group = new THREE.Group();
+
+  for (const [i,obj] of objects.entries()) {
+    const shape = ShapeFromJSONObject(obj.shape);
+    const points = shape.createPointsGeometry();
+    const geometry = new THREE.ExtrudeGeometry(shape, {bevelEnabled, amount});
+    const fill = new THREE.Mesh(geometry, material);
+    fill.name = obj.id;
+    fill.position.x += obj.translation.x;
+    fill.position.y += obj.translation.y;
+    group.add(fill);
+  }
+  scene.add(group);
+  scene.updateMatrixWorld();
+  return {scene, group};
+}
+
+const ShapeFromJSONObject = function(JSONObject) {
+  const s = _.extend(new THREE.Shape(), JSONObject);
+  s.curves = _.map(s.curves, (c) => _.extend(new THREE.LineCurve(), c));
+  for (const [i, c] of s.curves.entries()){
+    c.v1 = new THREE.Vector2(c.v1.x, c.v1.y);
+    c.v2 = new THREE.Vector2(c.v2.x, c.v2.y);
+  }
+  return s;
+}
+
+const ConstructObjectsFromSVG = async function (url='default.svg') {
+  /* Construct JSON serializable geomatries from svg file */
+  const two = new Two();
   const file = await ReadFile(url);
   const paths = $(file).find('path');
   const shapes2D = _.map(paths, (p) => two.interpret(p));
   const shapes3D = _.map(shapes2D, (s) => ExtractShape(s));
-  const svgGroup = new THREE.Group();
-  for (var i=0; i<shapes3D.length; i++) {
-    const shape3D = shapes3D[i];
+  const objects  = [];
+  for (const [i, shape] of shapes3D.entries()) {
     const shape2D = shapes2D[i];
+    const obj = {};
+    obj.id = shape2D.id;
+    obj.autoClose = true;
+    obj.translation = {x: shape2D.translation.x, y: shape2D.translation.y};
+    obj.shape = JSON.parse(JSON.stringify(shape));
+    objects.push(obj);
+  }
+  return objects;
+}
+
+const GenerateSvgGroup = async (url='default.svg') => {
+  const objects = await ConstructObjectsFromSVG(url);
+  const loader = new THREE.JSONLoader();
+
+  const svgGroup = new THREE.Group();
+  for (const [i, obj] of objects.entries()) {
+    var shape = ShapeFromJSONObject(obj.shape);
+    // var points = new THREE.Geometry().setFromPoints(shape3D.extractPoints().shape);
+    var points = shape.createPointsGeometry();
 
     // Generate outline
-    var points = shape3D.createPointsGeometry();
-    // var points = new THREE.Geometry().setFromPoints(shape3D.extractPoints().shape);
     points.autoClose = true;
     var options = {color: new THREE.Color("black"), lineWidth: 0.2};
     var material = new MeshLineMaterial(options);
     var meshLine = new MeshLine();
     meshLine.setGeometry(points);
     var outline = new THREE.Mesh(meshLine.geometry, material);
-    outline.name = shape2D.id;
+    outline.name = obj.id;
     outline.position.z += 0.1;
     outline.autoClose = true;
 
@@ -71,19 +123,17 @@ const GenerateSvgGroup = async (url='default.svg') => {
       wireframe: false, side: THREE.DoubleSide};
     var meshMaterial = new THREE.MeshBasicMaterial(options);
     var options = { bevelEnabled: false, amount: 0.0001};
-    var geometry = new THREE.ExtrudeGeometry(shape3D, options);
+    var geometry = new THREE.ExtrudeGeometry(shape, options);
     var fill = new THREE.Mesh(geometry, meshMaterial);
-    fill.name = shape2D.id;
+    fill.name = obj.id;
 
     // Encapsulate the outline and fill into a group
     var group = new THREE.Group();
-    shape3D.autoClose = true;
     group.add(fill);
     group.add(outline);
-    group.position.x += shape2D.translation.x;
-    group.position.y += shape2D.translation.y;
-    group.name = shape2D.id;
-    group.shape2D = shape2D;
+    group.position.x += obj.translation.x;
+    group.position.y += obj.translation.y;
+    group.name = obj.id;
     group.fill = fill;
     group.outline = outline;
 
@@ -100,8 +150,7 @@ const init = async (url='default.svg', scene, camera, renderer, container,
     const documentSize = container.getBoundingClientRect();
     const resolution = new THREE.Vector2(documentSize.width, documentSize.height);
 
-    for (var i=0; i<svgGroup.children.length; i++) {
-      const group = svgGroup.children[i];
+    for (const [i, group] of svgGroup.children.entries()) {
       group.outline.material.resolution = resolution;
 
       const addListener = (name) => {
@@ -144,4 +193,9 @@ const init = async (url='default.svg', scene, camera, renderer, container,
     return  {objects: _.zipObject(keys, svgGroup.children), container: svgGroup};
 }
 
-module.exports = { GenerateSvgGroup, init };
+module.exports = {
+  ConstructScene,
+  ConstructObjectsFromSVG,
+  GenerateSvgGroup ,
+  ShapeFromJSONObject,
+  init};

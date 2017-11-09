@@ -33,12 +33,13 @@ class PluginModel extends NodeMqttClient {
   notifySender(payload, response, endpoint, status='success') {
     if (status != 'success') {
       console.error("ERROR:", _.flattenDeep([response]));
+      response = _.flattenDeep(response);
     }
     const receiver = this.getReceiver(payload);
     if (!receiver) {return response}
     this.sendMessage(
       `microdrop/${this.name}/notify/${receiver}/${endpoint}`,
-      this.wrapData(null, {status: status, response: _.flattenDeep(response)}));
+      this.wrapData(null, {status: status, response: response}));
     return response;
   }
 

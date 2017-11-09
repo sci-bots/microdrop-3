@@ -5,7 +5,8 @@
   "main": "MicrodropAsync.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "link-packages": "echo \" Implement me \""
   },
   "author": "",
   "license": "BSD-2-Clause",

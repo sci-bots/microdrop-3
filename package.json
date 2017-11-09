@@ -4,14 +4,17 @@
     "microdrop-3.0": "bin/microdrop-3.0"
   },
   "version": "3.0.25",
-  "description": "Microdrop with MQTT subport and Web UI",
+  "description": "Microdrop with MQTT support and Web UI",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-all": "./node_modules/.bin/npm-recursive-install .",
     "build-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run-script build ;",
-    "build-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { npm --prefix $_.fullname run-script build } \" "
+    "build-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { npm --prefix $_.fullname run-script build } \" ",
+    "link-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run-script link-packages ;",
+    "link-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { cd $_.fullname ; npm run-script link-packages } \" ",
+    "link-packages": "npm link ./packages/microdrop-async ./packages/device-controller"
   },
   "pkg": {
     "assets": [

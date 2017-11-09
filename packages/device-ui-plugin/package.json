@@ -5,7 +5,8 @@
   "main": "device-ui-plugin.web.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "npm --prefix ../device-controller run-script build & webpack",
+    "link-packages": "npm ln ../device-controller ../microdrop-async"
   },
   "keywords": [
     "microdrop",

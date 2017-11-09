@@ -7,7 +7,7 @@ const Dat = require('dat.gui/build/dat.gui');
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
 
-const ElectrodeControls = require('./electrode-controls');
+const {ElectrodeControls} = require('./electrode-controls');
 const {RouteControls, GenerateRoute} = require('./route-controls');
 const VideoControls = require('./video-controls');
 const SVGRenderer = require('./svg-renderer');
