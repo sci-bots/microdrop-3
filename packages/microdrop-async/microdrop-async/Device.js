@@ -13,6 +13,16 @@ class Device {
     this.ms = ms;
   }
 
+  async threeObject() {
+    const LABEL = "<MicrodropAsync::Device::threeObject>"; console.log(LABEL);
+    try {
+      const response = await this.ms.getState("device-model", "three-object");
+      return response;
+    } catch (e) {
+      throw(lo.flattenDeep([LABEL, e]));
+    }
+  }
+
   async device() {
     const LABEL = "<MicrodropAsync::Device::device>"; console.log(LABEL);
     try {
@@ -189,12 +199,15 @@ class Device {
     return (await this.loadFromFile(f.file, f.name, timeout));
   }
 
-  async electrodesFromPath(start, path, timeout=DEFAULT_TIMEOUT) {
+  async electrodesFromPath(start, path=[], timeout=DEFAULT_TIMEOUT) {
     const LABEL = "<MicrodropAsync::Device::electrodesFromPath>";
+    /* Either (electrodeId, path []) or (routes {} / []) as arguments */
     try {
-      const r = start;
-      if (lo.isObject(start)) { start = r.start; path = r.path; }
-      if (!lo.isString(start)) throw("arg 1 should be string");
+      // If plain object, convert to array (ignore keys)
+      if (lo.isPlainObject(start)) { start = lo.toArray(start); }
+      if (!lo.isString(start) && !lo.isArray(start)){
+        throw("arg 1 should be string, object, or array");
+      }
       if (!lo.isArray(path)) throw("arg 2 should be array");
       const msg = {
         __head__: {plugin_name: this.ms.name},

@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/async",
-  "version": "0.0.17",
+  "version": "0.1.0",
   "description": "Promise based library for controlling microdrop",
   "main": "MicrodropAsync.js",
   "scripts": {
