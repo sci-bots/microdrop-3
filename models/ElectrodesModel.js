@@ -3,6 +3,35 @@ const _ = require('lodash');
 const MicrodropAsync = require("@microdrop/async");
 const PluginModel = require('./PluginModel');
 
+
+function MapElectrodesAndChannels(threeObject) {
+  /* Generate electrode and channel maps from three object */
+  const LABEL = "<ElectrodesModel::MapElectrodesAndChannels>";
+  try {
+    if (!_.isArray(threeObject)) throw("Expected array as argument");
+    const electrodes = new Object();
+    const channels = new Object();
+    for (const [i, object] of threeObject.entries()) {
+      const id = object.id;
+      const channel = object.channel;
+
+      // Validate object
+      if (id == undefined) throw(`id missing for object # ${i}`);
+      if (channel == undefined) throw(`channel missing for object # ${i}`);
+      if (electrodes[id] != undefined) throw(`multiple instances of id ${id}`);
+
+      // Add channel and id to electrode and channel maps
+      if (channels[channel] != undefined) channels[channel].push(id);
+      else if (channels[channel] == undefined) channels[channel] = [id];
+      electrodes[id] = channel;
+    }
+
+    return {electrodes, channels};
+  } catch (e) {
+    throw(_.flattenDeep([LABEL, e.toString()]));
+  }
+}
+
 function MapElectrodesToChannels(channelMap, electrodeMap) {
   /* Generate electrodes and channels from device file */
   const LABEL = "<ElectrodesModel::mapElectrodesToChannels>";
@@ -24,7 +53,7 @@ function MapElectrodesToChannels(channelMap, electrodeMap) {
     }
     return {electrodes, channels};
   } catch (e) {
-    throw([LABEL, e]);
+    throw([LABEL, e.toString()]);
   }
 }
 
@@ -58,7 +87,7 @@ function DataFrameToElectrodes(dataframe) {
     if (!dataframe.values) throw("dataframe.values missing");
     return _.zipObject(dataframe.index, dataframe.values);
   } catch (e) {
-    throw([LABEL, e]);
+    throw([LABEL, e.toString()]);
   }
 }
 
@@ -69,13 +98,18 @@ class ElectrodesModel extends PluginModel {
   }
 
   listen() {
+    // Depricating:
     this.onPutMsg("electrodes", this.onPutElectrodes.bind(this));
     this.onPutMsg("channels", this.onPutChannels.bind(this));
     this.onTriggerMsg("from-dataframe", this.fromDataframe.bind(this));
     this.onTriggerMsg("update-electrode", this.updateElectrode.bind(this));
-    this.onTriggerMsg("reset-electrodes", this.resetElectrodes.bind(this));
     this.bindStateMsg("electrodes", "set-electrodes");
     this.bindStateMsg("channels", "set-channels");
+    this.onTriggerMsg("reset-electrodes", this.resetElectrodes.bind(this));
+
+    this.bindStateMsg("active-electrodes", "set-active-electrodes");
+    this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
+    this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
     this.onStateMsg("step-model", "step-number", this.onStepChange.bind(this));
   }
 
