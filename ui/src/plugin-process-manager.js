@@ -1,7 +1,9 @@
+const $ = require('jquery');
+const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
+
 class PluginProcessManager extends UIPlugin {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "PluginProcessManager");
-    Object.assign(this, CardMixins);
 
     // ** Init **
     this.listen();
@@ -48,7 +50,7 @@ class PluginProcessManager extends UIPlugin {
     if (msg.action == "stop") this.trigger("close-plugin", plugin.name);
   }
   onPluginsUpdated(payload){
-    const allPlugins = JSON.parse(payload);
+    const allPlugins = payload;
     this.list = this.PluginsContainer(allPlugins);
   }
   setPluginToStopped(plugin) {
@@ -148,3 +150,5 @@ class PluginProcessManager extends UIPlugin {
     return container[0];
   }
 };
+
+module.exports = PluginProcessManager;

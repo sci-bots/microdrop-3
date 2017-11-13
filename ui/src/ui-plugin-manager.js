@@ -1,7 +1,9 @@
+const $ = require('jquery');
+const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
+
 class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
     super(element, focusTracker, "UIPluginManager");
-    Object.assign(this, CardMixins);
     this.pluginCards = new Backbone.Model();
   }
   listen() {
@@ -29,7 +31,7 @@ class UIPluginManager extends UIPlugin {
     this.trigger("update-state", this.wrapData(null, plugin));
   }
   onWebPluginsChanged(payload) {
-    const webPlugins = JSON.parse(payload);
+    const webPlugins = payload;
 
     this.pluginCards.clear();
     for (const [filepath, plugin] of Object.entries(webPlugins)){
@@ -72,3 +74,5 @@ class UIPluginManager extends UIPlugin {
     return cards;
   }
 }
+
+module.exports = UIPluginManager;

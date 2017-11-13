@@ -4,22 +4,10 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" href="styles/bootstrap.min.css">
-  <link rel="stylesheet" href="styles/jquery.dataTables.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="styles/phosphor/index.css" />
-  <script type="text/javascript" src="two.min.js"></script>
-  <script type="text/javascript" src="libDeviceUIPlugin.js"></script>
-  <script type="text/javascript" src="scripts/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="scripts/mqttws31.min.js"></script>
-  <script type="text/javascript" src="scripts/js-signals.min.js"></script>
-  <script type="text/javascript" src="scripts/crossroads.min.js"></script>
-  <script type="text/javascript" src="card-mixins.js"></script>
-  <script type="text/javascript" src="node_modules/@mqttclient/web/web-mqtt.web.js"></script>
-  <script type="text/javascript" src="node_modules/@mqttclient/mqtt-messages/mqtt-messages.js"></script>
-  <script type="text/javascript" src="node_modules/@microdrop/async/microdrop-async.web.js"></script>
-  <script type="text/javascript" src="main.js"></script>
-  <script type="text/javascript" src="ui-plugin.js"></script>
-  <script type="text/javascript" src="plugin-process-manager.js"></script>
-  <script type="text/javascript" src="ui-plugin-manager.js"></script>
+  <script type="text/javascript" src="scripts/phosphor.js"></script>
+  <script type="text/javascript" src="scripts/jquery.min.js"></script>
+  <script type="text/javascript" src="plugin-manager.js"></script>
 </head>
 
 <body>
@@ -34,16 +22,16 @@
     widgets.uiPluginManager.title.label = "UI Plugin Manager";
     widgets.uiPluginManager.addClass("content")
 
-    focusTracker = new FocusTracker();
+    focusTracker = new PhosphorWidgets.FocusTracker();
 
-    panel = new DockPanel();
+    panel = new PhosphorWidgets.DockPanel();
     panel.id = 'main';
     panel.addWidget(widgets.pluginProcessManager);
     panel.addWidget(widgets.uiPluginManager, {mode: 'split-bottom', ref: widgets.pluginProcessManager});
-    PhosphorWidget.attach(panel, document.body);
+    PhosphorWidgets.Widget.attach(panel, document.body);
 
-    window.pluginProcessManager = new PluginProcessManager(widgets.pluginProcessManager.node, focusTracker);
-    window.uiPluginManager = new UIPluginManager(widgets.uiPluginManager.node, focusTracker);
+    window.pluginProcessManager = new PluginManager.PluginProcessManager(widgets.pluginProcessManager.node, focusTracker);
+    window.uiPluginManager = new PluginManager.UIPluginManager(widgets.uiPluginManager.node, focusTracker);
   };
   $(window).on("load", load);
   </script>

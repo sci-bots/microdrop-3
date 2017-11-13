@@ -19,3 +19,6 @@
 [submodule "packages/protocol-ui-plugin"]
 	path = packages/protocol-ui-plugin
 	url = https://github.com/Lucaszw/protocol-ui-plugin.git
+[submodule "packages/ui-plugin"]
+	path = packages/ui-plugin
+	url = https://github.com/Lucaszw/ui-plugin.git

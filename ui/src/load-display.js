@@ -60,9 +60,9 @@ dock = createDock("Microdrop");
 panel.id = 'main';
 panel.addWidget(dock);
 
-PhosphorWidget.attach(panel, document.body);
+PhosphorWidgets.Widget.attach(panel, document.body);
 
-focusTracker = new FocusTracker();
+focusTracker = new PhosphorWidgets.FocusTracker();
 for (const [pluginName,pluginClass] of microdropPlugins) {
   // const dock = docks[pluginClass.position()];
   const widget = pluginClass.Widget(panel, dock, focusTracker);
@@ -140,7 +140,7 @@ panel.onUpdateRequest = (msg) => {
   for (const [i, plugin] of pluginInstances.entries()) {
     plugin.trigger("updateRequest", msg);
   }
-  
+
   // Save layout everytime it is updated
   if (window.hasLaunched)
     savePanels();
