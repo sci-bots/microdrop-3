@@ -6,7 +6,7 @@
 	url = https://github.com/Lucaszw/mqtt-messages-js
 [submodule "packages/microdrop-async"]
 	path = packages/microdrop-async
-	url = git@github.com:Lucaszw/microdrop-async.git
+	url = https://github.com/Lucaszw/microdrop-async.git
 [submodule "packages/route-inspector"]
 	path = packages/route-inspector
 	url = https://github.com/Lucaszw/route-inspector.git
