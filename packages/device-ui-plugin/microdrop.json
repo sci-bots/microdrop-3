@@ -1,9 +1,0 @@
-{
-  "name": "device-ui-plugin",
-  "version": "0.1.0",
-  "type": "ui",
-  "script": "device-ui-plugin.web.js",
-  "views": [
-    "device-ui-plugin.html"
-  ]
-}

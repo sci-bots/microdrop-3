@@ -10,3 +10,9 @@
 [submodule "packages/route-inspector"]
 	path = packages/route-inspector
 	url = https://github.com/Lucaszw/route-inspector.git
+[submodule "packages/device-ui-plugin"]
+	path = packages/device-ui-plugin
+	url = https://github.com/Lucaszw/device-ui-plugin.git
+[submodule "packages/device-controller"]
+	path = packages/device-controller
+	url = https://github.com/Lucaszw/device-controller.git
