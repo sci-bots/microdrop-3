@@ -83,13 +83,17 @@ const ConstructObjectsFromSVG = async function (url='default.svg') {
   const file = await ReadFile(url);
   const paths = $(file).find('path');
   const shapes2D = _.map(paths, (p) => two.interpret(p));
+  const electrodeMap = {};
+  for (const [i, path] of [...paths].entries()){
+    electrodeMap[path.getAttribute('id')] = path.getAttribute('data-channels');
+  }
   const shapes3D = _.map(shapes2D, (s) => ExtractShape(s));
   const objects  = [];
   for (const [i, shape] of shapes3D.entries()) {
     const shape2D = shapes2D[i];
     const obj = {};
     obj.id = shape2D.id;
-    obj.autoClose = true;
+    obj.channel = electrodeMap[shape2D.id];
     obj.translation = {x: shape2D.translation.x, y: shape2D.translation.y};
     obj.shape = JSON.parse(JSON.stringify(shape));
     objects.push(obj);

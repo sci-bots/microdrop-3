@@ -66,7 +66,7 @@ class StepModel extends PluginModel {
       this.trigger("set-step-number", 0);
       return this.notifySender(payload, payload.steps, 'steps');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'steps', "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], 'steps', "failed");
     }
   }
   putStepNumber(payload) {
@@ -77,7 +77,7 @@ class StepModel extends PluginModel {
       this.trigger("set-step-number", payload.stepNumber);
       return this.notifySender(payload, payload.stepNumber, 'step-number');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'step-number', "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], 'step-number', "failed");
     }
   }
   async createSteps(payload) {
@@ -86,7 +86,7 @@ class StepModel extends PluginModel {
       const schema = await this.microdrop.schema.flatten();
       return this.notifySender(payload, Steps(schema), 'create-steps');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'create-steps', 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], 'create-steps', 'failed');
     }
   }
   async updateStep(payload) {
@@ -102,7 +102,7 @@ class StepModel extends PluginModel {
       this.trigger("set-steps", steps);
       return this.notifySender(payload, step, 'update-step');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'update-step', "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], 'update-step', "failed");
     }
   }
   async deleteStep(payload) {
@@ -124,7 +124,7 @@ class StepModel extends PluginModel {
       this.trigger("set-steps", steps);
       return this.notifySender(payload, steps, 'delete-step');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'delete-step');
+      return this.notifySender(payload, [LABEL, e.toString()], 'delete-step');
     }
   }
   async insertStep(payload) {
@@ -142,7 +142,7 @@ class StepModel extends PluginModel {
       this.trigger("set-steps", steps);
       return this.notifySender(payload, steps, 'insert-step');
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], 'insert-step', "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], 'insert-step', "failed");
     }
   }
 }

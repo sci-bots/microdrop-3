@@ -19,9 +19,9 @@ const SELECTED_COLOR = "rgb(120, 255, 168)";
 
 const microdrop = new MicrodropAsync();
 
-class ElectrodeControls {
+class ElectrodeControls extends MicrodropAsync.MqttClient {
   constructor(scene, camera, renderer, container=null) {
-    _.extend(this, Backbone.Events);
+    super();
     if (!container) container = document.body;
 
     this.selectedElectrode = null;
@@ -39,23 +39,43 @@ class ElectrodeControls {
     this.on("mousedown", this.mousedown.bind(this));
   }
 
+  listen() {
+    this.onStateMsg("electrodes-model", "active-electrodes", this.drawElectrodes.bind(this));
+  }
+
+  drawElectrodes(elec) {
+    const objects = this.svgGroup.children;
+    const onColor  = new THREE.Color(ON_COLOR);
+    const offColor = new THREE.Color(OFF_COLOR);
+
+    // Change previously on electrodes to off color
+    const prevOn  = _.filter(objects, ["fill.material.color", onColor]);
+    for (const [i, obj] of prevOn.entries()) {
+      obj.fill.material.color = offColor;
+    }
+
+    // Change currently on electrodes to on color
+    const currOn = _.filter(objects, (e)=>{return _.includes(elec, e.name)});
+    for (const [i, obj] of currOn.entries()) {
+      obj.fill.material.color = onColor;
+    }
+  }
+
   async loadSvg(f='default.svg') {
     var d = await SVGRenderer.init(f, this.scene, this.camera, this.renderer, this.container, this);
     this.electrodeObjects = d.objects;
     this.svgGroup = d.container;
   }
 
-  turnOnElectrode(id) {
+  async turnOnElectrode(id) {
     const electrodeObject = this.electrodeObjects[id];
     electrodeObject.on = true;
-    electrodeObject.fill.material.color = new THREE.Color(ON_COLOR);
-    electrodeObject.outline.material.color = new THREE.Color("black");
+    const electrodes = await microdrop.electrodes.toggleElectrode(id, true);
   }
-  turnOffElectrode(id) {
+  async turnOffElectrode(id) {
     const electrodeObject = this.electrodeObjects[id];
     electrodeObject.on = false;
-    electrodeObject.fill.material.color = new THREE.Color(OFF_COLOR);
-    electrodeObject.outline.material.color = new THREE.Color("black");
+    const electrodes = await microdrop.electrodes.toggleElectrode(id, false);
   }
 
   async move(dir='right') {
@@ -65,7 +85,7 @@ class ElectrodeControls {
     const neighbour = neighbours[dir];
 
     if (!neighbour) return;
-    this.turnOffElectrode(id);
+    await this.turnOffElectrode(id);
     this.selectElectrode(neighbour);
   }
 
@@ -143,7 +163,16 @@ class ElectrodeControls {
     // If event targets don't match, don't turn on electrode
     if (event.target.uuid != event2.target.uuid) return;
 
-    const electrodeObject = this.electrodeObjects[event.target.name];
+    let activeElectrodes;
+    try {
+      activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
+    } catch (e) {
+      activeElectrodes = [];
+    }
+    const id = event.target.name;
+    let isOn = _.includes(activeElectrodes, id);
+
+    // const electrodeObject = this.electrodeObjects[event.target.name];
 
     // If shiftKey is down, unset selected electrode
     if (event.origDomEvent.shiftKey == true && this.selectedElectrode) {
@@ -151,24 +180,22 @@ class ElectrodeControls {
     }
 
     // Toggle the state of the target electrode
-    if (electrodeObject.on) {
-      electrodeObject.on = false;
-      electrodeObject.fill.material.color = new THREE.Color(OFF_COLOR);
+    if (isOn == true) {
+      this.turnOffElectrode(id);
 
-      // If turning off selected electrode, then also unset & clear neighbours
+      // If turning off selected electrode, then also unselect
       if (this.selectedElectrode){
-        if (electrodeObject.name == this.selectedElectrode.name) {
+        if (id == this.selectedElectrode.name) {
           this.unselectElectrode();
         }
       }
     } else {
-      electrodeObject.on = true;
-      electrodeObject.fill.material.color = new THREE.Color(ON_COLOR);
+      this.turnOnElectrode(id);
     }
 
     // If shift was pressed, select the target electrode
     if (event.origDomEvent.shiftKey == true) {
-      this.selectElectrode(electrodeObject.name);
+      this.selectElectrode(id);
     }
   }
 

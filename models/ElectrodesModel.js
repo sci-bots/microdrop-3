@@ -125,7 +125,58 @@ class ElectrodesModel extends PluginModel {
       if (electrodes) this.trigger("set-electrodes", electrodes);
       if (channels) this.trigger("set-channels", channels);
     } catch (e) {
-      throw([LABEL, e]);
+      throw([LABEL, e.toString()]);
+    }
+  }
+  putActiveElectrodes(payload) {
+    const LABEL = "<ElectrodesModel::putActiveElectrodes>"; console.log(LABEL);
+    try {
+      const activeElectrodes = payload.activeElectrodes;
+      if (!activeElectrodes) throw ("expected activeElectrodes in payload");
+      if (!_.isArray(activeElectrodes)) throw("activeElectrodes should be array");
+      this.trigger("set-active-electrodes", activeElectrodes);
+      return this.notifySender(payload, activeElectrodes, "active-electrodes");
+    } catch (e) {
+      return this.notifySender(payload,[LABEL, e.toString()], "active-electrodes", "failed");
+    }
+  }
+
+  async toggleElectrode(payload) {
+    /* Toggle the state of an electrode */
+    const LABEL = "<ElectrodesModel::toggleElectrode>"; console.log(LABEL);
+    try {
+      const electrodeId = payload.electrodeId;
+      const state = payload.state;
+      if (electrodeId == undefined) throw("missing 'electrodeId' in payload");
+      if (state == undefined) throw("missing 'state' in payload");
+      if (!_.isString(electrodeId)) throw("electrodeId should be string");
+      if (!_.isBoolean(state)) throw("state should be bool");
+
+      // Get all connected electrodes based on the device object
+      const microdrop = new MicrodropAsync();
+      const threeObject = await microdrop.device.threeObject();
+      const {channels, electrodes} = MapElectrodesAndChannels(threeObject);
+      const electrodeChannel = electrodes[electrodeId];
+      const connectedElectrodes = channels[electrodeChannel];
+
+      // Get all the currently active electrodes
+      let activeElectrodes;
+      try {
+        activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
+      } catch (e) { activeElectrodes = [] }
+
+      // Add or remove the connected electrodes depending on state
+      if (state == true)  {
+        activeElectrodes = _.uniq(_.concat(activeElectrodes, connectedElectrodes));
+      } else {
+        activeElectrodes = _.uniq(_.without(activeElectrodes, ...connectedElectrodes));
+      }
+      activeElectrodes =
+        await microdrop.electrodes.putActiveElectrodes(activeElectrodes);
+      return this.notifySender(payload, activeElectrodes, "toggle-electrode");
+    } catch (e) {
+      return this.notifySender(payload, [LABEL, e.toString()], "toggle-electrode",
+        'failed');
     }
   }
   async fromDataframe(payload) {
@@ -142,7 +193,7 @@ class ElectrodesModel extends PluginModel {
       await microdrop.electrodes.putElectrodes(electrodes);
       return this.notifySender(payload, electrodes, "from-dataframe");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], "from-dataframe", 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], "from-dataframe", 'failed');
     }
   }
 
@@ -156,7 +207,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-electrodes", electrodes);
       return this.notifySender(payload, electrodes, "electrodes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], "electrodes", 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], "electrodes", 'failed');
     }
   }
 
@@ -170,7 +221,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-channels", channels);
       return this.notifySender(payload, channels, "channels");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], "channels", 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], "channels", 'failed');
     }
   }
 
@@ -189,7 +240,6 @@ class ElectrodesModel extends PluginModel {
 
       // Recursively change the state of electrodes and channels
       UpdateStatesByElectrode(id, state, electrodes, channels);
-      console.log(LABEL, "electrodes::", CountOnElectrodes(electrodes));
 
       // Update electrodes and channel
       await this.microdrop.electrodes.putChannels(channels);
@@ -197,7 +247,7 @@ class ElectrodesModel extends PluginModel {
 
       return this.notifySender(payload, electrodes, "update-electrode");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], "update-electrode", 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], "update-electrode", 'failed');
     }
   }
 
@@ -213,7 +263,7 @@ class ElectrodesModel extends PluginModel {
       await this.microdrop.electrodes.putElectrodes(r.electrodes);
       return this.notifySender(payload, r, "reset-electrodes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e], "reset-electrodes", "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], "reset-electrodes", "failed");
     }
   }
 

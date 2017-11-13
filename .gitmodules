@@ -4,3 +4,6 @@
 [submodule "packages/mqtt-messages-js"]
 	path = packages/mqtt-messages-js
 	url = https://github.com/Lucaszw/mqtt-messages-js
+[submodule "packages/microdrop-async"]
+	path = packages/microdrop-async
+	url = git@github.com:Lucaszw/microdrop-async.git

@@ -29,7 +29,7 @@ function initCameraControls() {
   cameraControls = new OrbitControls(camera, container);
   cameraControls.enableKeys = false;
   cameraControls.enableRotate = false;
-  cameraControls.enablePan = true;
+  cameraControls.enablePan = false;
   _.extend(cameraControls, Backbone.Events);
 }
 

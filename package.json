@@ -10,11 +10,14 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-all": "./node_modules/.bin/npm-recursive-install .",
-    "build-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run-script build ;",
+    "build-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run-script build \\;",
     "build-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { npm --prefix $_.fullname run-script build } \" ",
-    "link-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run-script link-packages ;",
+    "link-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec sh -c \"cd {} ; npm run-script link-packages\" \\;",
     "link-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { cd $_.fullname ; npm run-script link-packages } \" ",
-    "link-packages": "npm link ./packages/microdrop-async ./packages/device-controller"
+    "link-packages": "npm link ./packages/microdrop-async ./packages/device-controller",
+    "link-ui": "cd ui/src/ & npm run-script link-packages",
+    "reset-db-unix": "rm -rf db",
+    "reset-db-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Remove-Item -All -Force db \" "
   },
   "pkg": {
     "assets": [
@@ -38,7 +41,8 @@
   },
   "homepage": "https://github.com/Lucaszw/microdrop-3.0#readme",
   "dependencies": {
-    "@microdrop/async": "0.0.20",
+    "@microdrop/async": "^0.1.0",
+    "@microdrop/device-controller": "^0.4.0",
     "@mqttclient/node": "0.0.15",
     "argparse": "^1.0.9",
     "backbone": "^1.3.3",
@@ -52,6 +56,7 @@
     "mqtt-router": "^0.5.0",
     "pandas-helpers": "^1.0.0",
     "three": "^0.88.0",
+    "uuid": "^3.1.0",
     "walk": "^2.3.9"
   },
   "devDependencies": {

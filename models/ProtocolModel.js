@@ -152,7 +152,7 @@ class ProtocolModel extends PluginModel {
       return this.notifySender(payload, this.protocol, "new-protocol");
     } catch (e) {
       console.log(LABEL, e);
-      return this.notifySender(payload, [LABEL, e], "new-protocol", "failed");
+      return this.notifySender(payload, [LABEL, e.toString()], "new-protocol", "failed");
     }
   }
   save(name=null) {
@@ -192,7 +192,7 @@ class ProtocolModel extends PluginModel {
       this.trigger("protocol-skeleton-set", this.ProtocolSkeleton(this.protocol));
       await this.microdrop.device.putDevice(this.protocol.device);
     } catch (e) {
-      var response = [LABEL, e];
+      var response = [LABEL, e.toString()];
       console.error(LABEL, "FAILED", response);
       return this.notifySender(payload, response, "change-protocol", "failed");
     }
