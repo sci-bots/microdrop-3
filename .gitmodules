@@ -16,3 +16,6 @@
 [submodule "packages/device-controller"]
 	path = packages/device-controller
 	url = https://github.com/Lucaszw/device-controller.git
+[submodule "packages/protocol-ui-plugin"]
+	path = packages/protocol-ui-plugin
+	url = https://github.com/Lucaszw/protocol-ui-plugin.git
