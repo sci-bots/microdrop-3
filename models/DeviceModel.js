@@ -117,9 +117,9 @@ class DeviceModel extends PluginModel {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
       this.trigger("set-three-object", threeObject);
-      return this.notifySender(payload, 'success', "threeObject");
+      return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "threeObject", 'failed');
+      return this.notifySender(payload, [LABEL, e.toString()], "three-object", 'failed');
     }
     return object;
   }
