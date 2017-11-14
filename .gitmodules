@@ -22,3 +22,6 @@
 [submodule "packages/ui-plugin"]
 	path = packages/ui-plugin
 	url = https://github.com/Lucaszw/ui-plugin.git
+[submodule "packages/state-saver"]
+	path = packages/state-saver
+	url = https://github.com/Lucaszw/state-saver.git

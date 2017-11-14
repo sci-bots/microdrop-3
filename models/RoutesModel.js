@@ -190,16 +190,6 @@ class RoutesModel extends PluginModel {
 
       const microdrop = new MicrodropAsync();
       const routes = payload.routes;
-      let stepNumber;
-      try {
-        stepNumber = await microdrop.steps.currentStepNumber(500);
-      } catch (e) {
-        stepNumber = -1;
-      }
-
-      if (stepNumber != -1) {
-        await microdrop.steps.updateStep('routes', routes, stepNumber);
-      }
 
       this.trigger("set-routes", routes);
       return this.notifySender(payload, routes, 'routes');
