@@ -131,9 +131,9 @@ class ElectrodesModel extends PluginModel {
   putActiveElectrodes(payload) {
     const LABEL = "<ElectrodesModel::putActiveElectrodes>"; console.log(LABEL);
     try {
-      const activeElectrodes = payload.activeElectrodes;
-      if (!activeElectrodes) throw ("expected activeElectrodes in payload");
-      if (!_.isArray(activeElectrodes)) throw("activeElectrodes should be array");
+      const activeElectrodes = payload["active-electrodes"] || payload["activeElectrodes"];
+      if (!activeElectrodes) throw ("expected active-electrodes in payload");
+      if (!_.isArray(activeElectrodes)) throw("active-electrodes should be array");
       this.trigger("set-active-electrodes", activeElectrodes);
       return this.notifySender(payload, activeElectrodes, "active-electrodes");
     } catch (e) {

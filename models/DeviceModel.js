@@ -23,7 +23,7 @@ class DeviceModel extends PluginModel {
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-path", this.electrodesFromPath.bind(this));
-    this.onPutMsg("threeObject", this.onPutThreeObject.bind(this));
+    this.onPutMsg("three-object", this.onPutThreeObject.bind(this));
     this.onPutMsg("device", this.onPutDevice.bind(this));
     this.bindPutMsg("device_info_plugin", "device", "put-device");
     this.bindStateMsg("device", "device-set");
@@ -114,8 +114,9 @@ class DeviceModel extends PluginModel {
   async onPutThreeObject(payload) {
     const LABEL = `<DeviceModel::onPutThreeObject>`;
     try {
-      if (!payload.threeObject) throw("expected 'threeObject' in payload");
-      this.trigger("set-three-object", payload.threeObject);
+      const threeObject = payload["three-object"] || payload["threeObject"];
+      if (!threeObject) throw("expected 'three-object' in payload");
+      this.trigger("set-three-object", threeObject);
       return this.notifySender(payload, 'success', "threeObject");
     } catch (e) {
       return this.notifySender(payload, [LABEL, e.toString()], "threeObject", 'failed');
