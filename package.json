@@ -9,6 +9,10 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev-mode": "npm run uninstall-pkgs && npm i packages/microdrop-async packages/device-controller",
+    "prod-mode": "npm run uninstall-pkgs && npm i @microdrop/async @microdrop/device-controller",
+    "dev-mode-all-unix": "find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run dev-mode \\;",
+    "dev-mode-all-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Get-ChildItem .\\packages\\* | Foreach { npm --prefix $_.fullname run prod-mode } \" ",
     "install-all-unix": "npm install && ./node_modules/.bin/npm-recursive-install",
     "install-all-windows": "npm install & node_modules\\.bin\\npm-recursive-install",
     "build-all-unix": "npm run install-all-unix && npm run --prefix ./ui/src build && find ./packages -mindepth 1 -maxdepth 1 -type d -exec npm --prefix {} run build \\;",
@@ -20,7 +24,8 @@
     "link-packages": "npm link ./packages/microdrop-async ./packages/device-controller",
     "link-ui": "cd ui/src/ && npm run link-packages",
     "reset-db-unix": "rm -rf db",
-    "reset-db-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Remove-Item -All -Force db \" "
+    "reset-db-windows": "@powershell -NoProfile -ExecutionPolicy unrestricted -Command \" Remove-Item -All -Force db \" ",
+    "uninstall-pkgs": "npm uninstall @microdrop/async @microdrop/device-controller"
   },
   "pkg": {
     "assets": [
@@ -44,9 +49,10 @@
   },
   "homepage": "https://github.com/Lucaszw/microdrop-3.0#readme",
   "dependencies": {
-    "@microdrop/async": "^0.2.4",
-    "@microdrop/device-controller": "^0.4.0",
+    "@microdrop/async": "file:packages/microdrop-async",
+    "@microdrop/device-controller": "file:packages/device-controller",
     "@mqttclient/node": "0.0.15",
+    "ajv": "^6.0.0-beta.2",
     "argparse": "^1.0.9",
     "backbone": "^1.3.3",
     "crossroads": "^0.12.2",
