@@ -22,7 +22,7 @@ class DeviceModel extends PluginModel {
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
-    this.onTriggerMsg("electrodes-from-path", this.electrodesFromPath.bind(this));
+    this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
     this.onPutMsg("three-object", this.onPutThreeObject.bind(this));
     this.onPutMsg("device", this.onPutDevice.bind(this));
     this.bindPutMsg("device_info_plugin", "device", "put-device");
@@ -41,32 +41,25 @@ class DeviceModel extends PluginModel {
     this.group = group;
   }
 
-  electrodesFromPath(payload) {
+  electrodesFromRoutes(payload) {
     /* Validate that a path is possible on the current device */
-    const LABEL = `<DeviceModel::electrodesFromPath>`;
+    const LABEL = `<DeviceModel::electrodesFromRoutes>`;
     try {
-      let routes = [];
-      let length = 1;
+      let routes = payload.routes;
+      let length = routes.length;
 
       // Validate input payload:
-      if (_.isString(payload.start)) {
-        routes.push({start: payload.start, path: payload.path, uuid: payload.uuid});
-      } else if (_.isArray(payload.start)) {
-        routes = payload.start;
-        length = routes.length;
-      } else if (_.isObject(payload.start)) {
-        var route = payload.start
-        routes.push({start: route.start, path: route.path, uuid: route.uuid});
-      } else {
-        throw("expected either string, array, or object for first argument");
-      }
+      if (!routes) throw("expecting routes in payload");
+      if (!_.isArray(routes)) throw("routes should be array");
 
       // Create new uuid if only one route
+
       if (length == 1 && routes[0].uuid == undefined) {
         routes[0].uuid = uuid();
       }
 
-      const dict = {};
+      const electrodes = [];
+
       for (const [i, r] of routes.entries()) {
         // Validate route keys
         if (!r.start) throw(`expected key 'start' in route # ${i}`);
@@ -76,6 +69,7 @@ class DeviceModel extends PluginModel {
         if (!_.isArray(r.path)) throw(`route[${i}].path should be an array`);
 
         // Ensure that route is compatible with loaded device
+        const uuid = r.uuid;
         let id = r.start;
         let dir;
         const ids = [id];
@@ -86,12 +80,13 @@ class DeviceModel extends PluginModel {
           ids.push(n.id);
           id = n.id;
         }
-        dict[r.uuid] = ids;
+        electrodes.push({ids, uuid});
       }
-      return this.notifySender(payload, dict, "electrodes-from-path");
+      return this.notifySender(payload, electrodes, "electrodes-from-routes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()],
-        "electrodes-from-path", 'failed');
+      e =  e.toString().split(",").join("\n");
+      return this.notifySender(payload, [LABEL, e],
+        "electrodes-from-routes", 'failed');
     }
   }
 

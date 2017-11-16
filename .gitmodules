@@ -25,3 +25,9 @@
 [submodule "packages/state-saver"]
 	path = packages/state-saver
 	url = https://github.com/Lucaszw/state-saver.git
+[submodule "packages/jsoneditor"]
+	path = packages/jsoneditor
+	url = https://github.com/Lucaszw/jsoneditor.git
+[submodule "packages/mqttclient-node"]
+	path = packages/mqttclient-node
+	url = https://github.com/Lucaszw/mqttclient-node.git
