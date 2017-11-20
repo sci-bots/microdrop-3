@@ -28,7 +28,7 @@ function MapElectrodesAndChannels(threeObject) {
 
     return {electrodes, channels};
   } catch (e) {
-    throw(_.flattenDeep([LABEL, e.toString()]));
+    throw(_.flattenDeep([LABEL, e]));
   }
 }
 
@@ -53,7 +53,7 @@ function MapElectrodesToChannels(channelMap, electrodeMap) {
     }
     return {electrodes, channels};
   } catch (e) {
-    throw([LABEL, e.toString()]);
+    throw([LABEL, e]);
   }
 }
 
@@ -87,7 +87,7 @@ function DataFrameToElectrodes(dataframe) {
     if (!dataframe.values) throw("dataframe.values missing");
     return _.zipObject(dataframe.index, dataframe.values);
   } catch (e) {
-    throw([LABEL, e.toString()]);
+    throw([LABEL, e]);
   }
 }
 
@@ -125,9 +125,10 @@ class ElectrodesModel extends PluginModel {
       if (electrodes) this.trigger("set-electrodes", electrodes);
       if (channels) this.trigger("set-channels", channels);
     } catch (e) {
-      throw([LABEL, e.toString()]);
+      throw([LABEL, e]);
     }
   }
+
   putActiveElectrodes(payload) {
     const LABEL = "<ElectrodesModel::putActiveElectrodes>"; console.log(LABEL);
     try {
@@ -137,7 +138,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-active-electrodes", activeElectrodes);
       return this.notifySender(payload, activeElectrodes, "active-electrodes");
     } catch (e) {
-      return this.notifySender(payload,[LABEL, e.toString()], "active-electrodes", "failed");
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "active-electrodes", "failed");
     }
   }
 
@@ -175,7 +176,7 @@ class ElectrodesModel extends PluginModel {
         await microdrop.electrodes.putActiveElectrodes(activeElectrodes);
       return this.notifySender(payload, activeElectrodes, "toggle-electrode");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "toggle-electrode",
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "toggle-electrode",
         'failed');
     }
   }
@@ -193,7 +194,7 @@ class ElectrodesModel extends PluginModel {
       await microdrop.electrodes.putElectrodes(electrodes);
       return this.notifySender(payload, electrodes, "from-dataframe");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "from-dataframe", 'failed');
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "from-dataframe", 'failed');
     }
   }
 
@@ -207,7 +208,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-electrodes", electrodes);
       return this.notifySender(payload, electrodes, "electrodes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "electrodes", 'failed');
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "electrodes", 'failed');
     }
   }
 
@@ -221,7 +222,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-channels", channels);
       return this.notifySender(payload, channels, "channels");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "channels", 'failed');
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "channels", 'failed');
     }
   }
 
@@ -247,7 +248,7 @@ class ElectrodesModel extends PluginModel {
 
       return this.notifySender(payload, electrodes, "update-electrode");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "update-electrode", 'failed');
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "update-electrode", 'failed');
     }
   }
 
@@ -263,7 +264,7 @@ class ElectrodesModel extends PluginModel {
       await this.microdrop.electrodes.putElectrodes(r.electrodes);
       return this.notifySender(payload, r, "reset-electrodes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "reset-electrodes", "failed");
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "reset-electrodes", "failed");
     }
   }
 

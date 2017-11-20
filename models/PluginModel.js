@@ -2,6 +2,7 @@ const _ = require('lodash');
 const crossroads = require('crossroads');
 const Backbone = require('backbone');
 const NodeMqttClient = require('@mqttclient/node');
+const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
 
 class PluginModel extends NodeMqttClient {
   constructor() {
@@ -13,6 +14,12 @@ class PluginModel extends NodeMqttClient {
     this.onSignalMsg("web-server", "running-state-requested",
       this.onRunningStateRequested.bind(this));
     this.bindSignalMsg("running", "send-running-state");
+    this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this));
+  }
+
+  getSubscriptions(payload, name) {
+    const LABEL = "<PluginModel::getSubscriptions>";
+    return this.notifySender(payload, this.subscriptions, "get-subscriptions");
   }
 
   // ** Methods **
@@ -25,9 +32,23 @@ class PluginModel extends NodeMqttClient {
   }
 
   getReceiver(payload) {
-    if (!payload.__head__) return false;
-    if (!payload.__head__.plugin_name) return false;
-    return payload.__head__.plugin_name;
+    return _.get(payload, "__head__.plugin_name");
+  }
+
+  async getState(val, timeout=500) {
+    const microdrop = new MicrodropAsync();
+    let state;
+    try {
+      state = await microdrop.getState(this.name, val, timeout);
+    } catch (e) { state = [] }
+    return state;
+  }
+
+  dumpStack(label, err) {
+    if (err.stack)
+      return _.flattenDeep([label, err.stack.toString().split("\n")]);
+    if (!err.stack)
+      return _.flattenDeep([label, err.toString().split(",")]);
   }
 
   notifySender(payload, response, endpoint, status='success') {

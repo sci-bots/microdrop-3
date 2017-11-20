@@ -31,3 +31,6 @@
 [submodule "packages/mqttclient-node"]
 	path = packages/mqttclient-node
 	url = https://github.com/Lucaszw/mqttclient-node.git
+[submodule "packages/overlay-ui-plugin"]
+	path = packages/overlay-ui-plugin
+	url = https://github.com/Lucaszw/overlay-ui-plugin.git

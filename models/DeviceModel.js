@@ -1,6 +1,7 @@
 const THREE = require('three');
 const _ = require('lodash');
 const uuid = require('uuid/v4');
+const Ajv = require('ajv');
 
 const MicrodropAsync = require('@microdrop/async');
 const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
@@ -10,6 +11,7 @@ const {FindNeighbourInDirection, FindAllNeighbours} =
 const PluginModel = require('./PluginModel');
 
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
+const ajv = new Ajv({useDefaults: true});
 
 class DeviceModel extends PluginModel {
   constructor () {
@@ -20,19 +22,16 @@ class DeviceModel extends PluginModel {
   }
   listen() {
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
-    this.onTriggerMsg("load-device", this.onLoadDevice.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
-    this.onPutMsg("three-object", this.onPutThreeObject.bind(this));
-    this.onPutMsg("device", this.onPutDevice.bind(this));
-    this.bindPutMsg("device_info_plugin", "device", "put-device");
-    this.bindStateMsg("device", "device-set");
+    this.onPutMsg("three-object", this.putThreeObject.bind(this));
+    this.onPutMsg("overlay", this.putOverlay.bind(this));
+    this.onPutMsg("overlays", this.putOverlays.bind(this));
     this.bindStateMsg("three-object", "set-three-object");
+    this.bindStateMsg("overlays", "set-overlays");
   }
   get name() {return "device-model" }
   get channel() {return "microdrop/device"}
-  get device() {return this._device}
-  set device(device) {this._device = device}
   get filepath() {return __dirname;}
 
   setThreeObject(threeObject) {
@@ -84,8 +83,7 @@ class DeviceModel extends PluginModel {
       }
       return this.notifySender(payload, electrodes, "electrodes-from-routes");
     } catch (e) {
-      e =  e.toString().split(",").join("\n");
-      return this.notifySender(payload, [LABEL, e],
+      return this.notifySender(payload, this.dumpStack(LABEL, e),
         "electrodes-from-routes", 'failed');
     }
   }
@@ -101,53 +99,64 @@ class DeviceModel extends PluginModel {
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()],
+      return this.notifySender(payload, this.dumpStack(LABEL, e),
         "get-neighbouring-electrodes", 'failed');
     }
   }
 
-  async onPutThreeObject(payload) {
-    const LABEL = `<DeviceModel::onPutThreeObject>`;
+
+  async putOverlays(payload) {
+    const LABEL = `<DeviceModel::putOverlays`; console.log(LABEL);
+    try {
+      for (const [i, overlay] of payload.entries()) {
+        this.validateOverlay(overlay);
+      }
+      this.trigger("set-overlays", payload);
+      return this.notifySender(payload, payload, "overlays");
+    } catch (e) {
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "overlays", 'failed');
+    }
+  }
+
+  async putOverlay(payload) {
+    const LABEL = `<DeviceModel::putOverlay>`;
+
+    try {
+      payload = this.validateOverlay(payload);
+
+      const microdrop = new MicrodropAsync();
+      const overlays = await this.getState("overlays");
+      const index = _.findIndex(overlays, {name: payload.name});
+      if (index == -1) {
+        overlays.push(payload);
+      } else {
+        overlays[index] = payload;
+      }
+
+      this.trigger("set-overlays", overlays);
+      return this.notifySender(payload, overlays[index], "overlay");
+    } catch (e) {
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "overlay", 'failed');
+    }
+  }
+
+  validateOverlay(overlay) {
+    const validate = ajv.compile(OVERLAY_SCHEMA);
+    if (!validate(overlay)) throw(validate.errors);
+    return overlay;
+  }
+
+  async putThreeObject(payload) {
+    const LABEL = `<DeviceModel::putThreeObject>`;
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
       this.trigger("set-three-object", threeObject);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()], "three-object", 'failed');
+      return this.notifySender(payload, this.dumpStack(LABEL, e), "three-object", 'failed');
     }
     return object;
-  }
-
-  async onPutDevice(payload) {
-    const LABEL = `<DeviceModel#onPutDevice>`; console.log(LABEL);
-    try {
-      let device;
-      // Validate payload
-      if (payload.device){
-        device = payload.device;
-      } else {
-        console.error(LABEL, "expected key: 'device' in payload");
-        device = payload;
-      }
-      this.trigger("device-set", this.wrapData(null,device));
-      await this.microdrop.electrodes.reset();
-      return this.notifySender(payload, device, "device");
-    } catch (e) {
-      return this.notifySender(payload, [LABEL, e.toString()] , "device");
-    }
-  }
-
-  onLoadDevice(payload) {
-    const receiver = this.getReceiver(payload);
-    const _this = this;
-    let callback;
-    callback = (response) => {
-      this.off("device-set", callback);
-      return this.notifySender(payload, response, 'load-device');
-    };
-    this.on("device-set", callback);
-    this.trigger("put-device", this.wrapData(null,payload));
   }
 
   // ** Overrides **
@@ -155,5 +164,41 @@ class DeviceModel extends PluginModel {
     this.trigger("plugin-started",__dirname);
   }
 }
+
+const maps = ["jet", "hot", "cool", "spring", "summer", "autumn", "winter",
+"bone", "copper", "greys", "greens", "bluered", "rainbow", "portland",
+"blackbody", "earth", "electric", "viridis", "inferno", "magma", "plasma", "RdBu",
+"warm", "bathymetry", "chlorophyll", "density",
+"freesurface-blue", "freesurface-red", "oxygen", "par", "phase", "salinity",
+"temperature", "turbidity", "velocity-blue", "velocity-green"];
+
+const OVERLAY_SCHEMA = {
+  type: "object",
+  properties: {
+    electrodes: {
+      type: "object",
+      patternProperties: {
+        "^(electrode[0-9]+)+$": {
+          type: "object",
+          properties: {
+            scale: {type: "number", default: 0.5},
+            intensity: {type: "integer", default: 3}
+          }
+        }
+      }
+    },
+    name: {type: "string"},
+    type: {type: "string", default: "colormap", enum: ["colormap", "shapemap", "both"]},
+    visible: {type: "boolean", default: true},
+    colorRange: {type: "integer", default:10, minimum: 10},
+    shapeScale: {type: "number", default: 0.5, minimum: 0.1, maximum: 2},
+    colorMap: {type: "string",  default: "temperature", enum: maps},
+    numEdges: {type: "integer", default: 30, minimum: 3, maximum: 30},
+    colorAll: {type: "boolean", default: true},
+    shapeAll: {type: "boolean", default: false}
+  },
+  required: ["electrodes", "name", "type", "visible"]
+};
+
 
 module.exports = DeviceModel;
