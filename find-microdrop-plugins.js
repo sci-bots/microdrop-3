@@ -66,7 +66,7 @@ function findUserDefinedPlugins() {
   for (const searchPath of searchPaths) {
     // Validate the search path exists
     if (!fs.existsSync(searchPath)) {
-      console.error(`SEARCHPATH DOES NOT EXITS:
+      console.error(`SEARCHPATH DOES NOT EXIST:
                     Cannot find folder: ${searchPath}`);
       continue;
     }

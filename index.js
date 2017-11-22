@@ -83,7 +83,7 @@ class WebServer extends NodeMqttClient {
 
   get filepath() {return __dirname;}
   findPlugins() {
-    let args = ["--path", "./packages"];
+    let args = ["--path", path.resolve(__dirname, "packages")];
     if (this.args.path) {
       for (const searchpath of this.args.path) {
         args.push("--path");
