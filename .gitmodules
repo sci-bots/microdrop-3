@@ -34,3 +34,6 @@
 [submodule "packages/overlay-ui-plugin"]
 	path = packages/overlay-ui-plugin
 	url = https://github.com/Lucaszw/overlay-ui-plugin.git
+[submodule "packages/buildutils"]
+	path = packages/buildutils
+	url = https://github.com/Lucaszw/microdrop-buildutils
