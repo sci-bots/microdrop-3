@@ -10,13 +10,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "help": "./node_modules/.bin/gulp --tasks"
   },
-  "pkg": {
-    "assets": [
-      "mqtt-admin/*",
-      "web-ui/**/*",
-      "find-microdrop-plugins.js"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lucaszw/microdrop-3.0.git"
