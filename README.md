@@ -2,6 +2,9 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/cnb2m5x6a85kti5d?svg=true)](https://ci.appveyor.com/project/SciBots/microdrop-3-0-wikbc)
 
+[![Build Status](https://travis-ci.org/sci-bots/microdrop-3.0.svg?branch=master)](https://travis-ci.org/sci-bots/microdrop-3.0)
+
+
 Microdrop with MQTT communication and web front end
 
 ## Installing From NPM (Latest, or Release)
