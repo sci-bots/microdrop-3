@@ -86,8 +86,10 @@ describe('MicrodropAsync', async function() {
 
   describe('PluginManager', async function() {
     it('get process plugins', async function(){
+
+      const expected = _.map(require('./plugins.json')['processPlugins'], "name");
       var plugins = await microdrop.pluginManager.getProcessPlugins();
-      assert.deepEqual(_.map(plugins, 'name'), DEFAULT_PROCESS_PLUGINS);
+      assert.deepEqual(_.map(plugins, 'name'), expected);
     });
   });
 
