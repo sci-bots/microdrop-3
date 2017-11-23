@@ -98,7 +98,7 @@ class WebServer extends NodeMqttClient {
     return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
-    const file = path.resolve(plugin_path, plugin_data.script);
+    const file = path.resolve(plugin_path);
     this.addWebPlugin(file, plugin_data);
     this.trigger("set-web-plugins", this.webPlugins);
   }
@@ -113,10 +113,11 @@ class WebServer extends NodeMqttClient {
     this.addProcessPlugin(plugin);
     this.trigger("set-process-plugins", this.processPlugins);
   }
-  addWebPlugin(file, packageData) {
+  addWebPlugin(pluginDir, packageData) {
+    const file = path.resolve(pluginDir, packageData.script);
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
-    const filename = path.basename(file, ".js");
+    const pluginName = path.basename(pluginDir);
 
     // Ensure file exists, and is a javascript file:
     let error;
@@ -126,10 +127,10 @@ class WebServer extends NodeMqttClient {
 
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
-    if (!(file in pluginData.webPlugins)) {
-      pluginData.webPlugins[file] = {
-        name: filename,
-        path: file,
+    if (!(pluginDir in pluginData.webPlugins)) {
+      pluginData.webPlugins[pluginDir] = {
+        name: pluginName,
+        path: pluginDir,
         state: "disabled",
         data: packageData
       };
@@ -151,9 +152,10 @@ class WebServer extends NodeMqttClient {
     // Generate input data for handlebars template:
     const pluginPaths = new Array();
 
-    for (const [filename, plugin] of Object.entries(this.webPlugins)) {
-      if (plugin.state == "enabled")
-        pluginPaths.push(path.basename(filename));
+    for (const [pluginDir, plugin] of Object.entries(this.webPlugins)) {
+      if (plugin.state == "enabled") {
+        pluginPaths.push(path.join(plugin.name, plugin.data.script));
+      }
     }
 
     // Update html file with added / removed plugins:
@@ -178,7 +180,7 @@ class WebServer extends NodeMqttClient {
   }
   onAddPluginPath(payload) {
     const pluginData = this.retrievePluginData();
-    const pluginPath = path.resolve(payload.path);
+    let pluginPath = path.resolve(payload.path);
 
     // Retrieve Search Paths:
     const searchDirectories = new Set(pluginData.searchPaths);
@@ -402,8 +404,9 @@ class WebServer extends NodeMqttClient {
   }
   WebPlugins() {
     const pluginData = this.retrievePluginData();
-    for (const [file, plugin] of Object.entries(pluginData.webPlugins)) {
-      this.use(express.static(path.dirname(file), {extensions:['html']}));
+    for (const [pluginDir, plugin] of Object.entries(pluginData.webPlugins)) {
+      const parentDir = path.basename(path.dirname(pluginDir));
+      this.use(express.static(parentDir));
     }
     this.webPlugins = pluginData.webPlugins;
     this.generateDisplayTemplate();

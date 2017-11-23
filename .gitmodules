@@ -37,3 +37,6 @@
 [submodule "packages/buildutils"]
 	path = packages/buildutils
 	url = https://github.com/Lucaszw/microdrop-buildutils
+[submodule "packages/jupyterlab-extension"]
+	path = packages/jupyterlab-extension
+	url = https://github.com/Lucaszw/microdrop-jupyterlab-extension.git
