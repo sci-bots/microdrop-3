@@ -85,8 +85,8 @@ describe('MicrodropAsync', async function() {
   });
 
   describe('PluginManager', async function() {
-    it('check running process plugins', async function(){
-      var plugins = await microdrop.pluginManager.getRunningProcessPlugins();
+    it('get process plugins', async function(){
+      var plugins = await microdrop.pluginManager.getProcessPlugins();
       assert.deepEqual(_.map(plugins, 'name'), DEFAULT_PROCESS_PLUGINS);
     });
   });
