@@ -92,10 +92,9 @@ describe('MicrodropAsync', async function() {
   });
 
 
-  after(function (done) {
+  after(function () {
     moscaServer.server.close();
-    webServer.close();
-    done();
+    webServer.client.end();
   });
 
 

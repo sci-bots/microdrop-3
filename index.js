@@ -58,7 +58,7 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-    const listener = this._listen(3000)
+    this._listen(3000)
 
     // Launch models:
     new DeviceModel();
@@ -371,9 +371,7 @@ class WebServer extends NodeMqttClient {
       <b>/display</b> : Display User Interface  <br>
       `);
   }
-  close() {
-    process.exit();
-  }
+
   ExpressServer() {
     const app = new Object();
     const server = express();
