@@ -67,11 +67,7 @@ class MoscaServer {
   // ** Event Handlers **
   onConnected(client) {
     const [clientName, clientPath] = client.id.split(">>");
-    if (clientPath == undefined)
-      console.log('client connected', client.id);
-    else {
-      console.log(clientName, clientPath);
-      console.log("sending message...", `${this.channel}/signal/client-connected`);
+    if (clientPath != undefined){
       this.sendMessage(`${this.channel}/signal/client-connected`,
         {clientName: clientName, clientPath: clientPath});
     }
@@ -81,7 +77,6 @@ class MoscaServer {
   onDisconnected(client) {
     const [clientName, clientPath] = client.id.split(">>");
     if (clientPath == undefined) {
-      console.log('client disconnected', client.id);
       return;
     }
     this.sendMessage(`${this.channel}/signal/client-disconnected`,
@@ -105,10 +100,10 @@ class MoscaServer {
   }
 
   onSetup() {
-    console.log(
-      `Mosca server is up and running on port: ${this.settings.port}
-       and http port: ${this.settings.http.port}`
-    );
+    // console.log(
+    //   `Mosca server is up and running on port: ${this.settings.port}
+    //    and http port: ${this.settings.http.port}`
+    // );
   }
 
   onExit(options, err) {

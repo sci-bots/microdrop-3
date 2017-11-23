@@ -69,7 +69,7 @@ class RoutesModel extends PluginModel {
   }
 
   async putRoute(payload) {
-    const LABEL = "<RoutesModel::putRoute>"; console.log(LABEL);
+    const LABEL = "<RoutesModel::putRoute>"; //console.log(LABEL);
     try {
       const microdrop = new MicrodropAsync();
       const schema = microdrop.routes.RouteSchema;
@@ -107,7 +107,7 @@ class RoutesModel extends PluginModel {
   }
 
   async putRoutes(payload) {
-    const LABEL = "<RoutesModel::putRoutes>"; console.log(LABEL);
+    const LABEL = "<RoutesModel::putRoutes>"; //console.log(LABEL);
     try {
       if (!payload.routes) throw("missing payload.routes");
       if (!_.isArray(payload.routes)) throw("payload.routes not an array");
@@ -158,7 +158,7 @@ async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
   await wait(interval);
   const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
   await microdrop.electrodes.putActiveElectrodes(_.map(active, "id"));
-  console.log({remaining, currentTime, maxTime, interval});
+  // console.log({remaining, currentTime, maxTime, interval});
 
   if (remaining.length == 0) {callback(); return}
   if (currentTime+interval >= maxTime) {callback(); return}

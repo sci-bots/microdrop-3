@@ -106,7 +106,7 @@ class DeviceModel extends PluginModel {
 
 
   async putOverlays(payload) {
-    const LABEL = `<DeviceModel::putOverlays`; console.log(LABEL);
+    const LABEL = `<DeviceModel::putOverlays`; //console.log(LABEL);
     try {
       for (const [i, overlay] of payload.entries()) {
         this.validateOverlay(overlay);

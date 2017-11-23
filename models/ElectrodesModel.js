@@ -117,7 +117,7 @@ class ElectrodesModel extends PluginModel {
 
   async onStepChange(stepNumber) {
     /* When step is changed, load the electrodes and channels from this step */
-    const LABEL = "<ElectrodesModel::onStepsSet>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::onStepsSet>"; //console.log(LABEL);
     try {
       const steps = await this.microdrop.steps.steps();
       const electrodes = steps[stepNumber].electrodes;
@@ -130,7 +130,7 @@ class ElectrodesModel extends PluginModel {
   }
 
   putActiveElectrodes(payload) {
-    const LABEL = "<ElectrodesModel::putActiveElectrodes>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::putActiveElectrodes>"; //console.log(LABEL);
     try {
       const activeElectrodes = payload["active-electrodes"] || payload["activeElectrodes"];
       if (!activeElectrodes) throw ("expected active-electrodes in payload");
@@ -144,7 +144,7 @@ class ElectrodesModel extends PluginModel {
 
   async toggleElectrode(payload) {
     /* Toggle the state of an electrode */
-    const LABEL = "<ElectrodesModel::toggleElectrode>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::toggleElectrode>"; //console.log(LABEL);
     try {
       const electrodeId = payload.electrodeId;
       const state = payload.state;
@@ -181,7 +181,7 @@ class ElectrodesModel extends PluginModel {
     }
   }
   async fromDataframe(payload) {
-    const LABEL = "<ElectrodesModel::fromDataframe>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::fromDataframe>"; //console.log(LABEL);
     try {
       if (!payload.df_electrodes) throw("missing payload.df_electrodes");
       const microdrop = new MicrodropAsync();
@@ -228,7 +228,7 @@ class ElectrodesModel extends PluginModel {
 
   async updateElectrode(payload) {
     /* Switch an electrode from on to off or vice versa */
-    const LABEL = "<ElectrodesModel::updateElectrode>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::updateElectrode>"; // console.log(LABEL);
     try {
       if (payload.electrode_id == undefined) throw([LABEL, "payload.electrode_id missing"]);
       if (payload.state == undefined) throw([LABEL, "payload.state missing"]);
@@ -255,7 +255,7 @@ class ElectrodesModel extends PluginModel {
   async resetElectrodes(payload) {
     /* Re-generate electrodes and channels map based on loaded device
        with all electrode states set to "off" */
-    const LABEL = "<ElectrodesModel::resetElectrodes>"; console.log(LABEL);
+    const LABEL = "<ElectrodesModel::resetElectrodes>"; // console.log(LABEL);
     try {
       const channelMap = await this.microdrop.device.channels();
       const electrodeMap = await this.microdrop.device.electrodes();

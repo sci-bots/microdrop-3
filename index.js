@@ -58,7 +58,7 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-    this._listen(3000);
+    const listener = this._listen(3000)
 
     // Launch models:
     new DeviceModel();
@@ -313,8 +313,6 @@ class WebServer extends NodeMqttClient {
     plugin.path = payload.clientPath;
     if (plugin.path == "web") return;
     plugin.id   = `${plugin.name}:${plugin.path}`;
-    console.log("CLIENT CONNECTED:::");
-    console.log(plugin);
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
     this.trigger("set-process-plugins", this.processPlugins);
@@ -372,6 +370,9 @@ class WebServer extends NodeMqttClient {
       <b>/plugin-manager</b> : Manage process and js plugins  <br>
       <b>/display</b> : Display User Interface  <br>
       `);
+  }
+  close() {
+    process.exit();
   }
   ExpressServer() {
     const app = new Object();
@@ -457,6 +458,8 @@ const launchMicrodrop = function() {
 
   const moscaServer = new MoscaServer();
   const webServer = new WebServer(parser.parseArgs());
+
+  return {moscaServer, webServer};
 }
 
 module.exports = {

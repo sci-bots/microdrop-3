@@ -15,7 +15,7 @@ const DEFAULT_PROCESS_PLUGINS = [ 'device-model', 'electrodes-model', 'routes-mo
 describe('MicrodropAsync', async function() {
   this.timeout(10000);
   // var child = spawn('node', ['index.js'], {stdio: 'inherit'});
-  launchMicrodrop();
+  var {moscaServer, webServer} = launchMicrodrop();
   var microdrop = new MicrodropAsync();
 
   describe('Device', async function() {
@@ -85,14 +85,17 @@ describe('MicrodropAsync', async function() {
   });
 
   describe('PluginManager', async function() {
-    it('running process plugins', async function(){
+    it('check running process plugins', async function(){
       var plugins = await microdrop.pluginManager.getRunningProcessPlugins();
       assert.deepEqual(_.map(plugins, 'name'), DEFAULT_PROCESS_PLUGINS);
     });
-    it('running process plugins', async function(){
-      var plugins = await microdrop.pluginManager.getRunningProcessPlugins();
-      assert.deepEqual(_.map(plugins, 'name'), DEFAULT_PROCESS_PLUGINS);
-    });
+  });
+
+
+  after(function (done) {
+    moscaServer.server.close();
+    webServer.close();
+    done();
   });
 
 
