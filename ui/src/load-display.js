@@ -76,8 +76,10 @@ function restorePanels() {
   let firstWidget = null;
 
   function getChildren(obj) {
+    if (!obj) return;
     // Traverse the layout structure, replacing widgetNames with widgetObjects
     const children = obj.children;
+
     if ("widgets" in obj) {
       const widgetObjects = new Array();
       for (const title of obj.widgets){

@@ -8,7 +8,9 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "help": "./node_modules/.bin/gulp --tasks"
+    "help": "./node_modules/.bin/gulp --tasks",
+    "start": "./node_modules/.bin/gulp start:microdrop",
+    "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab"
   },
   "repository": {
     "type": "git",
