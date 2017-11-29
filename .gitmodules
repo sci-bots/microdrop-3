@@ -40,3 +40,9 @@
 [submodule "packages/jupyterlab-extension"]
 	path = packages/jupyterlab-extension
 	url = https://github.com/Lucaszw/microdrop-jupyterlab-extension.git
+[submodule "packages/installer"]
+	path = packages/installer
+	url = https://github.com/Lucaszw/microdrop-installer.git
+[submodule "packages/feedstock"]
+	path = packages/feedstock
+	url = https://github.com/Lucaszw/microdrop-feedstock.git
