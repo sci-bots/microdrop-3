@@ -54,6 +54,7 @@
     "webpack": "^3.8.1"
   },
   "microdropDependencies": {
+    "@microdrop/feedstock": "feedstock",
     "@microdrop/async": "microdrop-async",
     "@microdrop/device-controller": "device-controller"
   }
