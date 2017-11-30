@@ -398,7 +398,7 @@ class WebServer extends NodeMqttClient {
     const pluginData = this.retrievePluginData();
     for (const [pluginDir, plugin] of Object.entries(pluginData.webPlugins)) {
       const parentDir = path.basename(path.dirname(pluginDir));
-      this.use(express.static(parentDir));
+      this.use(express.static(path.join(__dirname, parentDir)));
     }
     this.webPlugins = pluginData.webPlugins;
     this.generateDisplayTemplate();
