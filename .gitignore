@@ -64,3 +64,4 @@ models/schema.json
 schema.json
 ui/src/display.html
 *.DS_Store
+resources/*.microdrop
