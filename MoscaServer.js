@@ -3,7 +3,6 @@ const path = require('path');
 const _ = require('lodash');
 const Backbone = require('backbone');
 const crossroads = require('crossroads');
-const levelup = require('levelup');
 const mosca = require('mosca');
 
 class MoscaServer {
