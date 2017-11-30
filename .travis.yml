@@ -16,8 +16,5 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-script:
-  - mocha
-
 after_success:
   - gulp --cwd packages/feedstock build
