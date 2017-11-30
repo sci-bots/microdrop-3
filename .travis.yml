@@ -13,7 +13,10 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda -c conda-forge -c dfroger -c lucaszw -c sci-bots
+  - conda config --add channels conda-forge
+  - conda config --add channels dfroger
+  - conda config --add channels lucaszw
+  - conda config --add channels sci-bots
   - conda install conda-build
   # Useful for debugging any issues with conda
   - conda info -a
