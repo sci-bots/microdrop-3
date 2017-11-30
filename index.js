@@ -23,7 +23,6 @@ class WebServer extends NodeMqttClient {
     super("localhost", 1883, "microdrop");
 
     Object.assign(this, this.ExpressServer());
-    this.use(express.static(path.join(__dirname,"mqtt-admin"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
 
@@ -366,9 +365,8 @@ class WebServer extends NodeMqttClient {
   onShowIndex(req, res) {
     res.send(
       `Navigate to one of the following: <br>
-      <b>/mqtt-admin</b> : UI for mqtt broker  <br>
       <b>/plugin-manager</b> : Manage process and js plugins  <br>
-      <b>/display</b> : Display User Interface  <br>
+      <b>/display</b> : Display User Interface (Enable plugins in plugin-manager first) <br>
       `);
   }
 
