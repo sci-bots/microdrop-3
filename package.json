@@ -38,6 +38,7 @@
     "crossroads": "^0.12.2",
     "express": "^4.16.2",
     "handlebars": "^4.0.11",
+    "leveldown": "^2.1.0",
     "levelup": "^2.0.1",
     "lodash": "^4.17.4",
     "mosca": "^2.7.0",
