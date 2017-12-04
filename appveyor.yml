@@ -17,6 +17,7 @@ install:
   # Configure GIT:
   - cmd: git config --global user.email "build@sci-bots.com"
   - cmd: git config --global user.name "Sci-Bots Builds"
+  - cmd: git submodule update --init --recursive
 
   - # Setup Conda
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
