@@ -27,6 +27,7 @@ install:
   - cmd: conda install --yes conda-build anaconda-client binstar
 
   - # Run Tests
+  - cmd: choco install nodejs
   - cmd: npm install
   - cmd: npm run test
 
