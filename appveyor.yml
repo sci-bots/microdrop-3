@@ -23,7 +23,7 @@ install:
   - cmd: conda config --add channels conda-forge
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
-  - cmd: conda install --yes conda-build anaconda-client binstar
+  - cmd: conda install --yes jupyter_core conda-build anaconda-client binstar
 
   - # Run Tests
   - cmd: npm install
