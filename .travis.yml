@@ -26,4 +26,4 @@ after_success:
   - npm install -g gulp
   - export CONDA_BLD_PATH=~/conda-bld
   - gulp --cwd packages/feedstock build
-  - anaconda -t $ANACONDA_TOKEN upload --force $CONDA_BLD_PATH
+  # - anaconda -t $ANACONDA_TOKEN upload --force $CONDA_BLD_PATH

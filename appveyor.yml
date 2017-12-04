@@ -39,7 +39,7 @@ install:
 
   - # Publish Conda Package
   - # XXX: Uploading with powershell raises error for no reason
-  - cmd: anaconda -t %ANACONDA_TOKEN% upload --force %CONDA_BLD_PATH%
+  - # cmd: anaconda -t %ANACONDA_TOKEN% upload --force %CONDA_BLD_PATH%
 
 build: false
 test_script:
