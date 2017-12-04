@@ -6,7 +6,7 @@ const crossroads = require('crossroads');
 const mosca = require('mosca');
 
 class MoscaServer {
-  constructor() {
+  constructor(clientPort=8083, brokerPort=1883) {
     _.extend(this, Backbone.Events);
     _.extend(this, crossroads.create());
     this.ignoreState = true;

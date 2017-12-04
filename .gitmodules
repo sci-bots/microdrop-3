@@ -49,3 +49,6 @@
 [submodule "packages/python"]
 	path = packages/python
 	url = https://github.com/Lucaszw/microdrop-python.git
+[submodule "packages/mqttclient-python"]
+	path = packages/mqttclient-python
+	url = https://github.com/Lucaszw/mqttclient-python

@@ -15,12 +15,15 @@ const DeviceModel     = require("./models/DeviceModel");
 const ElectrodesModel = require('./models/ElectrodesModel');
 const RoutesModel     = require('./models/RoutesModel');
 
+const MQTT_PORT = 1883;
+const HTTP_PORT = 3000;
+
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
       WebServer.generatePluginJSON();
-    super("localhost", 1883, "microdrop");
+    super("localhost", MQTT_PORT, "microdrop");
 
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
@@ -57,7 +60,7 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-    this._listen(3000)
+    this._listen(HTTP_PORT)
 
     // Launch models:
     new DeviceModel();
@@ -440,7 +443,7 @@ const launchMicrodrop = function() {
 
   const parser = new ArgumentParser({
     version: '0.0.1',
-    addHelp:true,
+    addHelp: true,
     description: 'Microdrop Args Parser'
   });
 
@@ -455,6 +458,9 @@ const launchMicrodrop = function() {
   const moscaServer = new MoscaServer();
   const webServer = new WebServer(parser.parseArgs());
 
+  console.log("launching microdrop", {HTTP_PORT, MQTT_PORT});
+  console.log(`Launch Jupyterlab (complete)
+  or visit localhost:${HTTP_PORT} (no filebrowser, terminal, or notebooks)`);
   return {moscaServer, webServer};
 }
 
