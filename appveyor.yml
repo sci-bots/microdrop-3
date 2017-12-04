@@ -34,11 +34,12 @@ install:
   - cmd: npm run test
 
   - # Build
+  - cmd: set CONDA_BLD_PATH=./conda-bld
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
 
   - # Publish Conda Package
   - # XXX: Uploading with powershell raises error for no reason
-  # - cmd: anaconda -t %binstar_token% upload --force %package_location%
+  - cmd: anaconda -t %ANACONDA_TOKEN% upload --force %CONDA_BLD_PATH%
 
 build: false
 test_script:

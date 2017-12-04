@@ -12,16 +12,18 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
+  - conda update --quiet conda
   - conda config --add channels conda-forge
   - conda config --add channels dfroger
   - conda config --add channels lucaszw
   - conda config --add channels sci-bots
-  - conda install conda-build
+  - conda install --yes conda-build anaconda-client binstar
   # Useful for debugging any issues with conda
   - conda info -a
   - npm install
 
 after_success:
   - npm install -g gulp
+  - export CONDA_BLD_PATH=~/conda-bld
   - gulp --cwd packages/feedstock build
+  - anaconda -t $ANACONDA_TOKEN upload --force $CONDA_BLD_PATH
