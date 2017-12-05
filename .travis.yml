@@ -2,10 +2,10 @@ matrix:
   include:
     - os: linux
       sudo: required
-    - os: osx
+    # - os: osx
 addons:
   artifacts: true
-
+  debug: true
 language: node_js
 node_js:
   - "8"
@@ -36,12 +36,13 @@ install:
   - conda config --add channels dfroger
   - conda config --add channels lucaszw
   - conda config --add channels sci-bots
-  - conda install --yes conda-build anaconda-client binstar
+  - conda install --yes conda-build anaconda-client binstar constructor
   # Useful for debugging any issues with conda
   - conda info -a
   - npm install
 
 after_success:
   - npm install -g gulp
-  - gulp --cwd packages/feedstock build
+  # - gulp --cwd packages/feedstock build
   - gulp --cwd packages/feedstock construct
+  - ls
