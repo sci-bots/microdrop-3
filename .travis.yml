@@ -2,7 +2,6 @@ matrix:
   include:
     - os: linux
       sudo: required
-    # - os: osx
 addons:
   artifacts: true
   debug: true
