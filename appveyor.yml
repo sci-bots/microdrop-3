@@ -40,7 +40,7 @@ install:
   - cmd: conda install --yes conda-build anaconda-client binstar constructor
 
   - # Run Tests
-  - cmd: conda install nodejs=8.2.1
+  - cmd: conda install --yes nodejs=8.2.1
   - cmd: node --version
   - cmd: npm install
   - cmd: npm install -g gulp
