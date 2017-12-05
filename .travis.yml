@@ -38,7 +38,7 @@ install:
   - conda install --yes conda-build anaconda-client binstar constructor
   # Useful for debugging any issues with conda
   - conda info -a
-  - npm install
+  - npm run --prefix packages/feedstock install-pkgs
 
 after_success:
   - npm install -g gulp
