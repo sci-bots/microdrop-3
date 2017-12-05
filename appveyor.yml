@@ -37,7 +37,7 @@ install:
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
-  - cmd: conda install --yes conda-build anaconda-client binstar
+  - cmd: conda install --yes conda-build anaconda-client binstar constructor
 
   - # Run Tests
   - cmd: choco install nodejs
