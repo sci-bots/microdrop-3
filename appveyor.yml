@@ -47,7 +47,7 @@ install:
   - cmd: npm run test
 
   - # Build
-  - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
+  # - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock construct
 
   - # Publish Conda Package
