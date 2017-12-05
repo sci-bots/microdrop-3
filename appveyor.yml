@@ -34,7 +34,6 @@ install:
   - cmd: npm run test
 
   - # Build
-  - cmd: set CONDA_BLD_PATH=./conda-bld
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
 
   - # Publish Conda Package
