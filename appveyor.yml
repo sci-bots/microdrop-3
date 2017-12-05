@@ -13,7 +13,6 @@ deploy:
 
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
-  nodejs_version: "8"
   matrix:
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda
@@ -41,7 +40,8 @@ install:
   - cmd: conda install --yes conda-build anaconda-client binstar
 
   - # Run Tests
-  # - cmd: choco install nodejs
+  - cmd: choco install nodejs
+  - cmd: node --version
   - cmd: npm install
   - cmd: npm install -g gulp
   - cmd: npm run test
