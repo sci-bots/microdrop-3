@@ -1,3 +1,16 @@
+artifacts:
+  - path: %ARTIFACTS_PATHS%
+  - name: installer
+
+deploy:
+  provider: S3
+  access_key_id: %ARTIFACTS_KEY%
+  secret_access_key: %ARTIFACTS_SECRET%
+  bucket: %ARTIFACTS_BUCKET%
+  region: us-east-1
+  set_public: true
+  artifact: installer
+
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
 
@@ -35,6 +48,7 @@ install:
 
   - # Build
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
+  - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock construct
 
   - # Publish Conda Package
   - # XXX: Uploading with powershell raises error for no reason
