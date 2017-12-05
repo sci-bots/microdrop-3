@@ -5,8 +5,6 @@ matrix:
     - os: osx
 addons:
   artifacts: true
-  paths:
-    - packages/feedstock/artifacts
 
 language: node_js
 node_js:
