@@ -32,7 +32,7 @@ install:
   - cmd: git submodule update --init --recursive
 
   - # Setup Conda
-  - cmd: set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
+  - cmd: set PATH=%MINICONDA%\bin;%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda config --add channels conda-forge
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
