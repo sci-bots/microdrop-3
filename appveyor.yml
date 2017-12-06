@@ -17,10 +17,12 @@ environment:
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda
       PYTHON_ARCH: "32"
+      CONDA_CANARY: false
 
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda
       PYTHON_ARCH: "64"
+      CONDA_CANARY: false
 
 init:
   - ECHO %PYTHON_VERSION% %MINICONDA%
