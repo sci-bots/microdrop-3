@@ -39,10 +39,10 @@ install:
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
-  - cmd: conda install --yes conda-build anaconda-client binstar constructor
+  - cmd: conda install --yes nsis conda-build anaconda-client binstar constructor
 
   - # Run Tests
-  - cmd: conda install --yes nodejs=8.2.1
+  # - cmd: conda install --yes nodejs=8.2.1
   - cmd: activate
   - cmd: node --version
   - cmd: npm install
