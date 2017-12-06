@@ -46,9 +46,9 @@
 [submodule "packages/feedstock"]
 	path = packages/feedstock
 	url = https://github.com/Lucaszw/microdrop-feedstock.git
-[submodule "packages/python"]
-	path = packages/python
-	url = https://github.com/Lucaszw/microdrop-python.git
 [submodule "packages/mqttclient-python"]
 	path = packages/mqttclient-python
 	url = https://github.com/Lucaszw/mqttclient-python
+[submodule "packages/async-python"]
+	path = packages/async-python
+	url = https://github.com/Lucaszw/microdrop-async-python

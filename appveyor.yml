@@ -41,6 +41,7 @@ install:
 
   - # Run Tests
   - cmd: conda install --yes nodejs=8.2.1
+  - cmd: activate
   - cmd: node --version
   - cmd: npm install
   - cmd: npm install -g gulp

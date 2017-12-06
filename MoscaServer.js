@@ -66,9 +66,15 @@ class MoscaServer {
   // ** Event Handlers **
   onConnected(client) {
     const [clientName, clientPath] = client.id.split(">>");
+    if (!clientName) return;
+
+    if (!_.includes(clientName, 'mqttjs') && clientName != 'undefined'){
+      console.log({clientName});
+    }
+
     if (clientPath != undefined){
       this.sendMessage(`${this.channel}/signal/client-connected`,
-        {clientName: clientName, clientPath: clientPath});
+        {clientName, clientPath});
     }
 
   }
