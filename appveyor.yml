@@ -1,5 +1,5 @@
 artifacts:
-  - path: packages/feedstock/artifact
+  - path: packages/feedstock/artifacts
     name: installer
 
 deploy:
