@@ -1,6 +1,5 @@
 artifacts:
-  - path: packages/feedstock/artifacts
-    name: installer
+  - path: packages/feedstock/artifacts/*.exe
 
 deploy:
   provider: S3
