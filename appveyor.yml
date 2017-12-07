@@ -23,7 +23,7 @@ install:
   - cmd: git submodule update --init --recursive
 
   - # Setup Conda
-  - cmd: wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Windows-x86.exe -OutFile installer.exe
+  - cmd: curl https://repo.continuum.io/archive/Anaconda3-5.0.1-Windows-x86.exe -OutFile installer.exe
   - cmd: start /wait "" installer.exe/InstallationType=JustMe /RegisterPython=0 /S /D=%UserProfile%\Anaconda3
   - cmd: set PATH=%UserProfile%\Anaconda3\bin;%UserProfile%\Anaconda3;%UserProfile%\Anaconda3\Scripts;%PATH%
   - cmd: conda config --add channels conda-forge
