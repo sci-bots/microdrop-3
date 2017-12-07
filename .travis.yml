@@ -3,8 +3,7 @@ matrix:
     - os: linux
       sudo: required
     - os: osx
-      osx_image: xcode9
-      sudo: required
+      osx_image: xcode7.2
 addons:
   artifacts: true
   debug: true
