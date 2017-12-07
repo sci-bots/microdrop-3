@@ -14,7 +14,7 @@ environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
 
 init:
-  - ECHO %PYTHON_VERSION% %MINICONDA%
+  - ECHO %PYTHON_VERSION%
 
 install:
   # Configure GIT:
