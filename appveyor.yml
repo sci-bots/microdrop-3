@@ -22,7 +22,7 @@ install:
   - cmd: git config --global user.name "Sci-Bots Builds"
   - cmd: git submodule update --init --recursive
 
-  - # Setup Conda
+  # Setup Conda (Must install in User directory for constructor to work)
   - ps: Invoke-WebRequest "https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe" -OutFile "installer.exe"
   - cmd: dir
   - cmd: start /wait "" installer.exe /InstallationType=JustMe /RegisterPython=1 /S /D=%UserProfile%\Miniconda3
@@ -35,21 +35,17 @@ install:
   - cmd: conda install --yes Pillow
   - cmd: conda info
 
-  - # Run Tests
+  # Run Tests
   - cmd: activate
   - cmd: node --version
   - cmd: npm install
   - cmd: npm install -g gulp
   - cmd: npm run test
 
-  - # Build
+  # Build
   - cmd: npm run --prefix packages/feedstock install-pkgs
-  # - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
+  - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock construct
-
-  - # Publish Conda Package
-  - # XXX: Uploading with powershell raises error for no reason
-  - # cmd: anaconda -t %ANACONDA_TOKEN% upload --force %CONDA_BLD_PATH%
 
 build: false
 test_script:
