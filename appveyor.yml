@@ -40,8 +40,9 @@ install:
   # Run Tests
   - cmd: activate
   - cmd: node --version
+  - cmd: npm install --global gulp
+  - cmd: npm install --global --production windows-build-tools
   - cmd: npm install
-  - cmd: npm install -g gulp
   - cmd: npm run test
 
   # Build
