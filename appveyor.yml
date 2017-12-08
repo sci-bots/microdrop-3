@@ -52,7 +52,7 @@ install:
   - cmd: npm install --global --production windows-build-tools
   - cmd: npm install
   - cmd: npm run test
-
+  - cmd: set
   # Build
   - cmd: npm run --prefix packages/feedstock install-pkgs
   - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
