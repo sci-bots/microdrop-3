@@ -14,6 +14,16 @@ deploy:
 
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
+  matrix:
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda3
+      PYTHON_ARCH: "32"
+      CONDA_CANARY: false
+
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda3-x64
+      PYTHON_ARCH: "64"
+      CONDA_CANARY: false
 
 init:
   - ECHO %PYTHON_VERSION%
@@ -25,15 +35,13 @@ install:
   - cmd: git submodule update --init --recursive
 
   # Setup Conda (Must install in User directory for constructor to work)
-  - ps: Invoke-WebRequest "https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe" -OutFile "installer.exe"
-  - cmd: dir
-  - cmd: start /wait "" installer.exe /InstallationType=JustMe /RegisterPython=1 /S /D=%UserProfile%\Miniconda3
-  - cmd: set PATH=%UserProfile%\Miniconda3\bin;%UserProfile%\Miniconda3;%UserProfile%\Miniconda3\Scripts;%PATH%
+  - cmd: set PATH=%MINICONDA%\bin;%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda config --add channels conda-forge
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
-  - cmd: conda install --yes nodejs=8 conda-build binstar constructor
+  - cmd: conda install --yes nodejs=8 conda-build binstar
+  - cmd: conda install --yes --channel anaconda constructor
   - cmd: conda install --yes Pillow
   - cmd: conda info
 
