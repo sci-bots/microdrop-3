@@ -16,12 +16,12 @@ environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
   matrix:
     - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda3
+      MINICONDA: C:\Miniconda
       PYTHON_ARCH: "32"
       CONDA_CANARY: false
 
     - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda3-x64
+      MINICONDA: C:\Miniconda-x64
       PYTHON_ARCH: "64"
       CONDA_CANARY: false
 
