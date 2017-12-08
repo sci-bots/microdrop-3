@@ -12,6 +12,9 @@ deploy:
   artifact: MicrodropInstaller
   unzip: true
 
+image:
+- Visual Studio 2015
+
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
   matrix:
