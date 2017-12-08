@@ -69,7 +69,7 @@ class MoscaServer {
     if (!clientName) return;
 
     if (!_.includes(clientName, 'mqttjs') && clientName != 'undefined'){
-      console.log({clientName});
+      console.log('client connected', {clientName});
     }
 
     if (clientPath != undefined){
@@ -86,6 +86,7 @@ class MoscaServer {
     }
     this.sendMessage(`${this.channel}/signal/client-disconnected`,
       {clientName: clientName, clientPath: clientPath});
+    console.log('client disconnected', {clientName});
   }
 
   onPublish(packet, client){

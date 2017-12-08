@@ -12,18 +12,15 @@ deploy:
   artifact: MicrodropInstaller
   unzip: true
 
-image:
-- Visual Studio 2015
-
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3.0
   matrix:
-    - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
       PYTHON_ARCH: "32"
       CONDA_CANARY: false
 
-    - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda-x64
       PYTHON_ARCH: "64"
       CONDA_CANARY: false
@@ -43,8 +40,8 @@ install:
   - cmd: conda config --add channels lucaszw
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
-  - cmd: conda install --yes nodejs=8 conda-build binstar
-  - cmd: conda install --yes --channel anaconda constructor
+  - cmd: conda install --yes nodejs=8 binstar
+  - cmd: conda install --yes --channel anaconda conda-build constructor
   - cmd: conda install --yes Pillow
   - cmd: conda info
 
