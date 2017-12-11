@@ -30,4 +30,4 @@ Microdrop with MQTT communication and web front end
 
 ## Docs
 
-**[Visit project wiki](https://github.com/Lucaszw/microdrop-3.0/wiki)**
+**[Visit project wiki](https://github.com/Lucaszw/microdrop-3/wiki)**
