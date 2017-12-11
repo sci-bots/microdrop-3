@@ -15,7 +15,7 @@ Since UI plugins have no dependencies, they can be achieved by any means, includ
 First, ensure that Microdrop is running on your computer:
 
 ```sh
->> microdrop-3.0.cmd
+>> microdrop-3.cmd
 ```
 
 Then navigate in your web browser to: "http://localhost:PORT/plugin-manager". Input the location of the plugin, such as: C:\Path\To\protocol-execution-ui-plugin.js into the "Add Plugin" input field, and select "Add Plugin"

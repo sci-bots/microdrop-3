@@ -2,12 +2,12 @@
 
 There are no library dependencies/requirements asides from MQTT in order to develop plugins. For developers new to MQTT, see https://eclipse.org/paho/clients/js/
 
-However, you are free to use 
-[mqtt-client.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/mqtt-client.js)
+However, you are free to use
+[mqtt-client.js](https://github.com/Lucaszw/microdrop-3/blob/master/ui/src/mqtt-client.js)
 or
-[ui-plugin.js (which inherits from mqtt-client.js)](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/ui-plugin.js) as parents for you UI Plugins.
+[ui-plugin.js (which inherits from mqtt-client.js)](https://github.com/Lucaszw/microdrop-3/blob/master/ui/src/ui-plugin.js) as parents for you UI Plugins.
 
-An API for the various core microdrop plugins is coming soon, but in the meantime the various messaging topics for each protocol can be found through investigating the plugin's source and [mqtt-messages.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/mqtt-messages.js) as reference.
+An API for the various core microdrop plugins is coming soon, but in the meantime the various messaging topics for each protocol can be found through investigating the plugin's source and [mqtt-messages.js](https://github.com/Lucaszw/microdrop-3/blob/master/ui/src/mqtt-messages.js) as reference.
 
 Plugins should be ES6 classes, and accept a dom node (elem), and a PhosphorJS FocusTracker object:
 ```javascript
@@ -35,7 +35,7 @@ topLeft, topRight, bottomLeft, or bottomRight. This will determine where the plu
 
 ## PhosphorJS Widget
 
-The plugin class must contain a static method called Widget that returns a PhosphorWidget object. This is already included if your plugin inherits from [ui-plugin.js](https://github.com/Lucaszw/microdrop-3.0/blob/master/ui/src/ui-plugin.js)
+The plugin class must contain a static method called Widget that returns a PhosphorWidget object. This is already included if your plugin inherits from [ui-plugin.js](https://github.com/Lucaszw/microdrop-3/blob/master/ui/src/ui-plugin.js)
 
 ```javascript
   static Widget(panel, dock, focusTracker) {
@@ -50,7 +50,7 @@ The plugin class must contain a static method called Widget that returns a Phosp
 
 ## Publishing and Subscribing to MQTT Topics
 
-Each plugin should contain it's own MQTT Client. 
+Each plugin should contain it's own MQTT Client.
 See https://eclipse.org/paho/clients/js/ . If your plugin extends MQTTClient or UIPlugin, then a MQTTClient will be instantuated on super().
 
 The default microdrop plugins all use the following hierarchy depending on the message:
@@ -83,7 +83,7 @@ If you are inheriting from MQTTClient or UI Plugin then these topics are wrapped
     ...
     this.listen();
   }
-  
+
   listen() {
     // protocol-model, electrode-model, routes-model, device-model...
     this.onStateMsg("some-model", "some-property", this.onSomePropertyUpdated.bind(this));
@@ -94,7 +94,7 @@ If you are inheriting from MQTTClient or UI Plugin then these topics are wrapped
 
 ## Message Payload
 
-All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that contains the plugin name, plugin version, and (TODO: microdrop version). This is to ensure compatibility of plugins across plugin and microdrop versions. 
+All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that contains the plugin name, plugin version, and (TODO: microdrop version). This is to ensure compatibility of plugins across plugin and microdrop versions.
 
 ```javascript
   DefaultHeader() {
@@ -116,11 +116,11 @@ All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that co
     msg.__head__ = this.DefaultHeader();
     return msg;
   }
-  
+
   ...
-  
+
   this.trigger("put-some-propert", this.wrapData("keyname",some_property));
-  
+
 ```
 
 ## DOM Node
@@ -165,14 +165,14 @@ class SamplePlugin extends UIPlugin {
     this.ui = this.UI();
     this.listen();
   }
-  
+
   listen() {
     // protocol-model, electrode-model, routes-model, device-model...
     this.onStateMsg("some-model", "some-property", this.onSomePropertyUpdated.bind(this));
     this.onSignalMsg("{plugin}", "some-signal", this.onSomeSignal.bind(this));
     this.bindPutMsg("some-model", "some-property", "put-some-property");
   }
-  
+
   someMethod() {
     ...
     this.trigger("put-some-propert", this.wrapData("keyname",some_property));
@@ -197,9 +197,9 @@ class SamplePlugin extends UIPlugin {
     this.some_property = JSON.parse(payload);
     ...
   }
-  
+
   onSomeSignal(payload, pluginName) { ...
-  
+
   UI() {
     // Textfield:
     const node = $("<b>Hello World</b>")[0];
