@@ -39,7 +39,6 @@
     "express": "^4.16.2",
     "handlebars": "^4.0.11",
     "lodash": "^4.17.4",
-    "mosca": "^2.7.0",
     "mqtt": "^2.14.0",
     "mqtt-router": "^0.5.0",
     "pandas-helpers": "^1.0.0",
