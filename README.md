@@ -19,10 +19,12 @@ Microdrop with MQTT communication and web front end
 ## Installing From Source (Latest)
 
 ```sh
-> git clone https://github.com/Lucaszw/microdrop-3.0
+> git clone --recursive https://github.com/Lucaszw/microdrop-3.0
 > cd microdrop-3.0
 > npm i --global gulp
+> npm i --global --production windows-build-tools # windows only
 > npm install
+> gulp install:plugins
 > gulp start
 ```
 
