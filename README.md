@@ -13,7 +13,7 @@ Microdrop with MQTT communication and web front end
 > npm install https://github.com/sci-bots/microdrop-3.0
 # Install latest release:
 > npm install microdrop
-> microdrop
+> microdrop-3
 ```
 
 ## Installing From Source (Latest)
