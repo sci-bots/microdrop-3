@@ -26,7 +26,7 @@ Microdrop with MQTT communication and web front end
 > npm install
 > gulp build:ui
 > gulp install:plugins
-> gulp start
+> gulp start:microdrop
 ```
 
 ## Docs
