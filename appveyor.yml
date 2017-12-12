@@ -41,7 +41,7 @@ install:
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
   - cmd: conda install --yes nodejs=8 binstar
-  - cmd: conda install --yes --channel anaconda conda-build constructor
+  - cmd: conda install --yes --channel anaconda conda-build constructor anaconda-client
   - cmd: conda install --yes Pillow
   - cmd: conda info
 
