@@ -28,7 +28,7 @@
   "homepage": "https://github.com/Lucaszw/microdrop-3#readme",
   "dependencies": {
     "@microdrop/async": "^0.2.31",
-    "@microdrop/buildutils": "0.0.13",
+    "@microdrop/buildutils": "0.0.15",
     "@microdrop/device-controller": "^0.4.19",
     "@microdrop/feedstock": "0.0.2",
     "@mqttclient/node": "0.0.16",
