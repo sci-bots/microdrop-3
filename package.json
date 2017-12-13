@@ -10,7 +10,8 @@
     "test": "./node_modules/.bin/mocha",
     "help": "./node_modules/.bin/gulp --tasks",
     "start": "./node_modules/.bin/gulp start:microdrop",
-    "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab"
+    "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab",
+    "install:microdrop": "npm install ."
   },
   "repository": {
     "type": "git",
