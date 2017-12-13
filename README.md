@@ -24,11 +24,10 @@ Microdrop with MQTT communication and web front end
 > npm i --global gulp
 > npm i --global --production windows-build-tools # windows only
 > npm install
-> gulp build:ui
-> gulp install:plugins
+> gulp build
 > gulp start:microdrop
 ```
 
 ## Docs
 
-**[Visit project wiki](https://github.com/Lucaszw/microdrop-3/wiki)**
+**[Visit project wiki](https://github.com/sci-bots/microdrop-3/wiki)**
