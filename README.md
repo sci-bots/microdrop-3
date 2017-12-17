@@ -19,7 +19,7 @@ microdrop-3
 ## Installing From Source (Latest)
 
 ```sh
-git clone --recursive https://github.com/Lucaszw/microdrop-3
+git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
 npm i --global gulp
 npm i --global --production windows-build-tools # windows only
