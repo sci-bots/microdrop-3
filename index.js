@@ -458,6 +458,11 @@ const launchMicrodrop = function() {
   const moscaServer = new MoscaServer();
   const webServer = new WebServer(parser.parseArgs());
 
+  const ifaces = os.networkInterfaces();
+  const address = _.get(ifaces, 'wlan0[0].address');
+  let base = 'localhost';
+  if (address) base = address;
+  
   console.log("launching microdrop", {HTTP_PORT, MQTT_PORT});
   console.log(`Launch Jupyterlab (complete)
   or visit localhost:${HTTP_PORT} (no filebrowser, terminal, or notebooks)`);

@@ -49,3 +49,6 @@
 [submodule "packages/async-python"]
 	path = packages/microdrop-python
 	url = https://github.com/Lucaszw/microdrop-async-python
+[submodule "packages/pi-launcher"]
+	path = packages/pi-launcher
+	url = https://github.com/Lucaszw/microdrop-pi-launcher
