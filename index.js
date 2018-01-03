@@ -93,6 +93,7 @@ class WebServer extends NodeMqttClient {
     return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
+
     const file = path.resolve(plugin_path);
     this.addWebPlugin(file, plugin_data);
     this.trigger("set-web-plugins", this.webPlugins);
@@ -109,6 +110,7 @@ class WebServer extends NodeMqttClient {
     this.trigger("set-process-plugins", this.processPlugins);
   }
   addWebPlugin(pluginDir, packageData) {
+    console.log('adding webplugin...');
     const file = path.resolve(pluginDir, packageData.script);
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
@@ -118,10 +120,15 @@ class WebServer extends NodeMqttClient {
     let error;
     if (!fileExists) error = "file does not exists";
     if (extension != ".js") error = "plugins must be javascript (.js) files"
-    if (error) { this.trigger("set-web-plugins-failed", error); return}
+    if (error) {
+      this.trigger("set-web-plugins-failed", error);
+      console.error(error, file);
+      return;
+    }
 
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
+    console.log({pluginData});
     if (!(pluginDir in pluginData.webPlugins)) {
       pluginData.webPlugins[pluginDir] = {
         name: pluginName,

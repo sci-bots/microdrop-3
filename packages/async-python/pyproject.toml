@@ -1,0 +1,10 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "microdrop_async"
+author = "Sci-Bots"
+author-email = "lucas@sci-bots.com"
+home-page = "https://github.com/Lucaszw/microdrop-async-python"
+license = "BSD-2-Clause"
