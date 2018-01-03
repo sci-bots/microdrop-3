@@ -81,7 +81,7 @@ class MoscaServer {
 
   onDisconnected(client) {
     const [clientName, clientPath] = client.id.split(">>");
-    if (clientPath == undefined) {
+    if (clientPath == undefined || clientName == 'undefined') {
       return;
     }
     this.sendMessage(`${this.channel}/signal/client-disconnected`,

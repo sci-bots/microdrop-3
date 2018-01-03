@@ -110,7 +110,6 @@ class WebServer extends NodeMqttClient {
     this.trigger("set-process-plugins", this.processPlugins);
   }
   addWebPlugin(pluginDir, packageData) {
-    console.log('adding webplugin...');
     const file = path.resolve(pluginDir, packageData.script);
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
@@ -128,7 +127,6 @@ class WebServer extends NodeMqttClient {
 
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
-    console.log({pluginData});
     if (!(pluginDir in pluginData.webPlugins)) {
       pluginData.webPlugins[pluginDir] = {
         name: pluginName,

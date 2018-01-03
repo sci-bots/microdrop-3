@@ -32954,10 +32954,8 @@ class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
     super(element, focusTracker, "UIPluginManager");
     this.pluginCards = new Backbone.Model();
-    console.log("Finished constructing...");
   }
   listen() {
-    console.log("starting ui plugin manager...");
     this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
     this.bindTriggerMsg("web-server", "remove-plugin", "remove-plugin");
     this.bindTriggerMsg("web-server", "update-ui-plugin-state", "update-state");
@@ -32983,7 +32981,7 @@ class UIPluginManager extends UIPlugin {
   }
   onWebPluginsChanged(payload) {
     const webPlugins = payload;
-    console.log(webPlugins);
+
     this.pluginCards.clear();
     for (const [filepath, plugin] of Object.entries(webPlugins)){
       this.pluginCards.set(filepath, plugin);
