@@ -54,8 +54,6 @@ class RoutesModel extends PluginModel {
           const onComplete = () => {
             resolve("complete");
           }
-          console.log("Sequence::");
-          console.log(seq);
           ExecutionLoop(seq, interval, 0, maxTime, onComplete);
         });
       };
