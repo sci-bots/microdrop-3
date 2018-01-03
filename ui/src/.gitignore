@@ -58,4 +58,4 @@ typings/
 .env
 
 # other
-plugin-manager.js
+# plugin-manager.js
