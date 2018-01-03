@@ -37,7 +37,24 @@ class RoutesModel extends PluginModel {
       const microdrop = new MicrodropAsync();
       let seq = [];
 
+      // Extend path based on number of repeats
       for (const [i, route] of routes.entries()) {
+        const repeats = route.repeatDurationSeconds;
+        const trans = route.transitionDurationMilliseconds;
+        const len = route.path.length;
+
+        // Calculate number of repeats based on total route exec time
+        let numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
+
+        // Override with manual step number if larger then calculated value
+        if (route.routeRepeats > numRepeats)
+          numRepeats = route.routeRepeats;
+
+        // Extend the path
+        const org = _.clone(route.path);
+        for (let j = 0; j < numRepeats-1; j++) {
+          route.path = route.path.concat(org);
+        }
         const times = await ActiveElectrodeIntervals(route);
         seq = seq.concat(times);
       }
