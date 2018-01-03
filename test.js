@@ -77,6 +77,7 @@ describe('Microdrop', async function() {
       await microdrop.electrodes.putActiveElectrodes([]);
       var route = (await microdrop.routes.routes())[0];
       route.transitionDurationMilliseconds = 100;
+      console.log({route});
       await microdrop.routes.execute([route], -1);
       var activeElectrodes = await microdrop.electrodes.activeElectrodes();
       assert.deepEqual(activeElectrodes,[_.last(COMPUTED_ROUTE)]);

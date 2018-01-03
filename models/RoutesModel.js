@@ -43,8 +43,18 @@ class RoutesModel extends PluginModel {
         const trans = route.transitionDurationMilliseconds;
         const len = route.path.length;
 
+        let numRepeats;
+
+        // Check if route contains a loop before continuing
+        const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
+        if (ids[0] != _.last(ids)) {
+          const times = await ActiveElectrodeIntervals(route);
+          seq = seq.concat(times);
+          continue;
+        }
+
         // Calculate number of repeats based on total route exec time
-        let numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
+        numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
 
         // Override with manual step number if larger then calculated value
         if (route.routeRepeats > numRepeats)
