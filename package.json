@@ -3,7 +3,7 @@
   "bin": {
     "microdrop-3": "bin/microdrop-3"
   },
-  "version": "3.2.17",
+  "version": "3.2.18",
   "description": "Microdrop with MQTT support and Web UI",
   "main": "index.js",
   "scripts": {
