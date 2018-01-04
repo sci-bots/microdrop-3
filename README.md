@@ -10,9 +10,9 @@ Microdrop with MQTT communication and web front end
 
 ```sh
 # Install latest:
-npm install https://github.com/sci-bots/microdrop-3
+npm install https://github.com/sci-bots/microdrop-3 --no-optional
 # Install latest release:
-npm install microdrop
+npm install microdrop --no-optional
 microdrop-3
 ```
 
@@ -23,7 +23,7 @@ git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
 npm i --global gulp
 npm i --global --production windows-build-tools # windows only
-npm install
+npm run install:microdrop
 gulp build
 gulp start:microdrop
 ```
