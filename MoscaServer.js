@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Backbone = require('backbone');
 const crossroads = require('crossroads');
 const mosca = require('mosca');
+const leveljs = require('level-js');
 
 class MoscaServer {
   constructor(clientPort=8083, brokerPort=1883) {
@@ -20,12 +21,11 @@ class MoscaServer {
     settings.port  = 1883;
     settings.http  = http;
 
-    // XXX: Assuming setting time to zero with call indefinite timeout
-    //      (this should be verified through Mosca's documentation)
     const db_settings         = new Object();
     db_settings.path          = path.join(__dirname, "db");
     db_settings.subscriptions = 0;
     db_settings.packets       = 0;
+    db_settings.db            = leveljs;
 
     this.db = new mosca.persistence.LevelUp(db_settings);
     this.settings = settings;

@@ -1,10 +1,12 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const url = require('url');
 const {fork, spawn} = require('child_process');
 
 const _ = require('lodash');
 const ArgumentParser = require('argparse').ArgumentParser;
+const electron = require('electron');
 const express = require('express');
 const handlebars = require('handlebars');
 const NodeMqttClient = require('@mqttclient/node');
@@ -459,8 +461,8 @@ const launchMicrodrop = function() {
       action: "append"
     }
   );
-
-  const moscaServer = new MoscaServer();
+  let moscaServer;
+  // const moscaServer = new MoscaServer();
   const webServer = new WebServer(parser.parseArgs());
 
   const ifaces = os.networkInterfaces();
@@ -471,6 +473,39 @@ const launchMicrodrop = function() {
   console.log("launching microdrop", {HTTP_PORT, MQTT_PORT});
   console.log(`Launch Jupyterlab (complete)
   or visit ${base}:${HTTP_PORT} (no filebrowser, terminal, or notebooks)`);
+
+  // Create electron window
+  const app = electron.app;
+  const BrowserWindow = electron.BrowserWindow;
+  let mainWindow;
+
+  const createWindow = () => {
+    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+    mainWindow.webContents.openDevTools()
+    mainWindow.on('closed', function () {
+      mainWindow = null;
+    });
+  }
+
+  app.on('ready', () => createWindow() );
+
+  app.on('window-all-closed', function () {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  });
+
+  app.on('activate', function () {
+    if (mainWindow === null) {
+      createWindow();
+    }
+  });
+
   return {moscaServer, webServer};
 }
 
