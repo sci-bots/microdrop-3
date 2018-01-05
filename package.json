@@ -7,7 +7,7 @@
   "description": "Microdrop with MQTT support and Web UI",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/electron-mocha --require-main ./bin/microdrop-3 --renderer",
+    "test": "./node_modules/.bin/electron-mocha",
     "help": "./node_modules/.bin/gulp --tasks",
     "start": "./node_modules/.bin/gulp start:microdrop",
     "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab",
