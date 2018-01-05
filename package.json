@@ -31,7 +31,7 @@
     "@microdrop/async": "^0.2.32",
     "@microdrop/buildutils": "0.0.17",
     "@microdrop/device-controller": "^0.4.19",
-    "@microdrop/feedstock": "0.0.2",
+    "@microdrop/feedstock": "0.0.4",
     "@mqttclient/node": "0.0.16",
     "ajv": "^6.0.0-beta.2",
     "argparse": "^1.0.9",
