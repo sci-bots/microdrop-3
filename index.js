@@ -480,7 +480,7 @@ const launchMicrodrop = function() {
   let mainWindow;
 
   const createWindow = () => {
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({width: 800, height: 600, show: false});
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file:',
@@ -506,7 +506,7 @@ const launchMicrodrop = function() {
     }
   });
 
-  return {moscaServer, webServer};
+  return {moscaServer, webServer, app, createWindow};
 }
 
 module.exports = {
