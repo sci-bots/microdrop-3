@@ -9,7 +9,7 @@ const ArgumentParser = require('argparse').ArgumentParser;
 const electron = require('electron');
 const express = require('express');
 const handlebars = require('handlebars');
-const NodeMqttClient = require('@mqttclient/node');
+const NodeMqttClient = require('./packages/mqttclient-node');
 
 const MoscaServer  = require('./MoscaServer');
 

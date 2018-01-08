@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const crossroads = require('crossroads');
 const Backbone = require('backbone');
-const NodeMqttClient = require('@mqttclient/node');
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const NodeMqttClient = require('../packages/mqttclient-node');
+const MicrodropAsync = require('../packages/microdrop-async/MicrodropAsync');
 
 class PluginModel extends NodeMqttClient {
   constructor() {

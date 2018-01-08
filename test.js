@@ -3,7 +3,7 @@ var {spawn} = require('child_process');
 var {promisify} = require('util');
 var path = require('path');
 var _ = require('lodash');
-var MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+var MicrodropAsync = require('./packages/microdrop-async/MicrodropAsync');
 var {launchMicrodrop} = require('./index');
 
 const DEFAULT_DEVICE_JSON = './resources/default.json';

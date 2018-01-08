@@ -19,9 +19,5 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "webpack": "^3.8.1"
-  },
-  "microdropDependencies": {
-    "@mqttclient/node": "mqttclient-node",
-    "@mqttclient/web": "mqttclient-web"
   }
 }

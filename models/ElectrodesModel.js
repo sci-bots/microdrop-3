@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const MicrodropAsync = require("@microdrop/async");
+const MicrodropAsync = require("../packages/microdrop-async");
 const PluginModel = require('./PluginModel');
 
 

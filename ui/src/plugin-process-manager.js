@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
+const UIPlugin = require('../packages/ui-plugin/src/ui-plugin.js');
 
 class PluginProcessManager extends UIPlugin {
   constructor(elem, focusTracker) {

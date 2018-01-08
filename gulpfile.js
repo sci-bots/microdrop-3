@@ -1,2 +1,2 @@
 const gulp = require('gulp');
-require('@microdrop/buildutils/main')(gulp);
+require('./packages/buildutils/main')(gulp);

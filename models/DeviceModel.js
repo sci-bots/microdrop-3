@@ -3,10 +3,10 @@ const _ = require('lodash');
 const uuid = require('uuid/v4');
 const Ajv = require('ajv');
 
-const MicrodropAsync = require('@microdrop/async');
-const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
+const MicrodropAsync = require('../packages/microdrop-async');
+const SVGRenderer = require('../packages/device-controller/src/svg-renderer');
 const {FindNeighbourInDirection, FindAllNeighbours} =
-  require('@microdrop/device-controller/src/electrode-controls');
+  require('../packages/device-controller/src/electrode-controls');
 
 const PluginModel = require('./PluginModel');
 

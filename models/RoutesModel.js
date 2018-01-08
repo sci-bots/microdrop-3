@@ -2,7 +2,7 @@ const _ = require('lodash');
 const uuid4 = require('uuid/v4');
 const Ajv = require('ajv');
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const MicrodropAsync = require('../packages/microdrop-async/MicrodropAsync');
 const PluginModel = require('./PluginModel');
 
 const ajv = new Ajv({ useDefaults: true });
