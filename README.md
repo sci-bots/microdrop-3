@@ -22,6 +22,7 @@ microdrop-3
 git clone https://github.com/sci-bots/microdrop-3
 cd microdrop-3
 npm i --global gulp lerna
+npm install --no-optional
 lerna bootstrap
 # [optional] lerna --exec gulp build
 npm run start
