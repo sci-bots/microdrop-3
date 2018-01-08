@@ -48,9 +48,10 @@ install:
   # Run Tests
   - cmd: activate
   - cmd: node --version
-  - cmd: npm install --global gulp
-  - cmd: npm install --global --production windows-build-tools
-  - cmd: npm install
+  - cmd: npm install --global gulp lerna
+  - cmd: npm install --no-optional
+  - cmd: lerna bootstrap
+  - cmd: lerna exec -- gulp build
   - cmd: npm run test
   - cmd: set
   # Build
