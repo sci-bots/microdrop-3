@@ -1,0 +1,16 @@
+{
+  "lerna": "2.5.1",
+  "packages": [
+    "packages/buildutils",
+    "packages/device-controller",
+    "packages/device-ui-plugin",
+    "packages/microdrop-async",
+    "packages/mqtt-messages-js",
+    "packages/mqttclient-node",
+    "packages/mqttclient-web",
+    "packages/overlay-ui-plugin",
+    "packages/state-saver",
+    "packages/ui-plugin"
+  ],
+  "version": "0.0.0"
+}
