@@ -44,19 +44,29 @@ module.exports.buildDev = async (loc="..") => {
 
 module.exports.build = async () => {
   // Build javascript file
-  const webpackPath = path.resolve('.','node_modules/.bin/webpack');
-  if (fs.existsSync(webpackPath)){
-    await callCommand(webpackPath);
-  } else {
-    await callCommand("webpack");
+  if (fs.existsSync('webpack.config.js')) {
+    console.log("Running Webpack");
+    const webpackPath = path.resolve('.','node_modules/.bin/webpack');
+    if (fs.existsSync(webpackPath)){
+      await callCommand(webpackPath);
+    } else {
+      await callCommand("webpack");
+    }
   }
 
   // Create html view
   if (fs.existsSync('microdrop.json')) {
+    console.log("Building HTML view");
     const data = readMicrodropJSON();
     if (data.type == "ui") {
       await callCommand(`gulp create:view`);
     }
+  }
+
+  // Build ui
+  if (fs.existsSync('lerna.json')) {
+    console.log("Building UI");
+    await buildUI();
   }
 }
 

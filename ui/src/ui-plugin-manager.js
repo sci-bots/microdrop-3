@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const UIPlugin = require('../packages/ui-plugin/src/ui-plugin.js');
+const UIPlugin = require('../../packages/ui-plugin/src/ui-plugin.js');
 
 class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
