@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/state-saver",
-  "version": "0.0.15",
+  "version": "1.0.0",
   "description": "Save and restore the state of microdrop",
   "main": "src/state-saver.js",
   "scripts": {
@@ -22,9 +22,9 @@
     "webpack": "^3.8.1"
   },
   "dependencies": {
-    "@microdrop/async": "^0.2.32",
-    "@microdrop/buildutils": "^0.0.17",
-    "@microdrop/ui-plugin": "^0.1.9",
+    "@microdrop/async": "^1.0.0",
+    "@microdrop/buildutils": "^1.0.0",
+    "@microdrop/ui-plugin": "^1.0.0",
     "jsoneditor": "github:Lucaszw/jsoneditor#master",
     "lodash": "^4.17.4",
     "sillyname": "^0.1.0",
