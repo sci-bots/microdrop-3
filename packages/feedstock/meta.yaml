@@ -1,0 +1,16 @@
+package:
+    name: microdrop
+    version: VERSION
+source:
+    git_url: .
+requirements:
+    build:
+        - 'nodejs >=8'
+    run:
+        - 'nodejs >=8'
+build:
+    script: 'npm install & .\node_modules\.bin\gulp conda:build'
+about:
+    home: 'https://github.com/sci-bots/microdrop-3'
+    license: BSD
+    license_file: LICENSE

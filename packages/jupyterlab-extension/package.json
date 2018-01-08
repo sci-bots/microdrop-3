@@ -1,0 +1,49 @@
+{
+  "name": "@microdrop/jupyterlab_extension",
+  "version": "0.0.10",
+  "description": "Microdrop JupyterLab Extension.",
+  "author": "lucaszw",
+  "main": "lib/plugin.js",
+  "keywords": [
+    "dropbot",
+    "microdrop",
+    "jupyter",
+    "jupyterlab"
+  ],
+  "jupyterlab": {
+    "extension": true
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^0.13.1",
+    "@jupyterlab/apputils": "^0.13.1",
+    "@jupyterlab/coreutils": "^0.13.0",
+    "@microdrop/state-saver": "0.0.15",
+    "@jupyterlab/docregistry": "^0.14.1",
+    "@jupyterlab/launcher": "^0.13.2",
+    "@microdrop/async": "^0.2.31",
+    "@microdrop/buildutils": "0.0.15",
+    "@mqttclient/web": "^0.1.7",
+    "@phosphor/widgets": "^1.5.0",
+    "bootstrap": "^4.0.0-alpha.6",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
+    "mustache": "^2.3.0"
+  },
+  "jupyterlabDependencies": [
+    "@jupyterlab/application",
+    "@jupyterlab/apputils",
+    "@jupyterlab/coreutils",
+    "@jupyterlab/docregistry",
+    "@jupyterlab/launcher",
+    "@phosphor/widgets"
+  ],
+  "microdropDependencies": {
+    "@mqttclient/web": "mqttclient-web",
+    "@microdrop/state-saver": "state-saver",
+    "@microdrop/async": "microdrop-async"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}

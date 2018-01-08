@@ -1,0 +1,37 @@
+{
+  "name": "@microdrop/state-saver",
+  "version": "0.0.15",
+  "description": "Save and restore the state of microdrop",
+  "main": "src/state-saver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Microdrop",
+    "Save",
+    "State",
+    "Plugin"
+  ],
+  "author": "",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "gulp": "^3.9.1",
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.8.1"
+  },
+  "dependencies": {
+    "@microdrop/async": "^0.2.32",
+    "@microdrop/buildutils": "^0.0.17",
+    "@microdrop/ui-plugin": "^0.1.9",
+    "jsoneditor": "github:Lucaszw/jsoneditor#master",
+    "lodash": "^4.17.4",
+    "sillyname": "^0.1.0",
+    "yo-yo": "^1.4.1"
+  },
+  "microdropDependencies": {
+    "@microdrop/async": "microdrop-async",
+    "@microdrop/ui-plugin": "ui-plugin"
+  }
+}

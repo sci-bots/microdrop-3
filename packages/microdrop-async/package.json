@@ -1,0 +1,27 @@
+{
+  "name": "@microdrop/async",
+  "version": "0.2.33",
+  "description": "Promise based library for controlling microdrop",
+  "main": "MicrodropAsync.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sci-Bots",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@microdrop/buildutils": "^0.0.17",
+    "@mqttclient/node": "0.0.16",
+    "@mqttclient/web": "^0.1.7",
+    "ajv": "^5.3.0",
+    "lodash": "^4.17.4",
+    "mqtt": "^2.13.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "webpack": "^3.8.1"
+  },
+  "microdropDependencies": {
+    "@mqttclient/node": "mqttclient-node",
+    "@mqttclient/web": "mqttclient-web"
+  }
+}

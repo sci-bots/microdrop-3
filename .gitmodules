@@ -1,51 +1,12 @@
-[submodule "packages/mqttclient-web"]
-	path = packages/mqttclient-web
-	url = https://github.com/Lucaszw/mqttclient-web
-[submodule "packages/mqtt-messages-js"]
-	path = packages/mqtt-messages-js
-	url = https://github.com/Lucaszw/mqtt-messages-js
-[submodule "packages/microdrop-async"]
-	path = packages/microdrop-async
-	url = https://github.com/Lucaszw/microdrop-async.git
 [submodule "packages/route-inspector"]
 	path = packages/route-inspector
 	url = https://github.com/Lucaszw/route-inspector.git
-[submodule "packages/device-ui-plugin"]
-	path = packages/device-ui-plugin
-	url = https://github.com/Lucaszw/device-ui-plugin.git
-[submodule "packages/device-controller"]
-	path = packages/device-controller
-	url = https://github.com/Lucaszw/device-controller.git
 [submodule "packages/protocol-ui-plugin"]
 	path = packages/protocol-ui-plugin
 	url = https://github.com/Lucaszw/protocol-ui-plugin.git
-[submodule "packages/ui-plugin"]
-	path = packages/ui-plugin
-	url = https://github.com/Lucaszw/ui-plugin.git
-[submodule "packages/state-saver"]
-	path = packages/state-saver
-	url = https://github.com/Lucaszw/state-saver.git
 [submodule "packages/jsoneditor"]
 	path = packages/jsoneditor
 	url = https://github.com/Lucaszw/jsoneditor.git
-[submodule "packages/mqttclient-node"]
-	path = packages/mqttclient-node
-	url = https://github.com/Lucaszw/mqttclient-node.git
-[submodule "packages/overlay-ui-plugin"]
-	path = packages/overlay-ui-plugin
-	url = https://github.com/Lucaszw/overlay-ui-plugin.git
-[submodule "packages/jupyterlab-extension"]
-	path = packages/jupyterlab-extension
-	url = https://github.com/Lucaszw/microdrop-jupyterlab-extension.git
-[submodule "packages/feedstock"]
-	path = packages/feedstock
-	url = https://github.com/Lucaszw/microdrop-feedstock.git
-[submodule "packages/mqttclient-python"]
-	path = packages/mqttclient-python
-	url = https://github.com/Lucaszw/mqttclient-python
 [submodule "packages/async-python"]
 	path = packages/microdrop-python
 	url = https://github.com/Lucaszw/microdrop-async-python
-[submodule "packages/pi-launcher"]
-	path = packages/pi-launcher
-	url = https://github.com/Lucaszw/microdrop-pi-launcher

@@ -1,0 +1,6 @@
+{
+  "name": "state-saver",
+  "version": "0.0.1",
+  "type": "ui",
+  "script": "build/state-saver.js"
+}

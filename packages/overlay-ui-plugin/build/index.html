@@ -1,0 +1,24 @@
+
+      <html>
+        <head>
+          <script src="/overlay-ui-plugin/build/overlay-ui-plugin.js"></script>
+        </head>
+        <body></body>
+        <script>
+          function getClass() {
+            for (const [name, cls] of Object.entries(window)){
+              try {
+                if (Object.getPrototypeOf(cls).name == "UIPlugin") {
+                  return {name, cls};
+                }
+              } catch (e) {
+                continue;
+              }
+            }
+          }
+          const {name, cls} = getClass();
+          document.title = name;
+          new cls(document.body);
+        </script>
+      </html>
+      

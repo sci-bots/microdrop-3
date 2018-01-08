@@ -1,0 +1,17 @@
+name: NAME
+version: VERSION
+channels:
+    - 'http://repo.continuum.io/pkgs/free/'
+    - 'https://conda.anaconda.org/sci-bots'
+    - 'https://conda.anaconda.org/lucaszw'
+    - 'https://conda.anaconda.org/sci-bots-build'
+    - 'https://conda.anaconda.org/dfroger'
+    - 'https://conda.anaconda.org/conda-forge'
+specs:
+    - 'python >=3.6'
+    - conda
+    - 'nodejs 8*'
+    - microdrop-3
+    - leveldb
+post_install: post.sh
+ignore_duplicate_files: true

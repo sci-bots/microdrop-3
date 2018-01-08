@@ -1,0 +1,41 @@
+{
+  "name": "@microdrop/device-ui-plugin",
+  "version": "0.1.22",
+  "description": "UI Plugin to view device, routes, and electrodes",
+  "main": "device-ui-plugin.web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "microdrop",
+    "device-ui-plugin",
+    "ui-plugin"
+  ],
+  "author": "Sci-Bots",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@microdrop/async": "^0.2.33",
+    "@microdrop/buildutils": "^0.0.17",
+    "@microdrop/device-controller": "^0.4.19",
+    "@microdrop/ui-plugin": "^0.1.9",
+    "async-mqtt": "^1.0.1",
+    "dat.gui": "^0.6.1",
+    "jquery": "^3.2.1",
+    "jquery-contextmenu": "^2.6.3",
+    "keyboard-shortcut": "^1.2.0",
+    "uuid": "^3.1.0",
+    "yo-yo": "^1.4.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "gulp": "^3.9.1",
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.8.1"
+  },
+  "microdropDependencies": {
+    "@microdrop/async": "microdrop-async",
+    "@microdrop/device-controller": "device-controller",
+    "@microdrop/ui-plugin": "ui-plugin"
+  }
+}

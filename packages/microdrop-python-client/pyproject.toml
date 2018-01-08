@@ -1,0 +1,13 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "microdrop_client"
+author = "Sci-Bots"
+author-email = "lucas@sci-bots.com"
+home-page = "https://github.com/Lucaszw/microdrop-python-client"
+license = "BSD-2-Clause"
+requires = ["mqttclient", "pydash"]
+requires-python = ">=3.6"
+description-file = "README.md"

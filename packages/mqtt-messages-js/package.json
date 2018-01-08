@@ -1,0 +1,16 @@
+{
+  "name": "@mqttclient/mqtt-messages",
+  "version": "0.0.9",
+  "description": "Mixins for NodeMqttMessages and WebMqttMessages",
+  "main": "mqtt-messages.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Mqtt",
+    "Message",
+    "Mixins"
+  ],
+  "author": "lucaszw",
+  "license": "ISC"
+}

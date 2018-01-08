@@ -1,0 +1,23 @@
+{
+  "name": "@mqttclient/node",
+  "version": "0.0.16",
+  "description": "Node Mqtt Client",
+  "main": "NodeMqttClient.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack",
+    "build-dev": "npm run build",
+    "git-add": "git add package-lock.json && git add -p . && git commit",
+    "publish-pkg": "npm run build && npm version patch && npm publish && git push origin master"
+  },
+  "author": "lucaszw",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@mqttclient/mqtt-messages": "0.0.9",
+    "backbone": "^1.3.3",
+    "crossroads": "^0.12.2",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
+    "mqtt": "^2.13.1"
+  }
+}

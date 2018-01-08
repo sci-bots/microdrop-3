@@ -1,0 +1,13 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "mqttclient"
+author = "Sci-Bots"
+author-email = "lucas@sci-bots.com"
+home-page = "https://github.com/Lucaszw/mqttclient-python"
+license = "BSD-2-Clause"
+requires = ["paho-mqtt", "wheezy.routing", "onoff"]
+requires-python = ">=3.6"
+description-file = "README.md"
