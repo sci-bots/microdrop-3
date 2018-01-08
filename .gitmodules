@@ -4,9 +4,3 @@
 [submodule "packages/protocol-ui-plugin"]
 	path = packages/protocol-ui-plugin
 	url = https://github.com/Lucaszw/protocol-ui-plugin.git
-[submodule "packages/jsoneditor"]
-	path = packages/jsoneditor
-	url = https://github.com/Lucaszw/jsoneditor.git
-[submodule "packages/async-python"]
-	path = packages/microdrop-python
-	url = https://github.com/Lucaszw/microdrop-async-python
