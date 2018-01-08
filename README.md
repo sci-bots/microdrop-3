@@ -19,13 +19,13 @@ microdrop-3
 ## Installing From Source (Latest)
 
 ```sh
-git clone --recursive https://github.com/sci-bots/microdrop-3
+git clone https://github.com/sci-bots/microdrop-3
 cd microdrop-3
-npm i --global gulp
-npm i --global --production windows-build-tools # windows only
-npm run install:microdrop
-gulp build
-gulp start:microdrop
+npm i --global gulp lerna
+npm install --no-optional
+lerna bootstrap
+# [optional] lerna --exec gulp build
+npm run start
 ```
 
 ## Linking with Jupyterlab
