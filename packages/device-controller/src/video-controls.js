@@ -15,6 +15,8 @@ const microdrop = new MicrodropAsync();
 
 window.THREEx = THREEx;
 
+const ANCHOR_KEY = 'microdrop:device-controller:anchors';
+
 function GetBoundingBox(object) {
   const bbox = new THREE.Box3().setFromObject(object);
   const width  = bbox.max.x - bbox.min.x;
@@ -61,6 +63,14 @@ class VideoControls {
     // this.anchors = null;
     this.canvas = renderer.domElement;
     this.camera = camera;
+
+    if (localStorage.getItem(ANCHOR_KEY)) {
+      var {diagonalRatioArray, positionArray} = JSON.parse(localStorage.getItem(ANCHOR_KEY));
+      if (diagonalRatioArray) {
+        console.log({diagonalRatioArray, positionArray});
+        this.plane.applyPrevGeometry(diagonalRatioArray, positionArray);
+      }
+    }
   }
 
   planeReady(_interval=200, _timeout=5000) {
@@ -86,7 +96,7 @@ class VideoControls {
       if (this.display_anchors) return;
       const domEvents = new THREEx.DomEvents(this.camera, this.canvas);
 
-      var anchors;
+      var anchors, transform;
 
       if (!this.anchors) {
           const bbox = GetBoundingBox(this.svgGroup);
@@ -96,6 +106,9 @@ class VideoControls {
           anchors = this.anchors;
       }
       this.scene.add(anchors.group);
+
+      this.plane.updatePos = true;
+      this.plane.set_anchors(anchors.positions);
 
       // Position anchor meshes above video and electrodes.
       anchors.group.position.z = 1;
@@ -112,9 +125,18 @@ class VideoControls {
             const buttons = e.origDomEvent.buttons;
             const intersect = e.intersect;
             if (buttons == 1) {
+                // Move anchors and apply transform
                 mesh.position.x = intersect.point.x;
                 mesh.position.y = intersect.point.y;
-                this.plane.set_anchors(anchors.positions);
+                var {transform, diagonalRatioArray, positionArray} =
+                  this.plane.set_anchors(anchors.positions);
+
+                // Store the current anchor setup
+                const anchorData = {};
+                anchorData.positions = anchors.positions;
+                anchorData.diagonalRatioArray = diagonalRatioArray;
+                anchorData.positionArray = positionArray;
+                localStorage.setItem(ANCHOR_KEY, JSON.stringify(anchorData));
             }
           }, false);
       }
@@ -139,9 +161,6 @@ class VideoControls {
       // Set name attribute of anchor meshes.
       _.forEach(anchors.shapes, (mesh, name) => { mesh.name = name; })
 
-      console.log("adjusted anchors::");
-      console.log(this.anchors);
-
       this.anchors = anchors;
       return anchors;
   }
@@ -153,7 +172,6 @@ class VideoControls {
 
   get display_anchors() { return this._display_anchors || false; }
   set display_anchors(value) {
-    console.log("dispalying anchors", value);
     if (value) { this.adjustVideoAnchors(); }
     else { this.destroyVideoAnchors(); }
     this._display_anchors = value;
@@ -171,9 +189,15 @@ class Anchors {
 
         const material = new THREE.MeshBasicMaterial({color, transparent});
 
-        var corners = this.default_positions;
-        this.centers = _fp.pipe(_fp.map(_fp.zipObject(["x", "y"])),
-                                        _fp.values)(corners);
+        // Check if anchors are saved in localStorage
+        let corners;
+        const prevAnchors = JSON.parse(localStorage.getItem(ANCHOR_KEY));
+        if (prevAnchors) {
+          this.centers = prevAnchors.positions;
+        } else {
+          this.centers = _fp.pipe(_fp.map(_fp.zipObject(["x", "y"])),
+                                          _fp.values)(this.default_positions);
+        }
 
         this.shapes = [];
         for (const [i, pos] of this.centers.entries()) {
