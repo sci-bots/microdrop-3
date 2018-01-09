@@ -1,5 +1,5 @@
 {
-  "name": "overlay-ui-plugin",
+  "name": "@microdrop/overlay-ui-plugin",
   "version": "1.0.2",
   "description": "UI Plugin for mangaing device overlays",
   "main": "build/overlay-ui-plugin.js",
