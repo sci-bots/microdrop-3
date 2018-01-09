@@ -1,6 +1,6 @@
 {
   "name": "@mqttclient/mqtt-messages",
-  "version": "1.0.1",
+  "version": "1.0.9",
   "description": "Mixins for NodeMqttMessages and WebMqttMessages",
   "main": "mqtt-messages.js",
   "scripts": {
@@ -12,5 +12,8 @@
     "Mixins"
   ],
   "author": "lucaszw",
-  "license": "ISC"
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/overlay-ui-plugin",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "UI Plugin for mangaing device overlays",
   "main": "build/overlay-ui-plugin.js",
   "scripts": {
@@ -30,12 +30,15 @@
     "webpack": "^3.8.1"
   },
   "dependencies": {
-    "@microdrop/async": "^1.0.2",
-    "@microdrop/buildutils": "^1.0.2",
-    "@microdrop/ui-plugin": "^1.0.2",
+    "@microdrop/async": "^1.0.9",
+    "@microdrop/buildutils": "^1.0.9",
+    "@microdrop/ui-plugin": "^1.0.9",
     "jsoneditor": "^5.10.1",
     "sillyname": "^0.1.0",
     "yo-yo": "^1.4.1"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "microdropDependencies": {
     "@microdrop/async": "microdrop-async",
