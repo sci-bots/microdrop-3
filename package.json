@@ -12,7 +12,7 @@
     "start": "./node_modules/.bin/gulp start:microdrop",
     "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab",
     "install:microdrop": "npm install . --no-optional",
-    "postinstall": "./node_modules/.bin/lerna bootstrap"
+    "preinstall": "./node_modules/.bin/lerna bootstrap"
   },
   "repository": {
     "type": "git",
