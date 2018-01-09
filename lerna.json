@@ -8,7 +8,6 @@
     "packages/mqtt-messages-js",
     "packages/mqttclient-node",
     "packages/mqttclient-web",
-    "packages/overlay-ui-plugin",
     "packages/state-saver",
     "packages/ui-plugin"
   ],
