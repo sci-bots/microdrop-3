@@ -9,10 +9,7 @@ Microdrop with MQTT communication and web front end
 ## Installing From NPM (Latest, or Release)
 
 ```sh
-# Install latest:
-npm install https://github.com/sci-bots/microdrop-3 --no-optional
-# Install latest release:
-npm install microdrop --no-optional
+npm install --global --no-optional @microdrop/application
 microdrop-3
 ```
 
@@ -23,8 +20,8 @@ git clone https://github.com/sci-bots/microdrop-3
 cd microdrop-3
 npm i --global gulp lerna
 npm install --no-optional
-lerna bootstrap
-# [optional] lerna exec -- gulp build
+npm run bootstrap
+# [optional] npm run build
 npm run start
 ```
 
