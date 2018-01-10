@@ -1,5 +1,5 @@
 package:
-    name: microdrop
+    name: microdrop-app
     version: VERSION
 source:
     git_url: .

@@ -13,7 +13,7 @@ const m1 = (...m) => log(chalk.bold(chalk.blue(...m)));
 const m2 = (...m) => log(chalk.green(...m));
 const title = (...m) => log('---------------\n', ...m, '\n--------------- ');
 
-const PACKAGE_NAME = 'microdrop';
+const PACKAGE_NAME = '@microdrop/application';
 
 gulp.task('build', async (d) => {
   /* Runs 'conda build .' after modifying meta.yaml */
@@ -25,7 +25,6 @@ gulp.task('build', async (d) => {
   var {output} = await spawnAsync(`npm view ${PACKAGE_NAME} --json`, null, true);
   const microdrop = JSON.parse(output[0]);
   meta.package.version = microdrop.version;
-  meta.package.name = microdrop.name;
   if (os.platform() == 'win32') {
     meta.build.script = 'npm install & .\\node_modules\\.bin\\gulp conda:build'
   } else {
@@ -59,7 +58,6 @@ gulp.task('construct', async () => {
   var {output} = await spawnAsync(`npm view ${PACKAGE_NAME} --json`, null, true);
   const microdrop = JSON.parse(output[0]);
   construct.version = microdrop.version;
-  construct.name = microdrop.name;
   if (os.platform() == 'win32')
     construct.post_install = 'post.bat'
   else
@@ -79,7 +77,7 @@ gulp.task('construct', async () => {
   fs.writeFileSync('post.bat',
   ` echo running post.bat
     call Scripts\\activate.bat & conda install jupyterlab
-    cp bin\\microdrop-3 microdrop-3
+    cp bin\\microdrop-3 Scripts\\microdrop-3
   `);
   m2(`${fs.readdirSync(path.resolve('.'))}`.split(',').join('\n'));
 
@@ -92,7 +90,6 @@ gulp.task('construct', async () => {
 
   m1('reverting meta.yaml file');
   construct.version = 'VERSION';
-  construct.name = 'NAME';
   construct.post_install = 'post.sh'
   fs.writeFileSync(file, yaml.stringify(construct, 4));
   m2(yaml.stringify(construct, 4));

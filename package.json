@@ -1,12 +1,10 @@
 {
-  "name": "microdrop",
-  "version": "3.2.29",
   "description": "Microdrop with MQTT support and Web UI",
-  "main": "index.js",
   "scripts": {
     "start": "npm run --prefix ./packages/application start",
     "bootstrap": "./node_modules/.bin/lerna bootstrap -- --no-optional",
-    "build": "./node_modules/.bin/lerna exec -- npm run build"
+    "build": "./node_modules/.bin/lerna exec -- npm run build",
+    "test": "npm run --prefix ./packages/application test"
   },
   "repository": {
     "type": "git",
@@ -18,12 +16,6 @@
   ],
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
-  "build": {
-    "appId": "com.sci-bots.microdrop",
-    "portable": {
-      "requestExecutionLevel": "user"
-    }
-  },
   "bugs": {
     "url": "https://github.com/Lucaszw/microdrop-3/issues"
   },
