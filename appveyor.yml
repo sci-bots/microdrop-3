@@ -49,15 +49,14 @@ install:
   - cmd: activate
   - cmd: node --version
   - cmd: npm install --global gulp lerna
-  - cmd: npm install --no-optional
   - cmd: lerna bootstrap
   - cmd: lerna exec -- gulp build
   - cmd: npm run test
-  - cmd: set
+
   # Build
   - cmd: npm run --prefix packages/feedstock install-pkgs
-  - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock build
-  - cmd: ./node_modules/.bin/gulp --cwd packages/feedstock construct
+  - cmd: gulp --cwd packages/feedstock build
+  - cmd: gulp --cwd packages/feedstock construct
 
 build: false
 test_script:
