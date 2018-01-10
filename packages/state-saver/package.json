@@ -27,6 +27,7 @@
     "@microdrop/buildutils": "^1.1.0",
     "@microdrop/ui-plugin": "^1.1.0",
     "jsoneditor": "github:Lucaszw/jsoneditor#master",
+    "keyboard-shortcut": "^1.2.0",
     "lodash": "^4.17.4",
     "sillyname": "^0.1.0",
     "yo-yo": "^1.4.1"

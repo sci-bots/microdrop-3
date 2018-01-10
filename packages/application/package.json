@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/electron-mocha",
-    "start": "./node_modules/.bin/gulp start:microdrop",
+    "start": "./node_modules/.bin/electron .",
+    "clear:appdata": "./node_modules/.bin/electron clear-data.js",
     "build": "npm run build:phosphor && npm run build:ui",
     "build:phosphor": "./node_modules/.bin/webpack --config ui/src/phosphor.config.js --context ui/src",
     "build:ui": "./node_modules/.bin/webpack --config ui/src/plugin-manager.config.js --context ui/src"
@@ -29,6 +30,7 @@
     "crossroads": "^0.12.2",
     "eventemitter2": "^5.0.0",
     "express": "^4.16.2",
+    "fs-extra": "^5.0.0",
     "gulp": "^3.9.1",
     "handlebars": "^4.0.11",
     "ioredis": "^3.2.2",

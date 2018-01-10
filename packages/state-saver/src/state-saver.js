@@ -1,11 +1,14 @@
 require('!style-loader!css-loader!jsoneditor/src/css/index.css');
 const JSONEditor = require('jsoneditor');
+const key = require('keyboard-shortcut');
 const generateName = require('sillyname');
 const yo = require('yo-yo');
 const _ = require('lodash');
 
 const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
 const UIPlugin = require('@microdrop/ui-plugin');
+
+window.MicrodropAsync = MicrodropAsync;
 
 class StateSaverUI extends UIPlugin {
   constructor(elem, focusTracker) {
@@ -23,8 +26,39 @@ class StateSaverUI extends UIPlugin {
 
   async listen() {
     this.bindStateMsg("steps", "set-steps");
+    this.bindStateMsg("step-index", "set-step-index");
     this.onStateMsg("{pluginName}", "{val}", this.render.bind(this));
+
+    // Listen for keyboard presses
+    key('down', this.keypressed.bind(this));
+    key('up', this.keypressed.bind(this));
+
     this.draw();
+  }
+
+  async keypressed(e) {
+    /* Change loaded step when interacting with keyboard */
+    // Don't do anything if the state-saver plugin is not in focus
+    if (!_.isEqual(this.focusTracker.currentWidget.plugin, this)) return;
+    // Don't do anything if state-saver is not on steps view
+    if (this.view != 'steps') return;
+    const microdrop = new MicrodropAsync();
+    const prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index');
+    console.log({prevStepIndex});
+    console.log(this);
+    // Prevent the page from scrolling down
+    e.preventDefault();
+    switch (e.code) {
+      case 'ArrowUp':
+        console.log('up');
+        break;
+      case 'ArrowDown':
+        console.log('down');
+        break;
+      default:
+        return;
+    }
+
   }
 
   onChange() {
@@ -69,6 +103,8 @@ class StateSaverUI extends UIPlugin {
   async loadStep(item, index, steps) {
     try {
       index = index || item.node.index;
+      if (!_.isInteger(index)) return;
+      this.trigger("set-step-index", index);
       var microdrop = new MicrodropAsync();
       steps = steps || await microdrop.getState("state-saver-ui", "steps");
       var step = steps[index];
@@ -128,7 +164,7 @@ class StateSaverUI extends UIPlugin {
 
   render(payload, pluginName, val) {
     if (pluginName == "web-server") return;
-    if (payload) _.set(this.json, [pluginName, val], payload);
+    if (payload != undefined && payload != null) _.set(this.json, [pluginName, val], payload);
 
     if (this.view == "top") this.renderTopView();
     if (this.view == "steps") this.renderStepView();

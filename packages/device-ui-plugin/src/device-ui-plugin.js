@@ -5,8 +5,6 @@ const Dat = require('dat.gui/build/dat.gui');
 const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 
-// const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
-
 const DeviceController = require('@microdrop/device-controller/src/device-controller');
 const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
 const UIPlugin = require('@microdrop/ui-plugin');
