@@ -8,6 +8,8 @@ requirements:
         - 'nodejs >=8'
     run:
         - 'nodejs >=8'
+        - 'microdrop-app'
+        - 'jupyterlab'
 build:
     script: 'npm install & .\node_modules\.bin\gulp conda:build'
 about:
