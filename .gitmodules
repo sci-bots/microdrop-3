@@ -1,6 +1,0 @@
-[submodule "packages/route-inspector"]
-	path = packages/route-inspector
-	url = https://github.com/Lucaszw/route-inspector.git
-[submodule "packages/protocol-ui-plugin"]
-	path = packages/protocol-ui-plugin
-	url = https://github.com/Lucaszw/protocol-ui-plugin.git
