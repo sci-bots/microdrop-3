@@ -1,10 +1,11 @@
 {
   "name": "@microdrop/ui-plugin",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Parent class of microdrop ui plugins",
   "main": "src/ui-plugin.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack"
   },
   "repository": {
     "type": "git",
@@ -22,19 +23,16 @@
   },
   "homepage": "https://github.com/Lucaszw/ui-plugin#readme",
   "devDependencies": {
-    "@microdrop/buildutils": "^1.0.9",
+    "@microdrop/buildutils": "^1.1.0",
     "gulp": "^3.9.1",
-    "webpack": "^3.8.1"
+    "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@microdrop/buildutils": "^1.0.9",
-    "@mqttclient/web": "^1.0.9",
+    "@microdrop/buildutils": "^1.1.0",
+    "@mqttclient/web": "^1.1.0",
     "keyboard-shortcut": "^1.2.0"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "microdropDependencies": {
-    "@mqttclient/web": "mqttclient-web"
   }
 }
