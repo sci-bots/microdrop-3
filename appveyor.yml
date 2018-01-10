@@ -50,7 +50,7 @@ install:
   - cmd: node --version
   - cmd: npm install --global gulp lerna
   - cmd: lerna bootstrap
-  - cmd: lerna exec -- gulp build
+  - cmd: npm run build
   - cmd: npm run test
 
   # Build

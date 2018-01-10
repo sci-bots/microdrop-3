@@ -42,7 +42,7 @@ install:
   - conda info -a
   - npm install --global gulp lerna
   - lerna bootstrap
-  - lerna exec -- gulp build
+  - npm run build
 
 after_success:
   - npm run --prefix packages/feedstock install-pkgs
