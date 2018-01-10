@@ -84,7 +84,7 @@ class Routes {
       if (lo.isString(start))  { msg = {start, path} }
       if (!lo.isString(start)) { msg = start }
 
-      lo.set(msg, "__head_lo.plugin_name", this.ms.name);
+      lo.set(msg, "__head__.plugin_name", this.ms.name);
 
       const validate = ajv.compile(this.RouteSchema);
       if (!validate(msg)) throw(validate.errors);

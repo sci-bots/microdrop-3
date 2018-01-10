@@ -1,18 +1,12 @@
 {
   "name": "microdrop",
-  "bin": {
-    "microdrop-3": "bin/microdrop-3"
-  },
   "version": "3.2.28",
   "description": "Microdrop with MQTT support and Web UI",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/electron-mocha",
-    "help": "./node_modules/.bin/gulp --tasks",
-    "start": "./node_modules/.bin/gulp start:microdrop",
-    "start:jupyterlab": "./node_modules/.bin/gulp start:jupyterlab",
-    "install:microdrop": "npm install . --no-optional",
-    "preinstall": "./node_modules/.bin/lerna bootstrap"
+    "start": "npm run --prefix ./packages/application start",
+    "bootstrap": "./node_modules/.bin/lerna bootstrap -- --no-optional",
+    "build": "./node_modules/.bin/lerna exec -- npm run build"
   },
   "repository": {
     "type": "git",
@@ -33,34 +27,5 @@
   "bugs": {
     "url": "https://github.com/Lucaszw/microdrop-3/issues"
   },
-  "homepage": "https://github.com/Lucaszw/microdrop-3#readme",
-  "dependencies": {
-    "ajv": "^6.0.0-beta.2",
-    "argparse": "^1.0.9",
-    "backbone": "^1.3.3",
-    "crossroads": "^0.12.2",
-    "electron": "^1.7.10",
-    "eventemitter2": "^5.0.0",
-    "express": "^4.16.2",
-    "handlebars": "^4.0.11",
-    "ioredis": "^3.2.2",
-    "level-js": "^2.2.4",
-    "lodash": "^4.17.4",
-    "mongodb": "^3.0.1",
-    "mosca": "^2.7.0",
-    "mqtt": "^2.14.0",
-    "mqtt-router": "^0.5.0",
-    "msgpack-lite": "^0.1.26",
-    "pandas-helpers": "^1.0.0",
-    "three": "^0.88.0",
-    "uuid": "^3.1.0",
-    "walk": "^2.3.9"
-  },
-  "devDependencies": {
-    "electron-mocha": "^5.0.0",
-    "gulp": "^3.9.1",
-    "lerna": "^2.5.1",
-    "recursive-install": "^1.3.0",
-    "webpack": "^3.8.1"
-  }
+  "homepage": "https://github.com/Lucaszw/microdrop-3#readme"
 }
