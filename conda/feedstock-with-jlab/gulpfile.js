@@ -33,6 +33,19 @@ gulp.task('build', async (d) => {
   fs.writeFileSync(file, yaml.stringify(meta, 4));
   m2(yaml.stringify(meta, 4));
 
+  m1('writing post install scripts');
+
+  fs.writeFileSync('post-link.sh',
+  ` echo running post.sh
+    source bin/activate
+    jupyter labextension link lib/node_modules/@microdrop/jupyterlab_extension
+  `);
+
+  fs.writeFileSync('post-link.bat',
+  ` echo running post.bat
+    call Scripts\\activate.bat & jupyter labextension link Library\\bin\\node_modules\\@microdrop\\jupyterlab_extension
+  `);
+
   const token = process.env.ANACONDA_TOKEN;
   const user  = process.env.ANACONDA_USER;
 
@@ -51,75 +64,10 @@ gulp.task('build', async (d) => {
   m2(yaml.stringify(meta, 4));
 });
 
-gulp.task('construct', async () => {
-  m1('updating meta.yaml file');
-  const file = path.resolve(__dirname, 'construct.yaml');
-  const construct = yaml.load(file);
-  var {output} = await spawnAsync(`npm view ${PACKAGE_NAME} --json`, null, true);
-  const microdrop = JSON.parse(output[0]);
-  construct.version = microdrop.version;
-  if (os.platform() == 'win32')
-    construct.post_install = 'post.bat'
-  else
-    construct.post_install = 'post.sh'
-
-  fs.writeFileSync(file, yaml.stringify(construct, 4));
-  m2(yaml.stringify(construct, 4));
-
-
-  m1('writing post_install scripts');
-  fs.writeFileSync('post.sh',
-  ` echo running post.sh
-    source bin/activate
-    conda install jupyterlab
-    npm install --global @microdrop/jupyterlab_extension
-    jupyter labextension link lib/node_modules
-    cp bin/microdrop-3 microdrop-3
-  `);
-  fs.writeFileSync('post.bat',
-  ` echo running post.bat
-    call Scripts\\activate.bat & conda install jupyterlab
-    npm install --global @microdrop/jupyterlab_extension
-    jupyter labextension link Library\\bin\\node_modules\\@microdrop\\jupyterlab_extension
-    cp bin\\microdrop-3 Scripts\\microdrop-3
-  `);
-  m2(`${fs.readdirSync(path.resolve('.'))}`.split(',').join('\n'));
-
-  m1('calling constructor .');
-  await spawnAsync(`constructor .`);
-
-  m1('Removing post_install scripts');
-  fs.unlinkSync('post.sh')
-  fs.unlinkSync('post.bat')
-
-  m1('reverting meta.yaml file');
-  construct.version = 'VERSION';
-  construct.post_install = 'post.sh'
-  fs.writeFileSync(file, yaml.stringify(construct, 4));
-  m2(yaml.stringify(construct, 4));
-
-  m1('Moving artifacts');
-  m2(`${fs.readdirSync(path.resolve('.'))}`.split(',').join('\n'));
-  const artifactsPath = path.resolve('./artifacts');
-  if (!fs.existsSync(artifactsPath)){
-    fs.mkdirSync(artifactsPath);
-  }
-  m2(artifactsPath);
-
-  const files = fs.readdirSync(__dirname);
-  for (const [i, file] of files.entries()){
-    const filetype = path.extname(file);
-    if (filetype == '.sh' || filetype == '.exe' || filetype == '.pkg' || filetype == '.bat') {
-      fs.renameSync(file, path.resolve(artifactsPath, file));
-      m2(path.resolve(artifactsPath, file));
-    }
-  }
-});
-
 gulp.task('conda:build', async () => {
   /* Ran internally by conda during build process */
     title('installing microdrop');
-    await spawnAsync(`npm install --global ${PACKAGE_NAME} --no-optional`);
+    await spawnAsync(`npm install --global @microdrop/jupyterlab_extension`);
 });
 
 function spawnAsync(cmd, cwd, hideOutput) {

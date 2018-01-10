@@ -1,5 +1,5 @@
 package:
-    name: microdrop-app
+    name: microdrop-app-with-jupyterlab
     version: VERSION
 source:
     git_url: .
