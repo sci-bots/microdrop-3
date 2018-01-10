@@ -54,9 +54,9 @@ install:
   - cmd: npm run test
 
   # Build
-  - cmd: npm run --prefix packages/feedstock install-pkgs
-  - cmd: gulp --cwd packages/feedstock build
-  - cmd: gulp --cwd packages/feedstock construct
+  - cmd: npm run --prefix conda/feedstock install-pkgs
+  - cmd: gulp --cwd conda/feedstock build
+  - cmd: gulp --cwd conda/feedstock construct
 
 build: false
 test_script:
