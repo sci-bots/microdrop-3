@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/device-ui-plugin",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "UI Plugin to view device, routes, and electrodes",
   "main": "device-ui-plugin.web.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "dependencies": {
     "@microdrop/async": "^1.1.10",
     "@microdrop/buildutils": "^1.1.0",
-    "@microdrop/device-controller": "^1.1.10",
+    "@microdrop/device-controller": "^1.1.11",
     "@microdrop/ui-plugin": "^1.1.10",
     "async-mqtt": "^1.0.1",
     "dat.gui": "^0.6.1",
