@@ -2,6 +2,7 @@
   "lerna": "2.5.1",
   "packages": [
     "packages/application",
+    "packages/application/ui/src",
     "packages/buildutils",
     "packages/device-controller",
     "packages/device-ui-plugin",
