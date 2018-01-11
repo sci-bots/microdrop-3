@@ -1,5 +1,5 @@
 const lo = require("lodash");
-const Backbone = require("Backbone");
+const Backbone = require("backbone");
 const crossroads = require("crossroads");
 const MqttMessages = require("@mqttclient/mqtt-messages");
 const Paho = require("paho-mqtt");
