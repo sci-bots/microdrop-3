@@ -48,7 +48,7 @@ install:
   # Run Tests
   - cmd: activate
   - cmd: node --version
-  - cmd: npm install --global gulp lerna electron-mocha
+  - cmd: npm install --global gulp lerna electron electron-mocha
   - cmd: npm run bootstrap
   - cmd: npm run build
   - ps: cmd /c "cd packages/application && electron-mocha"
