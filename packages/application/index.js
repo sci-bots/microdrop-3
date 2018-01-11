@@ -490,6 +490,7 @@ const launchMicrodrop = function() {
     mainWindow.on('closed', function () {
       mainWindow = null;
     });
+    return mainWindow;
   }
 
   app.on('ready', () => createWindow() );

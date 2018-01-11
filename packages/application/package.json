@@ -7,7 +7,7 @@
     "microdrop-3": "bin/microdrop-3"
   },
   "scripts": {
-    "test": "./node_modules/.bin/electron-mocha",
+    "test": "./node_modules/.bin/electron-mocha ",
     "start": "./node_modules/.bin/electron .",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
     "build": "npm run build:phosphor && npm run build:ui",

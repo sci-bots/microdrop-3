@@ -2,7 +2,7 @@ const $ = require('jquery');
 const _ = require('lodash');
 const _fp = require('lodash/fp');
 const Key = require('keyboard-shortcut');
-const THREE = require('THREE');
+const THREE = require('three');
 
 const THREEx = {}
 require('threex-domevents')(THREE, THREEx);

@@ -22,7 +22,7 @@ const asyncTimer = (time) => {
 describe('Microdrop', async function() {
   this.timeout(5000);
   var {moscaServer, webServer, app, createWindow} = launchMicrodrop();
-  createWindow();
+  const w = createWindow();
   let microdrop;
 
   describe('Client', async function() {
@@ -121,6 +121,7 @@ describe('Microdrop', async function() {
 
   after(function () {
     console.log("tests complete");
+    w.close();
     // webServer.client.end();
     // process.exit(0);
   });
