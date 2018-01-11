@@ -49,7 +49,7 @@ install:
   - cmd: activate
   - cmd: node --version
   - cmd: npm install --global gulp lerna
-  - cmd: lerna bootstrap
+  - cmd: npm run bootstrap
   - cmd: npm run build
   - cmd: npm run test
 

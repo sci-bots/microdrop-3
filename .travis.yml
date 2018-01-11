@@ -41,7 +41,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - npm install --global gulp lerna
-  - lerna bootstrap
+  - npm run bootstrap
   - npm run build
 
 after_success:
