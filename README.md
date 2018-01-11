@@ -36,7 +36,7 @@ pip install jupyterlab
 jupyter serverextension enable --py jupyterlab --sys-prefix
 
 cd microdrop-3
-jupyer labextension link packages/jupyterlab-extension
+jupyter labextension link packages/jupyterlab-extension
 ```
 
 ## Docs
