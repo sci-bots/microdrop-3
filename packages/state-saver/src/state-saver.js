@@ -20,6 +20,7 @@ class StateSaverUI extends UIPlugin {
 
     this.view = "top";
     this.container = yo`<div style="zoom: 0.8; height:1000px"></div>`;
+    this.infoBar = yo`<div></div>`;
     const onChange = this.onChange.bind(this);
     this.editor = new JSONEditor(this.container, {onChange});
   }
@@ -44,21 +45,31 @@ class StateSaverUI extends UIPlugin {
     if (this.view != 'steps') return;
     const microdrop = new MicrodropAsync();
     const prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index');
-    console.log({prevStepIndex});
-    console.log(this);
+    let nextStepIndex = prevStepIndex;
+
+    const steps = await microdrop.getState('state-saver-ui', 'steps');
+    const numSteps = steps.length;
+
     // Prevent the page from scrolling down
     e.preventDefault();
     switch (e.code) {
       case 'ArrowUp':
-        console.log('up');
+        nextStepIndex -= 1;
         break;
       case 'ArrowDown':
-        console.log('down');
+        nextStepIndex += 1;
         break;
       default:
         return;
     }
 
+    if (nextStepIndex < 0) {
+      nextStepIndex = numSteps - 1;
+    } else if (nextStepIndex >= numSteps) {
+      nextStepIndex = 0;
+    }
+
+    this.loadStep(null, nextStepIndex);
   }
 
   onChange() {
@@ -100,10 +111,14 @@ class StateSaverUI extends UIPlugin {
     if (steps[index]) this.exec(item, steps, index);
   }
 
-  async loadStep(item, index, steps) {
+  async loadStep(item=null, index, steps) {
     try {
-      index = index || item.node.index;
-      if (!_.isInteger(index)) return;
+      // Load index from item if index parameter is not set
+      if (!_.isInteger(index)) {
+        index = _.get(item, "node.index");
+        if (!_.isInteger(index)) return;
+      }
+
       this.trigger("set-step-index", index);
       var microdrop = new MicrodropAsync();
       steps = steps || await microdrop.getState("state-saver-ui", "steps");
@@ -170,11 +185,19 @@ class StateSaverUI extends UIPlugin {
     if (this.view == "steps") this.renderStepView();
     if (this.view == "electrode") this.renderSelectedElectrode();
     if (this.view == "route") this.renderSelectedRoute();
+
+    // Show the index of the last loaded step:
+    const microdrop = new MicrodropAsync();
+    microdrop.getState('state-saver-ui', 'step-index').then((d) => {
+      this.infoBar.innerHTML = '';
+      this.infoBar.appendChild(yo`
+        <b>Last Loaded Step: ${d} </b>
+      `)
+    });
   }
 
   draw() {
     const name = `radios-${generateName()}`;
-
     this.element.innerHTML = "";
     this.element.appendChild(yo`
       <div>
@@ -199,6 +222,7 @@ class StateSaverUI extends UIPlugin {
 
         <button onclick=${this.createStep.bind(this)}
         >Create Step</button>
+        ${this.infoBar}
         ${this.container}
       </div>
     `);
