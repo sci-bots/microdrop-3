@@ -10,7 +10,8 @@
     "test": "./node_modules/.bin/electron-mocha ",
     "start": "./node_modules/.bin/electron .",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
-    "build": "npm run build:phosphor && npm run build:ui",
+    "build": "npm run prepare:ui && npm run build:phosphor && npm run build:ui",
+    "prepare:ui": "cd ui/src && npm install",
     "build:phosphor": "./node_modules/.bin/webpack --config ui/src/phosphor.config.js --context ui/src",
     "build:ui": "./node_modules/.bin/webpack --config ui/src/plugin-manager.config.js --context ui/src"
   },
