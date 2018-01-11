@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/ui-plugin",
-  "version": "1.1.0",
+  "version": "1.1.10",
   "description": "Parent class of microdrop ui plugins",
   "main": "src/ui-plugin.js",
   "scripts": {
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
-    "@mqttclient/web": "^1.1.0",
+    "@mqttclient/web": "^1.1.10",
     "keyboard-shortcut": "^1.2.0"
   },
   "publishConfig": {

@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/application",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "Top Level Application for Microdrop",
   "main": "index.js",
   "bin": {
@@ -20,9 +20,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@microdrop/async": "^1.1.8",
+    "@microdrop/async": "^1.1.10",
     "@microdrop/buildutils": "^1.1.0",
-    "@microdrop/device-controller": "^1.1.8",
+    "@microdrop/device-controller": "^1.1.10",
     "@mqttclient/node": "^1.1.8",
     "ajv": "^6.0.0-beta.2",
     "argparse": "^1.0.9",
