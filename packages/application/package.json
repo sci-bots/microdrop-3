@@ -7,7 +7,7 @@
     "microdrop-3": "bin/microdrop-3"
   },
   "scripts": {
-    "test": "echo Please run tests directly with command 'electron-mocha'",
+    "test": "node _test.js",
     "start": "./node_modules/.bin/electron .",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
     "build": "npm run build:phosphor && npm run build:ui",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "electron": "^1.7.10",
+    "electron-mocha": "^5.0.0",
     "webpack": "^3.8.1"
   },
   "build": {
