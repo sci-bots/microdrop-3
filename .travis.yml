@@ -43,6 +43,7 @@ install:
   - npm install --global gulp lerna electron electron-mocha
   - npm run bootstrap
   - npm run build
+  - npm run test
 
 after_success:
   - npm run --prefix conda/feedstock install-pkgs

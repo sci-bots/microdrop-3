@@ -1,6 +1,6 @@
 package:
     name: microdrop-app
-    version: 1.1.15
+    version: VERSION
 source:
     path: .
 requirements:
