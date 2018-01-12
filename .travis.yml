@@ -43,9 +43,6 @@ install:
   - npm install --global gulp lerna electron electron-mocha
   - npm run bootstrap
   - npm run build
-  - cd packages/application
-  - electron-mocha
-  - cd ../..
 
 after_success:
   - npm run --prefix packages/feedstock install-pkgs
