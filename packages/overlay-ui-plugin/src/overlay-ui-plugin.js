@@ -70,6 +70,33 @@ class OverlayUIPlugin extends UIPlugin {
     }
   }
 
+  textEntered(e) {
+    if (e.key != 'Enter') return;
+    // Setup canvas
+    const canvas = document.getElementById("overlay-ui-plugin:canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.save();
+
+    const txt = e.srcElement.value;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+
+    // Get required fontsize to span canvas
+    const prevFontSize = 30;
+    ctx.font = `${prevFontSize}px Courier`;
+    const prevWidth = ctx.measureText(txt).width;
+    const newFontSize = (canvas.width * prevFontSize)/prevWidth;
+
+    // Adjust font to match canvas width, and scale to match canvas height
+    ctx.font = `${newFontSize}px Courier`;
+    // const newHeight = ctx.measureText(txt).height;
+    console.log(newFontSize, canvas.height, newFontSize/canvas.height);
+    ctx.scale(1, 1.6*canvas.height/newFontSize);
+    ctx.fillText(txt,0,newFontSize/1.6);
+    ctx.restore();
+
+    console.log("A key was pressed!!", );
+  }
+
   render() {
     const name = `radios-${generateName()}`;
 
@@ -86,7 +113,10 @@ class OverlayUIPlugin extends UIPlugin {
 
 
         ${this.container}
-
+        <input type="text" onkeydown=${this.textEntered.bind(this)} />
+        <canvas id="overlay-ui-plugin:canvas" width="300" height="400"
+        style="border:1px solid #d3d3d3;">
+        </canvas>
         <button onclick=${this.submit.bind(this)}>Submit</button>
       </div>
     `);

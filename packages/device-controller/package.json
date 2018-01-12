@@ -26,7 +26,8 @@
     "three.meshline": "^1.0.3",
     "three.planetransform": "^1.0.1",
     "threex-domevents": "^1.0.0",
-    "two.js": "github:jonobr1/two.js#dev"
+    "two.js": "github:jonobr1/two.js#dev",
+    "yo-yo": "^1.4.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

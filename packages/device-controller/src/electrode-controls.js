@@ -4,6 +4,7 @@ const Backbone = require('backbone');
 const Colormap = require('colormap');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
+const yo = require('yo-yo');
 
 const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
 
@@ -16,6 +17,8 @@ const NEIGHBOUR_COLOR = "rgb(219, 215, 215)";
 const OFF_COLOR = "rgb(175, 175, 175)";
 const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
+
+window.THREE = THREE;
 
 class ElectrodeControls extends MicrodropAsync.MqttClient {
   constructor(scene, camera, renderer, container=null) {
@@ -39,6 +42,28 @@ class ElectrodeControls extends MicrodropAsync.MqttClient {
     this.onStateMsg("electrodes-model", "active-electrodes", this.drawElectrodes.bind(this));
     this.onStateMsg("device-model", "overlays", this.updateOverlays.bind(this));
     this.bindStateMsg("selected-electrode", "set-selected-electrode");
+
+    this.render();
+  }
+
+  get showElectrodeIds() {
+    return this._showElectrodeIds || false;
+  }
+
+  set showElectrodeIds(_showElectrodeIds) {
+    this._showElectrodeIds = _showElectrodeIds;
+    if (_showElectrodeIds) {
+      for (const child of [...this.svgGroup.children]) {
+        child.fill.material.map = child.texture;
+        child.fill.material.map.needsUpdate = true;
+        child.fill.material.needsUpdate = true;
+      }
+    } else {
+      for (const child of [...this.svgGroup.children]) {
+        child.fill.material.map = null;
+        child.fill.material.needsUpdate = true;
+      }
+    }
   }
 
   drawElectrodes(elec) {
@@ -119,6 +144,40 @@ class ElectrodeControls extends MicrodropAsync.MqttClient {
     }
   }
 
+  render() {
+    for (const child of [...this.svgGroup.children]) {
+      child.texture = this.generateTextTextureForElectrode(child);
+    }
+  }
+
+  generateTextTextureForElectrode(electrode) {
+    const name = electrode.name;
+    const number = name.split('electrode')[1];
+    const material = electrode.fill.material;
+
+    // Create a canvas containg text for the electrode number
+    const canvas = yo`<canvas width="1000" height="1000"></canvas>`;
+    const ctx = canvas.getContext("2d");
+    ctx.save();
+
+    // Get required fontsize to span canvas
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect( 0, 0, canvas.width, canvas.height );
+
+    const prevFontSize = 30;
+    ctx.font = `${prevFontSize}px Courier`;
+    const prevWidth = ctx.measureText(number).width;
+    const newFontSize = (0.8*canvas.width * prevFontSize)/prevWidth;
+
+    // Adjust font to match canvas width, and scale to match canvas height
+    ctx.scale(1, canvas.height/newFontSize);
+    ctx.font = `${newFontSize}px Courier`;
+    ctx.fillStyle = "#000000";
+    ctx.fillText(number,0.1*canvas.width,newFontSize/1.2);
+    ctx.restore();
+
+    return new THREE.Texture( canvas );
+  }
   drawOverlay(overlay) {
     if (!overlay.visible) return;
 

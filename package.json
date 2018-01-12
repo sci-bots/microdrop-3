@@ -5,7 +5,8 @@
     "bootstrap": "./node_modules/.bin/lerna bootstrap --hoist --nohoist electron --nohoist electron-mocha --no-optional",
     "hoist": "./node_modules/.bin/lerna bootstrap --hoist --no-optional",
     "build": "./node_modules/.bin/lerna exec -- npm run build",
-    "test": "npm run --prefix ./packages/application test"
+    "test": "npm run --prefix ./packages/application test",
+    "git:add:defaults": "git add **/package-lock.json && git add **/*.web.js"
   },
   "repository": {
     "type": "git",

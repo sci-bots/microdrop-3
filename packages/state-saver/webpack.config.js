@@ -1,7 +1,7 @@
 var config = {
   entry: './src/state-saver.js',
   output: {
-    filename: './build/state-saver.js',
+    filename: './build/state-saver.web.js',
     library: 'StateSaverUI',
     libraryTarget: 'var'
   },

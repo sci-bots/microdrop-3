@@ -49,6 +49,7 @@ const ConstructScene = function(objects) {
   const amount = 0.0001;
   const bevelEnabled = false;
   const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  const uvGenerator = THREE.ExtrudeGeometry.WorldUVGenerator;
 
   const group = new THREE.Group();
 
@@ -100,6 +101,37 @@ const ConstructObjectsFromSVG = async function (url='/default.svg') {
   return objects;
 }
 
+const GeneratePlaneUV = (geometry) => {
+  // https://stackoverflow.com/questions/20774648/three-js-generate-uv-coordinate
+  // http://paulyg.f2s.com/uv.htm
+
+  geometry.computeBoundingBox();
+
+  var max = geometry.boundingBox.max,
+      min = geometry.boundingBox.min;
+  var offset = new THREE.Vector2(0 - min.x, 0 - min.y);
+  var range = new THREE.Vector2(max.x - min.x, max.y - min.y);
+  var faces = geometry.faces;
+
+  geometry.faceVertexUvs[0] = [];
+
+  for (var j = 0; j < faces.length ; j++) {
+
+      var v1 = geometry.vertices[faces[j].a],
+          v2 = geometry.vertices[faces[j].b],
+          v3 = geometry.vertices[faces[j].c];
+
+      geometry.faceVertexUvs[0].push([
+          new THREE.Vector2((v1.x + offset.x)/range.x ,(v1.y + offset.y)/range.y),
+          new THREE.Vector2((v2.x + offset.x)/range.x ,(v2.y + offset.y)/range.y),
+          new THREE.Vector2((v3.x + offset.x)/range.x ,(v3.y + offset.y)/range.y)
+      ]);
+  }
+
+  geometry.uvsNeedUpdate = true;
+  return geometry;
+}
+
 const GenerateSvgGroup = async (url='/default.svg') => {
   const objects = await ConstructObjectsFromSVG(url);
   const loader = new THREE.JSONLoader();
@@ -126,8 +158,9 @@ const GenerateSvgGroup = async (url='/default.svg') => {
     var options = {color: OFF_COLOR, transparent: true, opacity: 0.4,
       wireframe: false, side: THREE.DoubleSide};
     var meshMaterial = new THREE.MeshBasicMaterial(options);
+    var collisionMaterial = new THREE.MeshBasicMaterial(_.extend(_.clone(options), {opacity: 0}));
     var options = { bevelEnabled: false, amount: 0.0001};
-    var geometry = new THREE.ExtrudeGeometry(shape, options);
+    var geometry = GeneratePlaneUV(new THREE.ExtrudeGeometry(shape, options))
     var fill = new THREE.Mesh(geometry, meshMaterial);
     fill.name = obj.id;
 

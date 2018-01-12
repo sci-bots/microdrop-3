@@ -14,39 +14,39 @@ python:
   - "3.4"
 
 install:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      sudo apt-get update
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-      bash miniconda.sh -b -p $HOME/miniconda
-      export PATH="$HOME/miniconda/bin:$PATH"
-    fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      brew update
-      brew cask install miniconda
-      export PATH=/usr/local/miniconda3/bin:"$PATH"
-    fi
+  # - |
+  #   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+  #     sudo apt-get update
+  #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  #     bash miniconda.sh -b -p $HOME/miniconda
+  #     export PATH="$HOME/miniconda/bin:$PATH"
+  #   fi
+  # - |
+  #   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+  #     brew update
+  #     brew cask install miniconda
+  #     export PATH=/usr/local/miniconda3/bin:"$PATH"
+  #   fi
 
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update --quiet conda
-  - conda config --add channels conda-forge
-  - conda config --add channels dfroger
-  - conda config --add channels lucaszw
-  - conda config --add channels sci-bots
-  - conda install --yes conda-build anaconda-client binstar constructor
+  # - hash -r
+  # - conda config --set always_yes yes --set changeps1 no
+  # - conda update --quiet conda
+  # - conda config --add channels conda-forge
+  # - conda config --add channels dfroger
+  # - conda config --add channels lucaszw
+  # - conda config --add channels sci-bots
+  # - conda install --yes conda-build anaconda-client binstar constructor
   # Useful for debugging any issues with conda
-  - conda info -a
+  # - conda info -a
   - npm install --global gulp lerna electron electron-mocha
   - npm run bootstrap
   - npm run build
   - npm run test
 
 after_success:
-  - npm run --prefix conda/feedstock install-pkgs
-  - gulp --cwd conda/feedstock build
-  - gulp --cwd conda/feedstock construct
-  - ls
+  # - npm run --prefix conda/feedstock install-pkgs
+  # - gulp --cwd conda/feedstock build
+  # - gulp --cwd conda/feedstock construct
+  # - ls
