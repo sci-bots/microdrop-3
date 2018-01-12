@@ -6,6 +6,10 @@
   "bin": {
     "microdrop-3": "bin/microdrop-3"
   },
+  "default-enabled": [
+    "device-ui-plugin",
+    "state-saver"
+  ],
   "scripts": {
     "test": "node _test.js",
     "start": "./node_modules/.bin/electron .",

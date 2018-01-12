@@ -20,7 +20,7 @@ const RoutesModel     = require('./models/RoutesModel');
 const MQTT_PORT = 1883;
 const HTTP_PORT = 3000;
 
-const DEFAULT_ENABLED = ['device-ui-plugin', 'state-saver'];
+const DEFAULT_ENABLED = require("./package.json")['default-enabled'];
 
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
