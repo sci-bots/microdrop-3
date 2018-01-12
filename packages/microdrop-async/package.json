@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/async",
-  "version": "1.1.10",
+  "version": "1.1.16",
   "description": "Promise based library for controlling microdrop",
   "main": "MicrodropAsync.js",
   "scripts": {
@@ -11,8 +11,8 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
-    "@mqttclient/node": "^1.1.8",
-    "@mqttclient/web": "^1.1.10",
+    "@mqttclient/node": "^1.1.16",
+    "@mqttclient/web": "^1.1.16",
     "ajv": "^5.3.0",
     "lodash": "^4.17.4",
     "mqtt": "^2.13.1"

@@ -1,6 +1,6 @@
 {
   "name": "microdrop-3-ui",
-  "version": "1.1.14",
+  "version": "1.1.16",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -13,10 +13,10 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/async": "1.1.10",
-    "@microdrop/ui-plugin": "^1.1.10",
+    "@microdrop/async": "^1.1.16",
+    "@microdrop/ui-plugin": "^1.1.16",
     "@mqttclient/mqtt-messages": "1.1.0",
-    "@mqttclient/web": "1.1.10",
+    "@mqttclient/web": "^1.1.16",
     "@phosphor/widgets": "^1.5.0",
     "jquery": "^3.2.1",
     "keyboard-shortcut": "^1.2.0"
