@@ -44,7 +44,12 @@ class StateSaverUI extends UIPlugin {
     // Don't do anything if state-saver is not on steps view
     if (this.view != 'steps') return;
     const microdrop = new MicrodropAsync();
-    const prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index');
+    let prevStepIndex;
+    try {
+      prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index', 500);
+    } catch (e) {
+      return;
+    }
     let nextStepIndex = prevStepIndex;
 
     const steps = await microdrop.getState('state-saver-ui', 'steps');
@@ -52,6 +57,7 @@ class StateSaverUI extends UIPlugin {
 
     // Prevent the page from scrolling down
     e.preventDefault();
+    e.stopPropagation();
     switch (e.code) {
       case 'ArrowUp':
         nextStepIndex -= 1;
@@ -188,7 +194,7 @@ class StateSaverUI extends UIPlugin {
 
     // Show the index of the last loaded step:
     const microdrop = new MicrodropAsync();
-    microdrop.getState('state-saver-ui', 'step-index').then((d) => {
+    microdrop.getState('state-saver-ui', 'step-index', 500).then((d) => {
       this.infoBar.innerHTML = '';
       this.infoBar.appendChild(yo`
         <b>Last Loaded Step: ${d} </b>
