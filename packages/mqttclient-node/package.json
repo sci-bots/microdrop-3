@@ -1,6 +1,6 @@
 {
   "name": "@mqttclient/node",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Node Mqtt Client",
   "main": "NodeMqttClient.js",
   "scripts": {
