@@ -20,6 +20,8 @@ const RoutesModel     = require('./models/RoutesModel');
 const MQTT_PORT = 1883;
 const HTTP_PORT = 3000;
 
+const DEFAULT_ENABLED = ['device-ui-plugin', 'state-saver'];
+
 class WebServer extends NodeMqttClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
@@ -130,10 +132,14 @@ class WebServer extends NodeMqttClient {
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
     if (!(pluginDir in pluginData.webPlugins)) {
+      let state = "disabled";
+      if (_.includes(DEFAULT_ENABLED, pluginName)) {
+        state = "enabled";
+      }
       pluginData.webPlugins[pluginDir] = {
         name: pluginName,
         path: pluginDir,
-        state: "disabled",
+        state: state,
         data: packageData
       };
       fs.writeFileSync(WebServer.pluginsfile(),
