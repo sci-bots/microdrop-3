@@ -45,7 +45,7 @@ install:
   - npm run build
 
 after_success:
-  - npm run --prefix packages/feedstock install-pkgs
-  - gulp --cwd packages/feedstock build
-  - gulp --cwd packages/feedstock construct
+  - npm run --prefix conda/feedstock install-pkgs
+  - gulp --cwd conda/feedstock build
+  - gulp --cwd conda/feedstock construct
   - ls
