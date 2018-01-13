@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/ui-plugin",
-  "version": "1.1.17",
+  "version": "1.1.19",
   "description": "Parent class of microdrop ui plugins",
   "main": "src/ui-plugin.js",
   "scripts": {
@@ -23,13 +23,13 @@
   },
   "homepage": "https://github.com/Lucaszw/ui-plugin#readme",
   "devDependencies": {
-    "@microdrop/buildutils": "^1.1.17",
+    "@microdrop/buildutils": "^1.1.19",
     "gulp": "^3.9.1",
     "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@microdrop/buildutils": "^1.1.17",
-    "@mqttclient/web": "^1.1.17",
+    "@microdrop/buildutils": "^1.1.19",
+    "@mqttclient/web": "^1.1.19",
     "keyboard-shortcut": "^1.2.0"
   },
   "publishConfig": {
