@@ -18,8 +18,6 @@ const OFF_COLOR = "rgb(175, 175, 175)";
 const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
 
-window.THREE = THREE;
-
 class ElectrodeControls extends MicrodropAsync.MqttClient {
   constructor(scene, camera, renderer, container=null) {
     super();
