@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "link-packages": "npm link ../../packages/microdrop-async && npm link ../../packages/ui-plugin",
     "build": "npm run build-phosphor && npm run build-pm",
     "build-pm": "./node_modules/.bin/webpack --config plugin-manager.config.js",
