@@ -1,17 +1,3 @@
-# artifacts:
-#   - path: packages/feedstock/artifacts/*.exe
-#     name: MicrodropInstaller
-#
-# deploy:
-#   provider: S3
-#   access_key_id: $(ARTIFACTS_KEY)
-#   secret_access_key: $(ARTIFACTS_SECRET)
-#   bucket: $(ARTIFACTS_BUCKET)
-#   region: us-east-1
-#   set_public: true
-#   artifact: MicrodropInstaller
-#   unzip: true
-
 environment:
   GIT_REPOSITORY: https://github.com/sci-bots/microdrop-3
   matrix:
@@ -29,11 +15,6 @@ init:
   - ECHO %PYTHON_VERSION%
 
 install:
-  # Configure GIT:
-  # - cmd: git config --global user.email "build@sci-bots.com"
-  # - cmd: git config --global user.name "Sci-Bots Builds"
-  # - cmd: git submodule update --init --recursive
-
   # Setup Conda (Must install in User directory for constructor to work)
   - cmd: set PATH=%MINICONDA%\bin;%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - cmd: conda config --add channels conda-forge
@@ -41,22 +22,14 @@ install:
   - cmd: conda config --add channels sci-bots
   - cmd: conda update --yes --quiet conda
   - cmd: conda install --yes nodejs=8 binstar
-  - cmd: conda install --yes --channel anaconda conda-build constructor anaconda-client
-  # - cmd: conda install --yes Pillow
-  # - cmd: conda info
 
   # Run Tests
-  # - cmd: activate
   - cmd: node --version
   - cmd: npm install --global gulp lerna electron electron-mocha
   - cmd: npm run bootstrap
   - cmd: npm run build
   - cmd: npm run test
 
-  # Build
-  # - cmd: npm run --prefix conda/feedstock install-pkgs
-  # - cmd: gulp --cwd conda/feedstock build
-  # - cmd: gulp --cwd conda/feedstock construct
 
 build: false
 test_script:
