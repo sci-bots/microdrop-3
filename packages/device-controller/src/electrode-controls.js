@@ -5,7 +5,8 @@ const Colormap = require('colormap');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient} = require('@micropede/client/src/client.js');
 
 const SVGRenderer = require('./svg-renderer');
 
@@ -17,10 +18,13 @@ const OFF_COLOR = "rgb(175, 175, 175)";
 const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
 
-class ElectrodeControls extends MicrodropAsync.MqttClient {
+const APPNAME = 'microdrop';
+const microdrop = new MicropedeAsync(APPNAME);
+
+class ElectrodeControls extends MicropedeClient {
   constructor(scene, camera, renderer, container=null) {
-    super();
     if (!container) container = document.body;
+    super(APPNAME);
 
     this.selectedElectrode = null;
     this.svgGroup = null;
@@ -170,23 +174,29 @@ class ElectrodeControls extends MicrodropAsync.MqttClient {
     this.scene.add(this.svgGroup);
   }
 
-  async turnOnElectrode(id) {
+  async turnOnElectrode(electrodeId) {
     try {
-      const microdrop = new MicrodropAsync();
-      const electrodeObject = this.electrodeObjects[id];
+      const electrodeObject = this.electrodeObjects[electrodeId];
       electrodeObject.on = true;
-      const electrodes = await microdrop.electrodes.toggleElectrode(id, true);
+      // const electrodes = await microdrop.electrodes.toggleElectrode(id, true);
+      await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
+        {electrodeId, state: true});
     } catch (e) {
       console.error(e);
     }
   }
 
-  async turnOffElectrode(id) {
+  async turnOffElectrode(electrodeId) {
+
     try {
-      const microdrop = new MicrodropAsync();
-      const electrodeObject = this.electrodeObjects[id];
+      const electrodeObject = this.electrodeObjects[electrodeId];
       electrodeObject.on = false;
-      const electrodes = await microdrop.electrodes.toggleElectrode(id, false);
+      console.log("turning off...");
+      console.log({electrodeId});
+      await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
+        {electrodeId: electrodeId, state: false}, 500);
+      console.log("electroded turned off successfully");
+      // const electrodes = await microdrop.electrodes.toggleElectrode(id, false);
     } catch (e) {
       console.error(e);
     }
@@ -194,14 +204,16 @@ class ElectrodeControls extends MicrodropAsync.MqttClient {
 
   async move(dir='right') {
     try {
-      const microdrop = new MicrodropAsync();
       if (!this.selectedElectrode) return;
-      const id = this.selectedElectrode.name;
-      const neighbours = await microdrop.device.getNeighbouringElectrodes(id);
+
+      const electrodeId = this.selectedElectrode.name;
+      const neighbours = (await microdrop.triggerPlugin('device-model',
+        'get-neighbouring-electrodes', {electrodeId}, 500)).response;
+
       const neighbour = neighbours[dir];
 
       if (!neighbour) return;
-      await this.turnOffElectrode(id);
+      await this.turnOffElectrode(electrodeId);
       this.selectElectrode(neighbour);
     } catch (e) {
       console.error(e);
@@ -285,11 +297,9 @@ class ElectrodeControls extends MicrodropAsync.MqttClient {
     // If event targets don't match, don't turn on electrode
     if (event.target.uuid != event2.target.uuid) return;
 
-    const microdrop = new MicrodropAsync();
-
     let activeElectrodes;
     try {
-      activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
+      activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 500);
     } catch (e) {
       activeElectrodes = [];
     }

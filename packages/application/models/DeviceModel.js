@@ -3,20 +3,21 @@ const _ = require('lodash');
 const uuid = require('uuid/v4');
 const Ajv = require('ajv');
 
-const MicrodropAsync = require('@microdrop/async');
+const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
 const {FindNeighbourInDirection, FindAllNeighbours} =
   require('@microdrop/device-controller/src/electrode-controls');
 
-const PluginModel = require('./PluginModel');
-
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
 const ajv = new Ajv({useDefaults: true});
 
-class DeviceModel extends PluginModel {
+const APPNAME = 'microdrop';
+const microdrop = new MicropedeAsync(APPNAME);
+
+class DeviceModel extends MicropedeClient {
   constructor () {
-    super();
-    this.microdrop = new MicrodropAsync();
+    super(APPNAME);
     this.scene = null;
     this.group = null;
   }
@@ -30,7 +31,6 @@ class DeviceModel extends PluginModel {
     this.bindStateMsg("three-object", "set-three-object");
     this.bindStateMsg("overlays", "set-overlays");
   }
-  get name() {return "device-model" }
   get channel() {return "microdrop/device"}
   get filepath() {return __dirname;}
 
@@ -83,7 +83,7 @@ class DeviceModel extends PluginModel {
       }
       return this.notifySender(payload, electrodes, "electrodes-from-routes");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e),
+      return this.notifySender(payload, DumpStack(LABEL, e),
         "electrodes-from-routes", 'failed');
     }
   }
@@ -99,7 +99,7 @@ class DeviceModel extends PluginModel {
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e),
+      return this.notifySender(payload, DumpStack(LABEL, e),
         "get-neighbouring-electrodes", 'failed');
     }
   }
@@ -114,7 +114,7 @@ class DeviceModel extends PluginModel {
       this.trigger("set-overlays", payload);
       return this.notifySender(payload, payload, "overlays");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), "overlays", 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), "overlays", 'failed');
     }
   }
 
@@ -124,8 +124,12 @@ class DeviceModel extends PluginModel {
     try {
       payload = this.validateOverlay(payload);
 
-      const microdrop = new MicrodropAsync();
-      const overlays = await this.getState("overlays");
+      let overlays;
+      try {
+        overlays = await this.microdrop.getState('device-model', "overlays", 500);
+      } catch (e) {
+        overlays = [];
+      }
       const index = _.findIndex(overlays, {name: payload.name});
       if (index == -1) {
         overlays.push(payload);
@@ -136,7 +140,7 @@ class DeviceModel extends PluginModel {
       this.trigger("set-overlays", overlays);
       return this.notifySender(payload, overlays[index], "overlay");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), "overlay", 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), "overlay", 'failed');
     }
   }
 
@@ -154,7 +158,7 @@ class DeviceModel extends PluginModel {
       this.trigger("set-three-object", threeObject);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), "three-object", 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), "three-object", 'failed');
     }
     return object;
   }

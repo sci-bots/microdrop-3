@@ -5,10 +5,12 @@ const generateName = require('sillyname');
 const yo = require('yo-yo');
 const _ = require('lodash');
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const MicropedeAysnc = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
 
-window.MicrodropAsync = MicrodropAsync;
+window.MicropedeAsync = MicropedeAysnc;
+const APPNAME = 'microdrop';
+const microdrop = new MicropedeAsync(APPNAME);
 
 class StateSaverUI extends UIPlugin {
   constructor(elem, focusTracker) {
@@ -33,8 +35,8 @@ class StateSaverUI extends UIPlugin {
     // Listen for keyboard presses
     key('down', this.keypressed.bind(this));
     key('up', this.keypressed.bind(this));
-
     this.draw();
+
   }
 
   async keypressed(e) {
@@ -43,8 +45,13 @@ class StateSaverUI extends UIPlugin {
     if (!_.isEqual(this.focusTracker.currentWidget.plugin, this)) return;
     // Don't do anything if state-saver is not on steps view
     if (this.view != 'steps') return;
-    const microdrop = new MicrodropAsync();
-    const prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index');
+    let prevStepIndex;
+    try {
+      prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index', 500);
+    } catch (e) {
+      return;
+    }
+
     let nextStepIndex = prevStepIndex;
 
     const steps = await microdrop.getState('state-saver-ui', 'steps');
@@ -82,7 +89,6 @@ class StateSaverUI extends UIPlugin {
     const action = obj.action;
     const index = obj.params.index;
 
-    const microdrop = new MicrodropAsync();
     const steps = await microdrop.getState("state-saver-ui", "steps");
 
     if (action == "removeNodes") {
@@ -94,19 +100,19 @@ class StateSaverUI extends UIPlugin {
 
   async changeRoute() {
     const obj = _.last(this.editor.history.history);
-    const microdrop = new MicrodropAsync();
-    microdrop.routes.putRoute(this.editor.get());
+    // XXX: This might be broken
+    microdrop.putPlugin('routes-model', 'route', this.editor.get());
   }
 
   async exec(item, steps, index) {
     /* Execute routes, then continue to the next step */
     index = index || item.node.index;
-    var microdrop = new MicrodropAsync();
     steps = steps || await microdrop.getState("state-saver-ui", "steps");
     await this.loadStep(item, index, steps);
     var step = steps[index];
     var routes = _.get(step, ["routes-model", "routes"]);
-    if (routes) await microdrop.routes.execute(routes, -1);
+    // if (routes) await microdrop.routes.execute(routes, -1);
+    if (routes) await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
     index += 1;
     if (steps[index]) this.exec(item, steps, index);
   }
@@ -120,7 +126,6 @@ class StateSaverUI extends UIPlugin {
       }
 
       this.trigger("set-step-index", index);
-      var microdrop = new MicrodropAsync();
       steps = steps || await microdrop.getState("state-saver-ui", "steps");
       var step = steps[index];
 
@@ -157,7 +162,6 @@ class StateSaverUI extends UIPlugin {
   }
 
   async createStep() {
-    const microdrop = new MicrodropAsync();
     let steps;
     // Try and get previous steps if they exist
     try {
@@ -177,7 +181,13 @@ class StateSaverUI extends UIPlugin {
     this.trigger("set-steps", steps);
   }
 
-  render(payload, pluginName, val) {
+  render(payload, params) {
+    var pluginName, val;
+
+    if (typeof(params) === 'object') {
+      var {pluginName, val} = params;
+    }
+
     if (pluginName == "web-server") return;
     if (payload != undefined && payload != null) _.set(this.json, [pluginName, val], payload);
 
@@ -187,12 +197,16 @@ class StateSaverUI extends UIPlugin {
     if (this.view == "route") this.renderSelectedRoute();
 
     // Show the index of the last loaded step:
-    const microdrop = new MicrodropAsync();
-    microdrop.getState('state-saver-ui', 'step-index').then((d) => {
+    microdrop.getState('state-saver-ui', 'step-index', 500).then((d) => {
       this.infoBar.innerHTML = '';
       this.infoBar.appendChild(yo`
         <b>Last Loaded Step: ${d} </b>
       `)
+    }).catch((e) => {
+      const timedOut = _.map(e, (t) => _.includes(t, "timeout")).indexOf(true);
+      if (timedOut == -1) {
+        throw(e);
+      }
     });
   }
 
@@ -242,7 +256,6 @@ class StateSaverUI extends UIPlugin {
   async renderSelectedElectrode() {
     const LABEL = "StateSaver::renderSelectedElectrode";
     try {
-      const microdrop = new MicrodropAsync();
       let id = await microdrop.getState("electrode-controls", "selected-electrode", 500);
 
       const electrodes = _.get(this.json, ["device-model", "three-object"]) || [];
@@ -256,12 +269,9 @@ class StateSaverUI extends UIPlugin {
   async renderSelectedRoute() {
     const LABEL = "StateSaver::renderSelectedRoute";
     try {
-      const microdrop = new MicrodropAsync();
       let uuid = await microdrop.getState("route-controls", "selected-route", 500);
-
       const routes = _.get(this.json, ["routes-model", "routes"]) || [];
       this.editor.set(_.find(routes, { uuid }));
-
     } catch (e) {
       console.error(LABEL, e);
     }
@@ -270,7 +280,6 @@ class StateSaverUI extends UIPlugin {
 }
 
 async function put(pluginName, k, v) {
-  var microdrop = new MicrodropAsync();
   const msg = {};
   _.set(msg, "__head__.plugin_name", microdrop.name);
   _.set(msg, k, v);

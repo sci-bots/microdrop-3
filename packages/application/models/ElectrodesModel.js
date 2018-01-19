@@ -1,8 +1,9 @@
 const _ = require('lodash');
 
-const MicrodropAsync = require("@microdrop/async");
-const PluginModel = require('./PluginModel');
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 
+const microdrop = new MicropedeAsync('microdrop');
 
 function MapElectrodesAndChannels(threeObject) {
   /* Generate electrode and channel maps from three object */
@@ -32,10 +33,9 @@ function MapElectrodesAndChannels(threeObject) {
   }
 }
 
-class ElectrodesModel extends PluginModel {
+class ElectrodesModel extends MicropedeClient {
   constructor () {
-    super();
-    this.microdrop = new MicrodropAsync();
+    super('microdrop');
   }
 
   listen() {
@@ -56,7 +56,7 @@ class ElectrodesModel extends PluginModel {
       this.trigger("set-active-electrodes", activeElectrodes);
       return this.notifySender(payload, activeElectrodes, "active-electrodes");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), "active-electrodes", "failed");
+      return this.notifySender(payload, DumpStack(LABEL, e), "active-electrodes", "failed");
     }
   }
 
@@ -72,8 +72,7 @@ class ElectrodesModel extends PluginModel {
       if (!_.isBoolean(state)) throw("state should be bool");
 
       // Get all connected electrodes based on the device object
-      const microdrop = new MicrodropAsync();
-      const threeObject = await microdrop.device.threeObject();
+      const threeObject = await microdrop.getState('device-model', 'three-object');
       const {channels, electrodes} = MapElectrodesAndChannels(threeObject);
       const electrodeChannel = electrodes[electrodeId];
       const connectedElectrodes = channels[electrodeChannel];
@@ -81,7 +80,8 @@ class ElectrodesModel extends PluginModel {
       // Get all the currently active electrodes
       let activeElectrodes;
       try {
-        activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
+        // activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
+        activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 200);
       } catch (e) { activeElectrodes = [] }
 
       // Add or remove the connected electrodes depending on state
@@ -90,11 +90,15 @@ class ElectrodesModel extends PluginModel {
       } else {
         activeElectrodes = _.uniq(_.without(activeElectrodes, ...connectedElectrodes));
       }
-      activeElectrodes =
-        await microdrop.electrodes.putActiveElectrodes(activeElectrodes);
+      // activeElectrodes =
+      //   await microdrop.electrodes.putActiveElectrodes(activeElectrodes);
+      activeElectrodes = (
+        await microdrop.putPlugin('electrodes-model', 'active-electrodes',
+          {'active-electrodes': activeElectrodes})).response;
+
       return this.notifySender(payload, activeElectrodes, "toggle-electrode");
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), "toggle-electrode",
+      return this.notifySender(payload, DumpStack(LABEL, e), "toggle-electrode",
         'failed');
     }
   }

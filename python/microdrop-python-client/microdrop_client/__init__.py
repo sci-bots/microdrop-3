@@ -13,9 +13,10 @@ from mqttclient import MqttClient
 
 DEFAULT_TIMEOUT = 10000.0
 
+
 def generate_id():
-    timestamp = str(time()).replace(".","")
-    randnum = randint(1,1000)
+    timestamp = str(time()).replace(".", "")
+    randnum = randint(1, 1000)
     return f'microdrop-py-{timestamp}-{randnum}'
 
 
@@ -23,8 +24,10 @@ class MyMqttClient(MqttClient):
     def __init__(self):
         self._name = generate_id()
         super().__init__()
+
     def listen(self):
         self.trigger('client-ready', 'null')
+
     @property
     def name(self):
         return self._name
@@ -40,7 +43,8 @@ class Microdrop:
         self.loop.run_until_complete(protocol(self, *args, **kwargs))
 
     def safe(self, method):
-        return lambda *m, **kw: self.loop.call_soon_threadsafe(method, *m, **kw)
+        return lambda *m, **kw: self.loop.call_soon_threadsafe(method, *m,
+                                                               **kw)
 
     def reset_client(self, timeout=DEFAULT_TIMEOUT):
         """ Create new client """
@@ -79,6 +83,7 @@ class Microdrop:
         try:
             await self.reset_client()
             future = asyncio.Future()
+
             def state_msg(payload):
                 if (not future.done()):
                     future.set_result(payload)
@@ -94,7 +99,8 @@ class Microdrop:
     async def get_subscriptions(self, receiver, timeout=DEFAULT_TIMEOUT):
         LABEL = f'<MicrodropPython::get_subscriptions::{receiver}>'
         try:
-            payload = await self.trigger_plugin(receiver, 'get-subscriptions', {}, timeout)
+            payload = await self.trigger_plugin(receiver, 'get-subscriptions',
+                                                {}, timeout)
             return payload['response']
         except Exception as err:
             raise self.dump_stack(LABEL, err)
@@ -111,17 +117,19 @@ class Microdrop:
         except Exception as err:
             raise self.dump_stack(LABEL, err)
 
-    async def trigger_plugin(self, receiver, action, val={}, timeout=DEFAULT_TIMEOUT):
+    async def trigger_plugin(self, receiver, action, val={},
+                             timeout=DEFAULT_TIMEOUT):
         LABEL = f'<MicrodropPython::trigger_plugin::{receiver}::{action}>'
         try:
             await self.reset_client()
-            result = await self.call_action(receiver, action, val, 'trigger', timeout)
+            result = await self.call_action(receiver, action, val, 'trigger',
+                                            timeout)
             return result
         except Exception as err:
             raise self.dump_stack(LABEL, err)
 
-
-    async def call_action(self, receiver, action, val, msg_type='trigger', timeout=DEFAULT_TIMEOUT):
+    async def call_action(self, receiver, action, val, msg_type='trigger',
+                          timeout=DEFAULT_TIMEOUT):
         LABEL = '<MicrodropPython::call_action>'
         no_timeout = False
         if (timeout == -1):
@@ -141,7 +149,9 @@ class Microdrop:
             if (payload['status']):
                 if (payload['status'] != 'success'):
                     if (not future.done()):
-                        future.set_exception(self.dump_stack(LABEL, Exception(payload['response'])))
+                        future.set_exception(
+                            self.dump_stack(LABEL,
+                                            Exception(payload['response'])))
             else:
                 print(f'warning: no status key for topic: {topic}')
 

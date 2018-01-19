@@ -9,9 +9,7 @@ const ArgumentParser = require('argparse').ArgumentParser;
 const electron = require('electron');
 const express = require('express');
 const handlebars = require('handlebars');
-const NodeMqttClient = require('@mqttclient/node');
-
-const MoscaServer  = require('./MoscaServer');
+const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
 
 const DeviceModel     = require("./models/DeviceModel");
 const ElectrodesModel = require('./models/ElectrodesModel');
@@ -22,12 +20,12 @@ const HTTP_PORT = 3000;
 
 const DEFAULT_ENABLED = require("./package.json")['default-enabled'];
 
-class WebServer extends NodeMqttClient {
+class WebServer extends MicropedeClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
       WebServer.generatePluginJSON();
-    super("localhost", MQTT_PORT, "microdrop");
+    super('microdrop');
 
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
@@ -51,7 +49,7 @@ class WebServer extends NodeMqttClient {
     this.get('/', this.onShowIndex.bind(this));
 
     // this.addSubscription("microdrop/{*}/add-web-plugin", this.onAddWebPlugin.bind(this));
-    this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
+    // this.addStateErrorRoute("web-plugins", "set-web-plugins-failed");
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.bindStateMsg("process-plugins", "set-process-plugins");
@@ -64,7 +62,7 @@ class WebServer extends NodeMqttClient {
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-    this._listen(HTTP_PORT)
+    this._listen(HTTP_PORT);
 
     // Launch models:
     new DeviceModel();
@@ -72,12 +70,6 @@ class WebServer extends NodeMqttClient {
     new RoutesModel();
     // Ping plugins every three seconds
     setInterval(this.pingRunningStates.bind(this), 3000);
-  }
-  getReceiver(payload) {
-    // XXX: Implement this method in NodeMqttClient
-    if (!payload.__head__) return false;
-    if (!payload.__head__.plugin_name) return false;
-    return payload.__head__.plugin_name;
   }
 
   get filepath() {return __dirname;}
@@ -97,7 +89,6 @@ class WebServer extends NodeMqttClient {
     return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
-
     const file = path.resolve(plugin_path);
     this.addWebPlugin(file, plugin_data);
     this.trigger("set-web-plugins", this.webPlugins);
@@ -122,9 +113,9 @@ class WebServer extends NodeMqttClient {
     // Ensure file exists, and is a javascript file:
     let error;
     if (!fileExists) error = "file does not exists";
-    if (extension != ".js") error = "plugins must be javascript (.js) files"
+    if (extension != ".js") error = "plugins must be javascript (.js) files";
     if (error) {
-      this.trigger("set-web-plugins-failed", error);
+      // this.trigger("set-web-plugins-failed", error);
       console.error(error, file);
       return;
     }
@@ -258,7 +249,7 @@ class WebServer extends NodeMqttClient {
 
     // Listen for close event
     this.once(`${pluginName}:closed`, () => {
-      const receiver = this.getReceiver(payload);
+      const receiver = GetReceiver(payload);
       if (!receiver) return;
       this.sendMessage(
         `microdrop/${this.name}/notify/${receiver}/close-plugin`,
@@ -276,7 +267,7 @@ class WebServer extends NodeMqttClient {
 
     // Send the status of the plugin (either success, or error message)
     var sendLaunchStatus = (msg) => {
-      const receiver = this.getReceiver(payload);
+      const receiver = GetReceiver(payload);
       if (!receiver) return;
       this.sendMessage(
         `microdrop/${this.name}/notify/${receiver}/launch-plugin`,
@@ -326,7 +317,9 @@ class WebServer extends NodeMqttClient {
     const plugin = new Object();
     plugin.name = payload.clientName;
     plugin.path = payload.clientPath;
-    if (plugin.path == "web") return;
+    if (plugin.path == "web" || plugin.path == undefined) return;
+    console.log("ADDING PLUGIN");
+    console.log(plugin)
     plugin.id   = `${plugin.name}:${plugin.path}`;
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
@@ -419,24 +412,6 @@ class WebServer extends NodeMqttClient {
     return pluginData.webPlugins;
   }
 
-  wrapData(key, value) {
-    // TODO: Move to NodeMqttClient
-    // Add "__head__" key to msg and also convert to object
-    let msg = new Object();
-    if (typeof(value) == "object" && value !== null) msg = value;
-    else msg[key] = value;
-    msg.__head__ = this.DefaultHeader();
-    return msg;
-  }
-
-  DefaultHeader() {
-    // TODO: Move to NodeMqttClient
-    const header = new Object();
-    header.plugin_name = this.name;
-    header.plugin_version = this.version;
-    return header;
-  }
-
   static pluginsfile() {
     return path.resolve(path.join(__dirname, "plugins.json"));
   }
@@ -467,7 +442,7 @@ const launchMicrodrop = function() {
       action: "append"
     }
   );
-  let moscaServer;
+  // let moscaServer;
   // const moscaServer = new MoscaServer();
   const webServer = new WebServer(parser.parseArgs());
 
@@ -513,7 +488,7 @@ const launchMicrodrop = function() {
     }
   });
 
-  return {moscaServer, webServer, app, createWindow};
+  return {webServer, app, createWindow};
 }
 
 module.exports = {

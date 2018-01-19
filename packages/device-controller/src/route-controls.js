@@ -6,14 +6,19 @@ const Backbone = require('backbone');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient} = require('@micropede/client/src/client.js');
+
 const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 
 const {FindAllNeighbours} = require('./electrode-controls');
 
-class RouteControls extends MicrodropAsync.MqttClient {
+const APPNAME = 'microdrop';
+const microdrop = new MicropedeAsync(APPNAME);
+
+class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls) {
-    super();
+    super(APPNAME);
     electrodeControls.on("mousedown", this.drawRoute.bind(this));
     electrodeControls.on("mouseup", (e) => this.trigger("mouseup", e));
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
@@ -34,9 +39,9 @@ class RouteControls extends MicrodropAsync.MqttClient {
   async renderRoutes(routes) {
     const LABEL = "<RouteControls::renderRoutes>";
 
-    const microdrop = new MicrodropAsync();
     const group = this.electrodeControls.svgGroup;
-    const electrodes =  await microdrop.device.electrodesFromRoutes(routes);
+    const electrodes = (await microdrop.triggerPlugin('device-model',
+      'electrodes-from-routes', {routes})).response;
 
     // Reset all lines to not visited
     _.each(this.lines, (l)=>{l.visited = false});
@@ -101,9 +106,9 @@ class RouteControls extends MicrodropAsync.MqttClient {
   async selectRoute(e) {
     const id = e.target.name;
     const lineWidth = 0.3;
-    const microdrop = new MicrodropAsync();
-    const routes = await microdrop.routes.routes();
-    const absoluteRoutes = await microdrop.device.electrodesFromRoutes(routes);
+    let routes = await microdrop.getState('routes-model', 'routes', 500);
+    const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
+        'electrodes-from-routes', {routes})).response;
 
     const selectedRoutes = [];
 
@@ -131,7 +136,9 @@ class RouteControls extends MicrodropAsync.MqttClient {
 
     // Listen for context menu action
     const clearCallback = (e) => {
-      microdrop.routes.clear(selectedRoutes);
+      const uuids = _.map(selectedRoutes, 'uuid');
+      routes = _.filter(routes, (r) => !_.includes(uuids, r.uuid));
+      microdrop.putPlugin('routes-model', 'routes', routes);
       this.off("clear-route");
       this.off("execute-route");
     }
@@ -139,10 +146,12 @@ class RouteControls extends MicrodropAsync.MqttClient {
     const execCallback = (e) => {
       switch (e.key) {
         case "executeRoute":
-          microdrop.routes.execute(selectedRoutes);
+          microdrop.triggerPlugin('routes-model', 'execute',
+            {routes: selectedRoutes}, -1);
           break;
         case "executeRoutes":
-          microdrop.routes.execute(routes);
+          microdrop.triggerPlugin('routes-model', 'execute',
+            {routes: selectedRoutes}, -1);
           break;
       }
       this.off("clear-route");

@@ -2,14 +2,30 @@ const _ = require('lodash');
 const uuid4 = require('uuid/v4');
 const Ajv = require('ajv');
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
-const PluginModel = require('./PluginModel');
+const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const ajv = new Ajv({ useDefaults: true });
+const APPNAME = 'microdrop';
 
-class RoutesModel extends PluginModel {
+const microdrop = new MicropedeAsync(APPNAME);
+
+const RouteSchema = {
+  type: "object",
+  properties: {
+    start: {type: "string"},
+    path:  {type: "array"},
+    trailLength: {type: "integer", minimum: 1, default: 1},
+    repeatDurationSeconds: {type: "number", minium: 0, default: 1},
+    transitionDurationMilliseconds: {type: "integer", minimum: 100, default: 1000},
+    routeRepeats: {type: "integer", minimum: 1, default: 1}
+  },
+  required: ['start', 'path']
+}
+
+class RoutesModel extends MicropedeClient {
   constructor() {
-    super();
+    super(APPNAME);
   }
 
   // ** Event Listeners **
@@ -34,7 +50,6 @@ class RoutesModel extends PluginModel {
       if (!routes[0].start) throw("missing start in route");
       if (!routes[0].path) throw("missing path in route");
 
-      const microdrop = new MicrodropAsync();
       let seq = [];
 
       // Extend path based on number of repeats
@@ -46,7 +61,10 @@ class RoutesModel extends PluginModel {
         let numRepeats;
 
         // Check if route contains a loop before continuing
-        const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
+        // const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
+        const ids = (await microdrop.triggerPlugin('device-model',
+          'electrodes-from-routes', {routes: [route]})).response[0].ids;
+
         if (ids[0] != _.last(ids)) {
           const times = await ActiveElectrodeIntervals(route);
           seq = seq.concat(times);
@@ -91,15 +109,14 @@ class RoutesModel extends PluginModel {
 
       return this.notifySender(payload, {status: 'running'}, 'execute');
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), 'execute', 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), 'execute', 'failed');
     }
   }
 
   async putRoute(payload) {
     const LABEL = "<RoutesModel::putRoute>"; //console.log(LABEL);
     try {
-      const microdrop = new MicrodropAsync();
-      const schema = microdrop.routes.RouteSchema;
+      const schema = RouteSchema;
 
       // Validate route schema
       const validate = ajv.compile(schema);
@@ -107,11 +124,15 @@ class RoutesModel extends PluginModel {
       var route = _.omit(payload, "__head__");
 
       // Validate path by checking if electrodesFromRoutes throws error
-      var e = await microdrop.device.electrodesFromRoute(route);
+      // var e = await microdrop.device.electrodesFromRoute(route);
+      var e = (await microdrop.triggerPlugin('device-model',
+        'electrodes-from-routes', {routes: [route]}))[0];
 
       // Get previously stored routes (if failure then set to empty array)
       let routes
-      try { routes = await microdrop.routes.routes(500);
+      try {
+        // routes = await microdrop.routes.routes(500);
+        routes = await microdrop.getState('routes-model', 'routes', 500);
       } catch (e) { routes = []; }
 
       // Check if route exists, and if so override
@@ -126,10 +147,11 @@ class RoutesModel extends PluginModel {
       }
 
       // Update state of microdrop
-      routes = await microdrop.routes.putRoutes(routes);
+      // routes = await microdrop.routes.putRoutes(routes);
+      routes = await microdrop.putPlugin('routes-model', 'routes', routes);
       return this.notifySender(payload, {routes, route}, 'route');
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), 'route', 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), 'route', 'failed');
     }
   }
 
@@ -138,14 +160,12 @@ class RoutesModel extends PluginModel {
     try {
       if (!payload.routes) throw("missing payload.routes");
       if (!_.isArray(payload.routes)) throw("payload.routes not an array");
-
-      const microdrop = new MicrodropAsync();
       const routes = payload.routes;
 
       this.trigger("set-routes", routes);
       return this.notifySender(payload, routes, 'routes');
     } catch (e) {
-      return this.notifySender(payload, this.dumpStack(LABEL, e), 'routes', 'failed');
+      return this.notifySender(payload, DumpStack(LABEL, e), 'routes', 'failed');
     }
   }
 }
@@ -165,8 +185,8 @@ function ActiveElectrodesAtTime(elecs, t) {
 
 async function ActiveElectrodeIntervals(r) {
   // Get electrode intervals based on a routes time properties
-  const microdrop = new MicrodropAsync();
-  const seq = await microdrop.device.electrodesFromRoute(r);
+  const seq = (await microdrop.triggerPlugin('device-model',
+      'electrodes-from-routes', {routes: [r]})).response[0];
 
   // ids, uuid
   const times = [];
@@ -181,11 +201,11 @@ async function ActiveElectrodeIntervals(r) {
 
 async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
   // Execute Loop continuously until maxTime is reached
-  const microdrop = new MicrodropAsync();
   await wait(interval);
   const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
-  await microdrop.electrodes.putActiveElectrodes(_.map(active, "id"));
-  // console.log({remaining, currentTime, maxTime, interval});
+  await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
+    'active-electrodes': _.map(active, "id")
+  });
 
   if (remaining.length == 0) {callback(); return}
   if (currentTime+interval >= maxTime) {callback(); return}

@@ -1,3 +1,5 @@
-const MoscaServer  = require('./MoscaServer');
-const moscaServer = new MoscaServer();
-global.MicrodropAsync = require('@microdrop/async');
+// const MoscaServer  = require('./MoscaServer');
+const Broker = require('@micropede/broker/src/index.js');
+const broker = new Broker('microdrop');
+
+// const moscaServer = new MoscaServer();

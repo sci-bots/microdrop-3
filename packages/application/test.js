@@ -3,7 +3,7 @@ var {spawn} = require('child_process');
 var {promisify} = require('util');
 var path = require('path');
 var _ = require('lodash');
-var MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+var MicropedeAsync = require('@micropede/client/src/async.js');
 var {launchMicrodrop} = require('./index');
 
 const DEFAULT_DEVICE_JSON = './resources/default.json';
@@ -23,16 +23,7 @@ describe('Microdrop', async function() {
   this.timeout(5000);
   var {moscaServer, webServer, app, createWindow} = launchMicrodrop();
   const w = createWindow();
-  let microdrop;
-
-  describe('Client', async function() {
-    this.timeout(10000);
-    it('ready', async function() {
-      microdrop = new MicrodropAsync();
-      var stat = await microdrop.clientReady();
-      return assert.equal(stat, true);
-    });
-  });
+  const microdrop = new MicropedeAsync('microdrop');
 
   describe('Device', function() {
     this.timeout(10000);
@@ -50,13 +41,14 @@ describe('Microdrop', async function() {
         // XXX: Using timer to ensure electron app is ready
         await asyncTimer(3000);
         var device = require(DEFAULT_DEVICE_JSON);
-        await microdrop.device.putThreeObject(device);
-        var objects = await microdrop.device.threeObject();
+        await microdrop.putPlugin('device-model', 'three-object', device);
+        var objects = await microdrop.getState('device-model', 'three-object');
         return assert.equal(objects.length, DEFAULT_DEVICE_LENGTH);
     });
 
     it('get neighbours', async function() {
-      var n1 = await microdrop.device.getNeighbouringElectrodes('electrode000');
+      var n1 = (await microdrop.triggerPlugin('device-model',
+        'get-neighbouring-electrodes', {electrodeId: 'electrode000'})).response;
       assert.deepEqual(n1, ELECTRODE000_NEIGHBOURS);
     });
 
@@ -64,14 +56,20 @@ describe('Microdrop', async function() {
 
   describe('Electrodes', async function() {
     it('clear active electrodes', async function() {
-      await microdrop.electrodes.putActiveElectrodes([]);
-      var arr = await microdrop.electrodes.activeElectrodes();
+      // await microdrop.electrodes.putActiveElectrodes([]);
+      await microdrop.putPlugin('electrodes-model', 'active-electrodes', []);
+      var arr = await microdrop.getState('electrodes-model', 'active-electrodes');
+      // var arr = await microdrop.electrodes.activeElectrodes();
       assert.equal(arr.length, 0);
     });
 
     it('put active electrodes', async function() {
-      await microdrop.electrodes.putActiveElectrodes(['electrode000', 'electrode001']);
-      var arr = await microdrop.electrodes.activeElectrodes();
+      // await microdrop.electrodes.putActiveElectrodes(['electrode000', 'electrode001']);
+      await microdrop.putPlugin('electrodes-model', 'active-electrodes',
+        ['electrode000', 'electrode001']);
+      // var arr = await microdrop.electrodes.activeElectrodes();
+      var arr = await microdrop.getState('electrodes-model',
+        'active-electrodes');
       assert.equal(arr.length, 2);
     });
 
@@ -79,29 +77,42 @@ describe('Microdrop', async function() {
 
   describe('Routes', async function() {
     it('clear routes', async function() {
-      await microdrop.routes.putRoutes([]);
-      var arr = await microdrop.routes.routes();
+      // await microdrop.routes.putRoutes([]);
+      await microdrop.putPlugin('routes-model', 'routes', []);
+      // var arr = await microdrop.routes.routes();
+      var arr = await microdrop.getState('routes-model', 'routes');
       assert.equal(arr.length, 0);
     });
 
     it('add route', async function() {
-      await microdrop.routes.putRoute(ROUTE);
-      var arr = await microdrop.routes.routes();
+      // await microdrop.routes.putRoute(ROUTE);
+      await microdrop.putPlugin('routes-model', 'route', ROUTE);
+      // var arr = await microdrop.routes.routes();
+      var arr = await microdrop.getState('routes-model', 'routes');
       assert.equal(arr.length, 1);
     });
 
     it('compute electrodes', async function() {
-      var route = (await microdrop.routes.routes())[0];
-      var ids = (await microdrop.device.electrodesFromRoute(route)).ids;
+      // var route = (await microdrop.routes.routes())[0];
+      var route = (await microdrop.getState('routes-model', 'routes'))[0];
+      // var ids = (await microdrop.device.electrodesFromRoute(route)).ids;
+      var ids = (await microdrop.triggerPlugin('device-model',
+        'electrodes-from-routes', {routes: [route]})).response[0].ids
       assert.deepEqual(ids,COMPUTED_ROUTE);
     });
 
     it('execute', async function() {
-      await microdrop.electrodes.putActiveElectrodes([]);
-      var route = (await microdrop.routes.routes())[0];
+      // await microdrop.electrodes.putActiveElectrodes([]);
+      await microdrop.putPlugin('electrodes-model', 'active-electrodes', []);
+      // var route = (await microdrop.routes.routes())[0];
+      var route = (await microdrop.getState('routes-model', 'routes'))[0];
       route.transitionDurationMilliseconds = 100;
-      await microdrop.routes.execute([route], -1);
-      var activeElectrodes = await microdrop.electrodes.activeElectrodes();
+      // await microdrop.routes.execute([route], -1);
+      await microdrop.triggerPlugin('routes-model', 'execute',
+        {routes: [route]}, -1);
+      // var activeElectrodes = await microdrop.electrodes.activeElectrodes();
+      var activeElectrodes = await microdrop.getState('electrodes-model',
+        'active-electrodes');
       assert.deepEqual(activeElectrodes,[_.last(COMPUTED_ROUTE)]);
     });
 

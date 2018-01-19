@@ -1,62 +1,33 @@
 const Key = require('keyboard-shortcut');
-const MQTTClient = require('@mqttclient/web');
+const {MicropedeClient} = require('@micropede/client/src/client.js');
 
 if (!window.microdropPlugins)
   window.microdropPlugins = new Map();
 
-class UIPlugin extends MQTTClient {
+const APPNAME = 'microdrop';
+
+class UIPlugin extends MicropedeClient {
   constructor(element, focusTracker) {
-    super();
+    super(APPNAME);
     this.element = element;
     this.focusTracker = focusTracker;
-    this._listen();
+    Key("delete", () => {
+      if (this.hasFocus) this.trigger("delete");
+    });
   }
 
-  // ** Event Listeners **
-  _listen() {
-    Key("delete", this._onDelete.bind(this));
-  }
-
-  // ** Event Handlers **
-   _onDelete(){
-     if (this.hasFocus) this.trigger("delete");
-   }
-
-  // ** Getters and Setters **
-  set element(element) {
-    // XXX: Must set tabIndex property for FocusTracker to work
-    element.tabIndex = 0;
-    this._element = element;
-  }
   get element() {return this._element}
   get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
-  get version() {return "0.0"}
+  set element(element) {
+    element.tabIndex = 0; this._element = element;
+  }
 
-  // ** Methods **
   changeElement(k,item) {
     if (this[k]) this.element.removeChild(this[k]);
     this.element.appendChild(item);
     this[`_${k}`] = item;
   }
-  wrapData(key, value) {
-    let msg = new Object();
-    // Convert message to object if not already
-    if (typeof(value) == "object" && value !== null) msg = value;
-    else msg[key] = value;
-    // Add header
-    msg.__head__ = this.DefaultHeader();
-    return msg;
-  }
 
-  // ** Initializers **
-  DefaultHeader() {
-    const header = new Object();
-    header.plugin_name = this.name;
-    header.plugin_version = this.version;
-    return header;
-  }
-
-  // ** Static Methods **
   static Widget(panel, dock, focusTracker) {
     /* Add plugin to specified dock panel */
     const widget = new PhosphorWidgets.Widget();
@@ -71,11 +42,6 @@ class UIPlugin extends MQTTClient {
     return widget;
   }
 
-  static position() {
-    /* topLeft, topRight, bottomLeft, or bottomRight */
-    return "topLeft";
-  }
-
-};
+}
 
 module.exports = UIPlugin;

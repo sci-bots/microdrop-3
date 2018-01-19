@@ -6,10 +6,11 @@ const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 
 const DeviceController = require('@microdrop/device-controller/src/device-controller');
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
 
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
+window.MicropedeAsync = MicropedeAsync;
 
 class DeviceUIPlugin extends UIPlugin {
   constructor(elem, focusTracker) {
@@ -46,13 +47,13 @@ class DeviceUIPlugin extends UIPlugin {
 
   contextMenuClicked(key, options) {
     if (!this.controls) return true;
-    const microdrop = new MicrodropAsync();
+    const microdrop = new MicropedeAsync('microdrop');
     switch (key) {
       case "clearElectrodes":
-        microdrop.electrodes.putActiveElectrodes([]);
+        microdrop.putPlugin('electrodes-model', 'active-electrodes', []);
         break;
       case "clearRoutes":
-        microdrop.routes.putRoutes([]);
+        microdrop.putPlugin('routes-model', 'routes', []);
         break;
       case "clearRoute":
         this.controls.routeControls.trigger("clear-route", {key, options});
@@ -61,10 +62,8 @@ class DeviceUIPlugin extends UIPlugin {
         this.controls.routeControls.trigger("execute-route", {key, options});
         break;
       case "executeRoutes":
-        // XXX: async methods don't seem to work with jquery context menu
-        // (using promises instead)
-        microdrop.routes.routes().then((routes) => {
-          microdrop.routes.execute(routes);
+        microdrop.getState('routes-model', 'routes').then((routes) => {
+          microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
         });
         break;
     }
@@ -85,8 +84,8 @@ class DeviceUIPlugin extends UIPlugin {
       const contextMenu = CreateContextMenu(this.element, this.contextMenuClicked.bind(this));
 
       const dat = await DeviceController.SVGRenderer.ConstructObjectsFromSVG("/default.svg");
-      const microdrop = new MicrodropAsync();
-      await microdrop.device.putThreeObject(dat);
+      const microdrop = new MicropedeAsync('microdrop');
+      await microdrop.putPlugin('device-model', 'three-object', dat);
 
       this.controls = controls;
       this.gui = gui;
