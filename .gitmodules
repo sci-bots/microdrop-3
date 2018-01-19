@@ -1,0 +1,3 @@
+[submodule "Micropede"]
+	path = Micropede
+	url = https://github.com/sci-bots/Micropede.git

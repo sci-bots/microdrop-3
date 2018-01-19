@@ -5,10 +5,10 @@ const generateName = require('sillyname');
 const yo = require('yo-yo');
 const _ = require('lodash');
 
-const MicropedeAysnc = require('@micropede/client/src/async.js');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
 
-window.MicropedeAsync = MicropedeAysnc;
+window.MicropedeAsync = MicropedeAsync;
 const APPNAME = 'microdrop';
 const microdrop = new MicropedeAsync(APPNAME);
 

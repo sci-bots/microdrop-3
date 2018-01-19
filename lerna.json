@@ -6,13 +6,12 @@
     "packages/buildutils",
     "packages/device-controller",
     "packages/device-ui-plugin",
-    "packages/microdrop-async",
-    "packages/mqtt-messages-js",
-    "packages/mqttclient-node",
-    "packages/mqttclient-web",
     "packages/overlay-ui-plugin",
     "packages/state-saver",
-    "packages/ui-plugin"
+    "packages/ui-plugin",
+    "Micropede/packages/broker",
+    "Micropede/packages/client",
+    "Micropede/packages/mixins"
   ],
   "version": "1.1.22"
 }
