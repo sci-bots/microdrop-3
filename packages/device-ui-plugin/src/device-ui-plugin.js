@@ -73,6 +73,7 @@ class DeviceUIPlugin extends UIPlugin {
   async render() {
     const LABEL = "DeviceUIPlugin::render";
     try {
+       this.element.focus();
       // Don't render if not visible or already rendererd
       const bbox = this.element.getBoundingClientRect();
       const children = _.filter(this.element.children, (c)=>c.tagName != "SCRIPT");

@@ -20,7 +20,7 @@ const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
 
 const APPNAME = 'microdrop';
-const microdrop = new MicropedeAsync(APPNAME);
+let microdrop = new MicropedeAsync(APPNAME);
 
 class ElectrodeControls extends MicropedeClient {
   constructor(scene, camera, renderer, container=null) {
@@ -235,11 +235,11 @@ class ElectrodeControls extends MicropedeClient {
     try {
       const electrodeObject = this.electrodeObjects[electrodeId];
       electrodeObject.on = true;
-      // const electrodes = await microdrop.electrodes.toggleElectrode(id, true);
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId, state: true});
     } catch (e) {
       console.error(e);
+      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 
@@ -248,14 +248,11 @@ class ElectrodeControls extends MicropedeClient {
     try {
       const electrodeObject = this.electrodeObjects[electrodeId];
       electrodeObject.on = false;
-      console.log("turning off...");
-      console.log({electrodeId});
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId: electrodeId, state: false}, 500);
-      console.log("electroded turned off successfully");
-      // const electrodes = await microdrop.electrodes.toggleElectrode(id, false);
     } catch (e) {
       console.error(e);
+      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 
@@ -264,8 +261,10 @@ class ElectrodeControls extends MicropedeClient {
       if (!this.selectedElectrode) return;
 
       const electrodeId = this.selectedElectrode.name;
-      const neighbours = (await microdrop.triggerPlugin('device-model',
+      let neighbours;
+      neighbours = (await microdrop.triggerPlugin('device-model',
         'get-neighbouring-electrodes', {electrodeId}, 500)).response;
+
 
       const neighbour = neighbours[dir];
 
@@ -362,8 +361,6 @@ class ElectrodeControls extends MicropedeClient {
     }
     const id = event.target.name;
     let isOn = _.includes(activeElectrodes, id);
-
-    // const electrodeObject = this.electrodeObjects[event.target.name];
 
     // If shiftKey is down, unset selected electrode
     if (event.origDomEvent.shiftKey == true && this.selectedElectrode) {
