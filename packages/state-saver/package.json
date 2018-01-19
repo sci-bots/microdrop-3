@@ -1,10 +1,10 @@
 {
   "name": "@microdrop/state-saver",
-  "version": "1.1.10",
+  "version": "1.1.19",
   "description": "Save and restore the state of microdrop",
   "main": "src/state-saver.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "build": "./node_modules/.bin/webpack"
   },
   "keywords": [

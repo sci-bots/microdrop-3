@@ -124,6 +124,7 @@ class DeviceUIPlugin extends UIPlugin {
     const gui = new Dat.GUI({autoPlace: false});
     gui.add(menu.cameraControls, 'enableRotate');
     gui.add(menu.videoControls, "display_anchors");
+    gui.add(menu.electrodeControls, "showElectrodeIds");
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
     gui.domElement.style.right = "0px";

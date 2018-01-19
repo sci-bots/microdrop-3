@@ -1,7 +1,7 @@
 var config = {
   entry: './src/overlay-ui-plugin.js',
   output: {
-    filename: './build/overlay-ui-plugin.js',
+    filename: './build/overlay-ui-plugin.web.js',
     library: 'OverlayUI',
     libraryTarget: 'var'
   },

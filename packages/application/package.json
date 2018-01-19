@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/application",
-  "version": "1.1.15",
+  "version": "1.1.19",
   "description": "Top Level Application for Microdrop",
   "main": "index.js",
   "bin": {
@@ -15,8 +15,8 @@
     "start": "./node_modules/.bin/electron .",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
     "build": "npm run build:phosphor && npm run build:ui",
-    "build:phosphor": "./node_modules/.bin/webpack --config ui/src/phosphor.config.js --context ui/src",
-    "build:ui": "./node_modules/.bin/webpack --config ui/src/plugin-manager.config.js --context ui/src"
+    "build:phosphor": " cd ./ui/src && ../../node_modules/.bin/webpack --config phosphor.config.js",
+    "build:ui": "cd ./ui/src && ../../node_modules/.bin/webpack --config plugin-manager.config.js"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",

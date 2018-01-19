@@ -45,13 +45,13 @@ class StateSaverUI extends UIPlugin {
     if (!_.isEqual(this.focusTracker.currentWidget.plugin, this)) return;
     // Don't do anything if state-saver is not on steps view
     if (this.view != 'steps') return;
+    const microdrop = new MicrodropAsync();
     let prevStepIndex;
     try {
       prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index', 500);
     } catch (e) {
       return;
     }
-
     let nextStepIndex = prevStepIndex;
 
     const steps = await microdrop.getState('state-saver-ui', 'steps');
@@ -59,6 +59,7 @@ class StateSaverUI extends UIPlugin {
 
     // Prevent the page from scrolling down
     e.preventDefault();
+    e.stopPropagation();
     switch (e.code) {
       case 'ArrowUp':
         nextStepIndex -= 1;

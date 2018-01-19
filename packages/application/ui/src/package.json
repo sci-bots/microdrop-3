@@ -1,10 +1,10 @@
 {
   "name": "microdrop-3-ui",
-  "version": "1.1.14",
+  "version": "1.1.19",
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "link-packages": "npm link ../../packages/microdrop-async && npm link ../../packages/ui-plugin",
     "build": "npm run build-phosphor && npm run build-pm",
     "build-pm": "./node_modules/.bin/webpack --config plugin-manager.config.js",
@@ -13,10 +13,10 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/async": "1.1.10",
-    "@microdrop/ui-plugin": "^1.1.10",
-    "@mqttclient/mqtt-messages": "1.1.0",
-    "@mqttclient/web": "1.1.10",
+    "@microdrop/async": "^1.1.19",
+    "@microdrop/ui-plugin": "^1.1.19",
+    "@mqttclient/mqtt-messages": "^1.1.19",
+    "@mqttclient/web": "^1.1.19",
     "@phosphor/widgets": "^1.5.0",
     "jquery": "^3.2.1",
     "keyboard-shortcut": "^1.2.0"

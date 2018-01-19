@@ -9,7 +9,7 @@
   <!-- Stylesheets -->
   <link href="styles/phosphor/index.css" rel="stylesheet" />
   <!-- Scripts -->
-  <script type="text/javascript" src="scripts/phosphor.js"></script>
+  <script type="text/javascript" src="scripts/phosphor.web.js"></script>
   <!-- Plugins -->
   {{#each pluginPaths}}
   <script type="text/javascript" src="{{this}}"></script>
