@@ -18,10 +18,12 @@ class DeviceUIPlugin extends UIPlugin {
     this.controls = null;
     this.contextMenu = null;
     this.gui = null;
+    this.element.style.padding = "0px";
   }
 
   listen() {
     this.on("updateRequest", this.onUpdateRequest.bind(this));
+    this.onStateMsg('device-model', 'three-object', this.renderDevice.bind(this));
 
     // XXX: Sometimes updateRequest doesn't fire on page reload (thus force it with timeout)
     setTimeout(()=>this.trigger("updateRequest"), 1000);
@@ -30,6 +32,10 @@ class DeviceUIPlugin extends UIPlugin {
     Key("right", this.move.bind(this, DIRECTIONS.RIGHT));
     Key("up", this.move.bind(this, DIRECTIONS.UP));
     Key("down", this.move.bind(this, DIRECTIONS.DOWN));
+
+    this.element.focus();
+    this.contextMenu = CreateContextMenu(this.element, this.contextMenuClicked.bind(this));
+    this.element.onclick = () => this.element.focus();
   }
 
   move(...args) {
@@ -39,16 +45,54 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   onUpdateRequest(msg) {
-    if (!this.controls) { this.render(); }
-    else {
-      this.controls.cameraControls.trigger("updateRequest", this);
+    if (!this.controls) return;
+    this.controls.cameraControls.trigger("updateRequest", this);
+  }
+
+  async renderDevice(payload) {
+    console.log("RENDERING DEVICE");
+    console.log({payload});
+
+    if (this.sceneContainer) {
+      this.sceneContainer.innerHTML = '';
+    } else  {
+      this.sceneContainer = yo`
+        <div style="width:100%;height:100%;overflow:hidden;"></div>`;
+      this.element.appendChild(this.sceneContainer);
     }
+
+    const bbox = this.element.getBoundingClientRect();
+    if (bbox.width == 0) return;
+
+    this.controls = await DeviceController.createScene(this.sceneContainer, payload);
+    this.gui = CreateDatGUI(this.sceneContainer, this.controls);
+  }
+
+  changeDevice() {
+    console.log("changing device!");
+    const handler = (e) => {
+      const f = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const content = e.target.result;
+        const svg = ParseSVGFromString(content);
+        const objects = ConstructObjectsFromSVG(svg);
+        const microdrop = new MicropedeAsync('microdrop');
+        microdrop.putPlugin('device-model', 'three-object', objects);
+      };
+      reader.readAsText(f);
+    }
+
+    const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
+    fileinput.click();
   }
 
   contextMenuClicked(key, options) {
-    if (!this.controls) return true;
     const microdrop = new MicropedeAsync('microdrop');
     switch (key) {
+      case "changeDevice":
+        this.changeDevice();
+        break;
       case "clearElectrodes":
         microdrop.putPlugin('electrodes-model', 'active-electrodes', []);
         break;
@@ -56,47 +100,21 @@ class DeviceUIPlugin extends UIPlugin {
         microdrop.putPlugin('routes-model', 'routes', []);
         break;
       case "clearRoute":
+        if (!this.controls) return true;
         this.controls.routeControls.trigger("clear-route", {key, options});
         break;
       case "executeRoute":
+        if (!this.controls) return true;
         this.controls.routeControls.trigger("execute-route", {key, options});
         break;
       case "executeRoutes":
+        if (!this.controls) return true;
         microdrop.getState('routes-model', 'routes').then((routes) => {
           microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
         });
         break;
     }
     return true;
-  }
-
-  async render() {
-    const LABEL = "DeviceUIPlugin::render";
-    try {
-       this.element.focus();
-      // Don't render if not visible or already rendererd
-      const bbox = this.element.getBoundingClientRect();
-      const children = _.filter(this.element.children, (c)=>c.tagName != "SCRIPT");
-      if (bbox.width == 0) return;
-      if (children.length != 0) return;
-
-      const controls = await DeviceController.createScene(this.element);
-      const gui = CreateDatGUI(this.element, controls);
-      const contextMenu = CreateContextMenu(this.element, this.contextMenuClicked.bind(this));
-
-      const dat = await DeviceController.SVGRenderer.ConstructObjectsFromSVG("/default.svg");
-      const microdrop = new MicropedeAsync('microdrop');
-      await microdrop.putPlugin('device-model', 'three-object', dat);
-
-      this.controls = controls;
-      this.gui = gui;
-      this.contextMenu = contextMenu;
-
-      this.element.onclick = () => this.element.focus();
-
-    } catch (e) {
-      console.error(LABEL, e.toString());
-    }
   }
 
   static CreateContextMenu(element, callback) {
@@ -114,6 +132,8 @@ class DeviceUIPlugin extends UIPlugin {
             clearRoutes: {name: "Clear Routes"},
             executeRoutes: {name: "Execute Routes"},
             "sep3": "---------",
+            changeDevice: {name: "Change Device"},
+            "sep4": "----------",
             "select1": {name: "Select Electrode: Shift-Click", disabled: true},
             "select2": {name: "Select Route: Alt-Click", disabled: true}
         }

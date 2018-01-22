@@ -1,6 +1,9 @@
 const THREE = require('three');
 const _ = require('lodash');
+const fs = require('fs');
+const path = require('path');
 const uuid = require('uuid/v4');
+
 const Ajv = require('ajv');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
@@ -11,6 +14,7 @@ const {FindNeighbourInDirection, FindAllNeighbours} =
 
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
 const ajv = new Ajv({useDefaults: true});
+
 
 const APPNAME = 'microdrop';
 const microdrop = new MicropedeAsync(APPNAME);
@@ -156,6 +160,10 @@ class DeviceModel extends MicropedeClient {
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
+
+      const filepath = path.join(__dirname, '../resources/loaded_device.json');
+      fs.writeFileSync(filepath, JSON.stringify(threeObject) , 'utf-8');
+
       this.trigger("set-three-object", threeObject);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
@@ -207,3 +215,11 @@ const OVERLAY_SCHEMA = {
 
 
 module.exports = DeviceModel;
+
+if (require.main === module) {
+  try {
+    model = new DeviceModel();
+  } catch (e) {
+    console.error('DeviceModel failed!', e);
+  }
+}

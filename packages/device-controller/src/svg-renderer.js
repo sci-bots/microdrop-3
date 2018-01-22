@@ -9,6 +9,12 @@ const DEFAULT_TIMEOUT = 5000;
 const OFF_COLOR = "rgb(175, 175, 175)";
 const SVG_SAMPLE_LENGTH = 30;
 
+const ParseSVGFromString = (s) => {
+  const el = document.createElement('html');
+  el.innerHTML = s;
+  return el.getElementsByTagName('svg')[0];
+}
+
 const ReadFile = (url, timeout=DEFAULT_TIMEOUT) => {
   /* Read file from local url */
   return new Promise((resolve, reject) => {
@@ -77,10 +83,15 @@ const ShapeFromJSONObject = function(JSONObject) {
   return s;
 }
 
-const ConstructObjectsFromSVG = async function (url='/default.svg') {
+const ConstructObjectsFromURL = async function (url='/default.svg') {
+  const file = await ReadFile(url);
+  return ConstructObjectsFromSVG(file);
+}
+
+const ConstructObjectsFromSVG = function (file) {
   /* Construct JSON serializable geometries from svg file */
   const two = new Two();
-  const file = await ReadFile(url);
+
   const paths = $(file).find('path');
   const shapes2D = _.map(paths, (p) => two.interpret(p));
   const electrodeMap = {};
@@ -133,7 +144,14 @@ const GeneratePlaneUV = (geometry) => {
 }
 
 const GenerateSvgGroup = async (url='/default.svg') => {
-  const objects = await ConstructObjectsFromSVG(url);
+  let objects;
+  if (_.isString(url))
+    objects = await ConstructObjectsFromURL(url);
+  else if (_.isArray(url))
+    objects = url;
+  else
+    objects = ConstructObjectsFromSVG(url);
+
   const loader = new THREE.JSONLoader();
 
   const svgGroup = new THREE.Group();
@@ -183,6 +201,7 @@ const GenerateSvgGroup = async (url='/default.svg') => {
 const init = async (url='/default.svg', scene, camera, renderer, container,
   controller) => {
     const svgGroup = await GenerateSvgGroup(url);
+    console.log({svgGroup});
     const domEvents = new THREEx.DomEvents(camera, renderer.domElement);
     const documentSize = container.getBoundingClientRect();
     const resolution = new THREE.Vector2(documentSize.width, documentSize.height);
@@ -233,6 +252,8 @@ const init = async (url='/default.svg', scene, camera, renderer, container,
 module.exports = {
   ConstructScene,
   ConstructObjectsFromSVG,
+  ConstructObjectsFromURL,
   GenerateSvgGroup ,
+  ParseSVGFromString,
   ShapeFromJSONObject,
   init};

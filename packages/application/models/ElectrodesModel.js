@@ -108,3 +108,11 @@ class ElectrodesModel extends MicropedeClient {
 }
 
 module.exports = ElectrodesModel;
+
+if (require.main === module) {
+  try {
+    model = new ElectrodesModel();
+  } catch (e) {
+    console.error('ElectrodesModel failed!', e);
+  }
+}

@@ -65,8 +65,10 @@ class WebServer extends MicropedeClient {
     this._listen(HTTP_PORT);
 
     // Launch models:
-    new DeviceModel();
-    new ElectrodesModel();
+    // new DeviceModel();
+    // new ElectrodesModel();
+    spawn('node ./models/DeviceModel.js', [], {stdio: 'inherit', shell: true});
+    spawn('node ./models/ElectrodesModel.js', [], {stdio: 'inherit', shell: true});
     spawn('node ./models/RoutesModel.js', [], {stdio: 'inherit', shell: true});
     // new RoutesModel();
 

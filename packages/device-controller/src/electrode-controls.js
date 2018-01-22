@@ -158,7 +158,7 @@ class ElectrodeControls extends MicropedeClient {
     const material = electrode.fill.material;
 
     // Create a canvas containg text for the electrode number
-    const canvas = yo`<canvas width="1000" height="1000"></canvas>`;
+    const canvas = yo`<canvas width="255" height="255"></canvas>`;
     const ctx = canvas.getContext("2d");
     ctx.save();
 
