@@ -10,9 +10,6 @@ require('threex-domevents')(THREE, THREEx);
 const ThreeHelpers = require('three-helpers.svg-paths-group')(THREE);
 const PlaneTransform = require('three.planetransform')(THREE);
 
-const MicrodropAsync = require('@microdrop/async/MicrodropAsync');
-const microdrop = new MicrodropAsync();
-
 window.THREEx = THREEx;
 
 const ANCHOR_KEY = 'microdrop:device-controller:anchors';

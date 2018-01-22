@@ -13,7 +13,7 @@ const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js'
 
 const DeviceModel     = require("./models/DeviceModel");
 const ElectrodesModel = require('./models/ElectrodesModel');
-const RoutesModel     = require('./models/RoutesModel');
+// const RoutesModel     = require('./models/RoutesModel');
 
 const MQTT_PORT = 1883;
 const HTTP_PORT = 3000;
@@ -67,7 +67,9 @@ class WebServer extends MicropedeClient {
     // Launch models:
     new DeviceModel();
     new ElectrodesModel();
-    new RoutesModel();
+    spawn('node ./models/RoutesModel.js', [], {stdio: 'inherit', shell: true});
+    // new RoutesModel();
+
     // Ping plugins every three seconds
     setInterval(this.pingRunningStates.bind(this), 3000);
   }
@@ -318,8 +320,7 @@ class WebServer extends MicropedeClient {
     plugin.name = payload.clientName;
     plugin.path = payload.clientPath;
     if (plugin.path == "web" || plugin.path == undefined) return;
-    console.log("ADDING PLUGIN");
-    console.log(plugin)
+
     plugin.id   = `${plugin.name}:${plugin.path}`;
     this.addProcessPlugin(plugin);
     this.processPlugins[plugin.id].state = "running";
@@ -497,5 +498,9 @@ module.exports = {
 };
 
 if (require.main === module) {
-  launchMicrodrop();
+  try {
+    launchMicrodrop();
+  } catch (e) {
+    console.error(e);
+  }
 }

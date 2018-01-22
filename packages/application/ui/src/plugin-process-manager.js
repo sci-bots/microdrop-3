@@ -1,14 +1,10 @@
 const $ = require('jquery');
+const {WrapData} = require('@micropede/client/src/client.js');
 const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
 
 class PluginProcessManager extends UIPlugin {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "PluginProcessManager");
-
-    // ** Init **
-    this.listen();
-    this.plugins = new Object();
-    this.pluginPathField = this.PluginPathField();
   }
   listen() {
     this.onStateMsg("web-server", "process-plugins", this.onPluginsUpdated.bind(this));
@@ -19,6 +15,8 @@ class PluginProcessManager extends UIPlugin {
 
     this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
+    this.plugins = new Object();
+    this.pluginPathField = this.PluginPathField();
   }
   get channel() {return "microdrop/plugin-manager"}
 
@@ -39,7 +37,7 @@ class PluginProcessManager extends UIPlugin {
     return styles;
   }
   onAddPath(path) {
-    this.trigger("add-plugin-path", this.wrapData("path", path));
+    this.trigger("add-plugin-path", WrapData("path", path, this.name));
   }
   onPluginCardAction(msg) {
     const plugin = msg.plugin;
@@ -70,9 +68,9 @@ class PluginProcessManager extends UIPlugin {
       this.trigger("add-path", field[0].value));
     removePathBtn.on("click", () =>
       this.trigger("remove-plugin-path",
-      this.wrapData("path", field[0].value)));
+      WrapData("path", field[0].value, this.name)));
     linkPluginBtn.on("click", () =>
-      this.trigger("add-plugin-path", this.wrapData("path", field[0].value)));
+      this.trigger("add-plugin-path", WrapData("path", field[0].value, this.name)));
 
     controls.append(field);
     controls.append(addPathBtn);

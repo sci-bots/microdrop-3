@@ -6,7 +6,7 @@
     "hoist": "./node_modules/.bin/lerna bootstrap --hoist --no-optional",
     "build": "./node_modules/.bin/lerna run build",
     "test": "./node_modules/.bin/lerna run test",
-    "git:add:defaults": "git add **/package-lock.json && git add **/*.web.js"
+    "git:add:defaults": "git add package-lock.json && git add packages/**/package-lock.json && git add **/*.web.js && git add **/build/*"
   },
   "repository": {
     "type": "git",

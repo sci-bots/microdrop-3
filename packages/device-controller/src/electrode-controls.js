@@ -238,7 +238,8 @@ class ElectrodeControls extends MicropedeClient {
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId, state: true});
     } catch (e) {
-      console.error(e);
+      // console.error(e);
+      await microdrop.client.disconnectClient();
       microdrop = new MicropedeAsync(APPNAME);
     }
   }
@@ -251,7 +252,8 @@ class ElectrodeControls extends MicropedeClient {
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId: electrodeId, state: false}, 500);
     } catch (e) {
-      console.error(e);
+      // console.error(e);
+      await microdrop.client.disconnectClient();
       microdrop = new MicropedeAsync(APPNAME);
     }
   }
@@ -272,7 +274,9 @@ class ElectrodeControls extends MicropedeClient {
       await this.turnOffElectrode(electrodeId);
       this.selectElectrode(neighbour);
     } catch (e) {
-      console.error(e);
+      // console.error(e);
+      await microdrop.client.disconnectClient();
+      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 

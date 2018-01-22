@@ -61,7 +61,7 @@ var PluginManager =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 30);
+/******/ 	return __webpack_require__(__webpack_require__.s = 33);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2793,6 +2793,266 @@ exports.PassThrough = __webpack_require__(52);
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* Base MicropedeClient class */
+
+const _ = __webpack_require__(35);
+const backbone = __webpack_require__(36);
+const isNode = __webpack_require__(39);
+const mqtt = __webpack_require__(40);
+const uuidv1 = __webpack_require__(77);
+const uuidv4 = __webpack_require__(78);
+
+let RouteRecognizer = __webpack_require__(79);
+RouteRecognizer = RouteRecognizer.default || RouteRecognizer;
+
+const MqttMessages = __webpack_require__(80);
+const DEFAULT_TIMEOUT = 5000;
+
+const decamelize = (str, sep='-') => {
+  // https://github.com/sindresorhus/decamelize
+  return str
+    .replace(/([a-z\d])([A-Z])/g, '$1' + sep + '$2')
+    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + sep + '$2')
+    .toLowerCase();
+}
+
+function ChannelToRoutePath(channel) {
+  /* ex. micropede/{plugin}/{attribute} => micropede/:plugin/:attribute */
+  return channel.replace(/\{(.+?)\}/g, (x) => {return x.replace(/}/g, "").replace(/{/g, ':')});
+}
+
+function ChannelToSubscription(channel) {
+  /* ex. micropede/{plugin}/{attribute} => micropede/+/+ */
+  return channel.replace(/\{(.+?)\}/g, (x) => '+');
+}
+
+function GenerateClientId(name, appName, path='unknown'){
+  /* Returns client id , using '>>' as a separator */
+  return `${name}>>${path}>>${appName}>>${uuidv1()}-${uuidv4()}`;
+}
+
+function WrapData(key, value, name, version) {
+  /* Reform messages to objects and add header*/
+
+  let msg = {};
+  if (typeof(value) == "object" && value !== null) msg = value;
+  else msg[key] = value;
+
+  msg.__head__ = {};
+  msg.__head__.plugin_name = name;
+  msg.__head__.plugin_version = version;
+
+  return msg;
+}
+
+function GetReceiver(payload) {
+  return _.get(payload, "__head__.plugin_name");
+}
+
+function getClassName(instance) {
+  /* ex. DeviceUIPlugin => device-ui-plugin */
+  return encodeURI(decamelize(instance.constructor.name));
+}
+
+function DumpStack(label, err) {
+  if (!err) return _.flattenDeep([label, 'unknown error']);
+  if (err.stack)
+    return _.flattenDeep([label, err.stack.toString().split("\n")]);
+  if (!err.stack)
+    return _.flattenDeep([label, err.toString().split(",")]);
+}
+
+
+class MicropedeClient {
+  constructor(appName, host="localhost", port, name, version='0.0.0', options=undefined) {
+    if (appName == undefined) throw "appName undefined";
+    if (port == undefined) port = isNode ? 1883 : 8083;
+    _.extend(this, backbone.Events);
+    _.extend(this, MqttMessages);
+    var name = name || getClassName(this);
+    const clientId = GenerateClientId(name, appName);
+    this.router = new RouteRecognizer();
+
+    this.appName = appName;
+    this.clientId = clientId;
+    this.name = name;
+    this.subscriptions = [];
+    this.host = host;
+    this.port = port;
+    this.version = version;
+    this.options = options;
+    this.connectClient(clientId, host, port);
+  }
+  get isPlugin() { return false }
+
+  listen() {
+    console.error("Implement me!");
+  }
+
+
+  addBinding(channel, event, retain=false, qos=0, dup=false) {
+    return this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
+  }
+
+  addSubscription(channel, handler) {
+    const path = ChannelToRoutePath(channel);
+    const sub = ChannelToSubscription(channel);
+    const routeName = `${uuidv1()}-${uuidv4()}`;
+    try {
+      if (!this.client.connected) {
+        throw `Failed to add subscription.
+        Client is not connected (${this.name}, ${channel})`;
+      }
+
+      if (this.subscriptions.includes(sub)) {
+        throw `Failed to add subscription.
+        Subscription already exists (${this.name}, ${channel})`;
+      }
+
+      return new Promise((resolve, reject) => {
+        this.client.subscribe(sub, 0, (err, granted) => {
+          if (err) {reject(err); return}
+          this.router.add([{path, handler}], {add: routeName});
+          this.subscriptions.push(sub);
+          resolve(granted);
+        });
+      });
+    } catch (e) {
+      return Promise.reject(DumpStack(label, e));
+    }
+  }
+
+  removeSubscription(channel) {
+    const path = ChannelToRoutePath(channel);
+    const sub = ChannelToSubscription(channel);
+
+    return new Promise((resolve,reject) => {
+      this.client.unsubscribe(sub, (err) => {
+        if (err) {reject(err); return}
+        _.pull(this.subscriptions, sub);
+        resolve(true);
+      });
+    });
+  }
+
+  getSubscriptions(payload, name) {
+    const LABEL = `${this.appName}::getSubscriptions`;
+    return this.notifySender(payload, this.subscriptions, "get-subscriptions");
+  }
+
+  notifySender(payload, response, endpoint, status='success') {
+    if (status != 'success') {
+      console.error(_.flattenDeep([response]));
+      response = _.flattenDeep(response);
+    }
+    const receiver = GetReceiver(payload);
+    if (!receiver) {return response}
+    this.sendMessage(
+      `${this.appName}/${this.name}/notify/${receiver}/${endpoint}`,
+      WrapData(null, {status, response}, this.name, this.version)
+    );
+
+    return response;
+  }
+
+
+  connectClient(clientId, host, port, timeout=DEFAULT_TIMEOUT) {
+    let client = mqtt.connect(`mqtt://${host}:${port}`, {clientId}, this.options);
+    return new Promise((resolve, reject) => {
+      client.on("connect", () => {
+        try {
+          // XXX: Manually setting client.connected state
+          client.connected = true;
+          this.client = client;
+          this.subscriptions = [];
+          this.client.on("message", this.onMessage.bind(this));
+          if (this.isPlugin) {
+            this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this)).then((d) => {
+              this.listen();
+              this.defaultSubCount = this.subscriptions.length;
+              resolve(true);
+            });
+          } else {
+            this.listen();
+            this.defaultSubCount = 0;
+            resolve(true);
+          }
+        } catch (e) {
+          reject(DumpStack(this.name, e));
+        }
+    });
+
+    setTimeout( () => {
+      reject(`connect timeout ${timeout}ms`)
+    }, timeout);
+
+  });
+}
+
+  disconnectClient(timeout=500) {
+    return new Promise((resolve, reject) => {
+        this.subscriptions = [];
+        this.router = new RouteRecognizer();
+        if (!_.get(this, "client.connected")) {
+          this.off();
+          delete this.client;
+          resolve();
+        } else {
+          // disconnect the client (wihout waiting for any messages)
+          this.client.end(true, () => {
+            this.off();
+            delete this.client;
+            resolve(true);
+          });
+
+          setTimeout( () => {
+            // reject(`disconnect timeout ${timeout}ms`);
+            this.off();
+            delete this.client;
+            resolve(true);
+          }, timeout);
+        }
+    });
+  }
+
+  onMessage(topic, buf){
+    if (topic == undefined || topic == null) return;
+    if (buf.toString() == undefined) return;
+    if (buf.toString().length <= 0) return;
+    try {
+
+      let msg;
+      try {
+        msg = JSON.parse(buf.toString());
+      } catch (e) { msg = buf.toString(); }
+
+      var results = this.router.recognize(topic);
+      if (results == undefined) return;
+
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        result.handler(msg, result.params);
+      }
+    } catch (e) {
+      console.error(topic, buf.toString());
+      console.error(topic, e);
+    }
+  }
+
+  sendMessage(topic, msg={}, retain=false, qos=0, dup=false){
+    const message = JSON.stringify(msg);
+    this.client.publish(topic, message, {retain, qos, dup});
+  }
+
+}
+
+module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, WrapData};
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = extend
@@ -2817,7 +3077,7 @@ function extend() {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3556,7 +3816,7 @@ Url.prototype.parseHost = function() {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3604,7 +3864,7 @@ module.exports = buildBuilder
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -13864,59 +14124,6 @@ return jQuery;
 
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const Key = __webpack_require__(32);
-const {MicropedeClient} = __webpack_require__(34);
-
-if (!window.microdropPlugins)
-  window.microdropPlugins = new Map();
-
-const APPNAME = 'microdrop';
-
-class UIPlugin extends MicropedeClient {
-  constructor(element, focusTracker) {
-    super(APPNAME);
-    this.element = element;
-    this.focusTracker = focusTracker;
-    Key("delete", () => {
-      if (this.hasFocus) this.trigger("delete");
-    });
-  }
-
-  get element() {return this._element}
-  get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
-  set element(element) {
-    element.tabIndex = 0; this._element = element;
-  }
-
-  changeElement(k,item) {
-    if (this[k]) this.element.removeChild(this[k]);
-    this.element.appendChild(item);
-    this[`_${k}`] = item;
-  }
-
-  static Widget(panel, dock, focusTracker) {
-    /* Add plugin to specified dock panel */
-    const widget = new PhosphorWidgets.Widget();
-    widget.addClass("content");
-    const plugin = new this(widget.node,focusTracker);
-    widget.title.label = plugin.name;
-    widget.title.closable = true;
-    widget.plugin = plugin;
-    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
-    panel.activateWidget(widget);
-    focusTracker.add(widget);
-    return widget;
-  }
-
-}
-
-module.exports = UIPlugin;
-
-
-/***/ }),
 /* 15 */
 /***/ (function(module, exports) {
 
@@ -13954,7 +14161,7 @@ module.exports = function(module) {
 /**
  * Module dependencies
  */
-var xtend = __webpack_require__(10)
+var xtend = __webpack_require__(11)
 
 var Readable = __webpack_require__(9).Readable
 var streamsOpts = { objectMode: true }
@@ -17236,7 +17443,7 @@ function WebSocket (url, protocols) {
 }
 
 var websocket = __webpack_require__(28)
-var urlModule = __webpack_require__(11)
+var urlModule = __webpack_require__(12)
 
 function buildUrl (opts, client) {
   var protocol = opts.protocol === 'wxs' ? 'wss' : 'ws'
@@ -17498,7 +17705,7 @@ function WebSocketStream(target, protocols, options) {
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var websocket = __webpack_require__(28)
-var urlModule = __webpack_require__(11)
+var urlModule = __webpack_require__(12)
 var WSS_OPTIONS = [
   'rejectUnauthorized',
   'ca',
@@ -17592,29 +17799,146 @@ if (IS_BROWSER) {
 
 /***/ }),
 /* 30 */
+/***/ (function(module, exports) {
+
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  return bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]];
+}
+
+module.exports = bytesToUuid;
+
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const PluginProcessManager = __webpack_require__(31);
-const UIPluginManager = __webpack_require__(82);
+const Key = __webpack_require__(81);
+const {MicropedeClient} = __webpack_require__(10);
+
+if (!window.microdropPlugins)
+  window.microdropPlugins = new Map();
+
+const APPNAME = 'microdrop';
+
+class UIPlugin extends MicropedeClient {
+  constructor(element, focusTracker) {
+    super(APPNAME);
+    this.element = element;
+    this.focusTracker = focusTracker;
+    Key("delete", () => {
+      if (this.hasFocus) this.trigger("delete");
+    });
+  }
+  
+  get isPlugin() { return false }
+  get element() {return this._element}
+  get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
+  set element(element) {
+    element.tabIndex = 0; this._element = element;
+  }
+
+  changeElement(k,item) {
+    if (this[k]) this.element.removeChild(this[k]);
+    this.element.appendChild(item);
+    this[`_${k}`] = item;
+  }
+
+  static Widget(panel, dock, focusTracker) {
+    /* Add plugin to specified dock panel */
+    const widget = new PhosphorWidgets.Widget();
+    widget.addClass("content");
+    const plugin = new this(widget.node,focusTracker);
+    widget.title.label = plugin.name;
+    widget.title.closable = true;
+    widget.plugin = plugin;
+    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+    panel.activateWidget(widget);
+    focusTracker.add(widget);
+    return widget;
+  }
+
+}
+
+module.exports = UIPlugin;
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const PluginProcessManager = __webpack_require__(34);
+const UIPluginManager = __webpack_require__(83);
 
 module.exports = {PluginProcessManager, UIPluginManager};
 
 
 /***/ }),
-/* 31 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const $ = __webpack_require__(13);
-const UIPlugin = __webpack_require__(14);
+const $ = __webpack_require__(14);
+const {WrapData} = __webpack_require__(10);
+const UIPlugin = __webpack_require__(32);
 
 class PluginProcessManager extends UIPlugin {
   constructor(elem, focusTracker) {
     super(elem, focusTracker, "PluginProcessManager");
-
-    // ** Init **
-    this.listen();
-    this.plugins = new Object();
-    this.pluginPathField = this.PluginPathField();
   }
   listen() {
     this.onStateMsg("web-server", "process-plugins", this.onPluginsUpdated.bind(this));
@@ -17625,6 +17949,8 @@ class PluginProcessManager extends UIPlugin {
 
     this.on("add-path", this.onAddPath.bind(this));
     this.on("plugin-action", this.onPluginCardAction.bind(this));
+    this.plugins = new Object();
+    this.pluginPathField = this.PluginPathField();
   }
   get channel() {return "microdrop/plugin-manager"}
 
@@ -17645,7 +17971,7 @@ class PluginProcessManager extends UIPlugin {
     return styles;
   }
   onAddPath(path) {
-    this.trigger("add-plugin-path", this.wrapData("path", path));
+    this.trigger("add-plugin-path", WrapData("path", path, this.name));
   }
   onPluginCardAction(msg) {
     const plugin = msg.plugin;
@@ -17676,9 +18002,9 @@ class PluginProcessManager extends UIPlugin {
       this.trigger("add-path", field[0].value));
     removePathBtn.on("click", () =>
       this.trigger("remove-plugin-path",
-      this.wrapData("path", field[0].value)));
+      WrapData("path", field[0].value, this.name)));
     linkPluginBtn.on("click", () =>
-      this.trigger("add-plugin-path", this.wrapData("path", field[0].value)));
+      this.trigger("add-plugin-path", WrapData("path", field[0].value, this.name)));
 
     controls.append(field);
     controls.append(addPathBtn);
@@ -17758,575 +18084,6 @@ class PluginProcessManager extends UIPlugin {
 };
 
 module.exports = PluginProcessManager;
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * dependencies
- */
-
-var vkeys = __webpack_require__(33);
-
-/**
- * Export `shortcut`
- */
-
-module.exports = shortcut;
-
-/**
- * Create keyboard shortcut sequence with the `keys` like e.g. 'ctrl s'.
- * The following options `o` are optional with the default values:
- *
- *  {
- *     ms: 500,                 // 500 milliseconds
- *     el: window,              // DOM Element the shortcut is added to.
- *     stopPropagation: true,   // no bubbling up the DOM Tree
- *     preventDefault: true,    // no default event for the given `keys`.
- *  };
- *
- * Example:
- *     var shortcut = require('keyboard-shortcut');
- *
- *     shortcut('a b c', function(e) {
- *       console.log('hit:', 'a b c');
- *     });
- *
- * @param {String} keys
- * @param {Object} o options
- * @param {Function} fn callback function with the keydown event.
- * @api public
- */
-function shortcut(keys, o, fn) {
-	var keys = keys.split(/ +/);
-	var klen = keys.length;
-	var seq = [];
-	var i = 0;
-	var prev;
-
-	if (2 == arguments.length) {
-		fn = o;
-		o = {};
-	}
-	defaults();
-
-	o.el.addEventListener('keydown', keydown);
-
-	function keydown(e) {
-		var key = keys[i++];
-		var code = e.which || e.keyCode;
-		var pressed = vkeys[code];
-		procedure(pressed, e);
-		if ('*' != key && key != pressed) return reset();
-		if (o.ms && prev && new Date - prev > o.ms) return reset();
-		if (o.ms) prev = new Date;
-		var len = seq.push(pressed);
-		if (len != klen) return;
-		reset();
-		fn(e);
-	}
-
-	function defaults() {
-		o.ms = o.ms || 1000;
-		o.el = o.el || window;
-	}
-
-	function procedure(pressed, e) {
-		var defined = keys.some(function(key) {
-			return pressed == key;
-		});
-		if (!defined) return;
-		if (o.preventDefault) e.preventDefault();
-		if (o.stopPropagation) e.stopPropagation();
-	}
-
-	function reset() {
-		prev = null;
-		seq = [];
-		i = 0;
-	}
-}
-
-shortcut.vkeys = vkeys;
-shortcut.getKey = vkeys.getKey;
-shortcut.findCode = vkeys.findCode;
-shortcut.findAllCodes = vkeys.findAllCodes;
-
-shortcut.press = function press(k, el) {
-	var code = vkeys.findCode(k);
-	var el = el || window;
-	var e = document.createEvent('Event');
-	e.initEvent('keydown', true, true);
-	e.keyCode = e.which = code;
-	el.dispatchEvent(e);
-	e = document.createEvent('Event');
-	e.initEvent('keyup', true, true);
-	e.keyCode = e.which = code;
-	el.dispatchEvent(e);
-};
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports) {
-
-var vkeys = exports = module.exports = {
-  0: 'unk',
-  1: 'mouse1',
-  2: 'mouse2',
-  3: 'break',
-  4: 'mouse3',
-  5: 'mouse4',
-  6: 'mouse5',
-  8: 'backspace',
-  9: 'tab',
-  12: 'clear',
-  13: 'enter',
-  16: 'shift',
-  17: 'ctrl',
-  18: 'alt',
-  19: 'pause',
-  20: 'capslock',
-  21: 'imehangul',
-  23: 'imejunja',
-  24: 'imefinal',
-  25: 'imekanji',
-  27: 'escape',
-  28: 'imeconvert',
-  29: 'imenonconvert',
-  30: 'imeaccept',
-  31: 'imemodechange',
-  32: 'space',
-  33: 'pageup',
-  34: 'pagedown',
-  35: 'end',
-  36: 'home',
-  37: 'left',
-  38: 'up',
-  39: 'right',
-  40: 'down',
-  41: 'select',
-  42: 'print',
-  43: 'execute',
-  44: 'snapshot',
-  45: 'insert',
-  46: 'delete',
-  47: 'help',
-  48: '0',
-  49: '1',
-  50: '2',
-  51: '3',
-  52: '4',
-  53: '5',
-  54: '6',
-  55: '7',
-  56: '8',
-  57: '9',
-  58: ':',
-  59: ';',
-  60: '<',
-  61: '=',
-  62: '>',
-  63: '?',
-  64: '@',
-  65: 'a',
-  66: 'b',
-  67: 'c',
-  68: 'd',
-  69: 'e',
-  70: 'f',
-  71: 'g',
-  72: 'h',
-  73: 'i',
-  74: 'j',
-  75: 'k',
-  76: 'l',
-  77: 'm',
-  78: 'n',
-  79: 'o',
-  80: 'p',
-  81: 'q',
-  82: 'r',
-  83: 's',
-  84: 't',
-  85: 'u',
-  86: 'v',
-  87: 'w',
-  88: 'x',
-  89: 'y',
-  90: 'z',
-  91: 'meta',
-  92: 'meta',
-  93: 'menu',
-  95: 'sleep',
-  96: 'num0',
-  97: 'num1',
-  98: 'num2',
-  99: 'num3',
-  100: 'num4',
-  101: 'num5',
-  102: 'num6',
-  103: 'num7',
-  104: 'num8',
-  105: 'num9',
-  106: 'num*',
-  107: 'num+',
-  108: 'numenter',
-  109: 'num-',
-  110: 'num.',
-  111: 'num/',
-  112: 'f1',
-  113: 'f2',
-  114: 'f3',
-  115: 'f4',
-  116: 'f5',
-  117: 'f6',
-  118: 'f7',
-  119: 'f8',
-  120: 'f9',
-  121: 'f10',
-  122: 'f11',
-  123: 'f12',
-  124: 'f13',
-  125: 'f14',
-  126: 'f15',
-  127: 'f16',
-  128: 'f17',
-  129: 'f18',
-  130: 'f19',
-  131: 'f20',
-  132: 'f21',
-  133: 'f22',
-  134: 'f23',
-  135: 'f24',
-  144: 'numlock',
-  145: 'scrolllock',
-  160: 'shiftleft',
-  161: 'shiftright',
-  162: 'ctrlleft',
-  163: 'ctrlright',
-  164: 'altleft',
-  165: 'altright',
-  166: 'browserback',
-  167: 'browserforward',
-  168: 'browserrefresh',
-  169: 'browserstop',
-  170: 'browsersearch',
-  171: 'browserfavorites',
-  172: 'browserhome',
-  173: 'volumemute',
-  174: 'volumedown',
-  175: 'volumeup',
-  176: 'nexttrack',
-  177: 'prevtrack',
-  178: 'stop',
-  179: 'playpause',
-  180: 'launchmail',
-  181: 'launchmediaselect',
-  182: 'launchapp1',
-  183: 'launchapp2',
-  186: ';',
-  187: '=',
-  188: ',',
-  189: '-',
-  190: '.',
-  191: '/',
-  192: '`',
-  219: '[',
-  220: '\\',
-  221: ']',
-  222: '\'',
-  223: 'meta',
-  224: 'meta',
-  226: 'altgr',
-  229: 'imeprocess',
-  231: 'unicode',
-  246: 'attention',
-  247: 'crsel',
-  248: 'exsel',
-  249: 'eraseeof',
-  250: 'play',
-  251: 'zoom',
-  252: 'noname',
-  253: 'pa1',
-  254: 'clear'
-};
-
-exports.findCode = function findCode(key) {
-  for (var k in vkeys) {
-    if(vkeys.hasOwnProperty(k)) {
-      if (key == vkeys[k]) return parseInt(k);
-    }
-  }
-  return null;
-};
-
-exports.findAllCodes = function findAllCodes(key) {
-  var codes = Object.keys(vkeys).filter(function (k) {
-    return (key == vkeys[k]);
-  });
-  return codes.map(function(code) {
-    return parseInt(code);
-  })
-};
-
-exports.getKey = function getKey(code) {
-  return vkeys[code];
-};
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* Base MicropedeClient class */
-
-const _ = __webpack_require__(35);
-const backbone = __webpack_require__(36);
-const isNode = __webpack_require__(39);
-const mqtt = __webpack_require__(40);
-const uuidv4 = __webpack_require__(77);
-
-let RouteRecognizer = __webpack_require__(80);
-RouteRecognizer = RouteRecognizer.default || RouteRecognizer;
-
-const MqttMessages = __webpack_require__(81);
-const DEFAULT_TIMEOUT = 2000;
-
-const decamelize = (str, sep='-') => {
-  // https://github.com/sindresorhus/decamelize
-  return str
-    .replace(/([a-z\d])([A-Z])/g, '$1' + sep + '$2')
-    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + sep + '$2')
-    .toLowerCase();
-}
-
-function ChannelToRoutePath(channel) {
-  /* ex. micropede/{plugin}/{attribute} => micropede/:plugin/:attribute */
-  return channel.replace(/\{(.+?)\}/g, (x) => {return x.replace(/}/g, "").replace(/{/g, ':')});
-}
-
-function ChannelToSubscription(channel) {
-  /* ex. micropede/{plugin}/{attribute} => micropede/+/+ */
-  return channel.replace(/\{(.+?)\}/g, (x) => '+');
-}
-
-function GenerateClientId(name, appName, path='unknown'){
-  /* Returns client id , using '>>' as a separator */
-  return `${name}>>${path}>>${appName}>>${uuidv4()}`;
-}
-
-function WrapData(key, value, name, version) {
-  /* Reform messages to objects and add header*/
-
-  let msg = {};
-  if (typeof(value) == "object" && value !== null) msg = value;
-  else msg[key] = value;
-
-  msg.__head__ = {};
-  msg.__head__.plugin_name = name;
-  msg.__head__.plugin_version = version;
-
-  return msg;
-}
-
-function GetReceiver(payload) {
-  return _.get(payload, "__head__.plugin_name");
-}
-
-function getClassName(instance) {
-  /* ex. DeviceUIPlugin => device-ui-plugin */
-  return encodeURI(decamelize(instance.constructor.name));
-}
-
-function DumpStack(label, err) {
-  if (err.stack)
-    return _.flattenDeep([label, err.stack.toString().split("\n")]);
-  if (!err.stack)
-    return _.flattenDeep([label, err.toString().split(",")]);
-}
-
-
-class MicropedeClient {
-  constructor(appName, host="localhost", port, name, version='0.0.0', options=undefined) {
-    if (appName == undefined) throw "appName undefined";
-    if (port == undefined) port = isNode ? 1883 : 8083;
-    _.extend(this, backbone.Events);
-    _.extend(this, MqttMessages);
-    var name = name || getClassName(this);
-    const clientId = GenerateClientId(name, appName);
-
-    this.connectClient(clientId, host, port);
-
-    this.router = new RouteRecognizer();
-    this.appName = appName;
-    this.clientId = clientId;
-    this.name = name;
-    this.subscriptions = [];
-    this.host = host;
-    this.port = port;
-    this.version = version;
-    this.options = options;
-  }
-
-  listen() {
-    console.error("Implement me!");
-  }
-
-  addBinding(channel, event, retain=false, qos=0, dup=false) {
-    return this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
-  }
-
-  addSubscription(channel, handler) {
-    const path = ChannelToRoutePath(channel);
-    const sub = ChannelToSubscription(channel);
-    const routeName = uuidv4();
-
-    if (!this.client.connected) {
-      throw `Failed to add subscription.
-      Client is not connected (${this.name}, ${channel})`;
-    }
-
-    if (this.subscriptions.includes(sub)) {
-      throw `Failed to add subscription.
-      Subscription already exists (${this.name}, ${channel})`;
-    }
-
-    return new Promise((resolve, reject) => {
-      this.client.subscribe(sub, 0, (err, granted) => {
-        if (err) {reject(err); return}
-        this.router.add([{path, handler}], {add: routeName});
-        this.subscriptions.push(sub);
-        resolve(granted);
-      });
-    });
-  }
-
-  removeSubscription(channel) {
-    const path = ChannelToRoutePath(channel);
-    const sub = ChannelToSubscription(channel);
-
-    return new Promise((resolve,reject) => {
-      this.client.unsubscribe(sub, (err) => {
-        if (err) {reject(err); return}
-        _.pull(this.subscriptions, sub);
-        resolve(true);
-      });
-    });
-  }
-
-  getSubscriptions(payload, name) {
-    const LABEL = `${this.appName}::getSubscriptions`;
-    return this.notifySender(payload, this.subscriptions, "get-subscriptions");
-  }
-
-  notifySender(payload, response, endpoint, status='success') {
-    if (status != 'success') {
-      console.error("ERROR:", _.flattenDeep([response]));
-      response = _.flattenDeep(response);
-    }
-    const receiver = GetReceiver(payload);
-    if (!receiver) {return response}
-    this.sendMessage(
-      `${this.appName}/${this.name}/notify/${receiver}/${endpoint}`,
-      WrapData(null, {status, response}, this.name, this.version)
-    );
-
-    return response;
-  }
-
-
-  connectClient(clientId, host, port, timeout=DEFAULT_TIMEOUT) {
-    this.client = mqtt.connect(`mqtt://${host}:${port}`, {clientId}, this.options);
-    return new Promise((resolve, reject) => {
-      this.client.on("connect", () => {
-        // XXX: Temporary fix if client is deleted before connect signal
-        if (this.client == undefined){
-          this.connectClient(clientId, host, port)
-            .then((d)=>resolve(d))
-            .catch((e)=>reject(e));
-          return;
-        }
-        // XXX: Manually setting client.connected state
-        this.client.connected = true;
-        this.subscriptions = [];
-        this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this)).then((d) => {
-          this.listen();
-          this.defaultSubCount = this.subscriptions.length;
-          resolve(true);
-        }).catch((e) => {
-          reject(e);
-        });
-      });
-      this.client.on("message", this.onMessage.bind(this));
-      setTimeout( () => { reject(`connect timeout ${timeout}ms`) },
-        timeout);
-    });
-  }
-
-  disconnectClient(timeout=DEFAULT_TIMEOUT) {
-    return new Promise((resolve, reject) => {
-        this.subscriptions = [];
-        this.router = new RouteRecognizer();
-        let resolved = false;
-        if (!_.get(this, "client.connected")) resolve();
-        else {
-          this.client.end(true, () => {
-            if (!resolved) {
-              resolved = true;
-              this.off(this.onConnect);
-              this.off(this.onMessage);
-              delete this.client;
-              resolve(true);
-            }
-          });
-
-          setTimeout( () => {
-            if (!resolved) {
-              resolved = true;
-              this.off(this.onConnect);
-              this.off(this.onMessage);
-              delete this.client;
-            }
-          }, timeout);
-        }
-    });
-  }
-
-  onMessage(topic, buf){
-    if (topic == undefined || topic == null) return;
-    if (buf.toString() == undefined) return;
-    if (buf.toString().length <= 0) return;
-    try {
-
-      let msg;
-      try {
-        msg = JSON.parse(buf.toString());
-      } catch (e) { msg = buf.toString(); }
-
-      var results = this.router.recognize(topic);
-      if (results == undefined) return;
-
-      for (let i = 0; i < results.length; i++) {
-        const result = results[i];
-        result.handler(msg, result.params);
-      }
-    } catch (e) {
-      console.error(topic, buf.toString());
-      console.error(topic, e);
-    }
-  }
-
-  sendMessage(topic, msg={}, retain=false, qos=0, dup=false){
-    const message = JSON.stringify(msg);
-    this.client.publish(topic, message, {retain, qos, dup});
-  }
-
-}
-
-module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack};
 
 
 /***/ }),
@@ -49186,16 +48943,16 @@ try {
 
 var MqttClient = __webpack_require__(41)
 var Store = __webpack_require__(16)
-var url = __webpack_require__(11)
-var xtend = __webpack_require__(10)
+var url = __webpack_require__(12)
+var xtend = __webpack_require__(11)
 var protocols = {}
 
 if (process.title !== 'browser') {
   protocols.mqtt = __webpack_require__(26)
   protocols.tcp = __webpack_require__(26)
-  protocols.ssl = __webpack_require__(12)
-  protocols.tls = __webpack_require__(12)
-  protocols.mqtts = __webpack_require__(12)
+  protocols.ssl = __webpack_require__(13)
+  protocols.tls = __webpack_require__(13)
+  protocols.mqtts = __webpack_require__(13)
 } else {
   protocols.wx = __webpack_require__(27)
   protocols.wxs = __webpack_require__(27)
@@ -49347,7 +49104,7 @@ var Writable = __webpack_require__(9).Writable
 var inherits = __webpack_require__(2)
 var reInterval = __webpack_require__(65)
 var validations = __webpack_require__(66)
-var xtend = __webpack_require__(10)
+var xtend = __webpack_require__(11)
 var setImmediate = global.setImmediate || function (callback) {
   // works in node v0.8
   process.nextTick(callback)
@@ -53878,8 +53635,123 @@ module.exports = ws
 /* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var rng = __webpack_require__(78);
-var bytesToUuid = __webpack_require__(79);
+var rng = __webpack_require__(30);
+var bytesToUuid = __webpack_require__(31);
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+
+var _nodeId;
+var _clockseq;
+
+// Previous uuid creation time
+var _lastMSecs = 0;
+var _lastNSecs = 0;
+
+// See https://github.com/broofa/node-uuid for API details
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+  // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+  if (node == null || clockseq == null) {
+    var seedBytes = rng();
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [
+        seedBytes[0] | 0x01,
+        seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+      ];
+    }
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  }
+
+  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+  // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+  // Time since last uuid creation (in msecs)
+  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+  // Per 4.2.1.2, Bump clockseq on clock regression
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  }
+
+  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  }
+
+  // Per 4.2.1.2 Throw error if too many uuids are requested
+  if (nsecs >= 10000) {
+    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+
+  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+  msecs += 12219292800000;
+
+  // `time_low`
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff;
+
+  // `time_mid`
+  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff;
+
+  // `time_high_and_version`
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+  b[i++] = tmh >>> 16 & 0xff;
+
+  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+  b[i++] = clockseq >>> 8 | 0x80;
+
+  // `clock_seq_low`
+  b[i++] = clockseq & 0xff;
+
+  // `node`
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf ? buf : bytesToUuid(b);
+}
+
+module.exports = v1;
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var rng = __webpack_require__(30);
+var bytesToUuid = __webpack_require__(31);
 
 function v4(options, buf, offset) {
   var i = buf && offset || 0;
@@ -53910,74 +53782,7 @@ module.exports = v4;
 
 
 /***/ }),
-/* 78 */
-/***/ (function(module, exports) {
-
-// Unique ID creation requires a high quality random # generator.  In the
-// browser this is a little complicated due to unknown quality of Math.random()
-// and inconsistent support for the `crypto` API.  We do the best we can via
-// feature-detection
-
-// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation.
-var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
-                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
-if (getRandomValues) {
-  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
-
-  module.exports = function whatwgRNG() {
-    getRandomValues(rnds8);
-    return rnds8;
-  };
-} else {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var rnds = new Array(16);
-
-  module.exports = function mathRNG() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return rnds;
-  };
-}
-
-
-/***/ }),
 /* 79 */
-/***/ (function(module, exports) {
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-for (var i = 0; i < 256; ++i) {
-  byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-function bytesToUuid(buf, offset) {
-  var i = offset || 0;
-  var bth = byteToHex;
-  return bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]];
-}
-
-module.exports = bytesToUuid;
-
-
-/***/ }),
-/* 80 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -54670,7 +54475,7 @@ RouteRecognizer.prototype.map = map;
 
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ (function(module, exports) {
 
 /* Mixins for Mqtt Messages */
@@ -54733,11 +54538,329 @@ if (typeof module !== 'undefined' && module.exports) {
 
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const $ = __webpack_require__(13);
-const UIPlugin = __webpack_require__(14);
+/**
+ * dependencies
+ */
+
+var vkeys = __webpack_require__(82);
+
+/**
+ * Export `shortcut`
+ */
+
+module.exports = shortcut;
+
+/**
+ * Create keyboard shortcut sequence with the `keys` like e.g. 'ctrl s'.
+ * The following options `o` are optional with the default values:
+ *
+ *  {
+ *     ms: 500,                 // 500 milliseconds
+ *     el: window,              // DOM Element the shortcut is added to.
+ *     stopPropagation: true,   // no bubbling up the DOM Tree
+ *     preventDefault: true,    // no default event for the given `keys`.
+ *  };
+ *
+ * Example:
+ *     var shortcut = require('keyboard-shortcut');
+ *
+ *     shortcut('a b c', function(e) {
+ *       console.log('hit:', 'a b c');
+ *     });
+ *
+ * @param {String} keys
+ * @param {Object} o options
+ * @param {Function} fn callback function with the keydown event.
+ * @api public
+ */
+function shortcut(keys, o, fn) {
+	var keys = keys.split(/ +/);
+	var klen = keys.length;
+	var seq = [];
+	var i = 0;
+	var prev;
+
+	if (2 == arguments.length) {
+		fn = o;
+		o = {};
+	}
+	defaults();
+
+	o.el.addEventListener('keydown', keydown);
+
+	function keydown(e) {
+		var key = keys[i++];
+		var code = e.which || e.keyCode;
+		var pressed = vkeys[code];
+		procedure(pressed, e);
+		if ('*' != key && key != pressed) return reset();
+		if (o.ms && prev && new Date - prev > o.ms) return reset();
+		if (o.ms) prev = new Date;
+		var len = seq.push(pressed);
+		if (len != klen) return;
+		reset();
+		fn(e);
+	}
+
+	function defaults() {
+		o.ms = o.ms || 1000;
+		o.el = o.el || window;
+	}
+
+	function procedure(pressed, e) {
+		var defined = keys.some(function(key) {
+			return pressed == key;
+		});
+		if (!defined) return;
+		if (o.preventDefault) e.preventDefault();
+		if (o.stopPropagation) e.stopPropagation();
+	}
+
+	function reset() {
+		prev = null;
+		seq = [];
+		i = 0;
+	}
+}
+
+shortcut.vkeys = vkeys;
+shortcut.getKey = vkeys.getKey;
+shortcut.findCode = vkeys.findCode;
+shortcut.findAllCodes = vkeys.findAllCodes;
+
+shortcut.press = function press(k, el) {
+	var code = vkeys.findCode(k);
+	var el = el || window;
+	var e = document.createEvent('Event');
+	e.initEvent('keydown', true, true);
+	e.keyCode = e.which = code;
+	el.dispatchEvent(e);
+	e = document.createEvent('Event');
+	e.initEvent('keyup', true, true);
+	e.keyCode = e.which = code;
+	el.dispatchEvent(e);
+};
+
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports) {
+
+var vkeys = exports = module.exports = {
+  0: 'unk',
+  1: 'mouse1',
+  2: 'mouse2',
+  3: 'break',
+  4: 'mouse3',
+  5: 'mouse4',
+  6: 'mouse5',
+  8: 'backspace',
+  9: 'tab',
+  12: 'clear',
+  13: 'enter',
+  16: 'shift',
+  17: 'ctrl',
+  18: 'alt',
+  19: 'pause',
+  20: 'capslock',
+  21: 'imehangul',
+  23: 'imejunja',
+  24: 'imefinal',
+  25: 'imekanji',
+  27: 'escape',
+  28: 'imeconvert',
+  29: 'imenonconvert',
+  30: 'imeaccept',
+  31: 'imemodechange',
+  32: 'space',
+  33: 'pageup',
+  34: 'pagedown',
+  35: 'end',
+  36: 'home',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down',
+  41: 'select',
+  42: 'print',
+  43: 'execute',
+  44: 'snapshot',
+  45: 'insert',
+  46: 'delete',
+  47: 'help',
+  48: '0',
+  49: '1',
+  50: '2',
+  51: '3',
+  52: '4',
+  53: '5',
+  54: '6',
+  55: '7',
+  56: '8',
+  57: '9',
+  58: ':',
+  59: ';',
+  60: '<',
+  61: '=',
+  62: '>',
+  63: '?',
+  64: '@',
+  65: 'a',
+  66: 'b',
+  67: 'c',
+  68: 'd',
+  69: 'e',
+  70: 'f',
+  71: 'g',
+  72: 'h',
+  73: 'i',
+  74: 'j',
+  75: 'k',
+  76: 'l',
+  77: 'm',
+  78: 'n',
+  79: 'o',
+  80: 'p',
+  81: 'q',
+  82: 'r',
+  83: 's',
+  84: 't',
+  85: 'u',
+  86: 'v',
+  87: 'w',
+  88: 'x',
+  89: 'y',
+  90: 'z',
+  91: 'meta',
+  92: 'meta',
+  93: 'menu',
+  95: 'sleep',
+  96: 'num0',
+  97: 'num1',
+  98: 'num2',
+  99: 'num3',
+  100: 'num4',
+  101: 'num5',
+  102: 'num6',
+  103: 'num7',
+  104: 'num8',
+  105: 'num9',
+  106: 'num*',
+  107: 'num+',
+  108: 'numenter',
+  109: 'num-',
+  110: 'num.',
+  111: 'num/',
+  112: 'f1',
+  113: 'f2',
+  114: 'f3',
+  115: 'f4',
+  116: 'f5',
+  117: 'f6',
+  118: 'f7',
+  119: 'f8',
+  120: 'f9',
+  121: 'f10',
+  122: 'f11',
+  123: 'f12',
+  124: 'f13',
+  125: 'f14',
+  126: 'f15',
+  127: 'f16',
+  128: 'f17',
+  129: 'f18',
+  130: 'f19',
+  131: 'f20',
+  132: 'f21',
+  133: 'f22',
+  134: 'f23',
+  135: 'f24',
+  144: 'numlock',
+  145: 'scrolllock',
+  160: 'shiftleft',
+  161: 'shiftright',
+  162: 'ctrlleft',
+  163: 'ctrlright',
+  164: 'altleft',
+  165: 'altright',
+  166: 'browserback',
+  167: 'browserforward',
+  168: 'browserrefresh',
+  169: 'browserstop',
+  170: 'browsersearch',
+  171: 'browserfavorites',
+  172: 'browserhome',
+  173: 'volumemute',
+  174: 'volumedown',
+  175: 'volumeup',
+  176: 'nexttrack',
+  177: 'prevtrack',
+  178: 'stop',
+  179: 'playpause',
+  180: 'launchmail',
+  181: 'launchmediaselect',
+  182: 'launchapp1',
+  183: 'launchapp2',
+  186: ';',
+  187: '=',
+  188: ',',
+  189: '-',
+  190: '.',
+  191: '/',
+  192: '`',
+  219: '[',
+  220: '\\',
+  221: ']',
+  222: '\'',
+  223: 'meta',
+  224: 'meta',
+  226: 'altgr',
+  229: 'imeprocess',
+  231: 'unicode',
+  246: 'attention',
+  247: 'crsel',
+  248: 'exsel',
+  249: 'eraseeof',
+  250: 'play',
+  251: 'zoom',
+  252: 'noname',
+  253: 'pa1',
+  254: 'clear'
+};
+
+exports.findCode = function findCode(key) {
+  for (var k in vkeys) {
+    if(vkeys.hasOwnProperty(k)) {
+      if (key == vkeys[k]) return parseInt(k);
+    }
+  }
+  return null;
+};
+
+exports.findAllCodes = function findAllCodes(key) {
+  var codes = Object.keys(vkeys).filter(function (k) {
+    return (key == vkeys[k]);
+  });
+  return codes.map(function(code) {
+    return parseInt(code);
+  })
+};
+
+exports.getKey = function getKey(code) {
+  return vkeys[code];
+};
+
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const $ = __webpack_require__(14);
+const UIPlugin = __webpack_require__(32);
+const {WrapData} = __webpack_require__(10);
 
 class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
@@ -54751,7 +54874,6 @@ class UIPluginManager extends UIPlugin {
     this.on("state-btn-clicked", this.onStateBtnClicked.bind(this));
 
     this.onStateMsg("web-server", "web-plugins", this.onWebPluginsChanged.bind(this));
-    this.addPostRoute("/add-web-plugin", "add-web-plugin");
   }
   get list(){return this._list}
   set list(item) {this.changeElement("list", item)}
@@ -54766,7 +54888,7 @@ class UIPluginManager extends UIPlugin {
     if (plugin.state == "enabled") plugin.state = "disabled";
     else plugin.state = "enabled";
 
-    this.trigger("update-state", this.wrapData(null, plugin));
+    this.trigger("update-state", WrapData(null, plugin, this.name));
   }
   onWebPluginsChanged(payload) {
     const webPlugins = payload;

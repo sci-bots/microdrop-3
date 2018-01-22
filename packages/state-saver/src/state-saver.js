@@ -10,7 +10,6 @@ const UIPlugin = require('@microdrop/ui-plugin');
 
 window.MicropedeAsync = MicropedeAsync;
 const APPNAME = 'microdrop';
-const microdrop = new MicropedeAsync(APPNAME);
 
 class StateSaverUI extends UIPlugin {
   constructor(elem, focusTracker) {
@@ -45,11 +44,12 @@ class StateSaverUI extends UIPlugin {
     if (!_.isEqual(this.focusTracker.currentWidget.plugin, this)) return;
     // Don't do anything if state-saver is not on steps view
     if (this.view != 'steps') return;
-    const microdrop = new MicrodropAsync();
+    const microdrop = new MicropedeAsync(APPNAME);
     let prevStepIndex;
     try {
       prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index', 500);
     } catch (e) {
+      console.error(e);
       return;
     }
     let nextStepIndex = prevStepIndex;
@@ -90,6 +90,7 @@ class StateSaverUI extends UIPlugin {
     const action = obj.action;
     const index = obj.params.index;
 
+    const microdrop = new MicropedeAsync(APPNAME);
     const steps = await microdrop.getState("state-saver-ui", "steps");
 
     if (action == "removeNodes") {
@@ -101,12 +102,14 @@ class StateSaverUI extends UIPlugin {
 
   async changeRoute() {
     const obj = _.last(this.editor.history.history);
+    const microdrop = new MicropedeAsync(APPNAME);
     // XXX: This might be broken
     microdrop.putPlugin('routes-model', 'route', this.editor.get());
   }
 
   async exec(item, steps, index) {
     /* Execute routes, then continue to the next step */
+    const microdrop = new MicropedeAsync(APPNAME);
     index = index || item.node.index;
     steps = steps || await microdrop.getState("state-saver-ui", "steps");
     await this.loadStep(item, index, steps);
@@ -125,8 +128,8 @@ class StateSaverUI extends UIPlugin {
         index = _.get(item, "node.index");
         if (!_.isInteger(index)) return;
       }
-
       this.trigger("set-step-index", index);
+      const microdrop = new MicropedeAsync(APPNAME);
       steps = steps || await microdrop.getState("state-saver-ui", "steps");
       var step = steps[index];
 
@@ -166,6 +169,7 @@ class StateSaverUI extends UIPlugin {
     let steps;
     // Try and get previous steps if they exist
     try {
+      const microdrop = new MicropedeAsync(APPNAME);
       steps = await microdrop.getState("state-saver-ui", "steps", 1000);
     } catch (e) { steps = [];}
 
@@ -197,6 +201,10 @@ class StateSaverUI extends UIPlugin {
     if (this.view == "electrode") this.renderSelectedElectrode();
     if (this.view == "route") this.renderSelectedRoute();
 
+    if (this.view != "steps") return;
+    if (this.microdrop = undefined)
+      this.microdrop = new MicropedeAsync(APPNAME);
+
     // Show the index of the last loaded step:
     microdrop.getState('state-saver-ui', 'step-index', 500).then((d) => {
       this.infoBar.innerHTML = '';
@@ -206,7 +214,7 @@ class StateSaverUI extends UIPlugin {
     }).catch((e) => {
       const timedOut = _.map(e, (t) => _.includes(t, "timeout")).indexOf(true);
       if (timedOut == -1) {
-        throw(e);
+        throw(["failed to get step-index", e]);
       }
     });
   }
@@ -257,6 +265,7 @@ class StateSaverUI extends UIPlugin {
   async renderSelectedElectrode() {
     const LABEL = "StateSaver::renderSelectedElectrode";
     try {
+      const microdrop = new MicropedeAsync(APPNAME);
       let id = await microdrop.getState("electrode-controls", "selected-electrode", 500);
 
       const electrodes = _.get(this.json, ["device-model", "three-object"]) || [];
@@ -270,6 +279,7 @@ class StateSaverUI extends UIPlugin {
   async renderSelectedRoute() {
     const LABEL = "StateSaver::renderSelectedRoute";
     try {
+      const microdrop = new MicropedeAsync(APPNAME);
       let uuid = await microdrop.getState("route-controls", "selected-route", 500);
       const routes = _.get(this.json, ["routes-model", "routes"]) || [];
       this.editor.set(_.find(routes, { uuid }));
@@ -281,11 +291,16 @@ class StateSaverUI extends UIPlugin {
 }
 
 async function put(pluginName, k, v) {
-  const msg = {};
-  _.set(msg, "__head__.plugin_name", microdrop.name);
-  _.set(msg, k, v);
-  const dat = await microdrop.putPlugin(pluginName, k, msg);
-  return dat.response;
+  try {
+    const microdrop = new MicropedeAsync(APPNAME);
+    const msg = {};
+    _.set(msg, "__head__.plugin_name", microdrop.name);
+    _.set(msg, k, v);
+    const dat = await microdrop.putPlugin(pluginName, k, msg);
+    return dat.response;
+  } catch (e) {
+    console.error(pluginName, k , e );
+  }
 };
 
 

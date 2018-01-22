@@ -3,7 +3,7 @@ const _ = require('lodash');
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
-const microdrop = new MicropedeAsync('microdrop');
+const APPNAME = 'microdrop';
 
 function MapElectrodesAndChannels(threeObject) {
   /* Generate electrode and channel maps from three object */
@@ -44,8 +44,8 @@ class ElectrodesModel extends MicropedeClient {
     this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
   }
 
+  get isPlugin() {return true}
   get filepath() {return __dirname;}
-
 
   putActiveElectrodes(payload) {
     const LABEL = "<ElectrodesModel::putActiveElectrodes>"; //console.log(LABEL);
@@ -70,6 +70,8 @@ class ElectrodesModel extends MicropedeClient {
       if (state == undefined) throw("missing 'state' in payload");
       if (!_.isString(electrodeId)) throw("electrodeId should be string");
       if (!_.isBoolean(state)) throw("state should be bool");
+
+      const microdrop = new MicropedeAsync(APPNAME);
 
       // Get all connected electrodes based on the device object
       const threeObject = await microdrop.getState('device-model', 'three-object');

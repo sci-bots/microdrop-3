@@ -8,8 +8,6 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const ajv = new Ajv({ useDefaults: true });
 const APPNAME = 'microdrop';
 
-const microdrop = new MicropedeAsync(APPNAME);
-
 const RouteSchema = {
   type: "object",
   properties: {
@@ -26,6 +24,7 @@ const RouteSchema = {
 class RoutesModel extends MicropedeClient {
   constructor() {
     super(APPNAME);
+    this.running = false;
   }
 
   // ** Event Listeners **
@@ -40,6 +39,7 @@ class RoutesModel extends MicropedeClient {
   // ** Getters and Setters **
   get channel() {return "microdrop/routes-data-controller";}
   get filepath() {return __dirname;}
+  get isPlugin() {return true}
 
   async execute(payload, interval=1000) {
     const LABEL = "<RoutesModel::execute>";
@@ -49,6 +49,7 @@ class RoutesModel extends MicropedeClient {
       if (!routes) throw("missing routes in payload");
       if (!routes[0].start) throw("missing start in route");
       if (!routes[0].path) throw("missing path in route");
+      if (this.running == true) throw("already running");
 
       let seq = [];
 
@@ -59,6 +60,7 @@ class RoutesModel extends MicropedeClient {
         const len = route.path.length;
 
         let numRepeats;
+        const microdrop = new MicropedeAsync(APPNAME);
 
         // Check if route contains a loop before continuing
         // const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
@@ -97,8 +99,10 @@ class RoutesModel extends MicropedeClient {
       const complete = () => {
         return new Promise((resolve, reject) => {
           const onComplete = () => {
+            this.running = false;
             resolve("complete");
           }
+          this.running = true;
           ExecutionLoop(seq, interval, 0, maxTime, onComplete);
         });
       };
@@ -120,9 +124,10 @@ class RoutesModel extends MicropedeClient {
 
       // Validate route schema
       const validate = ajv.compile(schema);
-      if (!validate(payload)) throw(validate.errors);
+      if (!validate(payload)) throw(_.map(validate.errors, (e)=>JSON.stringify(e)));
       var route = _.omit(payload, "__head__");
 
+      const microdrop = new MicropedeAsync(APPNAME);
       // Validate path by checking if electrodesFromRoutes throws error
       // var e = await microdrop.device.electrodesFromRoute(route);
       var e = (await microdrop.triggerPlugin('device-model',
@@ -172,7 +177,9 @@ class RoutesModel extends MicropedeClient {
 
 const wait = (interval) => {
   return new Promise((resolve, reject) => {
-    setTimeout(() => resolve("wait-complete"), interval);
+    setTimeout(() => {
+      resolve("wait-complete")
+    }, interval);
   });
 }
 
@@ -184,6 +191,7 @@ function ActiveElectrodesAtTime(elecs, t) {
 }
 
 async function ActiveElectrodeIntervals(r) {
+  const microdrop = new MicropedeAsync(APPNAME);
   // Get electrode intervals based on a routes time properties
   const seq = (await microdrop.triggerPlugin('device-model',
       'electrodes-from-routes', {routes: [r]})).response[0];
@@ -199,18 +207,32 @@ async function ActiveElectrodeIntervals(r) {
   return times;
 }
 
-async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
-  // Execute Loop continuously until maxTime is reached
-  await wait(interval);
-  const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
-  await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
-    'active-electrodes': _.map(active, "id")
-  });
+let microdrop = new MicropedeAsync(APPNAME);
+ async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
+   try {
+     // Execute Loop continuously until maxTime is reached
+     await wait(interval);
 
-  if (remaining.length == 0) {callback(); return}
-  if (currentTime+interval >= maxTime) {callback(); return}
+     const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
+     await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
+       'active-electrodes': _.map(active, "id")
+     });
 
-  ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback);
+     if (remaining.length == 0) {callback(); return}
+     if (currentTime+interval >= maxTime) {callback(); return}
+
+     ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback);
+   } catch (e) {
+     console.error(DumpStack('ExecutionLoop', e));
+   }
 }
 
 module.exports = RoutesModel;
+
+if (require.main === module) {
+  try {
+    model = new RoutesModel();
+  } catch (e) {
+    console.error('RoutesModel failed!', e);
+  }
+}

@@ -31,6 +31,7 @@ class DeviceModel extends MicropedeClient {
     this.bindStateMsg("three-object", "set-three-object");
     this.bindStateMsg("overlays", "set-overlays");
   }
+  get isPlugin() {return true}
   get channel() {return "microdrop/device"}
   get filepath() {return __dirname;}
 

@@ -1,5 +1,6 @@
 const $ = require('jquery');
 const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
+const {WrapData} = require('@micropede/client/src/client.js');
 
 class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
@@ -13,7 +14,6 @@ class UIPluginManager extends UIPlugin {
     this.on("state-btn-clicked", this.onStateBtnClicked.bind(this));
 
     this.onStateMsg("web-server", "web-plugins", this.onWebPluginsChanged.bind(this));
-    this.addPostRoute("/add-web-plugin", "add-web-plugin");
   }
   get list(){return this._list}
   set list(item) {this.changeElement("list", item)}
@@ -28,7 +28,7 @@ class UIPluginManager extends UIPlugin {
     if (plugin.state == "enabled") plugin.state = "disabled";
     else plugin.state = "enabled";
 
-    this.trigger("update-state", this.wrapData(null, plugin));
+    this.trigger("update-state", WrapData(null, plugin, this.name));
   }
   onWebPluginsChanged(payload) {
     const webPlugins = payload;
