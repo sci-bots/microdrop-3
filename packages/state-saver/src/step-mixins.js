@@ -63,6 +63,7 @@ StepMixins.keypressed = async function (e) {
 
 StepMixins.exec = async function (item, steps, index) {
   /* Execute routes, then continue to the next step */
+  this._running = true;
   const microdrop = new MicropedeAsync(APPNAME);
   index = index || item.node.index;
   steps = steps || await microdrop.getState("state-saver-ui", "steps");
@@ -73,9 +74,13 @@ StepMixins.exec = async function (item, steps, index) {
   if (routes) await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
   index += 1;
   if (steps[index]) this.exec(item, steps, index);
+  else {
+    this._running = false;
+  }
 }
 
 StepMixins.loadStep = async function (item=null, index, steps) {
+  this._running = true;
   try {
     // Load index from item if index parameter is not set
     if (!_.isInteger(index)) {
@@ -86,8 +91,6 @@ StepMixins.loadStep = async function (item=null, index, steps) {
     const microdrop = new MicropedeAsync(APPNAME);
     steps = steps || await microdrop.getState("state-saver-ui", "steps");
     var step = steps[index];
-
-    this.element.style.opacity = 0.5;
 
     // Clear previous routes, and electrodes (incase the haven't been set)
     await put("routes-model", "routes", [], 500);
@@ -110,7 +113,8 @@ StepMixins.loadStep = async function (item=null, index, steps) {
   } catch (e) {
     console.error(e);
   } finally {
-    this.element.style.opacity = 1.0;
+    this._running = false;
+    this.renderStepView();
   }
 }
 
@@ -136,6 +140,7 @@ StepMixins.createStep = async function () {
 }
 
 StepMixins.renderStepView = async function () {
+  if (this._running == true) return;
   const loadStep = { text: "Load Step", click: this.loadStep.bind(this) };
   const execStep = { text: "Run", click: this.exec.bind(this) };
   this.editor.set(_.get(this.json, ["state-saver-ui", "steps"]) || []);
@@ -143,16 +148,18 @@ StepMixins.renderStepView = async function () {
 
   const microdrop = new MicropedeAsync(APPNAME);
 
-  this.infoBar.appendChild(yo`
-    <button onclick=${this.createStep.bind(this)}>
-      Create Step
-    </button>`);
+  _.set(this.element.style, "overflow", "hidden");
+
+    this.infoBar.innerHTML = '';
+    this.infoBar.appendChild(yo`
+    <button onclick=${this.createStep.bind(this)}>Create Step</button>`);
 
   // Show the index of the last loaded step:
   microdrop.getState('state-saver-ui', 'step-index', 500).then((d) => {
+    this.infoBar.innerHTML = '';
     this.infoBar.appendChild(yo`
-      <b>Last Loaded Step: ${d} </b>
-    `)
+    <button onclick=${this.createStep.bind(this)}>Create Step</button>`);
+    this.infoBar.appendChild(yo`<b>${d}</b>`);
   }).catch((e) => {
     const timedOut = _.map(e, (t) => _.includes(t, "timeout")).indexOf(true);
     if (timedOut == -1) {

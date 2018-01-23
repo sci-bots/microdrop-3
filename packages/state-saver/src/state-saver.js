@@ -23,7 +23,7 @@ class StateSaverUI extends UIPlugin {
     _.extend(this, RouteMixins);
 
     this.json = {};
-    _.extend(this.element.style, {overflow: "auto"});
+    _.set(this.element.style, "overflow", "auto");
 
     this.view = "top";
     this.container = yo`<div style="zoom: 0.8; height:1000px"></div>`;
@@ -36,7 +36,8 @@ class StateSaverUI extends UIPlugin {
     this.bindStateMsg("steps", "set-steps");
     this.bindStateMsg("step-index", "set-step-index");
     this.bindPutMsg('device-model', 'three-object', 'put-device');
-    this.onStateMsg("{pluginName}", "{val}", this.render.bind(this));
+    await this.onStateMsg("{pluginName}", "{val}", this.render.bind(this));
+    await this.onStateMsg("file-launcher", "last-opened-file", this.restoreFile.bind(this));
 
     // Listen for keyboard presses
     key('down', this.keypressed.bind(this));
@@ -54,6 +55,36 @@ class StateSaverUI extends UIPlugin {
     this.render();
   }
 
+  async restoreFile(payload, params) {
+    let shouldRestore = confirm(`
+      Restore file?\n
+      This will override your current working environment`);
+    if (shouldRestore == false) return;
+
+    // Restore device, routes, and electrodes
+    let device = _.get(payload, 'device-model.three-object');
+    let routes = _.get(payload, 'routes-model.routes');
+    let electrodes = _.get(payload, 'electrodes-model.active-electrodes');
+    let steps = _.get(payload, 'state-saver-ui.steps');
+
+    routes = routes ? routes : [];
+    electrodes = electrodes ? electrodes : [];
+
+    const microdrop = new MicropedeAsync('microdrop');
+    if (device) {
+      await microdrop.putPlugin('device-model', 'three-object', device);
+    }
+    await microdrop.putPlugin('routes-model', 'routes', routes);
+    await microdrop.putPlugin('electrodes-model', 'active-electrodes', electrodes);
+
+    if (steps) {
+      this.trigger("set-step-index", 0);
+      this.trigger("set-steps", steps);
+    }
+    
+    console.log("File restored :)", {payload, params});
+  }
+
   render(payload, params) {
     var pluginName, val;
 
@@ -61,9 +92,9 @@ class StateSaverUI extends UIPlugin {
     if (pluginName == "web-server") return;
     if (payload != undefined && payload != null) _.set(this.json, [pluginName, val], payload);
 
-    console.log(pluginName, val);
-
     this.infoBar.innerHTML = '';
+    _.set(this.element.style, "overflow", "auto");
+
     if (this.view == "top") this.renderTopView();
     if (this.view == "steps") this.renderStepView();
     if (this.view == "electrode") this.renderSelectedElectrode();
@@ -73,8 +104,8 @@ class StateSaverUI extends UIPlugin {
   saveJson() {
     console.log(this.editor.get());
     const type = "application/json;charset=utf-8";
-    const blob = new Blob([this.editor.get()], {type});
-    FileSaver.saveAs(blob, `${generateName()}.txt`);
+    const blob = new Blob([JSON.stringify(this.editor.get())], {type});
+    FileSaver.saveAs(blob, `${generateName()}.microdrop`);
   }
 
   renderTopView() {

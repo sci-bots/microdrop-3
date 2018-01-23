@@ -21,8 +21,9 @@ ElectrodeMixins.updateElectrode = async function () {
       return newData;
     }
     return item;
-  })
-  this.trigger('device-model', 'put-device', {'three-object': newObjects});
+  });
+  
+  this.trigger('put-device', {'three-object': newObjects});
 }
 
 ElectrodeMixins.renderSelectedElectrode = async function () {

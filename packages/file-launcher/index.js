@@ -29,7 +29,7 @@ app.on('open-file', function(event, filePath){
   event.preventDefault();
 
   var handler = () => {
-    var client  = mqtt.connect('mqtt://localhost:1883');
+    var client  = mqtt.connect('mqtt://localhost:1884');
 
     client.on('connect', function () {
       var topic = 'microdrop/file-launcher/state/last-opened-file';
