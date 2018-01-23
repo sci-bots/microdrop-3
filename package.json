@@ -2,11 +2,12 @@
   "description": "Microdrop with MQTT support and Web UI",
   "scripts": {
     "start": "npm run --prefix ./packages/application start",
-    "bootstrap": "./node_modules/.bin/lerna bootstrap --hoist --nohoist electron --nohoist electron-mocha --no-optional && git add packages/**/*/package-lock.json",
+    "bootstrap": "lerna bootstrap --no-optional && git add packages/**/*/package-lock.json",
     "hoist": "./node_modules/.bin/lerna bootstrap --hoist --no-optional",
     "build": "./node_modules/.bin/lerna run build",
     "test": "./node_modules/.bin/lerna run test",
-    "git:add:defaults": "git add package-lock.json && git add packages/**/package-lock.json && git add **/*.web.js && git add **/build/*"
+    "git:add:defaults": "git add package-lock.json && git add packages/**/package-lock.json && git add **/*.web.js && git add **/build/*",
+    "upgrade:micropede": "./node_modules/.bin/lerna exec -- ncu -u @micropede/client @micropede/broker"
   },
   "repository": {
     "type": "git",

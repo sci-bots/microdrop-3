@@ -70,7 +70,6 @@ class ElectrodeControls extends MicropedeClient {
 
   drawElectrodes(elec) {
     const LABEL = "ElectrodeControls::drawElectrodes";
-
     const objects = this.svgGroup.children;
     const onColor  = new THREE.Color(ON_COLOR);
     const offColor = new THREE.Color(OFF_COLOR);
@@ -303,6 +302,7 @@ class ElectrodeControls extends MicropedeClient {
     if (!electrodeId && this.selectedElectrode)
       obj = this.selectedElectrode;
 
+    if (obj == undefined) return undefined;
     const intersects = FindIntersectsInDirection(obj.fill, dir, collisionObjects);
     // Use first intersect for now:
     const intersect = intersects[0];
@@ -414,6 +414,7 @@ const FindNeighbourInDirection = function(group, object, dir) {
   // electrodes can be in contact along one edge)
   if (_.isString(object)) {object = _.filter(group.children, {name: object})[0]};
 
+  if (object == undefined) return undefined;
   const intersects = FindIntersectsInDirection(object, dir, group);
   const intersect = intersects[0];
   if (!intersect) return undefined;

@@ -7,10 +7,16 @@ const yo = require('yo-yo');
 
 const DeviceController = require('@microdrop/device-controller/src/device-controller');
 const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient} = require('@micropede/client/src/client.js')
 const UIPlugin = require('@microdrop/ui-plugin');
+
+const {
+  ParseSVGFromString,
+  ConstructObjectsFromSVG} = require('@microdrop/device-controller/src/svg-renderer');
 
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
 window.MicropedeAsync = MicropedeAsync;
+window.MicropedeClient = MicropedeClient;
 
 class DeviceUIPlugin extends UIPlugin {
   constructor(elem, focusTracker) {
@@ -24,6 +30,7 @@ class DeviceUIPlugin extends UIPlugin {
   listen() {
     this.on("updateRequest", this.onUpdateRequest.bind(this));
     this.onStateMsg('device-model', 'three-object', this.renderDevice.bind(this));
+    this.bindPutMsg('device-model', 'three-object', 'put-device');
 
     // XXX: Sometimes updateRequest doesn't fire on page reload (thus force it with timeout)
     setTimeout(()=>this.trigger("updateRequest"), 1000);
@@ -50,9 +57,6 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   async renderDevice(payload) {
-    console.log("RENDERING DEVICE");
-    console.log({payload});
-
     if (this.sceneContainer) {
       this.sceneContainer.innerHTML = '';
     } else  {
@@ -69,16 +73,16 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   changeDevice() {
-    console.log("changing device!");
     const handler = (e) => {
       const f = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = async (e) => {
+      reader.onload = (e) => {
         const content = e.target.result;
         const svg = ParseSVGFromString(content);
         const objects = ConstructObjectsFromSVG(svg);
-        const microdrop = new MicropedeAsync('microdrop');
-        microdrop.putPlugin('device-model', 'three-object', objects);
+        this.trigger('put-device', {'three-object': objects});
+        // const microdrop = new MicropedeAsync('microdrop');
+        // microdrop.putPlugin('device-model', 'three-object', objects);
       };
       reader.readAsText(f);
     }

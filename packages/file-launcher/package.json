@@ -1,0 +1,33 @@
+{
+  "name": "@microdrop/file-launcher",
+  "version": "0.0.0",
+  "description": "Electron Application for File Registration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Microdrop",
+    "File",
+    "Launcher"
+  ],
+  "author": "Sci-Bots",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "electron": "^1.7.11",
+    "electron-builder": "^19.55.2"
+  },
+  "build": {
+    "appId": "com.sci-bots.microdrop-launcher",
+    "productName": "Microdrop Launcher",
+    "copyright": "Copyright © 2018 Sci-Bots",
+    "fileAssociations": {
+      "ext": "microdrop"
+    }
+  },
+  "dependencies": {
+    "backbone": "^1.3.3",
+    "lodash": "^4.17.4",
+    "mqtt": "^2.15.1"
+  }
+}

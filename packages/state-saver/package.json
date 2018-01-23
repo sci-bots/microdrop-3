@@ -25,7 +25,8 @@
   "dependencies": {
     "@microdrop/buildutils": "^1.1.19",
     "@microdrop/ui-plugin": "^1.1.23",
-    "@micropede/client": "0.0.9",
+    "@micropede/client": "0.0.10",
+    "file-saver": "^1.3.3",
     "jsoneditor": "github:Lucaszw/jsoneditor#master",
     "keyboard-shortcut": "^1.2.0",
     "lodash": "^4.17.4",

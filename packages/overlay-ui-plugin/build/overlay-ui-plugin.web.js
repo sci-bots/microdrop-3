@@ -10969,8 +10969,8 @@ if(content.locals) module.exports = content.locals;
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../../../../node_modules/css-loader/index.js!./jsoneditor.min.css", function() {
-			var newContent = require("!!../../../../../node_modules/css-loader/index.js!./jsoneditor.min.css");
+		module.hot.accept("!!../../css-loader/index.js!./jsoneditor.min.css", function() {
+			var newContent = require("!!../../css-loader/index.js!./jsoneditor.min.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -10999,6 +10999,9 @@ exports.push([module.i, "div.jsoneditor .jsoneditor-search input{height:auto;bor
 /***/ (function(module, exports) {
 
 module.exports = function escape(url) {
+    if (typeof url !== 'string') {
+        return url
+    }
     // If url is already wrapped in quotes, remove them
     if (/^['"].*['"]$/.test(url)) {
         url = url.slice(1, -1);
@@ -46219,7 +46222,7 @@ class MicropedeClient {
     this.host = host;
     this.port = port;
     this.version = version;
-    this.options = options;
+    this.options = options ? options : {resubscribe: false};
     this.connectClient(clientId, host, port);
   }
   get isPlugin() { return false }
@@ -46233,7 +46236,7 @@ class MicropedeClient {
     return this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
   }
 
-  addSubscription(channel, handler) {
+  async addSubscription(channel, handler) {
     const path = ChannelToRoutePath(channel);
     const sub = ChannelToSubscription(channel);
     const routeName = `${uuidv1()}-${uuidv4()}`;
@@ -46244,18 +46247,21 @@ class MicropedeClient {
       }
 
       if (this.subscriptions.includes(sub)) {
-        throw `Failed to add subscription.
-        Subscription already exists (${this.name}, ${channel})`;
+        await new Promise((resolve, reject) => {
+          this.client.unsubscribe(sub, () => {resolve();});
+        });
+      } else {
+        this.subscriptions.push(sub);
+        this.router.add([{path, handler}], {add: routeName});
       }
 
       return new Promise((resolve, reject) => {
-        this.client.subscribe(sub, 0, (err, granted) => {
+        this.client.subscribe(sub, {qos: 0}, (err, granted) => {
           if (err) {reject(err); return}
-          this.router.add([{path, handler}], {add: routeName});
-          this.subscriptions.push(sub);
           resolve(granted);
         });
       });
+
     } catch (e) {
       return Promise.reject(DumpStack(label, e));
     }
@@ -46297,6 +46303,7 @@ class MicropedeClient {
 
   connectClient(clientId, host, port, timeout=DEFAULT_TIMEOUT) {
     let client = mqtt.connect(`mqtt://${host}:${port}`, {clientId}, this.options);
+
     return new Promise((resolve, reject) => {
       client.on("connect", () => {
         try {
@@ -46304,7 +46311,6 @@ class MicropedeClient {
           client.connected = true;
           this.client = client;
           this.subscriptions = [];
-          this.client.on("message", this.onMessage.bind(this));
           if (this.isPlugin) {
             this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this)).then((d) => {
               this.listen();
@@ -46320,6 +46326,7 @@ class MicropedeClient {
           reject(DumpStack(this.name, e));
         }
     });
+    client.on("message", this.onMessage.bind(this));
 
     setTimeout( () => {
       reject(`connect timeout ${timeout}ms`)
@@ -46358,6 +46365,7 @@ class MicropedeClient {
     if (topic == undefined || topic == null) return;
     if (buf.toString() == undefined) return;
     if (buf.toString().length <= 0) return;
+
     try {
 
       let msg;
@@ -46379,6 +46387,10 @@ class MicropedeClient {
   }
 
   sendMessage(topic, msg={}, retain=false, qos=0, dup=false){
+    if (_.isPlainObject(msg) && msg.__head__ == undefined) {
+      msg.__head__ = WrapData(null, null, this.name, this.version).__head__;
+    }
+
     const message = JSON.stringify(msg);
     this.client.publish(topic, message, {retain, qos, dup});
   }

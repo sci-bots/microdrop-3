@@ -201,7 +201,6 @@ const GenerateSvgGroup = async (url='/default.svg') => {
 const init = async (url='/default.svg', scene, camera, renderer, container,
   controller) => {
     const svgGroup = await GenerateSvgGroup(url);
-    console.log({svgGroup});
     const domEvents = new THREEx.DomEvents(camera, renderer.domElement);
     const documentSize = container.getBoundingClientRect();
     const resolution = new THREE.Vector2(documentSize.width, documentSize.height);

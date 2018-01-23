@@ -7,6 +7,7 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const ajv = new Ajv({ useDefaults: true });
 const APPNAME = 'microdrop';
+const MQTT_PORT = 1884;
 
 const RouteSchema = {
   type: "object",
@@ -23,7 +24,7 @@ const RouteSchema = {
 
 class RoutesModel extends MicropedeClient {
   constructor() {
-    super(APPNAME);
+    super(APPNAME, 'localhost', MQTT_PORT);
     this.running = false;
   }
 
@@ -60,7 +61,7 @@ class RoutesModel extends MicropedeClient {
         const len = route.path.length;
 
         let numRepeats;
-        const microdrop = new MicropedeAsync(APPNAME);
+        const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
 
         // Check if route contains a loop before continuing
         // const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
@@ -127,7 +128,7 @@ class RoutesModel extends MicropedeClient {
       if (!validate(payload)) throw(_.map(validate.errors, (e)=>JSON.stringify(e)));
       var route = _.omit(payload, "__head__");
 
-      const microdrop = new MicropedeAsync(APPNAME);
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
       // Validate path by checking if electrodesFromRoutes throws error
       // var e = await microdrop.device.electrodesFromRoute(route);
       var e = (await microdrop.triggerPlugin('device-model',
@@ -191,7 +192,7 @@ function ActiveElectrodesAtTime(elecs, t) {
 }
 
 async function ActiveElectrodeIntervals(r) {
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
   // Get electrode intervals based on a routes time properties
   const seq = (await microdrop.triggerPlugin('device-model',
       'electrodes-from-routes', {routes: [r]})).response[0];
@@ -207,7 +208,7 @@ async function ActiveElectrodeIntervals(r) {
   return times;
 }
 
-let microdrop = new MicropedeAsync(APPNAME);
+let microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
  async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
    try {
      // Execute Loop continuously until maxTime is reached

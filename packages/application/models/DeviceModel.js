@@ -12,16 +12,16 @@ const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
 const {FindNeighbourInDirection, FindAllNeighbours} =
   require('@microdrop/device-controller/src/electrode-controls');
 
-const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
+const APPNAME = 'microdrop';
+const MQTT_PORT = 1884;
+
 const ajv = new Ajv({useDefaults: true});
 
-
-const APPNAME = 'microdrop';
-const microdrop = new MicropedeAsync(APPNAME);
+const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
 
 class DeviceModel extends MicropedeClient {
   constructor () {
-    super(APPNAME);
+    super(APPNAME, 'localhost', MQTT_PORT);
     this.scene = null;
     this.group = null;
   }

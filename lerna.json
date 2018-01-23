@@ -1,6 +1,9 @@
 {
   "lerna": "2.5.1",
   "packages": [
+    "Micropede/packages/broker",
+    "Micropede/packages/client",
+    "Micropede/packages/mixins",
     "packages/application",
     "packages/application/ui/src",
     "packages/buildutils",
@@ -8,10 +11,7 @@
     "packages/device-ui-plugin",
     "packages/overlay-ui-plugin",
     "packages/state-saver",
-    "packages/ui-plugin",
-    "Micropede/packages/broker",
-    "Micropede/packages/client",
-    "Micropede/packages/mixins"
+    "packages/ui-plugin"
   ],
   "version": "1.1.23"
 }

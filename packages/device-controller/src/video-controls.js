@@ -64,7 +64,6 @@ class VideoControls {
     if (localStorage.getItem(ANCHOR_KEY)) {
       var {diagonalRatioArray, positionArray} = JSON.parse(localStorage.getItem(ANCHOR_KEY));
       if (diagonalRatioArray) {
-        console.log({diagonalRatioArray, positionArray});
         this.plane.applyPrevGeometry(diagonalRatioArray, positionArray);
       }
     }

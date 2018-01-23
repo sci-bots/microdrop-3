@@ -4,6 +4,16 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const APPNAME = 'microdrop';
+const MQTT_PORT = 1884;
+
+const ElectrodeSchema = {
+  type: "object",
+  properties: {
+    id: {type: "string"},
+    channel:  {type: "number"}
+  },
+  required: ['id', 'channel']
+}
 
 function MapElectrodesAndChannels(threeObject) {
   /* Generate electrode and channel maps from three object */
@@ -35,7 +45,7 @@ function MapElectrodesAndChannels(threeObject) {
 
 class ElectrodesModel extends MicropedeClient {
   constructor () {
-    super('microdrop');
+    super(APPNAME, 'localhost', MQTT_PORT);
   }
 
   listen() {
@@ -71,7 +81,7 @@ class ElectrodesModel extends MicropedeClient {
       if (!_.isString(electrodeId)) throw("electrodeId should be string");
       if (!_.isBoolean(state)) throw("state should be bool");
 
-      const microdrop = new MicropedeAsync(APPNAME);
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
 
       // Get all connected electrodes based on the device object
       const threeObject = await microdrop.getState('device-model', 'three-object');

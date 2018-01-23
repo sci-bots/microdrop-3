@@ -11,21 +11,21 @@ const express = require('express');
 const handlebars = require('handlebars');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
 
-const DeviceModel     = require("./models/DeviceModel");
-const ElectrodesModel = require('./models/ElectrodesModel');
-// const RoutesModel     = require('./models/RoutesModel');
-
-const MQTT_PORT = 1883;
+const MQTT_PORT = 1884;
 const HTTP_PORT = 3000;
+const HOST = 'localhost';
 
 const DEFAULT_ENABLED = require("./package.json")['default-enabled'];
+
+// class MicropedeClient {
+//   constructor(appName, host="localhost", port, name, version='0.0.0', options=undefined) {
 
 class WebServer extends MicropedeClient {
   constructor(args={}) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(path.join(__dirname,"plugins.json"))))
       WebServer.generatePluginJSON();
-    super('microdrop');
+    super('microdrop', HOST, MQTT_PORT);
 
     Object.assign(this, this.ExpressServer());
     this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
@@ -65,15 +65,13 @@ class WebServer extends MicropedeClient {
     this._listen(HTTP_PORT);
 
     // Launch models:
-    // new DeviceModel();
-    // new ElectrodesModel();
     spawn('node ./models/DeviceModel.js', [], {stdio: 'inherit', shell: true});
     spawn('node ./models/ElectrodesModel.js', [], {stdio: 'inherit', shell: true});
     spawn('node ./models/RoutesModel.js', [], {stdio: 'inherit', shell: true});
-    // new RoutesModel();
 
     // Ping plugins every three seconds
-    setInterval(this.pingRunningStates.bind(this), 3000);
+    // XXX: UNCOMMENT TO POLL PROCESS PLUGINS!!
+    // setInterval(this.pingRunningStates.bind(this), 3000);
   }
 
   get filepath() {return __dirname;}
@@ -445,8 +443,7 @@ const launchMicrodrop = function() {
       action: "append"
     }
   );
-  // let moscaServer;
-  // const moscaServer = new MoscaServer();
+  // let webServer;
   const webServer = new WebServer(parser.parseArgs());
 
   const ifaces = os.networkInterfaces();
@@ -464,7 +461,7 @@ const launchMicrodrop = function() {
   let mainWindow;
 
   const createWindow = () => {
-    mainWindow = new BrowserWindow({width: 800, height: 600, show: false});
+    mainWindow = new BrowserWindow({width: 800, height: 600, show: true});
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file:',
@@ -503,6 +500,7 @@ if (require.main === module) {
   try {
     launchMicrodrop();
   } catch (e) {
+    console.error("LAUNCH FAILED!");
     console.error(e);
   }
 }
