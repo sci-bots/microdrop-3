@@ -208,13 +208,13 @@ async function ActiveElectrodeIntervals(r) {
   return times;
 }
 
-let microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
  async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
    try {
      // Execute Loop continuously until maxTime is reached
      await wait(interval);
 
      const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
+     const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
      await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
        'active-electrodes': _.map(active, "id")
      });

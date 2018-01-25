@@ -20,7 +20,7 @@ const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
 
 const APPNAME = 'microdrop';
-let microdrop = new MicropedeAsync(APPNAME);
+const DEFAULT_PORT = 8083;
 
 class ElectrodeControls extends MicropedeClient {
   constructor(scene, camera, renderer, container=null) {
@@ -234,12 +234,11 @@ class ElectrodeControls extends MicropedeClient {
     try {
       const electrodeObject = this.electrodeObjects[electrodeId];
       electrodeObject.on = true;
+      let microdrop = new MicropedeAsync(APPNAME, 'localhost', DEFAULT_PORT);
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId, state: true});
     } catch (e) {
       // console.error(e);
-      await microdrop.client.disconnectClient();
-      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 
@@ -247,20 +246,20 @@ class ElectrodeControls extends MicropedeClient {
 
     try {
       const electrodeObject = this.electrodeObjects[electrodeId];
+      let microdrop = new MicropedeAsync(APPNAME, 'localhost', DEFAULT_PORT);
+
       electrodeObject.on = false;
       await microdrop.triggerPlugin('electrodes-model', 'toggle-electrode',
         {electrodeId: electrodeId, state: false}, 500);
     } catch (e) {
       // console.error(e);
-      await microdrop.client.disconnectClient();
-      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 
   async move(dir='right') {
     try {
       if (!this.selectedElectrode) return;
-
+      let microdrop = new MicropedeAsync(APPNAME, 'localhost', DEFAULT_PORT);
       const electrodeId = this.selectedElectrode.name;
       let neighbours;
       neighbours = (await microdrop.triggerPlugin('device-model',
@@ -274,8 +273,6 @@ class ElectrodeControls extends MicropedeClient {
       this.selectElectrode(neighbour);
     } catch (e) {
       // console.error(e);
-      await microdrop.client.disconnectClient();
-      microdrop = new MicropedeAsync(APPNAME);
     }
   }
 
@@ -359,6 +356,7 @@ class ElectrodeControls extends MicropedeClient {
 
     let activeElectrodes;
     try {
+      let microdrop = new MicropedeAsync(APPNAME, 'localhost', DEFAULT_PORT);
       activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 500);
     } catch (e) {
       activeElectrodes = [];

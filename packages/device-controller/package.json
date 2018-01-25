@@ -11,7 +11,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
-    "@micropede/client": "^0.0.10",
+    "@micropede/client": "^0.0.11",
     "backbone": "^1.3.3",
     "colormap": "^2.3.0",
     "jquery": "^3.2.1",

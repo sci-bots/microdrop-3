@@ -17,8 +17,6 @@ const MQTT_PORT = 1884;
 
 const ajv = new Ajv({useDefaults: true});
 
-const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
-
 class DeviceModel extends MicropedeClient {
   constructor () {
     super(APPNAME, 'localhost', MQTT_PORT);
@@ -112,6 +110,7 @@ class DeviceModel extends MicropedeClient {
 
   async putOverlays(payload) {
     const LABEL = `<DeviceModel::putOverlays`; //console.log(LABEL);
+    console.log(LABEL);
     try {
       for (const [i, overlay] of payload.entries()) {
         this.validateOverlay(overlay);
@@ -125,13 +124,14 @@ class DeviceModel extends MicropedeClient {
 
   async putOverlay(payload) {
     const LABEL = `<DeviceModel::putOverlay>`;
-
+    console.log(LABEL);
+    const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
     try {
       payload = this.validateOverlay(payload);
 
       let overlays;
       try {
-        overlays = await this.microdrop.getState('device-model', "overlays", 500);
+        overlays = await microdrop.getState('device-model', "overlays", 500);
       } catch (e) {
         overlays = [];
       }
@@ -157,6 +157,7 @@ class DeviceModel extends MicropedeClient {
 
   async putThreeObject(payload) {
     const LABEL = `<DeviceModel::putThreeObject>`;
+    console.log(LABEL);
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");

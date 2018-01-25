@@ -15,8 +15,8 @@ class UIPlugin extends MicropedeClient {
       if (this.hasFocus) this.trigger("delete");
     });
   }
-  
-  get isPlugin() { return false }
+
+  get isPlugin() { return true }
   get element() {return this._element}
   get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
   set element(element) {

@@ -45781,8 +45781,8 @@ class UIPlugin extends MicropedeClient {
       if (this.hasFocus) this.trigger("delete");
     });
   }
-  
-  get isPlugin() { return false }
+
+  get isPlugin() { return true }
   get element() {return this._element}
   get hasFocus() {return this.element == this.focusTracker.currentWidget.node}
   set element(element) {
@@ -46204,6 +46204,43 @@ function DumpStack(label, err) {
     return _.flattenDeep([label, err.toString().split(",")]);
 }
 
+function TrackClient(client, isPlugin) {
+  if (isNode) return;
+  if (!window.openClients) window.openClients = [];
+  if (!window.openPlugins) window.openPlugins = [];
+  if (!isPlugin) window.openClients.push(client)
+  if (isPlugin) window.openPlugins.push(client);
+
+  if (window.openClients.length > 150) FlushClients();
+}
+
+function FlushClients() {
+  if (!window) return;
+  _.each(window.openClients, (c) => {
+    try {
+      let socket = c.stream.socket;
+      socket.onclose = _.noop;
+      let readyState = socket.readyState;
+      switch (readyState) {
+        case socket.OPEN:
+          socket.close();
+          break;
+        case socket.CONNECTING:
+          socket.close();
+          break;
+        default:
+          break;
+      }
+    } catch (e) {
+      console.error(e);
+      // ignore cient already disconnected errors
+    }
+  });
+
+  window.openClients = [];
+}
+
+if (!isNode) window.FlushClients = FlushClients;
 
 class MicropedeClient {
   constructor(appName, host="localhost", port, name, version='0.0.0', options=undefined) {
@@ -46214,7 +46251,7 @@ class MicropedeClient {
     var name = name || getClassName(this);
     const clientId = GenerateClientId(name, appName);
     this.router = new RouteRecognizer();
-
+    this.__listen = _.noop;
     this.appName = appName;
     this.clientId = clientId;
     this.name = name;
@@ -46222,15 +46259,19 @@ class MicropedeClient {
     this.host = host;
     this.port = port;
     this.version = version;
-    this.options = options ? options : {resubscribe: false};
-    this.connectClient(clientId, host, port);
+    this.options = options ? options : { resubscribe: false};
+    this.lastMessage = null;
+    try {
+      this.connectClient(clientId, host, port);
+    } catch (e) {
+      console.error(e);
+    }
   }
-  get isPlugin() { return false }
 
-  listen() {
-    console.error("Implement me!");
-  }
+  get isPlugin() { return !_.isEqual(this.listen, _.noop)}
 
+  set listen(f) { this.__listen = f}
+  get listen() {return this.__listen }
 
   addBinding(channel, event, retain=false, qos=0, dup=false) {
     return this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
@@ -46263,7 +46304,7 @@ class MicropedeClient {
       });
 
     } catch (e) {
-      return Promise.reject(DumpStack(label, e));
+      return Promise.reject(DumpStack(this.name, e));
     }
   }
 
@@ -46302,16 +46343,31 @@ class MicropedeClient {
 
 
   connectClient(clientId, host, port, timeout=DEFAULT_TIMEOUT) {
-    let client = mqtt.connect(`mqtt://${host}:${port}`, {clientId}, this.options);
+    let options  = {clientId: clientId};
+    if (!this.isPlugin) options = { clientId: clientId, resubscribe: false, reconnectPeriod: -1};
+    let client = mqtt.connect(`mqtt://${host}:${port}`, options);
+
+    TrackClient(client, this.isPlugin);
 
     return new Promise((resolve, reject) => {
+      if (!isNode) {
+        client.stream.socket.onerror = (e) => {
+          FlushClients();
+          reject(DumpStack(this.name ,e));
+        };
+      }
+
+      client.on("error", (e) => {
+        reject(DumpStack(this.name ,e));
+      });
+
       client.on("connect", () => {
         try {
           // XXX: Manually setting client.connected state
           client.connected = true;
           this.client = client;
           this.subscriptions = [];
-          if (this.isPlugin) {
+          if (this.isPlugin == true) {
             this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this)).then((d) => {
               this.listen();
               this.defaultSubCount = this.subscriptions.length;
@@ -46324,12 +46380,15 @@ class MicropedeClient {
           }
         } catch (e) {
           reject(DumpStack(this.name, e));
+          // this.disconnectClient();
         }
     });
     client.on("message", this.onMessage.bind(this));
+    // client.on("reconnect", this.onReconnect.bind(this));
 
     setTimeout( () => {
-      reject(`connect timeout ${timeout}ms`)
+      reject(`connect timeout ${timeout}ms`);
+      // this.disconnectClient();
     }, timeout);
 
   });
@@ -46337,34 +46396,55 @@ class MicropedeClient {
 
   disconnectClient(timeout=500) {
     return new Promise((resolve, reject) => {
-        this.subscriptions = [];
-        this.router = new RouteRecognizer();
-        if (!_.get(this, "client.connected")) {
-          this.off();
-          delete this.client;
-          resolve();
-        } else {
-          // disconnect the client (wihout waiting for any messages)
-          this.client.end(true, () => {
-            this.off();
-            delete this.client;
-            resolve(true);
-          });
+      this.subscriptions = [];
+      this.router = new RouteRecognizer();
 
-          setTimeout( () => {
-            // reject(`disconnect timeout ${timeout}ms`);
+      if (!_.get(this, "client.connected")) {
+        this.off();
+        delete this.client;
+        resolve();
+      }
+      else {
+        if (this.client) {
+
+          let end = () => {
             this.off();
             delete this.client;
             resolve(true);
-          }, timeout);
+          }
+
+          this.client.end(true, () => {end();});
+          setTimeout( () => {end()}, timeout);
+
+          if (!isNode) {
+            let socket = this.client.stream.socket;
+            if (socket.readyState == socket.OPEN) socket.close();
+          }
+
         }
+      }
+
     });
+  }
+
+  async onReconnect() {
+    console.log("ATTEMPTING TO RECONNECT::", this.name, this.lastMessage);
+    // if (alert) alert();
+
+    if (this.client) {
+      this.client.end(true);
+      delete this.client;
+      console.log(this.client);
+    }
+    delete this;
   }
 
   onMessage(topic, buf){
     if (topic == undefined || topic == null) return;
     if (buf.toString() == undefined) return;
     if (buf.toString().length <= 0) return;
+    // console.log("ONMESSAGE:::", topic);
+    // console.log("FOR:::", this.name);
 
     try {
 
@@ -46392,6 +46472,7 @@ class MicropedeClient {
     }
 
     const message = JSON.stringify(msg);
+    this.lastMessage = topic;
     this.client.publish(topic, message, {retain, qos, dup});
   }
 
