@@ -33,8 +33,6 @@ class RoutesModel extends MicropedeClient {
     this.onPutMsg("routes", this.putRoutes.bind(this));
     this.onPutMsg("route", this.putRoute.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
-    this.bindStateMsg("routes", "set-routes");
-    this.bindStateMsg("status", "set-status");
   }
 
   // ** Getters and Setters **
@@ -95,7 +93,7 @@ class RoutesModel extends MicropedeClient {
       const maxInterval = _.max(_.map(routes, tms));
       const maxTime = maxInterval * _.max(lengths) * 2;
 
-      this.trigger("set-status", "running");
+      await this.setState('status', 'running');
 
       const complete = () => {
         return new Promise((resolve, reject) => {
@@ -110,7 +108,7 @@ class RoutesModel extends MicropedeClient {
 
       await complete();
 
-      this.trigger("set-status", "stopped");
+      await this.setState('status', 'stopped');
 
       return this.notifySender(payload, {status: 'running'}, 'execute');
     } catch (e) {
@@ -167,8 +165,7 @@ class RoutesModel extends MicropedeClient {
       if (!payload.routes) throw("missing payload.routes");
       if (!_.isArray(payload.routes)) throw("payload.routes not an array");
       const routes = payload.routes;
-
-      this.trigger("set-routes", routes);
+      await this.setState('routes', routes);
       return this.notifySender(payload, routes, 'routes');
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), 'routes', 'failed');
@@ -232,6 +229,7 @@ module.exports = RoutesModel;
 
 if (require.main === module) {
   try {
+    console.log("STARTING ROUTES MODEL");
     model = new RoutesModel();
   } catch (e) {
     console.error('RoutesModel failed!', e);

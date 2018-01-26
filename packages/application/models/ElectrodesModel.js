@@ -49,7 +49,6 @@ class ElectrodesModel extends MicropedeClient {
   }
 
   listen() {
-    this.bindStateMsg("active-electrodes", "set-active-electrodes");
     this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
     this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
   }
@@ -57,13 +56,13 @@ class ElectrodesModel extends MicropedeClient {
   get isPlugin() {return true}
   get filepath() {return __dirname;}
 
-  putActiveElectrodes(payload) {
+  async putActiveElectrodes(payload) {
     const LABEL = "<ElectrodesModel::putActiveElectrodes>"; //console.log(LABEL);
     try {
       const activeElectrodes = payload["active-electrodes"] || payload["activeElectrodes"];
       if (!activeElectrodes) throw ("expected active-electrodes in payload");
       if (!_.isArray(activeElectrodes)) throw("active-electrodes should be array");
-      this.trigger("set-active-electrodes", activeElectrodes);
+      await this.setState('active-electrodes', activeElectrodes);
       return this.notifySender(payload, activeElectrodes, "active-electrodes");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "active-electrodes", "failed");
@@ -121,6 +120,7 @@ module.exports = ElectrodesModel;
 
 if (require.main === module) {
   try {
+    console.log("STARTING ELECTRODES MODEL..");
     model = new ElectrodesModel();
   } catch (e) {
     console.error('ElectrodesModel failed!', e);

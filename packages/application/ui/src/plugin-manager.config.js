@@ -1,7 +1,7 @@
 const path = require('path');
 
-if (path.basename(path.resolve('.')) != 'application') {
-  console.error('please execute from root of @microdrop/application package');
+if (path.basename(path.resolve('.')) != 'src') {
+  console.error('please execute from inside the ui/src directory');
   // process.exit(1);
 }
 

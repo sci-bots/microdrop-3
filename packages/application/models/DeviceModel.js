@@ -30,8 +30,8 @@ class DeviceModel extends MicropedeClient {
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
-    this.bindStateMsg("three-object", "set-three-object");
-    this.bindStateMsg("overlays", "set-overlays");
+    // this.bindStateMsg("three-object", "set-three-object");
+    // this.bindStateMsg("overlays", "set-overlays");
   }
   get isPlugin() {return true}
   get channel() {return "microdrop/device"}
@@ -115,7 +115,7 @@ class DeviceModel extends MicropedeClient {
       for (const [i, overlay] of payload.entries()) {
         this.validateOverlay(overlay);
       }
-      this.trigger("set-overlays", payload);
+      await this.setState('overlays', payload);
       return this.notifySender(payload, payload, "overlays");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "overlays", 'failed');
@@ -141,8 +141,7 @@ class DeviceModel extends MicropedeClient {
       } else {
         overlays[index] = payload;
       }
-
-      this.trigger("set-overlays", overlays);
+      await this.setState('overlays', overlays);
       return this.notifySender(payload, overlays[index], "overlay");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "overlay", 'failed');
@@ -165,7 +164,7 @@ class DeviceModel extends MicropedeClient {
       const filepath = path.join(__dirname, '../resources/loaded_device.json');
       fs.writeFileSync(filepath, JSON.stringify(threeObject) , 'utf-8');
 
-      this.trigger("set-three-object", threeObject);
+      await this.setState('three-object', threeObject);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "three-object", 'failed');
@@ -219,6 +218,7 @@ module.exports = DeviceModel;
 
 if (require.main === module) {
   try {
+    console.log("STARTING DEVICE MODEL");
     model = new DeviceModel();
   } catch (e) {
     console.error('DeviceModel failed!', e);

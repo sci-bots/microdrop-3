@@ -14,9 +14,7 @@
     "test": "node _test.js",
     "start": "./node_modules/.bin/electron .",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
-    "build": "npm run build:phosphor && npm run build:ui",
-    "build:phosphor": " cd ./ui/src && ../../node_modules/.bin/webpack --config phosphor.config.js",
-    "build:ui": "cd ./ui/src && ../../node_modules/.bin/webpack --config plugin-manager.config.js"
+    "build": "node build.js"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",

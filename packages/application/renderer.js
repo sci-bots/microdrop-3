@@ -66,11 +66,6 @@ class WebServer extends MicropedeClient {
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
     this._listen(HTTP_PORT);
 
-    // Launch models:
-    spawn('node ./models/DeviceModel.js', [], {stdio: 'inherit', shell: true});
-    spawn('node ./models/ElectrodesModel.js', [], {stdio: 'inherit', shell: true});
-    spawn('node ./models/RoutesModel.js', [], {stdio: 'inherit', shell: true});
-
     // Ping plugins every three seconds
     // XXX: UNCOMMENT TO POLL PROCESS PLUGINS!!
     // setInterval(this.pingRunningStates.bind(this), 3000);

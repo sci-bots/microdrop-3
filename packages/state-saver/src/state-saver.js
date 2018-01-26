@@ -30,6 +30,8 @@ class StateSaverUI extends UIPlugin {
     this.infoBar = yo`<div></div>`;
     const onChange = this.onChange.bind(this);
     this.editor = new JSONEditor(this.container, {onChange});
+
+    console.log(this);
   }
 
   async listen() {
