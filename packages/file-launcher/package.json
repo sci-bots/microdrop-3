@@ -21,6 +21,10 @@
     "appId": "com.sci-bots.microdrop-launcher",
     "productName": "Microdrop Launcher",
     "copyright": "Copyright © 2018 Sci-Bots",
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true
+    },
     "fileAssociations": {
       "ext": "microdrop"
     }

@@ -2,3 +2,4 @@ dist/electron-builder.yaml
 dist/*.zip
 dist/*.blockmap
 dist/mac
+dist/win-*
