@@ -22,6 +22,7 @@ function openFile(filepath) {
         client.publish(topic, data, (err) => {
           if (err) throw err;
           client.end();
+          app.quit();
         });
       });
     });
@@ -43,14 +44,8 @@ app.on('ready', () => {
     let image = nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
     image = image.resize({width: 20, height: 20});
     tray = new Tray(image);
-    const contextMenu = Menu.buildFromTemplate([
-      {label: 'Item1', type: 'radio'},
-      {label: 'Item2', type: 'radio'},
-      {label: 'Item3', type: 'radio', checked: true},
-      {label: 'Item4', type: 'radio'}
-    ])
-    tray.setToolTip('Microdrop')
-    tray.setContextMenu(contextMenu)
+    tray.setToolTip('Microdrop');
+    app.quit();
   }
 });
 
