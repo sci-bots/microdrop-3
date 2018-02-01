@@ -51,7 +51,8 @@ class MqttClient(MqttMessages):
     @property
     def name(self):
         safe_chars = '~@#$&()*!+=:;,.?/\''
-        return urllib.parse.quote(camelToSnake(self.__class__.__name__), safe=safe_chars)
+        return urllib.parse.quote(camelToSnake(self.__class__.__name__),
+                                  safe=safe_chars)
 
     @property
     def version(self):
@@ -87,7 +88,7 @@ class MqttClient(MqttMessages):
 
     def wrap_data(self, key, val):
         msg = {}
-        if isinstance(val, dict) and val != None:
+        if isinstance(val, dict) and val is not None:
             msg = val
         else:
             msg[key] = val
@@ -104,8 +105,8 @@ class MqttClient(MqttMessages):
         return client
 
     def ClientID(self):
-        timestamp = str(time.time()).replace(".","")
-        randnum = random.randint(1,1000)
+        timestamp = str(time.time()).replace(".", "")
+        randnum = random.randint(1, 1000)
         return f'{self.name}>>{self.filepath}>>{timestamp}.{randnum}'
 
     def DefaultHeader(self):

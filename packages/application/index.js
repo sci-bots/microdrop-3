@@ -21,7 +21,6 @@ const c2 = spawn(`node ${elecPath}`, [], OPTIONS);
 const c3 = spawn(`node ${routesPath}`, [], OPTIONS);
 
 async function publishClose() {
-  console.log("publishing close");
   await new Promise((resolveTop, rejectTop) => {
     // console.log("connecting to client", `mqtt://localhost:${PORT}`);
     var client  = mqtt.connect(`mqtt://localhost:${PORT}`);
@@ -29,7 +28,6 @@ async function publishClose() {
 
       // console.log("attempting to close routes");
       await new Promise((resolve, reject) => {
-        console.log("publishing to routes model:")
         client.publish(`${APPNAME}/trigger/routes-model/exit`, '{}', (err) => {
           // console.log("closed routes-model");
           resolve();
@@ -38,7 +36,6 @@ async function publishClose() {
 
       // console.log("attempting to close electrodes");
       await new Promise((resolve, reject) => {
-        console.log("publishing to electrodes model:");
         client.publish(`${APPNAME}/trigger/electrodes-model/exit`, '{}', (err) => {
           // console.log("closed electrodes-model");
           resolve();
@@ -47,7 +44,6 @@ async function publishClose() {
 
       // console.log("attempting to close device");
       await new Promise((resolve, reject) => {
-        console.log("publishing to device model:");
         client.publish(`${APPNAME}/trigger/device-model/exit`, '{}', (err) => {
           // console.log("closed device-model");
           resolve();
@@ -62,11 +58,9 @@ async function publishClose() {
 
 process.on('SIGINT', () => {
   publishClose().then((d) => {
-    console.log("plugins finished closing");
     c1.kill('SIGINT');
     c2.kill('SIGINT');
     c3.kill('SIGINT');
-    console.log("killing broker");
     spawn("taskkill", ["/pid", broker.pid, '/f', '/t'], {detached: true});
     process.exit();
   });

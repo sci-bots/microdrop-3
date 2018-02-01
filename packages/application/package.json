@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "node _test.js",
-    "start": "node index.js",
+    "start": "node index.js && exit 0",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
     "build": "node build.js"
   },
