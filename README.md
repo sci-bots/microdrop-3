@@ -18,7 +18,7 @@ microdrop-3
 ```sh
 git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
-npm i --global lerna ncu
+npm i --global lerna npm-check-updates
 npm install
 # [optional] npm run upgrade:micropede
 npm run bootstrap
