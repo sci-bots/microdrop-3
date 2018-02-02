@@ -46135,7 +46135,7 @@ exports.getKey = function getKey(code) {
 /* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* Base MicropedeClient class */
+/* WEBPACK VAR INJECTION */(function(process) {/* Base MicropedeClient class */
 
 const _ = __webpack_require__(127);
 const backbone = __webpack_require__(128);
@@ -46326,9 +46326,15 @@ class MicropedeClient {
     });
   }
 
-  getSubscriptions(payload, name) {
+  _getSubscriptions(payload, name) {
     const LABEL = `${this.appName}::getSubscriptions`;
     return this.notifySender(payload, this.subscriptions, "get-subscriptions");
+  }
+
+  exit (payload) {
+    if (!isNode) return;
+    console.log("Terminating plugin", this.name);
+    process.exit();
   }
 
   notifySender(payload, response, endpoint, status='success') {
@@ -46376,10 +46382,19 @@ class MicropedeClient {
           this.client = client;
           this.subscriptions = [];
           if (this.isPlugin == true) {
-            this.onTriggerMsg("get-subscriptions", this.getSubscriptions.bind(this)).then((d) => {
-              this.listen();
-              this.defaultSubCount = this.subscriptions.length;
-              resolve(true);
+            this.onTriggerMsg("get-subscriptions", this._getSubscriptions.bind(this)).then((d) => {
+              if (isNode) {
+                this.onTriggerMsg("exit", this.exit.bind(this)).then((d) => {
+                  this.listen();
+                  this.defaultSubCount = this.subscriptions.length;
+                  client.on("close", this.exit.bind(this));
+                  resolve(true);
+                });
+              } else {
+                this.listen();
+                this.defaultSubCount = this.subscriptions.length;
+                resolve(true);
+              }
             });
           } else {
             this.listen();
@@ -46392,7 +46407,6 @@ class MicropedeClient {
         }
     });
     client.on("message", this.onMessage.bind(this));
-    // client.on("reconnect", this.onReconnect.bind(this));
 
     setTimeout( () => {
       reject(`connect timeout ${timeout}ms`);
@@ -46433,18 +46447,6 @@ class MicropedeClient {
       }
 
     });
-  }
-
-  async onReconnect() {
-    console.log("ATTEMPTING TO RECONNECT::", this.name, this.lastMessage);
-    // if (alert) alert();
-
-    if (this.client) {
-      this.client.end(true);
-      delete this.client;
-      console.log(this.client);
-    }
-    delete this;
   }
 
   onMessage(topic, buf){
@@ -46497,6 +46499,7 @@ class MicropedeClient {
 
 module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, WrapData};
 
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 127 */

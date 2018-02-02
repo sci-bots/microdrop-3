@@ -8,10 +8,10 @@ const _ = require('lodash');
 const ArgumentParser = require('argparse').ArgumentParser;
 const electron = require('electron');
 const express = require('express');
-const handlebars = require('handlebars');
 
 const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
+const MicrodropUI = require('@microdrop/ui/index.js');
 
 const clientPort = 8083;
 const brokerPort = 1884;
@@ -30,7 +30,7 @@ class WebServer extends MicropedeClient {
     super('microdrop', HOST, MQTT_PORT);
 
     Object.assign(this, this.ExpressServer());
-    this.use(express.static(path.join(__dirname,"ui/src"), {extensions:['html']}));
+    this.use(express.static(MicrodropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
 
     // NPM Packages used in Handlebar template:
@@ -147,7 +147,7 @@ class WebServer extends MicropedeClient {
     this.processPlugins = this.ProcessPlugins();
   }
   generateDisplayTemplate() {
-    // Generate input data for handlebars template:
+    // Generate input data for microdrop ui:
     const pluginPaths = new Array();
 
     for (const [pluginDir, plugin] of Object.entries(this.webPlugins)) {
@@ -157,14 +157,9 @@ class WebServer extends MicropedeClient {
     }
 
     // Update html file with added / removed plugins:
-    const fileSrc  = path.join(__dirname, "ui/templates/display.hb");
-    const fileDest = path.join(__dirname, "ui/src/display.html");
-
-    const file = fs.readFileSync(fileSrc);
-    const template = handlebars.compile(file.toString());
-    const html = template({pluginPaths: pluginPaths});
-    fs.writeFileSync(fileDest, html);
+    MicrodropUI.UpdateDisplayTemplate(pluginPaths);
   }
+
   getPluginData(pluginPath) {
     /* Read microdrop.json file found at path*/
     const microdropFile = path.join(pluginPath, "microdrop.json");

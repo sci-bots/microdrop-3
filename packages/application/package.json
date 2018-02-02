@@ -12,9 +12,11 @@
   ],
   "scripts": {
     "test": "node _test.js",
-    "start": "node index.js && exit 0",
+    "start": "electron index.js",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
-    "build": "node build.js"
+    "build": "./node_modules/.bin/webpack",
+    "rm:node_modules:powershell": "powershell.exe Remove-Item -Force node_modules && powershell.exe Remove-Item -Force ui/src/node_modules;",
+    "install:node_modules": "npm install && npm --prefix ui/src install"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
@@ -24,39 +26,49 @@
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
     "@microdrop/device-controller": "^1.1.23",
-    "@micropede/broker": "^0.0.11",
-    "@micropede/client": "^0.0.11",
+    "@microdrop/ui": "^0.0.0",
+    "@micropede/broker": "^0.0.18",
+    "@micropede/client": "^0.0.17",
     "ajv": "^6.0.0-beta.2",
     "argparse": "^1.0.9",
     "backbone": "^1.3.3",
-    "crossroads": "^0.12.2",
-    "eventemitter2": "^5.0.0",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
-    "gulp": "^3.9.1",
     "handlebars": "^4.0.11",
-    "ioredis": "^3.2.2",
-    "level-js": "^2.2.4",
     "lodash": "^4.17.4",
-    "mongodb": "^3.0.1",
-    "mosca": "^2.7.0",
     "mqtt": "^2.14.0",
-    "mqtt-router": "^0.5.0",
-    "msgpack-lite": "^0.1.26",
-    "pandas-helpers": "^1.0.0",
     "three": "^0.89.0",
-    "uuid": "^3.1.0",
-    "walk": "^2.3.9"
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "electron": "^1.7.10",
+    "electron-builder": "^19.55.3",
     "electron-mocha": "^5.0.0",
     "webpack": "^3.8.1"
   },
   "build": {
     "appId": "com.sci-bots.microdrop",
-    "portable": {
-      "requestExecutionLevel": "user"
-    }
+    "productName": "Microdrop",
+    "copyright": "Copyright © 2018 Sci-Bots",
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true
+    },
+    "fileAssociations": {
+      "ext": "microdrop"
+    },
+    "files": [
+      "**/*",
+      "index.js"
+    ],
+    "extraFiles": [
+      "index.js",
+      "app.js",
+      "renderer.js",
+      "index.html",
+      "models/",
+      "ui/",
+      "resources/"
+    ]
   }
 }
