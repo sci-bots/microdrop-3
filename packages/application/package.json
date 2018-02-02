@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/application",
-  "version": "1.1.24",
+  "version": "1.1.25",
   "description": "Top Level Application for Microdrop",
   "main": "index.js",
   "bin": {
@@ -26,7 +26,7 @@
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
     "@microdrop/device-controller": "^1.1.24",
-    "@microdrop/ui": "^1.1.24",
+    "@microdrop/ui": "^1.1.25",
     "@micropede/broker": "^0.0.18",
     "@micropede/client": "^0.0.17",
     "ajv": "^6.0.0-beta.2",
