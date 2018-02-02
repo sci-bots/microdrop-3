@@ -20,7 +20,7 @@
     "@microdrop/ui-plugin": "^1.1.24",
     "@micropede/client": "0.0.17",
     "async-mqtt": "^1.0.1",
-    "dat.gui": "^0.6.1",
+    "dat.gui": "^0.7.0",
     "jquery": "^3.2.1",
     "jquery-contextmenu": "^2.6.3",
     "keyboard-shortcut": "^1.2.0",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "css-loader": "^0.28.7",
     "gulp": "^3.9.1",
-    "style-loader": "^0.19.0",
+    "style-loader": "^0.20.1",
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1"
   },
