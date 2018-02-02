@@ -16,10 +16,11 @@ microdrop-3
 ## Installing From Source (Latest)
 
 ```sh
-git clone https://github.com/sci-bots/microdrop-3
+git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
-npm i --global gulp lerna
-npm install --no-optional
+npm i --global lerna ncu
+npm install
+# [optional] npm run upgrade:micropede
 npm run bootstrap
 # [optional] npm run build
 npm run start
