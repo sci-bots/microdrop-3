@@ -1,13 +1,13 @@
 {
   "name": "@microdrop/ui",
-  "version": "0.0.0",
+  "version": "1.1.24",
   "description": "Phosphor based layout for managaing ui and process plugins",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@microdrop/ui-plugin": "^1.1.23",
+    "@microdrop/ui-plugin": "^1.1.24",
     "@micropede/client": "0.0.17",
     "@phosphor/widgets": "^1.5.0",
     "handlebars": "^4.0.11",
