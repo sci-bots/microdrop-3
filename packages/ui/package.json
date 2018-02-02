@@ -15,5 +15,8 @@
     "keyboard-shortcut": "^1.2.0"
   },
   "author": "Sci-Bots",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "publishConfig": {
+    "access": "public"
+  },
 }
