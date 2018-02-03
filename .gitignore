@@ -65,3 +65,6 @@ schema.json
 ui/src/display.html
 *.DS_Store
 resources/*.microdrop
+**/win-ia32-unpacked/
+**/*.blockmap
+**/electron-builder.yaml

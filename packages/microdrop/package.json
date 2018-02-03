@@ -1,0 +1,57 @@
+{
+  "name": "@microdrop/microdrop",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.7.12",
+    "electron-builder": "^19.55.3"
+  },
+  "dependencies": {
+    "@micropede/broker": "0.0.18",
+    "@micropede/client": "0.0.17",
+    "@microdrop/ui": "0.0.0",
+    "express": "^4.16.2",
+    "lodash": "^4.17.4"
+  },
+  "build": {
+    "appId": "com.sci-bots.microdrop",
+    "productName": "microdrop",
+    "copyright": "Copyright © 2018 Sci-Bots",
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true
+    },
+    "fileAssociations": {
+      "ext": "microdrop"
+    },
+    "files": [
+      "public/**/*",
+      "utils/**/*"
+    ],
+    "extraFiles": [
+      "public/",
+      "utils/"
+    ],
+    "extraResources": [
+      "public/",
+      "utils/"
+    ],
+    "asar": false
+  },
+  "environment": {
+    "HTTP_PORT": 3000,
+    "MQTT_TCP_PORT": 1884,
+    "MQTT_WS:PORT": 8083,
+    "host": "localhost",
+    "defaultEnabled": [
+      "device-ui-plugin",
+      "state-saver"
+    ]
+  }
+}
