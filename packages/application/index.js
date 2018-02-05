@@ -9,7 +9,7 @@ const mqtt = require('mqtt');
 const OPTIONS = {stdio: 'inherit', shell: true};
 
 console.log("Launching Electron APP");
-const broker = spawn(`electron app.js`, [], {shell: true, stdio: 'inherit', detached: true});
+const broker = spawn(`${path.resolve('node_modules/.bin/electron')} app.js`, [], {shell: true, stdio: 'inherit', detached: true});
 
 console.log("Launching Models");
 const devicePath = path.resolve(__dirname, 'models/DeviceModel.js');
