@@ -14,7 +14,7 @@
     "test": "node _test.js",
     "start": "node index.js",
     "clear:appdata": "./node_modules/.bin/electron clear-data.js",
-    "build": "./node_modules/.bin/webpack",
+    "build": "exit 0",
     "rm:node_modules:powershell": "powershell.exe Remove-Item -Force node_modules && powershell.exe Remove-Item -Force ui/src/node_modules;",
     "install:node_modules": "npm install && npm --prefix ui/src install"
   },
