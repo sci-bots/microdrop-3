@@ -13,9 +13,9 @@
     "electron-builder": "^19.55.3"
   },
   "dependencies": {
+    "@microdrop/ui": "0.0.0",
     "@micropede/broker": "0.0.18",
     "@micropede/client": "0.0.17",
-    "@microdrop/ui": "0.0.0",
     "express": "^4.16.2",
     "lodash": "^4.17.4"
   },
@@ -32,7 +32,8 @@
     },
     "files": [
       "public/**/*",
-      "utils/**/*"
+      "utils/**/*",
+      "**/*"
     ],
     "extraFiles": [
       "public/",
@@ -47,7 +48,7 @@
   "environment": {
     "HTTP_PORT": 3000,
     "MQTT_TCP_PORT": 1884,
-    "MQTT_WS:PORT": 8083,
+    "MQTT_WS_PORT": 8083,
     "host": "localhost",
     "defaultEnabled": [
       "device-ui-plugin",

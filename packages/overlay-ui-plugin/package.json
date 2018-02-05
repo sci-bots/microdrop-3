@@ -33,7 +33,7 @@
   "dependencies": {
     "@microdrop/buildutils": "^1.1.0",
     "@microdrop/ui-plugin": "^1.1.24",
-    "@micropede/client": "0.0.17",
+    "@micropede/client": "0.0.19",
     "jsoneditor": "^5.10.1",
     "sillyname": "^0.1.0",
     "yo-yo": "^1.4.1"
