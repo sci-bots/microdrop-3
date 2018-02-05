@@ -1,10 +1,11 @@
-const THREE = require('three');
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid/v4');
+const {Console} = require('console');
 
 const Ajv = require('ajv');
+const THREE = require('three');
+const _ = require('lodash');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
@@ -16,9 +17,12 @@ const APPNAME = 'microdrop';
 const MQTT_PORT = 1884;
 
 const ajv = new Ajv({useDefaults: true});
+const console = new Console(process.stdout, process.stderr);
 
 class DeviceModel extends MicropedeClient {
   constructor () {
+    console.log("Initializing Device Model");
+
     super(APPNAME, 'localhost', MQTT_PORT);
     this.scene = null;
     this.group = null;

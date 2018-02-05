@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const url = require('url');
 const {fork, spawn} = require('child_process');
+const {Console} = require('console');
 
 const _ = require('lodash');
 const electron = require('electron');
@@ -13,8 +14,7 @@ const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js'
 const MicrodropUI = require('@microdrop/ui/index.js');
 
 const env = require('../package.json').environment;
-
-console.log({env});
+const console = new Console(process.stdout, process.stderr);
 
 class WebServer extends MicropedeClient {
   constructor(args={}) {
@@ -410,10 +410,8 @@ class WebServer extends MicropedeClient {
 
 
 const broker = new Broker('microdrop',env.MQTT_WS_PORT, env.MQTT_TCP_PORT);
-console.log("Instantiating broker");
 console.log({env});
 broker.on('broker-ready', () => {
-  console.log("Broker is ready!");
   const webServer = new WebServer();
 });
 broker.listen();

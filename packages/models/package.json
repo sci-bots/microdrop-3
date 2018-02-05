@@ -21,5 +21,13 @@
   "license": "BSD-2-Clause",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@microdrop/device-controller": "^1.1.26",
+    "@micropede/client": "0.0.19",
+    "ajv": "^6.1.1",
+    "lodash": "^4.17.5",
+    "three": "^0.89.0",
+    "uuid": "^3.2.1"
   }
 }

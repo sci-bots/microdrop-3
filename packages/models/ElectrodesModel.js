@@ -1,7 +1,11 @@
+const {Console} = require('console');
+
 const _ = require('lodash');
 
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
+
+const console = new Console(process.stdout, process.stderr);
 
 const APPNAME = 'microdrop';
 const MQTT_PORT = 1884;
@@ -45,6 +49,7 @@ function MapElectrodesAndChannels(threeObject) {
 
 class ElectrodesModel extends MicropedeClient {
   constructor () {
+    console.log("Initializing Electrodes Model");
     super(APPNAME, 'localhost', MQTT_PORT);
   }
 

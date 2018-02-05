@@ -1,3 +1,5 @@
+const {Console} = require('console');
+
 const _ = require('lodash');
 const uuid4 = require('uuid/v4');
 const Ajv = require('ajv');
@@ -6,6 +8,8 @@ const MicropedeAsync = require('@micropede/client/src/async.js');
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const ajv = new Ajv({ useDefaults: true });
+const console = new Console(process.stdout, process.stderr);
+
 const APPNAME = 'microdrop';
 const MQTT_PORT = 1884;
 
@@ -24,6 +28,7 @@ const RouteSchema = {
 
 class RoutesModel extends MicropedeClient {
   constructor() {
+    console.log("Initializing Routes Model");
     super(APPNAME, 'localhost', MQTT_PORT);
     this.running = false;
   }

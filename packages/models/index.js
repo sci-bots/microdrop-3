@@ -1,7 +1,9 @@
 const path = require('path');
+const url = require('url');
 
 function initAsElectronProcesses() {
-  const {BrowerWindow} = require('electron');
+  const {BrowserWindow} = require('electron');
+
   let win;
 
   const options = {

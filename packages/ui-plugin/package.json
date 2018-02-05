@@ -5,7 +5,7 @@
   "main": "src/ui-plugin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "./node_modules/.bin/webpack"
+    "build": "exit 0"
   },
   "repository": {
     "type": "git",
@@ -23,14 +23,10 @@
   },
   "homepage": "https://github.com/Lucaszw/ui-plugin#readme",
   "devDependencies": {
-    "@microdrop/buildutils": "^1.1.19",
-    "gulp": "^3.9.1",
     "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@microdrop/buildutils": "^1.1.0",
     "@micropede/client": "0.0.19",
-    "@mqttclient/web": "^1.1.10",
     "keyboard-shortcut": "^1.2.0"
   },
   "publishConfig": {
