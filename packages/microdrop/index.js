@@ -9,9 +9,14 @@ const options = {shell: true, detached: true};
 
 // Create main window (hosts webserver)
 let mainWindow;
-const createWindow = () => {
+const createWindow = () => {  
+  const windowOptions = {};
+  _.set(windowOptions, 'show', true);
+  _.set(windowOptions, 'webPreferences.webSecurity', false);
+
   dialog.showMessageBox({message: path.resolve(__dirname)});
-  mainWindow = new BrowserWindow({show: true});
+
+  mainWindow = new BrowserWindow(windowOptions);
   mainWindow.loadURL(url.format({
     pathname: path.resolve(__dirname, 'public/index.html'),
     protocol: 'file',

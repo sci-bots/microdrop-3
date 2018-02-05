@@ -409,8 +409,11 @@ class WebServer extends MicropedeClient {
 }
 
 
-const broker = new Broker('microdrop',env.MQTT_WS, env.MQTT_TCP_PORT);
+const broker = new Broker('microdrop',env.MQTT_WS_PORT, env.MQTT_TCP_PORT);
+console.log("Instantiating broker");
+console.log({env});
 broker.on('broker-ready', () => {
+  console.log("Broker is ready!");
   const webServer = new WebServer();
 });
 broker.listen();
