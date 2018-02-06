@@ -15,7 +15,6 @@
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@microdrop/buildutils": "^1.1.0",
     "@microdrop/device-controller": "^1.1.26",
     "@microdrop/ui-plugin": "^1.1.32",
     "@micropede/client": "0.0.19",
@@ -33,11 +32,6 @@
     "style-loader": "^0.20.1",
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1"
-  },
-  "microdropDependencies": {
-    "@microdrop/async": "microdrop-async",
-    "@microdrop/device-controller": "device-controller",
-    "@microdrop/ui-plugin": "ui-plugin"
   },
   "publishConfig": {
     "access": "public"

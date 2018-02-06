@@ -10,7 +10,7 @@ function initAsElectronProcesses() {
     webPreferences: {
       webSecurity: false
     },
-    show: false
+    show: true
   };
 
   win = new BrowserWindow(options);

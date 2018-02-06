@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/.bin/electron-builder"
+    "build": "./node_modules/.bin/electron-builder",
+    "remove:links": "rm -rf node_modules && npm install"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
@@ -14,10 +15,10 @@
     "electron-builder": "^19.56.0"
   },
   "dependencies": {
-    "@microdrop/models": "^1.1.32",
-    "@microdrop/ui": "^1.1.32",
-    "@micropede/broker": "0.0.20",
-    "@micropede/client": "0.0.19",
+    "@microdrop/models": "file:../models",
+    "@microdrop/ui": "file:../ui",
+    "@micropede/broker": "file:../../Micropede/packages/broker",
+    "@micropede/client": "file:../../Micropede/packages/client",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "express": "^4.16.2",
     "lodash": "^4.17.4",

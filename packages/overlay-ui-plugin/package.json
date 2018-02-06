@@ -31,7 +31,6 @@
     "webpack": "^3.8.1"
   },
   "dependencies": {
-    "@microdrop/buildutils": "^1.1.0",
     "@microdrop/ui-plugin": "^1.1.32",
     "@micropede/client": "0.0.19",
     "jsoneditor": "^5.10.1",
@@ -40,9 +39,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "microdropDependencies": {
-    "@microdrop/async": "microdrop-async",
-    "@microdrop/ui-plugin": "ui-plugin"
   }
 }

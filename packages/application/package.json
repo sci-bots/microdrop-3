@@ -24,7 +24,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@microdrop/buildutils": "^1.1.0",
     "@microdrop/device-controller": "^1.1.26",
     "@microdrop/ui": "^1.1.32",
     "@micropede/broker": "^0.0.20",

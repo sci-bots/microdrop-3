@@ -6,7 +6,6 @@
     "Micropede/packages/mixins",
     "packages/application",
     "packages/application/ui/src",
-    "packages/buildutils",
     "packages/device-controller",
     "packages/device-ui-plugin",
     "packages/overlay-ui-plugin",
