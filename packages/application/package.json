@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/application",
-  "version": "1.1.33",
+  "version": "1.1.34",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,8 +15,8 @@
     "electron": "^1.7.12"
   },
   "dependencies": {
-    "@microdrop/models": "^1.1.33",
-    "@microdrop/ui": "^1.1.33",
+    "@microdrop/models": "^1.1.34",
+    "@microdrop/ui": "^1.1.34",
     "@micropede/broker": "0.0.21",
     "@micropede/client": "0.0.19",
     "argparse": "^1.0.9",
