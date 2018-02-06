@@ -1,53 +1,33 @@
 {
   "name": "@microdrop/application",
   "version": "1.1.32",
-  "description": "Top Level Application for Microdrop",
+  "description": "",
   "main": "index.js",
-  "bin": {
-    "microdrop-3": "bin/microdrop-3"
-  },
-  "default-enabled": [
-    "device-ui-plugin",
-    "state-saver"
-  ],
   "scripts": {
-    "test": "node _test.js",
-    "start": "node index.js",
-    "clear:appdata": "./node_modules/.bin/electron clear-data.js",
-    "build": "exit 0",
-    "rm:node_modules:powershell": "powershell.exe Remove-Item -Force node_modules && powershell.exe Remove-Item -Force ui/src/node_modules;",
-    "install:node_modules": "npm install && npm --prefix ui/src install"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/electron-builder",
+    "remove:links": "rm -rf node_modules && npm install",
+    "start": "./node_modules/.bin/electron index.js"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
-  "publishConfig": {
-    "access": "public"
+  "devDependencies": {
+    "electron": "^1.7.12",
+    "electron-builder": "^19.56.0"
   },
   "dependencies": {
-    "@microdrop/device-controller": "^1.1.26",
-    "@microdrop/ui": "^1.1.32",
-    "@micropede/broker": "^0.0.20",
-    "@micropede/client": "^0.0.19",
-    "ajv": "^6.0.0-beta.2",
-    "argparse": "^1.0.9",
-    "backbone": "^1.3.3",
+    "@microdrop/models": "file:../models",
+    "@microdrop/ui": "file:../ui",
+    "@micropede/broker": "file:../../Micropede/packages/broker",
+    "@micropede/client": "file:../../Micropede/packages/client",
+    "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "express": "^4.16.2",
-    "fs-extra": "^5.0.0",
-    "handlebars": "^4.0.11",
     "lodash": "^4.17.4",
-    "mqtt": "^2.14.0",
-    "three": "^0.89.0",
-    "uuid": "^3.1.0"
-  },
-  "devDependencies": {
-    "electron": "^1.7.10",
-    "electron-builder": "^19.55.3",
-    "electron-mocha": "^5.0.0",
-    "webpack": "^3.8.1"
+    "mosca": "git+https://github.com/Lucaszw/mosca.git"
   },
   "build": {
     "appId": "com.sci-bots.microdrop",
-    "productName": "Microdrop",
+    "productName": "microdrop",
     "copyright": "Copyright © 2018 Sci-Bots",
     "nsis": {
       "oneClick": true,
@@ -57,17 +37,26 @@
       "ext": "microdrop"
     },
     "files": [
-      "**/*",
-      "index.js"
-    ],
-    "extraFiles": [
+      "public/**/*",
+      "utils/**/*",
       "index.js",
-      "app.js",
-      "renderer.js",
-      "index.html",
-      "models/",
-      "ui/",
-      "resources/"
+      "node_modules/@microdrop/**/*",
+      "node_modules/@micropede/**/*"
+    ],
+    "asar": false
+  },
+  "environment": {
+    "HTTP_PORT": 3000,
+    "MQTT_TCP_PORT": 1884,
+    "MQTT_WS_PORT": 8083,
+    "host": "localhost",
+    "defaultEnabled": [
+      "device-ui-plugin",
+      "state-saver"
     ]
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "private": false
 }
