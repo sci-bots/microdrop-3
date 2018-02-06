@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "file://local_repo/.git"
+    "url": "git+https://github.com/Lucaszw/microdrop-3.git"
   },
   "keywords": [
     "Microdrop",
