@@ -8,6 +8,7 @@ class UIPluginManager extends UIPlugin {
     this.pluginCards = new Backbone.Model();
   }
   listen() {
+    console.log("LISTENING!!", this);
     this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
     this.bindTriggerMsg("web-server", "remove-plugin", "remove-plugin");
     this.bindTriggerMsg("web-server", "update-ui-plugin-state", "update-state");
@@ -31,8 +32,9 @@ class UIPluginManager extends UIPlugin {
     this.trigger("update-state", WrapData(null, plugin, this.name));
   }
   onWebPluginsChanged(payload) {
+    console.log("WebPlugins changed!", payload);
     const webPlugins = payload; delete webPlugins.__head__;
-    
+
     this.pluginCards.clear();
     for (const [filepath, plugin] of Object.entries(webPlugins)){
       this.pluginCards.set(filepath, plugin);

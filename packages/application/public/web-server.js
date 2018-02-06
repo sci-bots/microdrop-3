@@ -40,7 +40,6 @@ class WebServer extends MicropedeClient {
 
     // Init default plugins
     this.webPlugins     = this.WebPlugins();
-    this.processPlugins = this.ProcessPlugins();
   }
   listen() {
     this.findPlugins();
@@ -50,21 +49,10 @@ class WebServer extends MicropedeClient {
     this.get('/', this.onShowIndex.bind(this));
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
-    this.bindStateMsg("process-plugins", "set-process-plugins");
-    this.bindSignalMsg("running-state-requested", "request-running-states");
-    this.onSignalMsg("broker", "client-connected", this.onClientConnected.bind(this));
-    this.onSignalMsg("broker", "client-disconnected", this.onClientDisconnected.bind(this));
-    this.onSignalMsg("{plugin_name}", "running", this.onPluginRunning.bind(this));
-    this.onTriggerMsg("launch-plugin", this.onLaunchProcessPlugin.bind(this));
-    this.onTriggerMsg("close-plugin", this.onCloseProcessPlugin.bind(this));
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
     this._listen(env.HTTP_PORT);
-
-    // Ping plugins every three seconds
-    // XXX: UNCOMMENT TO POLL PROCESS PLUGINS!!
-    // setInterval(this.pingRunningStates.bind(this), 3000);
   }
 
   get filepath() {return __dirname;}
@@ -77,8 +65,8 @@ class WebServer extends MicropedeClient {
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
 
-      args.push("--path");
-      args.push(path.resolve(__dirname, "../.."));
+      // args.push("--path");
+      // args.push(path.resolve(__dirname, "../.."));
 
       if (this.args.path) {
         for (const searchpath of this.args.path) {
@@ -97,17 +85,6 @@ class WebServer extends MicropedeClient {
     const file = path.resolve(plugin_path);
     this.addWebPlugin(file, plugin_data);
     this.trigger("set-web-plugins", this.webPlugins);
-  }
-  addFoundProcessPlugin(plugin_data, plugin_path) {
-    const plugin = new Object();
-    plugin.path = plugin_path;
-    plugin.name = plugin_data.name;
-    plugin.version = plugin_data.version;
-    plugin.state = "stopped";
-    plugin.id = `${plugin.name}:${plugin.path}`;
-
-    this.addProcessPlugin(plugin);
-    this.trigger("set-process-plugins", this.processPlugins);
   }
   addWebPlugin(pluginDir, packageData) {
     const file = path.resolve(pluginDir, packageData.script);
@@ -143,15 +120,7 @@ class WebServer extends MicropedeClient {
     }
     this.webPlugins = this.WebPlugins();
   }
-  addProcessPlugin(plugin) {
-    const pluginData = this.retrievePluginData();
-    if (!(plugin.id in pluginData)) {
-      pluginData.processPlugins[plugin.id] = {name: plugin.name, path: plugin.path};
-      fs.writeFileSync(WebServer.pluginsfile(),
-        JSON.stringify(pluginData,null,4), 'utf8');
-    }
-    this.processPlugins = this.ProcessPlugins();
-  }
+
   generateDisplayTemplate() {
     // Generate input data for microdrop ui:
     const pluginPaths = new Array();
@@ -173,9 +142,6 @@ class WebServer extends MicropedeClient {
       return JSON.parse(fs.readFileSync(microdropFile, 'utf8'));
     else
       return false;
-  }
-  pingRunningStates() {
-    this.trigger("request-running-states", null);
   }
   onAddPluginPath(payload) {
     const pluginData = this.retrievePluginData();
@@ -207,10 +173,6 @@ class WebServer extends MicropedeClient {
     const pluginPath = path.resolve(payload.path);
 
     // Remove plugins under this path
-    for (const [id, plugin] of Object.entries(pluginData.processPlugins)){
-      if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
-        delete pluginData.processPlugins[id];
-    }
     for (const [id, plugin] of Object.entries(pluginData.webPlugins)){
       if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
         delete pluginData.webPlugins[id];
@@ -229,113 +191,10 @@ class WebServer extends MicropedeClient {
       JSON.stringify(pluginData,null,4), 'utf8');
 
     // Update
-    this.processPlugins = this.ProcessPlugins();
     this.webPlugins = this.WebPlugins();
-    this.trigger("set-process-plugins", this.processPlugins);
     this.trigger("set-web-plugins", this.webPlugins);
 
     this.findPlugins();
-  }
-  onCloseProcessPlugin(payload) {
-    // Depricate sending payload as string:
-    let pluginName;
-    if (_.isPlainObject(payload)) pluginName = payload.name;
-    if (!_.isPlainObject(payload)) pluginName = payload;
-
-    // Close plugin by publishing to /exit
-    // TODO: Use a trigger endpoint for this
-    const topic = `microdrop/${pluginName}/exit`;
-    this.sendMessage(topic);
-
-    // Listen for close event
-    this.once(`${pluginName}:closed`, () => {
-      const receiver = GetReceiver(payload);
-      if (!receiver) return;
-      this.sendMessage(
-        `microdrop/${this.name}/notify/${receiver}/close-plugin`,
-        this.wrapData(null, {success: true}));
-    });
-  }
-  onLaunchProcessPlugin(payload) {
-    let _pluginPath;
-    // Depricating sending payload as string (should be object with key "path")
-    if (_.isPlainObject(payload)) _pluginPath = payload.path;
-    if (!_.isPlainObject(payload)) _pluginPath = payload;
-
-    const pluginPath = path.resolve(_pluginPath);
-    const pluginData = this.getPluginData(pluginPath);
-
-    // Send the status of the plugin (either success, or error message)
-    var sendLaunchStatus = (msg) => {
-      const receiver = GetReceiver(payload);
-      if (!receiver) return;
-      this.sendMessage(
-        `microdrop/${this.name}/notify/${receiver}/launch-plugin`,
-        this.wrapData(null, msg));
-    }
-
-    // If no plugin data, fail:
-    if (!pluginData) {
-      sendLaunchStatus({success: false, response: "Failed to get plugin data"});
-      return false;
-    }
-
-    // Launch plugin as a child process:
-    try {
-      const command = pluginData.scripts.start.split(" ");
-      // Spawn child and de-reference so it doesn't close when the broker does
-      const child = spawn(command[0],
-        command.slice(1, command.length), {cwd: pluginPath});
-      child.unref();
-    } catch (e) {
-      console.error(
-        `Failed to launch child process with path: ${pluginPath}`, e);
-      sendLaunchStatus({success: false, response: e});
-    }
-
-    // Listen for status message from plugin indicating it's ready
-    this.once(`${pluginData.name}:ready`, () => {
-      sendLaunchStatus({success: true});
-    });
-  }
-  onPluginRunning(payload, pluginName) {
-    const plugin = new Object();
-    plugin.name = pluginName
-    plugin.path = payload;
-    plugin.id   = `${plugin.name}:${plugin.path}`;
-    const pluginId = `${plugin.name}:${plugin.path}`;
-    if (this.processPlugins[plugin.id])
-      this.processPlugins[plugin.id].state = "running";
-    else
-      this.addProcessPlugin(plugin);
-    this.processPlugins[plugin.id].state = "running";
-    this.trigger("set-process-plugins", this.processPlugins);
-    this.trigger(`${pluginName}:ready`, null);
-  }
-
-  onClientConnected(payload) {
-    const plugin = new Object();
-    plugin.name = payload.clientName;
-    plugin.path = payload.clientPath;
-    if (plugin.path == "web" || plugin.path == undefined) return;
-
-    plugin.id   = `${plugin.name}:${plugin.path}`;
-    this.addProcessPlugin(plugin);
-    this.processPlugins[plugin.id].state = "running";
-    this.trigger("set-process-plugins", this.processPlugins);
-    this.trigger(`${plugin.name}:ready`, null);
-  }
-
-  onClientDisconnected(payload){
-    const pluginName = payload.clientName;
-    const pluginPath = payload.clientPath;
-    const pluginId = `${pluginName}:${pluginPath}`;
-
-    if (this.processPlugins[pluginId]) {
-      this.processPlugins[pluginId].state = "stopped";
-      this.trigger("set-process-plugins", this.processPlugins);
-      this.trigger(`${pluginName}:closed`, null);
-    }
   }
 
   onUpdateUIPluginState(payload) {
@@ -366,8 +225,6 @@ class WebServer extends MicropedeClient {
     // Check if plugin is a ui plugin:
     if (pluginData.type == "ui") {
       this.addFoundWebPlugin(pluginData, pluginPath);
-    } else {
-      this.addFoundProcessPlugin(pluginData, pluginPath);
     }
   }
   onShowIndex(req, res) {
@@ -388,18 +245,6 @@ class WebServer extends MicropedeClient {
     app._listen = server.listen.bind(server);
     return app;
   }
-  ProcessPlugins() {
-    // Get a list of plugin names from json file
-    const pluginData = this.retrievePluginData();
-
-    // Set all of their running states to "stopped"
-    for (const [id,plugin] of Object.entries(pluginData.processPlugins))
-      plugin.state = "stopped"
-
-    // Ping plugins to get their actual running state
-    this.trigger("request-running-states", null);
-    return pluginData.processPlugins;
-  }
   WebPlugins() {
     const pluginData = this.retrievePluginData();
     for (const [pluginDir, plugin] of Object.entries(pluginData.webPlugins)) {
@@ -417,7 +262,6 @@ class WebServer extends MicropedeClient {
 
   static generatePluginJSON() {
     const pluginData = new Object();
-    pluginData.processPlugins = new Object();
     pluginData.webPlugins = new Object();
     pluginData.searchPaths = new Array();
     const filepath = WebServer.pluginsfile();
