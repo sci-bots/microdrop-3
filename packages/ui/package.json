@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/ui",
-  "version": "1.1.35",
+  "version": "1.1.36",
   "description": "Phosphor based layout for managaing ui and process plugins",
   "main": "index.js",
   "scripts": {
