@@ -22,7 +22,6 @@ const console = new Console(process.stdout, process.stderr);
 class DeviceModel extends MicropedeClient {
   constructor () {
     console.log("Initializing Device Model");
-
     super(APPNAME, 'localhost', MQTT_PORT);
     this.scene = null;
     this.group = null;
@@ -164,13 +163,10 @@ class DeviceModel extends MicropedeClient {
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
-
-      const filepath = path.join(__dirname, '../resources/loaded_device.json');
-      fs.writeFileSync(filepath, JSON.stringify(threeObject) , 'utf-8');
-
       await this.setState('three-object', threeObject);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
+      console.error(LABEL, e);
       return this.notifySender(payload, DumpStack(LABEL, e), "three-object", 'failed');
     }
     return object;

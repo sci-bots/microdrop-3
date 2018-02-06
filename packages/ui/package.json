@@ -4,7 +4,8 @@
   "description": "Phosphor based layout for managaing ui and process plugins",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack"
   },
   "dependencies": {
     "@microdrop/ui-plugin": "^1.1.32",
@@ -18,5 +19,8 @@
   "license": "BSD-2-Clause",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0"
   }
 }

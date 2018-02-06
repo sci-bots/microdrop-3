@@ -4,7 +4,8 @@
   "description": "Electron Application for File Registration",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "exit 0"
   },
   "keywords": [
     "Microdrop",

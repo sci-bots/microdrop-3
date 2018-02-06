@@ -1,0 +1,35 @@
+{
+  "name": "microdrop-builder",
+  "version": "1.0.0",
+  "description": "Launcher / Installer for Microdrop",
+  "main": "node_modules/@microdrop/application/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/electron node_modules/@microdrop/application/index.js"
+  },
+  "author": "Sci-Bots",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "electron": "^1.7.12",
+    "electron-builder": "^19.56.0"
+  },
+  "dependencies": {
+    "@microdrop/application": "^1.1.33"
+  },
+  "build": {
+    "appId": "com.sci-bots.microdrop",
+    "productName": "microdrop",
+    "copyright": "Copyright © 2018 Sci-Bots",
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true
+    },
+    "fileAssociations": {
+      "ext": "microdrop"
+    },
+    "files": [
+      "node_modules/@microdrop/application/**/*"
+    ],
+    "asar": false
+  }
+}

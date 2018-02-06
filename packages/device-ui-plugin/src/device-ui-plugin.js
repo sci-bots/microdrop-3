@@ -81,8 +81,6 @@ class DeviceUIPlugin extends UIPlugin {
         const svg = ParseSVGFromString(content);
         const objects = ConstructObjectsFromSVG(svg);
         this.trigger('put-device', {'three-object': objects});
-        // const microdrop = new MicropedeAsync('microdrop');
-        // microdrop.putPlugin('device-model', 'three-object', objects);
       };
       reader.readAsText(f);
     }

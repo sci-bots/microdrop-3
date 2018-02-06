@@ -5,45 +5,25 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/.bin/electron-builder",
     "remove:links": "rm -rf node_modules && npm install",
-    "start": "./node_modules/.bin/electron index.js"
+    "start": "./node_modules/.bin/electron index.js",
+    "build": "exit 0"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
   "devDependencies": {
-    "electron": "^1.7.12",
-    "electron-builder": "^19.56.0"
+    "electron": "^1.7.12"
   },
   "dependencies": {
     "@microdrop/models": "^1.1.33",
     "@microdrop/ui": "^1.1.33",
     "@micropede/broker": "0.0.21",
     "@micropede/client": "0.0.19",
+    "argparse": "^1.0.9",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git"
-  },
-  "build": {
-    "appId": "com.sci-bots.microdrop",
-    "productName": "microdrop",
-    "copyright": "Copyright © 2018 Sci-Bots",
-    "nsis": {
-      "oneClick": true,
-      "perMachine": true
-    },
-    "fileAssociations": {
-      "ext": "microdrop"
-    },
-    "files": [
-      "public/**/*",
-      "utils/**/*",
-      "index.js",
-      "node_modules/@microdrop/**/*",
-      "node_modules/@micropede/**/*"
-    ],
-    "asar": false
   },
   "environment": {
     "HTTP_PORT": 3000,
