@@ -31,8 +31,8 @@ class UIPluginManager extends UIPlugin {
     this.trigger("update-state", WrapData(null, plugin, this.name));
   }
   onWebPluginsChanged(payload) {
-    const webPlugins = payload;
-
+    const webPlugins = payload; delete webPlugins.__head__;
+    
     this.pluginCards.clear();
     for (const [filepath, plugin] of Object.entries(webPlugins)){
       this.pluginCards.set(filepath, plugin);
