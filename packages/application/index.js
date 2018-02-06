@@ -3,6 +3,8 @@ const path = require('path');
 const {spawn} = require('child_process');
 
 const {app, dialog, BrowserWindow} = require('electron');
+require('electron-debug')({enabled: true});
+
 const _ = require('lodash');
 
 const options = {shell: true, detached: true};

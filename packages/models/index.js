@@ -12,7 +12,6 @@ function initAsElectronProcesses() {
     },
     show: false
   };
-
   win = new BrowserWindow(options);
   win.loadURL(url.format({
     pathname: path.resolve(__dirname, 'public/device.html')

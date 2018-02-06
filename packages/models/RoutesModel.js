@@ -9,6 +9,12 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const ajv = new Ajv({ useDefaults: true });
 const console = new Console(process.stdout, process.stderr);
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+});
+window.addEventListener('error', function(e) {
+    console.error(e.message);
+});
 
 const APPNAME = 'microdrop';
 const MQTT_PORT = 1884;

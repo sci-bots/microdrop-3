@@ -1,3 +1,6 @@
+**/plugins.json
+**/dist/**/*
+
 # Logs
 logs
 *.log

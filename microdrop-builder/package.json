@@ -14,7 +14,9 @@
     "electron-builder": "^19.56.0"
   },
   "dependencies": {
-    "@microdrop/application": "^1.1.33"
+    "@microdrop/application": "^1.1.33",
+    "@microdrop/state-saver": "^1.1.33",
+    "@microdrop/device-ui-plugin": "^1.1.33"
   },
   "build": {
     "appId": "com.sci-bots.microdrop",

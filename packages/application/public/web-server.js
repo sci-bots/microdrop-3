@@ -14,7 +14,15 @@ const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js'
 const MicrodropUI = require('@microdrop/ui/index.js');
 
 const env = require('../package.json').environment;
+
 const console = new Console(process.stdout, process.stderr);
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+});
+window.addEventListener('error', function(e) {
+    console.error(e.message);
+});
+
 
 class WebServer extends MicropedeClient {
   constructor(args={}) {
@@ -61,16 +69,26 @@ class WebServer extends MicropedeClient {
 
   get filepath() {return __dirname;}
   findPlugins() {
-    let args = ["--path", path.resolve(__dirname, "../..")];
-    if (this.args.path) {
-      for (const searchpath of this.args.path) {
-        args.push("--path");
-        args.push(searchpath);
+      let args = [];
+
+      for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
+        // Add path to all default plugins
+        args.push('--path');
+        args.push(path.resolve(require.resolve(plugin), '..'));
       }
-    }
-    const plugin_finder = fork(
-      path.resolve(__dirname,"../utils/find-microdrop-plugins"), args, {cwd: __dirname});
-    plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
+
+      args.push("--path");
+      args.push(path.resolve(__dirname, "../.."));
+
+      if (this.args.path) {
+        for (const searchpath of this.args.path) {
+          args.push("--path");
+          args.push(searchpath);
+        }
+      }
+      const plugin_finder = fork(
+        path.resolve(__dirname,"../utils/find-microdrop-plugins"), args, {cwd: __dirname});
+      plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
   }
   retrievePluginData() {
     return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
@@ -407,7 +425,6 @@ class WebServer extends MicropedeClient {
     fs.writeFileSync(filepath, data, 'utf8');
   }
 }
-
 
 const broker = new Broker('microdrop',env.MQTT_WS_PORT, env.MQTT_TCP_PORT);
 console.log({env});
