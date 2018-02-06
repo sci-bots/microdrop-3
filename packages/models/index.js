@@ -14,17 +14,23 @@ function initAsElectronProcesses() {
   };
   win = new BrowserWindow(options);
   win.loadURL(url.format({
-    pathname: path.resolve(__dirname, 'public/device.html')
+    pathname: path.resolve(__dirname, 'public/device.html'),
+    protocol: 'file:',
+    slashes: true
   }));
 
   win = new BrowserWindow(options);
   win.loadURL(url.format({
-    pathname: path.resolve(__dirname, 'public/electrodes.html')
+    pathname: path.resolve(__dirname, 'public/electrodes.html'),
+    protocol: 'file:',
+    slashes: true
   }));
 
   win = new BrowserWindow(options);
   win.loadURL(url.format({
-    pathname: path.resolve(__dirname, 'public/routes.html')
+    pathname: path.resolve(__dirname, 'public/routes.html'),
+    protocol: 'file:',
+    slashes: true
   }));
 
 }

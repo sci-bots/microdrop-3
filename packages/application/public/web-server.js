@@ -6,7 +6,7 @@ const {fork, spawn} = require('child_process');
 const {Console} = require('console');
 
 const _ = require('lodash');
-const electron = require('electron');
+const {ipcRenderer} = require('electron');
 const express = require('express');
 
 const Broker = require('@micropede/broker/src/index.js');
@@ -42,6 +42,7 @@ class WebServer extends MicropedeClient {
     this.webPlugins     = this.WebPlugins();
   }
   listen() {
+    ipcRenderer.send('broker-ready');
     this.findPlugins();
     this.on("plugin-found", this.onPluginFound.bind(this));
 
@@ -104,9 +105,12 @@ class WebServer extends MicropedeClient {
 
     // Add plugin, and write to plugins.json
     const pluginData = this.retrievePluginData();
+
     if (!(pluginDir in pluginData.webPlugins)) {
       let state = "disabled";
-      if (_.includes(env.defaultEnabled, pluginName)) {
+
+      if (_.includes(env.defaultEnabled, `@microdrop/${pluginName}`) ||
+          _.includes(env.defaultEnabled, pluginName)) {
         state = "enabled";
       }
       pluginData.webPlugins[pluginDir] = {
