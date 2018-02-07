@@ -26,7 +26,7 @@ describe('Microdrop', async function() {
   this.timeout(10000);
 
   before(async () => {
-    await Microdrop(electron, true);
+    await Microdrop(electron, false, true);
     microdrop = new MicropedeAsync('microdrop', 'localhost', 1884);
   });
 

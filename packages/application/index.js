@@ -5,14 +5,12 @@ const {spawn} = require('child_process');
 const _ = require('lodash');
 const MicrodropModels = require('@microdrop/models');
 
-module.exports = (electron, skipReady=false) => {
+module.exports = (electron, show=true, skipReady=false) => {
   return new Promise((resolve, reject) => {
 
-    console.log("INITIALIZING!!");
     const {app, dialog, ipcMain, BrowserWindow} = electron;
 
     function init () {
-      console.log("INIT CALLED");
       let win;
       const options = {
         webPreferences: {
@@ -35,7 +33,7 @@ module.exports = (electron, skipReady=false) => {
       // Load main window
       ipcMain.on('broker-ready', function(event, arg) {
         resolve('ready');
-        win = new BrowserWindow(_.extend(options, {show: true}));
+        win = new BrowserWindow(_.extend(options, {show}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
           protocol: 'file:',

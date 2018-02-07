@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/electron-mocha",
+    "test": "node _test.js",
     "remove:links": "rm -rf node_modules && npm install",
     "start": "./node_modules/.bin/electron index.js",
     "build": "exit 0"
