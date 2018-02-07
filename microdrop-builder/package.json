@@ -5,13 +5,16 @@
   "main": "node_modules/@microdrop/application/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/electron node_modules/@microdrop/application/index.js"
+    "start": "./node_modules/.bin/electron node_modules/@microdrop/application/index.js",
+    "builder": "./node_modules/.bin/electron-builder",
+    "packager": "node electron-packager.config.js"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
   "devDependencies": {
     "electron": "^1.7.12",
-    "electron-builder": "^19.56.0"
+    "electron-builder": "^19.56.0",
+    "electron-packager": "^11.0.0"
   },
   "dependencies": {
     "@microdrop/application": "^1.1.35"
