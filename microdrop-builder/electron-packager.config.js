@@ -4,8 +4,10 @@ const options = {
   derefSymlinks: true,
   overwrite: true,
   packageManager: false,
-  name: 'Microdrop'
+  name: 'Microdrop',
+  out: `${__dirname}/packager`
 };
+
 packager(options).then((d) => {
   console.log("packager done!");
 });

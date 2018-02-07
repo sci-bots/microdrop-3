@@ -5,6 +5,9 @@ var path = require('path');
 var _ = require('lodash');
 var electron = require('electron');
 
+var {Console} = require('console');
+var console = new Console(process.stdout, process.stderr);
+
 var MicropedeAsync = require('@micropede/client/src/async.js');
 var Microdrop = require('./index.js');
 

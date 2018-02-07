@@ -9,6 +9,7 @@ module.exports = (electron, show=true, skipReady=false) => {
   return new Promise((resolve, reject) => {
 
     const {app, dialog, ipcMain, BrowserWindow} = electron;
+    require('electron-debug')({showDevTools: true});
 
     function init () {
       let win;
