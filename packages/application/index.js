@@ -5,11 +5,12 @@ const {spawn} = require('child_process');
 const _ = require('lodash');
 const MicrodropModels = require('@microdrop/models');
 
-module.exports = (electron, show=true, skipReady=false) => {
+module.exports = (electron, show=true, skipReady=false, debug=false) => {
   return new Promise((resolve, reject) => {
 
     const {app, dialog, ipcMain, BrowserWindow} = electron;
-    require('electron-debug')({showDevTools: true});
+
+    if (debug) require('electron-debug')({showDevTools: true});
 
     function init () {
       let win;

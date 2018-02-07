@@ -2,7 +2,7 @@
   "description": "Microdrop with MQTT support and Web UI",
   "scripts": {
     "start": "npm run --prefix ./packages/application start",
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "cd Micropede && lerna bootstrap && cd .. && lerna bootstrap",
     "hoist": "./node_modules/.bin/lerna bootstrap --hoist --no-optional",
     "build": "./node_modules/.bin/lerna run build",
     "test": "npm run --prefix packages/application test",

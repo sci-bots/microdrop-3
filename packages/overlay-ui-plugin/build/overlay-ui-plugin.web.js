@@ -10961,7 +10961,7 @@ exports = module.exports = __webpack_require__(52)(false);
 
 
 // module
-exports.push([module.i, "div.jsoneditor .jsoneditor-search input{height:auto;border:inherit}div.jsoneditor .jsoneditor-search input:focus{border:none!important;box-shadow:none!important}div.jsoneditor table{border-collapse:collapse;width:auto}div.jsoneditor td,div.jsoneditor th{padding:0;display:table-cell;text-align:left;vertical-align:inherit;border-radius:inherit}div.jsoneditor-field,div.jsoneditor-readonly,div.jsoneditor-value{border:1px solid transparent;min-height:16px;min-width:32px;padding:2px;margin:1px;word-wrap:break-word;float:left}div.jsoneditor-field p,div.jsoneditor-value p{margin:0}div.jsoneditor-value{word-break:break-word}div.jsoneditor-readonly{min-width:16px;color:gray}div.jsoneditor-empty{border-color:#d3d3d3;border-style:dashed;border-radius:2px}div.jsoneditor-field.jsoneditor-empty::after,div.jsoneditor-value.jsoneditor-empty::after{pointer-events:none;color:#d3d3d3;font-size:8pt}div.jsoneditor-field.jsoneditor-empty::after{content:\"field\"}div.jsoneditor-value.jsoneditor-empty::after{content:\"value\"}a.jsoneditor-value.jsoneditor-url,div.jsoneditor-value.jsoneditor-url{color:green;text-decoration:underline}a.jsoneditor-value.jsoneditor-url{display:inline-block;padding:2px;margin:2px}a.jsoneditor-value.jsoneditor-url:focus,a.jsoneditor-value.jsoneditor-url:hover{color:#ee422e}div.jsoneditor td.jsoneditor-separator{padding:3px 0;vertical-align:top;color:gray}div.jsoneditor-field.jsoneditor-highlight,div.jsoneditor-field[contenteditable=true]:focus,div.jsoneditor-field[contenteditable=true]:hover,div.jsoneditor-value.jsoneditor-highlight,div.jsoneditor-value[contenteditable=true]:focus,div.jsoneditor-value[contenteditable=true]:hover{background-color:#ffffab;border:1px solid #ff0;border-radius:2px}div.jsoneditor-field.jsoneditor-highlight-active,div.jsoneditor-field.jsoneditor-highlight-active:focus,div.jsoneditor-field.jsoneditor-highlight-active:hover,div.jsoneditor-value.jsoneditor-highlight-active,div.jsoneditor-value.jsoneditor-highlight-active:focus,div.jsoneditor-value.jsoneditor-highlight-active:hover{background-color:#fe0;border:1px solid #ffc700;border-radius:2px}div.jsoneditor-value.jsoneditor-string{color:green}div.jsoneditor-value.jsoneditor-array,div.jsoneditor-value.jsoneditor-object{min-width:16px;color:grey}div.jsoneditor-value.jsoneditor-number{color:#ee422e}div.jsoneditor-value.jsoneditor-boolean{color:#ff8c00}div.jsoneditor-value.jsoneditor-null{color:#004ed0}div.jsoneditor-value.jsoneditor-invalid{color:#000}div.jsoneditor-tree button{width:24px;height:24px;padding:0;margin:0;border:none;cursor:pointer;background:transparent url(" + escape(__webpack_require__(3)) + ")}div.jsoneditor-mode-form tr.jsoneditor-expandable td.jsoneditor-tree,div.jsoneditor-mode-view tr.jsoneditor-expandable td.jsoneditor-tree{cursor:pointer}div.jsoneditor-tree button.jsoneditor-collapsed{background-position:0 -48px}div.jsoneditor-tree button.jsoneditor-expanded{background-position:0 -72px}div.jsoneditor-tree button.jsoneditor-contextmenu{background-position:-48px -72px}div.jsoneditor-tree button.jsoneditor-contextmenu.jsoneditor-selected,div.jsoneditor-tree button.jsoneditor-contextmenu:focus,div.jsoneditor-tree button.jsoneditor-contextmenu:hover,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-contextmenu{background-position:-48px -48px}div.jsoneditor-tree :focus{outline:0}div.jsoneditor-tree button:focus{background-color:#f5f5f5;outline:#e5e5e5 solid 1px}div.jsoneditor-tree button.jsoneditor-invisible{visibility:hidden;background:0 0}div.jsoneditor{color:#1a1a1a;border:1px solid #3883fa;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;width:100%;height:100%;position:relative;padding:0;line-height:100%}div.jsoneditor-tree table.jsoneditor-tree{border-collapse:collapse;border-spacing:0;width:100%;margin:0}div.jsoneditor-outer{position:static;width:100%;height:100%;margin:-35px 0 0 0;padding:35px 0 0 0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}div.jsoneditor-outer.has-nav-bar{margin:-61px 0 0 0;padding:61px 0 0 0}div.jsoneditor-outer.has-status-bar{margin:-35px 0 -26px 0;padding:35px 0 26px 0}.ace-jsoneditor,textarea.jsoneditor-text{min-height:150px}div.jsoneditor-tree{width:100%;height:100%;position:relative;overflow:auto}textarea.jsoneditor-text{width:100%;height:100%;margin:0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;outline-width:0;border:none;background-color:#fff;resize:none}tr.jsoneditor-highlight,tr.jsoneditor-selected{background-color:#d3d3d3}tr.jsoneditor-selected button.jsoneditor-contextmenu,tr.jsoneditor-selected button.jsoneditor-dragarea{visibility:hidden}tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-contextmenu,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-dragarea{visibility:visible}div.jsoneditor-tree button.jsoneditor-dragarea{background:url(" + escape(__webpack_require__(3)) + ") -72px -72px;cursor:move}div.jsoneditor-tree button.jsoneditor-dragarea:focus,div.jsoneditor-tree button.jsoneditor-dragarea:hover,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-dragarea{background-position:-72px -48px}div.jsoneditor td,div.jsoneditor th,div.jsoneditor tr{padding:0;margin:0}div.jsoneditor td{vertical-align:top}div.jsoneditor td.jsoneditor-tree{vertical-align:top}.jsoneditor-schema-error,div.jsoneditor td,div.jsoneditor textarea,div.jsoneditor th,div.jsoneditor-field,div.jsoneditor-value{font-family:\"dejavu sans mono\",\"droid sans mono\",consolas,monaco,\"lucida console\",\"courier new\",courier,monospace,sans-serif;font-size:10pt;color:#1a1a1a}.jsoneditor-schema-error{cursor:default;display:inline-block;height:24px;line-height:24px;position:relative;text-align:center;width:24px}div.jsoneditor-tree .jsoneditor-schema-error{width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") -168px -48px}.jsoneditor-schema-error .jsoneditor-popover{background-color:#4c4c4c;border-radius:3px;box-shadow:0 0 5px rgba(0,0,0,.4);color:#fff;display:none;padding:7px 10px;position:absolute;width:200px;z-index:4}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-above{bottom:32px;left:-98px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-below{top:32px;left:-98px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-left{top:-7px;right:32px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-right{top:-7px;left:32px}.jsoneditor-schema-error .jsoneditor-popover:before{border-right:7px solid transparent;border-left:7px solid transparent;content:'';display:block;left:50%;margin-left:-7px;position:absolute}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-above:before{border-top:7px solid #4c4c4c;bottom:-7px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-below:before{border-bottom:7px solid #4c4c4c;top:-7px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-left:before{border-left:7px solid #4c4c4c;border-top:7px solid transparent;border-bottom:7px solid transparent;content:'';top:19px;right:-14px;left:inherit;margin-left:inherit;margin-top:-7px;position:absolute}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-right:before{border-right:7px solid #4c4c4c;border-top:7px solid transparent;border-bottom:7px solid transparent;content:'';top:19px;left:-14px;margin-left:inherit;margin-top:-7px;position:absolute}.jsoneditor-schema-error:focus .jsoneditor-popover,.jsoneditor-schema-error:hover .jsoneditor-popover{display:block;-webkit-animation:fade-in .3s linear 1,move-up .3s linear 1;-moz-animation:fade-in .3s linear 1,move-up .3s linear 1;-ms-animation:fade-in .3s linear 1,move-up .3s linear 1}@-webkit-keyframes fade-in{from{opacity:0}to{opacity:1}}@-moz-keyframes fade-in{from{opacity:0}to{opacity:1}}@-ms-keyframes fade-in{from{opacity:0}to{opacity:1}}.jsoneditor .jsoneditor-text-errors{width:100%;border-collapse:collapse;background-color:#ffef8b;border-top:1px solid gold}.jsoneditor .jsoneditor-text-errors td{padding:3px 6px;vertical-align:middle}.jsoneditor-text-errors .jsoneditor-schema-error{border:none;width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") -168px -48px}div.jsoneditor-contextmenu-root{position:relative;width:0;height:0}div.jsoneditor-contextmenu{position:absolute;box-sizing:content-box;z-index:99999}div.jsoneditor-contextmenu li,div.jsoneditor-contextmenu ul{box-sizing:content-box;position:relative}div.jsoneditor-contextmenu ul{position:relative;left:0;top:0;width:128px;background:#fff;border:1px solid #d3d3d3;box-shadow:2px 2px 12px rgba(128,128,128,.3);list-style:none;margin:0;padding:0}div.jsoneditor-contextmenu ul li button{position:relative;padding:0 4px 0 0;margin:0;width:128px;height:auto;border:none;cursor:pointer;color:#4d4d4d;background:0 0;font-size:10pt;font-family:arial,sans-serif;box-sizing:border-box;text-align:left}div.jsoneditor-contextmenu ul li button::-moz-focus-inner{padding:0;border:0}div.jsoneditor-contextmenu ul li button:focus,div.jsoneditor-contextmenu ul li button:hover{color:#1a1a1a;background-color:#f5f5f5;outline:0}div.jsoneditor-contextmenu ul li button.jsoneditor-default{width:96px}div.jsoneditor-contextmenu ul li button.jsoneditor-expand{float:right;width:32px;height:24px;border-left:1px solid #e5e5e5}div.jsoneditor-contextmenu div.jsoneditor-icon{position:absolute;top:0;left:0;width:24px;height:24px;border:none;padding:0;margin:0;background-image:url(" + escape(__webpack_require__(3)) + ")}div.jsoneditor-contextmenu ul li ul div.jsoneditor-icon{margin-left:24px}div.jsoneditor-contextmenu div.jsoneditor-text{padding:4px 0 4px 24px;word-wrap:break-word}div.jsoneditor-contextmenu div.jsoneditor-text.jsoneditor-right-margin{padding-right:24px}div.jsoneditor-contextmenu ul li button div.jsoneditor-expand{position:absolute;top:0;right:0;width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") 0 -72px;opacity:.4}div.jsoneditor-contextmenu ul li button.jsoneditor-expand:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button.jsoneditor-expand:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li.jsoneditor-selected div.jsoneditor-expand{opacity:1}div.jsoneditor-contextmenu div.jsoneditor-separator{height:0;border-top:1px solid #e5e5e5;padding-top:5px;margin-top:5px}div.jsoneditor-contextmenu button.jsoneditor-remove>div.jsoneditor-icon{background-position:-24px -24px}div.jsoneditor-contextmenu button.jsoneditor-remove:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-remove:hover>div.jsoneditor-icon{background-position:-24px 0}div.jsoneditor-contextmenu button.jsoneditor-append>div.jsoneditor-icon{background-position:0 -24px}div.jsoneditor-contextmenu button.jsoneditor-append:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-append:hover>div.jsoneditor-icon{background-position:0 0}div.jsoneditor-contextmenu button.jsoneditor-insert>div.jsoneditor-icon{background-position:0 -24px}div.jsoneditor-contextmenu button.jsoneditor-insert:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-insert:hover>div.jsoneditor-icon{background-position:0 0}div.jsoneditor-contextmenu button.jsoneditor-duplicate>div.jsoneditor-icon{background-position:-48px -24px}div.jsoneditor-contextmenu button.jsoneditor-duplicate:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-duplicate:hover>div.jsoneditor-icon{background-position:-48px 0}div.jsoneditor-contextmenu button.jsoneditor-sort-asc>div.jsoneditor-icon{background-position:-168px -24px}div.jsoneditor-contextmenu button.jsoneditor-sort-asc:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-sort-asc:hover>div.jsoneditor-icon{background-position:-168px 0}div.jsoneditor-contextmenu button.jsoneditor-sort-desc>div.jsoneditor-icon{background-position:-192px -24px}div.jsoneditor-contextmenu button.jsoneditor-sort-desc:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-sort-desc:hover>div.jsoneditor-icon{background-position:-192px 0}div.jsoneditor-contextmenu ul li button.jsoneditor-selected,div.jsoneditor-contextmenu ul li button.jsoneditor-selected:focus,div.jsoneditor-contextmenu ul li button.jsoneditor-selected:hover{color:#fff;background-color:#ee422e}div.jsoneditor-contextmenu ul li{overflow:hidden}div.jsoneditor-contextmenu ul li ul{display:none;position:relative;left:-10px;top:0;border:none;box-shadow:inset 0 0 10px rgba(128,128,128,.5);padding:0 10px;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;transition:all .3s ease-out}div.jsoneditor-contextmenu ul li ul li button{padding-left:24px;animation:all ease-in-out 1s}div.jsoneditor-contextmenu ul li ul li button:focus,div.jsoneditor-contextmenu ul li ul li button:hover{background-color:#f5f5f5}div.jsoneditor-contextmenu button.jsoneditor-type-string>div.jsoneditor-icon{background-position:-144px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-string.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-string:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-string:hover>div.jsoneditor-icon{background-position:-144px 0}div.jsoneditor-contextmenu button.jsoneditor-type-auto>div.jsoneditor-icon{background-position:-120px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-auto.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-auto:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-auto:hover>div.jsoneditor-icon{background-position:-120px 0}div.jsoneditor-contextmenu button.jsoneditor-type-object>div.jsoneditor-icon{background-position:-72px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-object.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-object:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-object:hover>div.jsoneditor-icon{background-position:-72px 0}div.jsoneditor-contextmenu button.jsoneditor-type-array>div.jsoneditor-icon{background-position:-96px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-array.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-array:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-array:hover>div.jsoneditor-icon{background-position:-96px 0}div.jsoneditor-contextmenu button.jsoneditor-type-modes>div.jsoneditor-icon{background-image:none;width:6px}div.jsoneditor-menu{width:100%;height:35px;padding:2px;margin:0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;color:#fff;background-color:#3883fa;border-bottom:1px solid #3883fa}div.jsoneditor-menu>button,div.jsoneditor-menu>div.jsoneditor-modes>button{width:26px;height:26px;margin:2px;padding:0;border-radius:2px;border:1px solid transparent;background:transparent url(" + escape(__webpack_require__(3)) + ");color:#fff;opacity:.8;font-family:arial,sans-serif;font-size:10pt;float:left}div.jsoneditor-menu>button:hover,div.jsoneditor-menu>div.jsoneditor-modes>button:hover{background-color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4)}div.jsoneditor-menu>button:active,div.jsoneditor-menu>button:focus,div.jsoneditor-menu>div.jsoneditor-modes>button:active,div.jsoneditor-menu>div.jsoneditor-modes>button:focus{background-color:rgba(255,255,255,.3)}div.jsoneditor-menu>button:disabled,div.jsoneditor-menu>div.jsoneditor-modes>button:disabled{opacity:.5}div.jsoneditor-menu>button.jsoneditor-collapse-all{background-position:0 -96px}div.jsoneditor-menu>button.jsoneditor-expand-all{background-position:0 -120px}div.jsoneditor-menu>button.jsoneditor-undo{background-position:-24px -96px}div.jsoneditor-menu>button.jsoneditor-undo:disabled{background-position:-24px -120px}div.jsoneditor-menu>button.jsoneditor-redo{background-position:-48px -96px}div.jsoneditor-menu>button.jsoneditor-redo:disabled{background-position:-48px -120px}div.jsoneditor-menu>button.jsoneditor-compact{background-position:-72px -96px}div.jsoneditor-menu>button.jsoneditor-format{background-position:-72px -120px}div.jsoneditor-menu>button.jsoneditor-repair{background-position:-96px -96px}div.jsoneditor-menu>div.jsoneditor-modes{display:inline-block;float:left}div.jsoneditor-menu>div.jsoneditor-modes>button{background-image:none;width:auto;padding-left:6px;padding-right:6px}div.jsoneditor-menu>button.jsoneditor-separator,div.jsoneditor-menu>div.jsoneditor-modes>button.jsoneditor-separator{margin-left:10px}div.jsoneditor-menu a{font-family:arial,sans-serif;font-size:10pt;color:#fff;opacity:.8;vertical-align:middle}div.jsoneditor-menu a:hover{opacity:1}div.jsoneditor-menu a.jsoneditor-poweredBy{font-size:8pt;position:absolute;right:0;top:0;padding:10px}table.jsoneditor-search div.jsoneditor-results,table.jsoneditor-search input{font-family:arial,sans-serif;font-size:10pt;color:#1a1a1a;background:0 0}table.jsoneditor-search div.jsoneditor-results{color:#fff;padding-right:5px;line-height:24px}table.jsoneditor-search{position:absolute;right:4px;top:4px;border-collapse:collapse;border-spacing:0}table.jsoneditor-search div.jsoneditor-frame{border:1px solid transparent;background-color:#fff;padding:0 2px;margin:0}table.jsoneditor-search div.jsoneditor-frame table{border-collapse:collapse}table.jsoneditor-search input{width:120px;border:none;outline:0;margin:1px;line-height:20px}table.jsoneditor-search button{width:16px;height:24px;padding:0;margin:0;border:none;background:url(" + escape(__webpack_require__(3)) + ");vertical-align:top}table.jsoneditor-search button:hover{background-color:transparent}table.jsoneditor-search button.jsoneditor-refresh{width:18px;background-position:-99px -73px}table.jsoneditor-search button.jsoneditor-next{cursor:pointer;background-position:-124px -73px}table.jsoneditor-search button.jsoneditor-next:hover{background-position:-124px -49px}table.jsoneditor-search button.jsoneditor-previous{cursor:pointer;background-position:-148px -73px;margin-right:2px}table.jsoneditor-search button.jsoneditor-previous:hover{background-position:-148px -49px}div.jsoneditor div.autocomplete.dropdown{position:absolute;background:#fff;box-shadow:2px 2px 12px rgba(128,128,128,.3);border:1px solid #d3d3d3;z-index:100;overflow-x:hidden;overflow-y:auto;cursor:default;margin:0;padding-left:2pt;padding-right:5pt;text-align:left;outline:0;font-family:\"dejavu sans mono\",\"droid sans mono\",consolas,monaco,\"lucida console\",\"courier new\",courier,monospace,sans-serif;font-size:10pt}div.jsoneditor div.autocomplete.dropdown .item{color:#333}div.jsoneditor div.autocomplete.dropdown .item.hover{background-color:#ddd}div.jsoneditor div.autocomplete.hint{color:#aaa;top:4px;left:4px}div.jsoneditor-treepath{padding:0 5px;overflow:hidden}div.jsoneditor-treepath div.jsoneditor-contextmenu-root{position:absolute;left:0}div.jsoneditor-treepath span.jsoneditor-treepath-element{margin:1px;font-family:arial,sans-serif;font-size:10pt}div.jsoneditor-treepath span.jsoneditor-treepath-seperator{margin:2px;font-size:9pt;font-family:arial,sans-serif}div.jsoneditor-treepath span.jsoneditor-treepath-element:hover,div.jsoneditor-treepath span.jsoneditor-treepath-seperator:hover{cursor:pointer;text-decoration:underline}div.jsoneditor-statusbar{line-height:26px;height:26px;margin-top:-26px;color:grey;background-color:#ebebeb;border-top:1px solid #d3d3d3;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;font-size:10pt}div.jsoneditor-statusbar>.jsoneditor-curserinfo-label{margin:0 2px 0 4px}div.jsoneditor-statusbar>.jsoneditor-curserinfo-val{margin-right:12px}div.jsoneditor-statusbar>.jsoneditor-curserinfo-count{margin-left:4px}div.jsoneditor-navigation-bar{width:100%;height:26px;line-height:26px;padding:0;margin:0;border-bottom:1px solid #d3d3d3;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;color:grey;background-color:#ebebeb;font-size:10pt}div.jsoneditor-navigation-bar.nav-bar-empty:after{content:'Select a node ...';color:rgba(104,104,91,.56);position:absolute;margin-left:5px}", ""]);
+exports.push([module.i, "div.jsoneditor .jsoneditor-search input{height:auto;border:inherit}div.jsoneditor .jsoneditor-search input:focus{border:none!important;box-shadow:none!important}div.jsoneditor table{border-collapse:collapse;width:auto}div.jsoneditor td,div.jsoneditor th{padding:0;display:table-cell;text-align:left;vertical-align:inherit;border-radius:inherit}div.jsoneditor-field,div.jsoneditor-readonly,div.jsoneditor-value{border:1px solid transparent;min-height:16px;min-width:32px;padding:2px;margin:1px;word-wrap:break-word;float:left}div.jsoneditor-field p,div.jsoneditor-value p{margin:0}div.jsoneditor-value{word-break:break-word}div.jsoneditor-readonly{min-width:16px;color:gray}div.jsoneditor-empty{border-color:#d3d3d3;border-style:dashed;border-radius:2px}div.jsoneditor-field.jsoneditor-empty::after,div.jsoneditor-value.jsoneditor-empty::after{pointer-events:none;color:#d3d3d3;font-size:8pt}div.jsoneditor-field.jsoneditor-empty::after{content:\"field\"}div.jsoneditor-value.jsoneditor-empty::after{content:\"value\"}a.jsoneditor-value.jsoneditor-url,div.jsoneditor-value.jsoneditor-url{color:green;text-decoration:underline}a.jsoneditor-value.jsoneditor-url{display:inline-block;padding:2px;margin:2px}a.jsoneditor-value.jsoneditor-url:focus,a.jsoneditor-value.jsoneditor-url:hover{color:#ee422e}div.jsoneditor td.jsoneditor-separator{padding:3px 0;vertical-align:top;color:gray}div.jsoneditor-field.jsoneditor-highlight,div.jsoneditor-field[contenteditable=true]:focus,div.jsoneditor-field[contenteditable=true]:hover,div.jsoneditor-value.jsoneditor-highlight,div.jsoneditor-value[contenteditable=true]:focus,div.jsoneditor-value[contenteditable=true]:hover{background-color:#ffffab;border:1px solid #ff0;border-radius:2px}div.jsoneditor-field.jsoneditor-highlight-active,div.jsoneditor-field.jsoneditor-highlight-active:focus,div.jsoneditor-field.jsoneditor-highlight-active:hover,div.jsoneditor-value.jsoneditor-highlight-active,div.jsoneditor-value.jsoneditor-highlight-active:focus,div.jsoneditor-value.jsoneditor-highlight-active:hover{background-color:#fe0;border:1px solid #ffc700;border-radius:2px}div.jsoneditor-value.jsoneditor-string{color:green}div.jsoneditor-value.jsoneditor-array,div.jsoneditor-value.jsoneditor-object{min-width:16px;color:grey}div.jsoneditor-value.jsoneditor-number{color:#ee422e}div.jsoneditor-value.jsoneditor-boolean{color:#ff8c00}div.jsoneditor-value.jsoneditor-null{color:#004ed0}div.jsoneditor-value.jsoneditor-invalid{color:#000}div.jsoneditor-tree button{width:24px;height:24px;padding:0;margin:0;border:none;cursor:pointer;background:transparent url(" + escape(__webpack_require__(3)) + ")}div.jsoneditor-mode-form tr.jsoneditor-expandable td.jsoneditor-tree,div.jsoneditor-mode-view tr.jsoneditor-expandable td.jsoneditor-tree{cursor:pointer}div.jsoneditor-tree button.jsoneditor-collapsed{background-position:0 -48px}div.jsoneditor-tree button.jsoneditor-expanded{background-position:0 -72px}div.jsoneditor-tree button.jsoneditor-contextmenu{background-position:-48px -72px}div.jsoneditor-tree button.jsoneditor-contextmenu.jsoneditor-selected,div.jsoneditor-tree button.jsoneditor-contextmenu:focus,div.jsoneditor-tree button.jsoneditor-contextmenu:hover,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-contextmenu{background-position:-48px -48px}div.jsoneditor-tree :focus{outline:0}div.jsoneditor-tree button:focus{background-color:#f5f5f5;outline:#e5e5e5 solid 1px}div.jsoneditor-tree button.jsoneditor-invisible{visibility:hidden;background:0 0}div.jsoneditor{color:#1a1a1a;border:1px solid #3883fa;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;width:100%;height:100%;position:relative;padding:0;line-height:100%}div.jsoneditor-tree table.jsoneditor-tree{border-collapse:collapse;border-spacing:0;width:100%;margin:0}div.jsoneditor-outer{position:static;width:100%;height:100%;margin:-35px 0 0 0;padding:35px 0 0 0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}div.jsoneditor-outer.has-nav-bar{margin:-61px 0 0 0;padding:61px 0 0 0}div.jsoneditor-outer.has-status-bar{margin:-35px 0 -26px 0;padding:35px 0 26px 0}.ace-jsoneditor,textarea.jsoneditor-text{min-height:150px}div.jsoneditor-tree{width:100%;height:100%;position:relative;overflow:auto}textarea.jsoneditor-text{width:100%;height:100%;margin:0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;outline-width:0;border:none;background-color:#fff;resize:none}tr.jsoneditor-highlight,tr.jsoneditor-selected{background-color:#d3d3d3}tr.jsoneditor-selected button.jsoneditor-contextmenu,tr.jsoneditor-selected button.jsoneditor-dragarea{visibility:hidden}tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-contextmenu,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-dragarea{visibility:visible}div.jsoneditor-tree button.jsoneditor-dragarea{background:url(" + escape(__webpack_require__(3)) + ") -72px -72px;cursor:move}div.jsoneditor-tree button.jsoneditor-dragarea:focus,div.jsoneditor-tree button.jsoneditor-dragarea:hover,tr.jsoneditor-selected.jsoneditor-first button.jsoneditor-dragarea{background-position:-72px -48px}div.jsoneditor td,div.jsoneditor th,div.jsoneditor tr{padding:0;margin:0}div.jsoneditor td{vertical-align:top}div.jsoneditor td.jsoneditor-tree{vertical-align:top}.jsoneditor-schema-error,div.jsoneditor td,div.jsoneditor textarea,div.jsoneditor th,div.jsoneditor-field,div.jsoneditor-value{font-family:\"dejavu sans mono\",\"droid sans mono\",consolas,monaco,\"lucida console\",\"courier new\",courier,monospace,sans-serif;font-size:10pt;color:#1a1a1a}.jsoneditor-schema-error{cursor:default;display:inline-block;height:24px;line-height:24px;position:relative;text-align:center;width:24px}div.jsoneditor-tree .jsoneditor-schema-error{width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") -168px -48px}.jsoneditor-schema-error .jsoneditor-popover{background-color:#4c4c4c;border-radius:3px;box-shadow:0 0 5px rgba(0,0,0,.4);color:#fff;display:none;padding:7px 10px;position:absolute;width:200px;z-index:4}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-above{bottom:32px;left:-98px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-below{top:32px;left:-98px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-left{top:-7px;right:32px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-right{top:-7px;left:32px}.jsoneditor-schema-error .jsoneditor-popover:before{border-right:7px solid transparent;border-left:7px solid transparent;content:'';display:block;left:50%;margin-left:-7px;position:absolute}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-above:before{border-top:7px solid #4c4c4c;bottom:-7px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-below:before{border-bottom:7px solid #4c4c4c;top:-7px}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-left:before{border-left:7px solid #4c4c4c;border-top:7px solid transparent;border-bottom:7px solid transparent;content:'';top:19px;right:-14px;left:inherit;margin-left:inherit;margin-top:-7px;position:absolute}.jsoneditor-schema-error .jsoneditor-popover.jsoneditor-right:before{border-right:7px solid #4c4c4c;border-top:7px solid transparent;border-bottom:7px solid transparent;content:'';top:19px;left:-14px;margin-left:inherit;margin-top:-7px;position:absolute}.jsoneditor-schema-error:focus .jsoneditor-popover,.jsoneditor-schema-error:hover .jsoneditor-popover{display:block;-webkit-animation:fade-in .3s linear 1,move-up .3s linear 1;-moz-animation:fade-in .3s linear 1,move-up .3s linear 1;-ms-animation:fade-in .3s linear 1,move-up .3s linear 1}@-webkit-keyframes fade-in{from{opacity:0}to{opacity:1}}@-moz-keyframes fade-in{from{opacity:0}to{opacity:1}}@-ms-keyframes fade-in{from{opacity:0}to{opacity:1}}.jsoneditor .jsoneditor-text-errors{width:100%;border-collapse:collapse;background-color:#ffef8b;border-top:1px solid gold}.jsoneditor .jsoneditor-text-errors td{padding:3px 6px;vertical-align:middle}.jsoneditor-text-errors .jsoneditor-schema-error{border:none;width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") -168px -48px}div.jsoneditor-contextmenu-root{position:relative;width:0;height:0}div.jsoneditor-contextmenu{position:absolute;box-sizing:content-box;z-index:99999}div.jsoneditor-contextmenu li,div.jsoneditor-contextmenu ul{box-sizing:content-box;position:relative}div.jsoneditor-contextmenu ul{position:relative;left:0;top:0;width:128px;background:#fff;border:1px solid #d3d3d3;box-shadow:2px 2px 12px rgba(128,128,128,.3);list-style:none;margin:0;padding:0}div.jsoneditor-contextmenu ul li button{position:relative;padding:0 4px 0 0;margin:0;width:128px;height:auto;border:none;cursor:pointer;color:#4d4d4d;background:0 0;font-size:10pt;font-family:arial,sans-serif;box-sizing:border-box;text-align:left}div.jsoneditor-contextmenu ul li button::-moz-focus-inner{padding:0;border:0}div.jsoneditor-contextmenu ul li button:focus,div.jsoneditor-contextmenu ul li button:hover{color:#1a1a1a;background-color:#f5f5f5;outline:0}div.jsoneditor-contextmenu ul li button.jsoneditor-default{width:96px}div.jsoneditor-contextmenu ul li button.jsoneditor-expand{float:right;width:32px;height:24px;border-left:1px solid #e5e5e5}div.jsoneditor-contextmenu div.jsoneditor-icon{position:absolute;top:0;left:0;width:24px;height:24px;border:none;padding:0;margin:0;background-image:url(" + escape(__webpack_require__(3)) + ")}div.jsoneditor-contextmenu ul li ul div.jsoneditor-icon{margin-left:24px}div.jsoneditor-contextmenu div.jsoneditor-text{padding:4px 0 4px 24px;word-wrap:break-word}div.jsoneditor-contextmenu div.jsoneditor-text.jsoneditor-right-margin{padding-right:24px}div.jsoneditor-contextmenu ul li button div.jsoneditor-expand{position:absolute;top:0;right:0;width:24px;height:24px;padding:0;margin:0 4px 0 0;background:url(" + escape(__webpack_require__(3)) + ") 0 -72px;opacity:.4}div.jsoneditor-contextmenu ul li button.jsoneditor-expand:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button.jsoneditor-expand:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li.jsoneditor-selected div.jsoneditor-expand{opacity:1}div.jsoneditor-contextmenu div.jsoneditor-separator{height:0;border-top:1px solid #e5e5e5;padding-top:5px;margin-top:5px}div.jsoneditor-contextmenu button.jsoneditor-remove>div.jsoneditor-icon{background-position:-24px -24px}div.jsoneditor-contextmenu button.jsoneditor-remove:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-remove:hover>div.jsoneditor-icon{background-position:-24px 0}div.jsoneditor-contextmenu button.jsoneditor-append>div.jsoneditor-icon{background-position:0 -24px}div.jsoneditor-contextmenu button.jsoneditor-append:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-append:hover>div.jsoneditor-icon{background-position:0 0}div.jsoneditor-contextmenu button.jsoneditor-insert>div.jsoneditor-icon{background-position:0 -24px}div.jsoneditor-contextmenu button.jsoneditor-insert:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-insert:hover>div.jsoneditor-icon{background-position:0 0}div.jsoneditor-contextmenu button.jsoneditor-duplicate>div.jsoneditor-icon{background-position:-48px -24px}div.jsoneditor-contextmenu button.jsoneditor-duplicate:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-duplicate:hover>div.jsoneditor-icon{background-position:-48px 0}div.jsoneditor-contextmenu button.jsoneditor-sort-asc>div.jsoneditor-icon{background-position:-168px -24px}div.jsoneditor-contextmenu button.jsoneditor-sort-asc:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-sort-asc:hover>div.jsoneditor-icon{background-position:-168px 0}div.jsoneditor-contextmenu button.jsoneditor-sort-desc>div.jsoneditor-icon{background-position:-192px -24px}div.jsoneditor-contextmenu button.jsoneditor-sort-desc:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-sort-desc:hover>div.jsoneditor-icon{background-position:-192px 0}div.jsoneditor-contextmenu ul li button.jsoneditor-selected,div.jsoneditor-contextmenu ul li button.jsoneditor-selected:focus,div.jsoneditor-contextmenu ul li button.jsoneditor-selected:hover{color:#fff;background-color:#ee422e}div.jsoneditor-contextmenu ul li{overflow:hidden}div.jsoneditor-contextmenu ul li ul{display:none;position:relative;left:-10px;top:0;border:none;box-shadow:inset 0 0 10px rgba(128,128,128,.5);padding:0 10px;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;transition:all .3s ease-out}div.jsoneditor-contextmenu ul li ul li button{padding-left:24px;animation:all ease-in-out 1s}div.jsoneditor-contextmenu ul li ul li button:focus,div.jsoneditor-contextmenu ul li ul li button:hover{background-color:#f5f5f5}div.jsoneditor-contextmenu button.jsoneditor-type-string>div.jsoneditor-icon{background-position:-144px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-string.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-string:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-string:hover>div.jsoneditor-icon{background-position:-144px 0}div.jsoneditor-contextmenu button.jsoneditor-type-auto>div.jsoneditor-icon{background-position:-120px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-auto.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-auto:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-auto:hover>div.jsoneditor-icon{background-position:-120px 0}div.jsoneditor-contextmenu button.jsoneditor-type-object>div.jsoneditor-icon{background-position:-72px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-object.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-object:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-object:hover>div.jsoneditor-icon{background-position:-72px 0}div.jsoneditor-contextmenu button.jsoneditor-type-array>div.jsoneditor-icon{background-position:-96px -24px}div.jsoneditor-contextmenu button.jsoneditor-type-array.jsoneditor-selected>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-array:focus>div.jsoneditor-icon,div.jsoneditor-contextmenu button.jsoneditor-type-array:hover>div.jsoneditor-icon{background-position:-96px 0}div.jsoneditor-contextmenu button.jsoneditor-type-modes>div.jsoneditor-icon{background-image:none;width:6px}div.jsoneditor-menu{width:100%;height:35px;padding:2px;margin:0;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;color:#fff;background-color:#3883fa;border-bottom:1px solid #3883fa}div.jsoneditor-menu>button,div.jsoneditor-menu>div.jsoneditor-modes>button{width:26px;height:26px;margin:2px;padding:0;border-radius:2px;border:1px solid transparent;background:transparent url(" + escape(__webpack_require__(3)) + ");color:#fff;opacity:.8;font-family:arial,sans-serif;font-size:10pt;float:left}div.jsoneditor-menu>button:hover,div.jsoneditor-menu>div.jsoneditor-modes>button:hover{background-color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4)}div.jsoneditor-menu>button:active,div.jsoneditor-menu>button:focus,div.jsoneditor-menu>div.jsoneditor-modes>button:active,div.jsoneditor-menu>div.jsoneditor-modes>button:focus{background-color:rgba(255,255,255,.3)}div.jsoneditor-menu>button:disabled,div.jsoneditor-menu>div.jsoneditor-modes>button:disabled{opacity:.5}div.jsoneditor-menu>button.jsoneditor-collapse-all{background-position:0 -96px}div.jsoneditor-menu>button.jsoneditor-expand-all{background-position:0 -120px}div.jsoneditor-menu>button.jsoneditor-undo{background-position:-24px -96px}div.jsoneditor-menu>button.jsoneditor-undo:disabled{background-position:-24px -120px}div.jsoneditor-menu>button.jsoneditor-redo{background-position:-48px -96px}div.jsoneditor-menu>button.jsoneditor-redo:disabled{background-position:-48px -120px}div.jsoneditor-menu>button.jsoneditor-compact{background-position:-72px -96px}div.jsoneditor-menu>button.jsoneditor-format{background-position:-72px -120px}div.jsoneditor-menu>button.jsoneditor-repair{background-position:-96px -96px}div.jsoneditor-menu>div.jsoneditor-modes{display:inline-block;float:left}div.jsoneditor-menu>div.jsoneditor-modes>button{background-image:none;width:auto;padding-left:6px;padding-right:6px}div.jsoneditor-menu>button.jsoneditor-separator,div.jsoneditor-menu>div.jsoneditor-modes>button.jsoneditor-separator{margin-left:10px}div.jsoneditor-menu a{font-family:arial,sans-serif;font-size:10pt;color:#fff;opacity:.8;vertical-align:middle}div.jsoneditor-menu a:hover{opacity:1}div.jsoneditor-menu a.jsoneditor-poweredBy{font-size:8pt;position:absolute;right:0;top:0;padding:10px}table.jsoneditor-search div.jsoneditor-results,table.jsoneditor-search input{font-family:arial,sans-serif;font-size:10pt;color:#1a1a1a;background:0 0}table.jsoneditor-search div.jsoneditor-results{color:#fff;padding-right:5px;line-height:24px}table.jsoneditor-search{position:absolute;right:4px;top:4px;border-collapse:collapse;border-spacing:0}table.jsoneditor-search div.jsoneditor-frame{border:1px solid transparent;background-color:#fff;padding:0 2px;margin:0}table.jsoneditor-search div.jsoneditor-frame table{border-collapse:collapse}table.jsoneditor-search input{width:120px;border:none;outline:0;margin:1px;line-height:20px}table.jsoneditor-search button{width:16px;height:24px;padding:0;margin:0;border:none;background:url(" + escape(__webpack_require__(3)) + ");vertical-align:top}table.jsoneditor-search button:hover{background-color:transparent}table.jsoneditor-search button.jsoneditor-refresh{width:18px;background-position:-99px -73px}table.jsoneditor-search button.jsoneditor-next{cursor:pointer;background-position:-124px -73px}table.jsoneditor-search button.jsoneditor-next:hover{background-position:-124px -49px}table.jsoneditor-search button.jsoneditor-previous{cursor:pointer;background-position:-148px -73px;margin-right:2px}table.jsoneditor-search button.jsoneditor-previous:hover{background-position:-148px -49px}div.jsoneditor div.autocomplete.dropdown{position:absolute;background:#fff;box-shadow:2px 2px 12px rgba(128,128,128,.3);border:1px solid #d3d3d3;z-index:100;overflow-x:hidden;overflow-y:auto;cursor:default;margin:0;padding-left:2pt;padding-right:5pt;text-align:left;outline:0;font-family:\"dejavu sans mono\",\"droid sans mono\",consolas,monaco,\"lucida console\",\"courier new\",courier,monospace,sans-serif;font-size:10pt}div.jsoneditor div.autocomplete.dropdown .item{color:#333}div.jsoneditor div.autocomplete.dropdown .item.hover{background-color:#ddd}div.jsoneditor div.autocomplete.hint{color:#aaa;top:4px;left:4px}div.jsoneditor-treepath{padding:0 5px;overflow:hidden}div.jsoneditor-treepath div.jsoneditor-contextmenu-root{position:absolute;left:0}div.jsoneditor-treepath span.jsoneditor-treepath-element{margin:1px;font-family:arial,sans-serif;font-size:10pt}div.jsoneditor-treepath span.jsoneditor-treepath-seperator{margin:2px;font-size:9pt;font-family:arial,sans-serif}div.jsoneditor-treepath span.jsoneditor-treepath-element:hover,div.jsoneditor-treepath span.jsoneditor-treepath-seperator:hover{cursor:pointer;text-decoration:underline}div.jsoneditor-statusbar{line-height:26px;height:26px;margin-top:-1px;color:grey;background-color:#ebebeb;border-top:1px solid #d3d3d3;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;font-size:10pt}div.jsoneditor-statusbar>.jsoneditor-curserinfo-label{margin:0 2px 0 4px}div.jsoneditor-statusbar>.jsoneditor-curserinfo-val{margin-right:12px}div.jsoneditor-statusbar>.jsoneditor-curserinfo-count{margin-left:4px}div.jsoneditor-navigation-bar{width:100%;height:26px;line-height:26px;padding:0;margin:0;border-bottom:1px solid #d3d3d3;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;color:grey;background-color:#ebebeb;font-size:10pt}div.jsoneditor-navigation-bar.nav-bar-empty:after{content:'Select a node ...';color:rgba(104,104,91,.56);position:absolute;margin-left:5px}", ""]);
 
 // exports
 
@@ -23907,11 +23907,17 @@ textmode.create = function (container, options) {
     textarea.onblur = this._onBlur.bind(this);
   }
 
+  var validationErrorsContainer = document.createElement('div');
+  validationErrorsContainer.className = 'validation-errors-container';
+  this.dom.validationErrorsContainer = validationErrorsContainer;
+  this.frame.appendChild(validationErrorsContainer);
+
   if (options.statusBar) {
     util.addClassName(this.content, 'has-status-bar');
 
     this.curserInfoElements = {};
     var statusBar = document.createElement('div');
+    this.dom.statusBar = statusBar;
     statusBar.className = 'jsoneditor-statusbar';
     this.frame.appendChild(statusBar);
 
@@ -24291,9 +24297,10 @@ textmode.validate = function () {
         '</table>';
 
     this.dom.validationErrors = validationErrors;
-    this.frame.appendChild(validationErrors);
+    this.dom.validationErrorsContainer.appendChild(validationErrors);
 
-    var height = validationErrors.clientHeight;
+    var height = validationErrors.clientHeight +
+        (this.dom.statusBar ? this.dom.statusBar.clientHeight : 0);
     this.content.style.marginBottom = (-height) + 'px';
     this.content.style.paddingBottom = height + 'px';
   }
@@ -47557,7 +47564,7 @@ function FlushClients() {
 if (!isNode) window.FlushClients = FlushClients;
 
 class MicropedeClient {
-  constructor(appName, host="localhost", port, name, version='0.0.0', options=undefined) {
+  constructor(appName, host="localhost", port, name, version='0.0.0', options, electron) {
     if (appName == undefined) throw "appName undefined";
     if (port == undefined) port = isNode ? 1883 : 8083;
     _.extend(this, backbone.Events);
@@ -47575,6 +47582,12 @@ class MicropedeClient {
     this.version = version;
     this.options = options ? options : { resubscribe: false};
     this.lastMessage = null;
+
+    if (electron !== undefined) {
+      const {ipcRenderer} = electron;
+      this.ipcRenderer = ipcRenderer;
+    }
+
     try {
       this.connectClient(clientId, host, port);
     } catch (e) {
@@ -47589,6 +47602,10 @@ class MicropedeClient {
 
   addBinding(channel, event, retain=false, qos=0, dup=false) {
     return this.on(event, (d) => this.sendMessage(channel, d, retain, qos, dup));
+  }
+
+  sendIpcMessage(message) {
+    if (this.ipcRenderer) this.ipcRenderer.send(message);
   }
 
   async addSubscription(channel, handler) {
@@ -47828,7 +47845,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.4';
+  var VERSION = '4.17.5';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -47959,7 +47976,6 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
   /** Used to match property names within property paths. */
   var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
       reIsPlainProp = /^\w*$/,
-      reLeadingDot = /^\./,
       rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
 
   /**
@@ -48059,8 +48075,8 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
       reOptMod = rsModifier + '?',
       rsOptVar = '[' + rsVarRange + ']?',
       rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
-      rsOrdLower = '\\d*(?:(?:1st|2nd|3rd|(?![123])\\dth)\\b)',
-      rsOrdUpper = '\\d*(?:(?:1ST|2ND|3RD|(?![123])\\dTH)\\b)',
+      rsOrdLower = '\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])',
+      rsOrdUpper = '\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])',
       rsSeq = rsOptVar + reOptMod + rsOptJoin,
       rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq,
       rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
@@ -48266,34 +48282,6 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
       nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
 
   /*--------------------------------------------------------------------------*/
-
-  /**
-   * Adds the key-value `pair` to `map`.
-   *
-   * @private
-   * @param {Object} map The map to modify.
-   * @param {Array} pair The key-value pair to add.
-   * @returns {Object} Returns `map`.
-   */
-  function addMapEntry(map, pair) {
-    // Don't return `map.set` because it's not chainable in IE 11.
-    map.set(pair[0], pair[1]);
-    return map;
-  }
-
-  /**
-   * Adds `value` to `set`.
-   *
-   * @private
-   * @param {Object} set The set to modify.
-   * @param {*} value The value to add.
-   * @returns {Object} Returns `set`.
-   */
-  function addSetEntry(set, value) {
-    // Don't return `set.add` because it's not chainable in IE 11.
-    set.add(value);
-    return set;
-  }
 
   /**
    * A faster alternative to `Function#apply`, this function invokes `func`
@@ -49059,6 +49047,20 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
       }
     }
     return result;
+  }
+
+  /**
+   * Gets the value at `key`, unless `key` is "__proto__".
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {string} key The key of the property to get.
+   * @returns {*} Returns the property value.
+   */
+  function safeGet(object, key) {
+    return key == '__proto__'
+      ? undefined
+      : object[key];
   }
 
   /**
@@ -50493,7 +50495,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
           if (!cloneableTags[tag]) {
             return object ? value : {};
           }
-          result = initCloneByTag(value, tag, baseClone, isDeep);
+          result = initCloneByTag(value, tag, isDeep);
         }
       }
       // Check for circular references and return its corresponding clone.
@@ -50503,6 +50505,22 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
         return stacked;
       }
       stack.set(value, result);
+
+      if (isSet(value)) {
+        value.forEach(function(subValue) {
+          result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
+        });
+
+        return result;
+      }
+
+      if (isMap(value)) {
+        value.forEach(function(subValue, key) {
+          result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
+        });
+
+        return result;
+      }
 
       var keysFunc = isFull
         ? (isFlat ? getAllKeysIn : getAllKeys)
@@ -51431,7 +51449,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
         }
         else {
           var newValue = customizer
-            ? customizer(object[key], srcValue, (key + ''), object, source, stack)
+            ? customizer(safeGet(object, key), srcValue, (key + ''), object, source, stack)
             : undefined;
 
           if (newValue === undefined) {
@@ -51458,8 +51476,8 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      *  counterparts.
      */
     function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
-      var objValue = object[key],
-          srcValue = source[key],
+      var objValue = safeGet(object, key),
+          srcValue = safeGet(source, key),
           stacked = stack.get(srcValue);
 
       if (stacked) {
@@ -52368,20 +52386,6 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
     }
 
     /**
-     * Creates a clone of `map`.
-     *
-     * @private
-     * @param {Object} map The map to clone.
-     * @param {Function} cloneFunc The function to clone values.
-     * @param {boolean} [isDeep] Specify a deep clone.
-     * @returns {Object} Returns the cloned map.
-     */
-    function cloneMap(map, isDeep, cloneFunc) {
-      var array = isDeep ? cloneFunc(mapToArray(map), CLONE_DEEP_FLAG) : mapToArray(map);
-      return arrayReduce(array, addMapEntry, new map.constructor);
-    }
-
-    /**
      * Creates a clone of `regexp`.
      *
      * @private
@@ -52392,20 +52396,6 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
       var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
       result.lastIndex = regexp.lastIndex;
       return result;
-    }
-
-    /**
-     * Creates a clone of `set`.
-     *
-     * @private
-     * @param {Object} set The set to clone.
-     * @param {Function} cloneFunc The function to clone values.
-     * @param {boolean} [isDeep] Specify a deep clone.
-     * @returns {Object} Returns the cloned set.
-     */
-    function cloneSet(set, isDeep, cloneFunc) {
-      var array = isDeep ? cloneFunc(setToArray(set), CLONE_DEEP_FLAG) : setToArray(set);
-      return arrayReduce(array, addSetEntry, new set.constructor);
     }
 
     /**
@@ -54002,7 +53992,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      */
     function initCloneArray(array) {
       var length = array.length,
-          result = array.constructor(length);
+          result = new array.constructor(length);
 
       // Add properties assigned by `RegExp#exec`.
       if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
@@ -54029,16 +54019,15 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      * Initializes an object clone based on its `toStringTag`.
      *
      * **Note:** This function only supports cloning values with tags of
-     * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+     * `Boolean`, `Date`, `Error`, `Map`, `Number`, `RegExp`, `Set`, or `String`.
      *
      * @private
      * @param {Object} object The object to clone.
      * @param {string} tag The `toStringTag` of the object to clone.
-     * @param {Function} cloneFunc The function to clone values.
      * @param {boolean} [isDeep] Specify a deep clone.
      * @returns {Object} Returns the initialized clone.
      */
-    function initCloneByTag(object, tag, cloneFunc, isDeep) {
+    function initCloneByTag(object, tag, isDeep) {
       var Ctor = object.constructor;
       switch (tag) {
         case arrayBufferTag:
@@ -54057,7 +54046,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
           return cloneTypedArray(object, isDeep);
 
         case mapTag:
-          return cloneMap(object, isDeep, cloneFunc);
+          return new Ctor;
 
         case numberTag:
         case stringTag:
@@ -54067,7 +54056,7 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
           return cloneRegExp(object);
 
         case setTag:
-          return cloneSet(object, isDeep, cloneFunc);
+          return new Ctor;
 
         case symbolTag:
           return cloneSymbol(object);
@@ -54114,10 +54103,13 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
      */
     function isIndex(value, length) {
+      var type = typeof value;
       length = length == null ? MAX_SAFE_INTEGER : length;
+
       return !!length &&
-        (typeof value == 'number' || reIsUint.test(value)) &&
-        (value > -1 && value % 1 == 0 && value < length);
+        (type == 'number' ||
+          (type != 'symbol' && reIsUint.test(value))) &&
+            (value > -1 && value % 1 == 0 && value < length);
     }
 
     /**
@@ -54567,11 +54559,11 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      */
     var stringToPath = memoizeCapped(function(string) {
       var result = [];
-      if (reLeadingDot.test(string)) {
+      if (string.charCodeAt(0) === 46 /* . */) {
         result.push('');
       }
-      string.replace(rePropName, function(match, number, quote, string) {
-        result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
+      string.replace(rePropName, function(match, number, quote, subString) {
+        result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
       });
       return result;
     });
@@ -58179,9 +58171,11 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
       function remainingWait(time) {
         var timeSinceLastCall = time - lastCallTime,
             timeSinceLastInvoke = time - lastInvokeTime,
-            result = wait - timeSinceLastCall;
+            timeWaiting = wait - timeSinceLastCall;
 
-        return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+        return maxing
+          ? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke)
+          : timeWaiting;
       }
 
       function shouldInvoke(time) {
@@ -60613,9 +60607,35 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      * _.defaults({ 'a': 1 }, { 'b': 2 }, { 'a': 3 });
      * // => { 'a': 1, 'b': 2 }
      */
-    var defaults = baseRest(function(args) {
-      args.push(undefined, customDefaultsAssignIn);
-      return apply(assignInWith, undefined, args);
+    var defaults = baseRest(function(object, sources) {
+      object = Object(object);
+
+      var index = -1;
+      var length = sources.length;
+      var guard = length > 2 ? sources[2] : undefined;
+
+      if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+        length = 1;
+      }
+
+      while (++index < length) {
+        var source = sources[index];
+        var props = keysIn(source);
+        var propsIndex = -1;
+        var propsLength = props.length;
+
+        while (++propsIndex < propsLength) {
+          var key = props[propsIndex];
+          var value = object[key];
+
+          if (value === undefined ||
+              (eq(value, objectProto[key]) && !hasOwnProperty.call(object, key))) {
+            object[key] = source[key];
+          }
+        }
+      }
+
+      return object;
     });
 
     /**
@@ -61012,6 +61032,11 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      * // => { '1': 'c', '2': 'b' }
      */
     var invert = createInverter(function(result, value, key) {
+      if (value != null &&
+          typeof value.toString != 'function') {
+        value = nativeObjectToString.call(value);
+      }
+
       result[value] = key;
     }, constant(identity));
 
@@ -61042,6 +61067,11 @@ module.exports = {MicropedeClient, GenerateClientId, GetReceiver, DumpStack, Wra
      * // => { 'group1': ['a', 'c'], 'group2': ['b'] }
      */
     var invertBy = createInverter(function(result, value, key) {
+      if (value != null &&
+          typeof value.toString != 'function') {
+        value = nativeObjectToString.call(value);
+      }
+
       if (hasOwnProperty.call(result, value)) {
         result[value].push(key);
       } else {
