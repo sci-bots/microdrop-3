@@ -25,10 +25,11 @@ install:
 
   # Run Tests
   - cmd: node --version
-  - cmd: npm install --global yarn lerna npm-check-updates
-  - cmd: npm run bootstrap
-  - cmd: npm run build
-  - cmd: npm run test
+  - cmd: choco install yarn
+  - cmd: yarn global add lerna npm-check-updates
+  - cmd: yarn run bootstrap
+  - cmd: yarn run build
+  - cmd: yarn run test
 
 
 build: false

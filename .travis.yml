@@ -12,10 +12,11 @@ before_script:
   - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
 
 install:
-  - npm install --global yarn lerna npm-check-updates
-  - npm run bootstrap
-  - npm run build
-  - npm run test
+  - npm install --global yarn
+  - yarn global add lerna npm-check-updates
+  - yarn run bootstrap
+  - yarn run build
+  - yarn run test
 
 after_success:
   # - npm run --prefix conda/feedstock install-pkgs
