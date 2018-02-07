@@ -3,10 +3,12 @@ var {spawn} = require('child_process');
 var {promisify} = require('util');
 var path = require('path');
 var _ = require('lodash');
-var MicropedeAsync = require('@micropede/client/src/async.js');
-var {launchMicrodrop} = require('./index');
+var electron = require('electron');
 
-const DEFAULT_DEVICE_JSON = './resources/default.json';
+var MicropedeAsync = require('@micropede/client/src/async.js');
+var Microdrop = require('./index.js');
+
+const DEFAULT_DEVICE_JSON = './public/resources/default.json';
 const DEFAULT_DEVICE_LENGTH = 92;
 const ELECTRODE000_NEIGHBOURS = { left: 'electrode043', down: 'electrode001', right: 'electrode002' };
 const ROUTE = { start: 'electrode030', path: ['up', 'up', 'up', 'right', 'right']};
@@ -18,15 +20,18 @@ const asyncTimer = (time) => {
     setTimeout(() => resolve(), time);
   });
 }
+let microdrop;
 
 describe('Microdrop', async function() {
-  this.timeout(5000);
-  var {moscaServer, app, createWindow} = launchMicrodrop();
-  const w = createWindow();
-  const microdrop = new MicropedeAsync('microdrop');
+  this.timeout(10000);
+
+  before(async () => {
+    await Microdrop(electron, true);
+    microdrop = new MicropedeAsync('microdrop', 'localhost', 1884);
+  });
 
   describe('Device', function() {
-    this.timeout(10000);
+    this.timeout(5000);
 
     // XXX: Clear test failing after switching to electron (commenting for now)
 
@@ -38,10 +43,11 @@ describe('Microdrop', async function() {
     // });
 
     it('put default device', async function() {
+        this.timeout(10000);
+        await asyncTimer(2000);
         // XXX: Using timer to ensure electron app is ready
-        await asyncTimer(3000);
         var device = require(DEFAULT_DEVICE_JSON);
-        await microdrop.putPlugin('device-model', 'three-object', device);
+        await microdrop.putPlugin('device-model', 'three-object', device, 5000);
         var objects = await microdrop.getState('device-model', 'three-object');
         return assert.equal(objects.length, DEFAULT_DEVICE_LENGTH);
     });
@@ -132,7 +138,7 @@ describe('Microdrop', async function() {
 
   after(function () {
     console.log("tests complete");
-    w.close();
+    // w.close();
     // process.exit(0);
   });
 

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/.bin/electron-mocha",
     "remove:links": "rm -rf node_modules && npm install",
     "start": "./node_modules/.bin/electron index.js",
     "build": "exit 0"
@@ -12,7 +12,8 @@
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
   "devDependencies": {
-    "electron": "^1.7.12"
+    "electron": "^1.7.12",
+    "electron-mocha": "^5.0.0"
   },
   "dependencies": {
     "@microdrop/device-ui-plugin": "^1.1.36",

@@ -4,7 +4,7 @@
   "description": "Launcher / Installer for Microdrop",
   "main": "node_modules/@microdrop/application/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "start": "./node_modules/.bin/electron node_modules/@microdrop/application/index.js",
     "builder": "./node_modules/.bin/electron-builder",
     "packager": "node electron-packager.config.js"

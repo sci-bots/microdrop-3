@@ -102,7 +102,7 @@ class DeviceModel extends MicropedeClient {
   }
 
   getNeighbouringElectrodes(payload) {
-    const LABEL = `<DeviceModel::getNeighbouringElectrodes>`;
+    const LABEL = `<DeviceModel::getNeighbouringElectrodes>`; console.log(LABEL);
     try {
       if (!this.scene) throw("scene undefined");
       if (!this.group) throw("group undefined");
