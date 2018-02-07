@@ -8,10 +8,10 @@ language: node_js
 node_js:
   - "8"
 install:
-  - npm install --global gulp lerna electron electron-mocha
+  - npm install --global lerna npm-check-updates
   - npm run bootstrap
   - npm run build
-  - lerna run test
+  - npm run test
 
 after_success:
   # - npm run --prefix conda/feedstock install-pkgs

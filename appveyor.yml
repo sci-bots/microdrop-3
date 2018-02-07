@@ -25,7 +25,7 @@ install:
 
   # Run Tests
   - cmd: node --version
-  - cmd: npm install --global gulp lerna electron electron-mocha
+  - cmd: npm install --global lerna npm-check-updates
   - cmd: npm run bootstrap
   - cmd: npm run build
   - cmd: npm run test
