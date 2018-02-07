@@ -40,11 +40,9 @@ module.exports = (electron, show=true, skipReady=false) => {
           protocol: 'file:',
           slashes: true
         }));
-
       });
 
       win.on('closed', () => app.quit() );
-
     }
 
     if (skipReady) {

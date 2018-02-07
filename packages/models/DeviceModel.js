@@ -25,14 +25,14 @@ window.addEventListener('error', function(e) {
     console.error(e.message);
 });
 
-
 class DeviceModel extends MicropedeClient {
-  constructor () {
+  constructor (name, version, options, electron) {
     console.log("Initializing Device Model");
-    super(APPNAME, 'localhost', MQTT_PORT);
+    super(APPNAME, 'localhost', MQTT_PORT, name, version, options, electron);
     this.scene = null;
     this.group = null;
   }
+
   listen() {
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
@@ -40,9 +40,9 @@ class DeviceModel extends MicropedeClient {
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
-    // this.bindStateMsg("three-object", "set-three-object");
-    // this.bindStateMsg("overlays", "set-overlays");
+    this.sendIpcMessage('device-model-ready');
   }
+
   get isPlugin() {return true}
   get channel() {return "microdrop/device"}
   get filepath() {return __dirname;}

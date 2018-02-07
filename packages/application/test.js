@@ -32,23 +32,31 @@ describe('Microdrop', async function() {
   before(async () => {
     await Microdrop(electron, false, true);
     microdrop = new MicropedeAsync('microdrop', 'localhost', 1884);
+
+    await new Promise((resolve, reject) => {
+      electron.ipcMain.on('device-model-ready', function() {
+        resolve();
+      });
+
+      asyncTimer(10000).then((d) => {
+        reject('Microdrop.before timed out');
+      });
+    });
+
   });
 
   describe('Device', function() {
     this.timeout(5000);
 
-    // XXX: Clear test failing after switching to electron (commenting for now)
-
-    // it('clear loaded device', async function(done) {
-    //   await asyncTimer(3000);
-    //   await microdrop.device.putThreeObject([]);
-    //   var arr = await microdrop.device.threeObject();
-    //   return assert.equal(arr.length, 0);
-    // });
+    it('clear loaded device', async function() {
+      this.timeout(10000);
+      await microdrop.putPlugin('device-model', 'three-object', []);
+      var arr = await microdrop.getState('device-model', 'three-object');
+      return assert.equal(arr.length, 0);
+    });
 
     it('put default device', async function() {
         this.timeout(10000);
-        await asyncTimer(2000);
         // XXX: Using timer to ensure electron app is ready
         var device = require(DEFAULT_DEVICE_JSON);
         await microdrop.putPlugin('device-model', 'three-object', device, 5000);

@@ -17,7 +17,7 @@
   "dependencies": {
     "@microdrop/device-controller": "^1.1.35",
     "@microdrop/ui-plugin": "^1.1.35",
-    "@micropede/client": "0.0.22",
+    "@micropede/client": "0.0.23",
     "async-mqtt": "^1.0.1",
     "dat.gui": "^0.7.0",
     "jquery": "^3.3.1",

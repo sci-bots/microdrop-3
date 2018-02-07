@@ -5,7 +5,9 @@
   <body>
     <script>
       const DeviceModel = require('../DeviceModel.js');
-      model = new DeviceModel();
+      const electron = require('electron');
+      let args = []; args[3] = electron;
+      model = new DeviceModel(...args);
     </script>
   </body>
 </html>

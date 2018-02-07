@@ -2,7 +2,7 @@ const path = require('path');
 const url = require('url');
 
 function initAsElectronProcesses(electron) {
-  const {BrowserWindow} = electron;
+  const {BrowserWindow, ipcMain} = electron;
 
   let win;
 
