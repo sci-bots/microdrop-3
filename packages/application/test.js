@@ -4,6 +4,7 @@ var {promisify} = require('util');
 var path = require('path');
 var _ = require('lodash');
 var electron = require('electron');
+electron.app.commandLine.appendSwitch('ignore-gpu-blacklist');
 
 var {Console} = require('console');
 var console = new Console(process.stdout, process.stderr);
