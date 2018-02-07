@@ -13,7 +13,8 @@
     "packages/ui-plugin",
     "packages/ui",
     "packages/models",
-    "packages/microdrop"
+    "packages/microdrop",
+    "microdrop-builder"
   ],
   "version": "1.1.36"
 }
