@@ -28814,6 +28814,29 @@ class StateSaverUI extends UIPlugin {
     this.render();
   }
 
+  async openMicroDropFile() {
+    /* Open a file-browser window to select a microdrop file */
+    const handler = (e) => {
+      const f = e.target.files[0];
+      const ext = f.name.split(".").pop().toLowerCase();
+
+      if (ext !== 'microdrop') {
+        alert("Invalid extension, file must be .microdrop");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        const payload = JSON.parse(content);
+        this.restoreFile(payload);
+      };
+      reader.readAsText(f);
+    }
+
+    const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
+    fileinput.click();
+  }
+
   async restoreFile(payload, params) {
     let shouldRestore = confirm(`
       Restore file?\n
@@ -28840,7 +28863,7 @@ class StateSaverUI extends UIPlugin {
       this.trigger("set-step-index", 0);
       this.trigger("set-steps", steps);
     }
-    
+
     console.log("File restored :)", {payload, params});
   }
 
@@ -28880,23 +28903,25 @@ class StateSaverUI extends UIPlugin {
     this.element.appendChild(yo`
       <div>
         <div>
-           <input onclick=${this.changeView.bind(this)}
-             name="${name}" type="radio" value="top" checked>
-           <label>Top</label>
-
-           <input onclick=${this.changeView.bind(this)}
-             name="${name}" type="radio" value="steps">
-           <label>Steps</label>
-
-           <input onclick=${this.changeView.bind(this)}
-             name="${name}" type="radio" value="electrode">
-           <label>Selected Electrode</label>
-
-           <input onclick=${this.changeView.bind(this)}
-             name="${name}" type="radio" value="route">
-           <label>Selected Route</label>
-
-         </div>
+          <button type="button" onclick=${this.openMicroDropFile.bind(this)}>
+            Open MicroDrop File
+          </button>
+          <br>
+          <input onclick=${this.changeView.bind(this)}
+           name="${name}" type="radio" value="top" checked>
+          <label>Top</label>
+          <input onclick=${this.changeView.bind(this)}
+           name="${name}" type="radio" value="steps">
+          <label>Steps</label>
+          <br>
+          <input onclick=${this.changeView.bind(this)}
+           name="${name}" type="radio" value="electrode">
+          <label>Selected Electrode</label>
+          <br>
+          <input onclick=${this.changeView.bind(this)}
+           name="${name}" type="radio" value="route">
+          <label>Selected Route</label>
+        </div>
         ${this.infoBar}
         ${this.container}
       </div>
