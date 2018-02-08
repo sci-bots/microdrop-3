@@ -18,20 +18,14 @@ const env = module.exports.environment;
 const version = module.exports.version;
 
 const console = new Console(process.stdout, process.stderr);
-window.addEventListener('unhandledrejection', function(event) {
-    console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
-});
-window.addEventListener('error', function(e) {
-    console.error(e.message);
-});
 
 class WebServer extends MicropedeClient {
-  constructor(broker) {
+  constructor(broker, ports) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(__dirname,"../utils/plugins.json")))
       WebServer.generatePluginJSON();
 
-    super('microdrop', env.host, env.MQTT_TCP_PORT, undefined, version);
+    super('microdrop', env.host, ports.mqtt_tcp_port, undefined, version);
 
     Object.assign(this, this.ExpressServer());
     this.use(express.static(MicrodropUI.GetUIPath(), {extensions:['html']}));
@@ -40,6 +34,7 @@ class WebServer extends MicropedeClient {
     // Init default plugins
     this.broker = broker;
     this.webPlugins = this.WebPlugins();
+    this.ports = ports;
   }
 
   listen() {
@@ -52,15 +47,15 @@ class WebServer extends MicropedeClient {
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
-    this.get('/http-port',     (_, res) => {res.send(`${env.HTTP_PORT}`)});
-    this.get('/mqtt-tcp-port', (_, res) => {res.send(`${env.MQTT_TCP_PORT}`)});
-    this.get('/mqtt-ws-port',  (_, res) => {res.send(`${env.MQTT_WS_PORT}`)});
+    this.get('/http-port',     (_, res) => {res.send(`${this.ports.http_port}`)});
+    this.get('/mqtt-tcp-port', (_, res) => {res.send(`${this.ports.mqtt_tcp_port}`)});
+    this.get('/mqtt-ws-port',  (_, res) => {res.send(`${this.ports.mqtt_ws_port}`)});
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
-    this._listen(env.HTTP_PORT);
+    this._listen(this.ports.http_port);
   }
 
 
@@ -282,12 +277,26 @@ class WebServer extends MicropedeClient {
   }
 }
 
-const broker = new Broker('microdrop',env.MQTT_WS_PORT, env.MQTT_TCP_PORT);
-console.log({env});
+module.exports = WebServer;
+module.exports.WebServer = WebServer;
 
-broker.on('broker-ready', () => {
-  const webServer = new WebServer(broker);
-  if (window) {window.webServer = webServer}
-});
+module.exports.init = (ports) => {
+  /* Initialize Electron Web Server */
 
-broker.listen();
+  window.addEventListener('unhandledrejection', function(event) {
+      console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+  });
+  window.addEventListener('error', function(e) {
+      console.error(e.message);
+  });
+
+  const broker = new Broker('microdrop',ports.mqtt_ws_port, ports.mqtt_tcp_port);
+  console.log({env});
+
+  broker.on('broker-ready', () => {
+    const webServer = new WebServer(broker, ports);
+    if (window) {window.webServer = webServer}
+  });
+
+  broker.listen();
+}

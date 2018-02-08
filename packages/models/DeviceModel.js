@@ -14,7 +14,6 @@ const {FindNeighbourInDirection, FindAllNeighbours} =
   require('@microdrop/device-controller/src/electrode-controls');
 
 const APPNAME = 'microdrop';
-const MQTT_PORT = 1884;
 
 const ajv = new Ajv({useDefaults: true});
 const console = new Console(process.stdout, process.stderr);
@@ -26,11 +25,12 @@ window.addEventListener('error', function(e) {
 });
 
 class DeviceModel extends MicropedeClient {
-  constructor (name, version, options, electron) {
+  constructor (appname=APPNAME, host, port, ...args) {
     console.log("Initializing Device Model");
-    super(APPNAME, 'localhost', MQTT_PORT, name, version, options, electron);
+    super(appname, host, port, ...args);
     this.scene = null;
     this.group = null;
+    this.port = port;
   }
 
   listen() {
@@ -55,7 +55,7 @@ class DeviceModel extends MicropedeClient {
 
   electrodesFromRoutes(payload) {
     /* Validate that a path is possible on the current device */
-    const LABEL = `<DeviceModel::electrodesFromRoutes>`;
+    const LABEL = `<DeviceModel::electrodesFromRoutes>`; //console.log(LABEL);
     try {
       let routes = payload.routes;
       let length = routes.length;
@@ -102,7 +102,7 @@ class DeviceModel extends MicropedeClient {
   }
 
   getNeighbouringElectrodes(payload) {
-    const LABEL = `<DeviceModel::getNeighbouringElectrodes>`; console.log(LABEL);
+    const LABEL = `<DeviceModel::getNeighbouringElectrodes>`; //console.log(LABEL);
     try {
       if (!this.scene) throw("scene undefined");
       if (!this.group) throw("group undefined");
@@ -120,7 +120,6 @@ class DeviceModel extends MicropedeClient {
 
   async putOverlays(payload) {
     const LABEL = `<DeviceModel::putOverlays`; //console.log(LABEL);
-    console.log(LABEL);
     try {
       for (const [i, overlay] of payload.entries()) {
         this.validateOverlay(overlay);
@@ -134,8 +133,8 @@ class DeviceModel extends MicropedeClient {
 
   async putOverlay(payload) {
     const LABEL = `<DeviceModel::putOverlay>`;
-    console.log(LABEL);
-    const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+    // console.log(LABEL);
+    const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
     try {
       payload = this.validateOverlay(payload);
 
@@ -166,7 +165,7 @@ class DeviceModel extends MicropedeClient {
 
   async putThreeObject(payload) {
     const LABEL = `<DeviceModel::putThreeObject>`;
-    console.log(LABEL);
+    // console.log(LABEL);
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");

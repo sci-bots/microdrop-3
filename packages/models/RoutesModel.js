@@ -17,7 +17,6 @@ window.addEventListener('error', function(e) {
 });
 
 const APPNAME = 'microdrop';
-const MQTT_PORT = 1884;
 
 const RouteSchema = {
   type: "object",
@@ -33,10 +32,11 @@ const RouteSchema = {
 }
 
 class RoutesModel extends MicropedeClient {
-  constructor() {
+  constructor(appname=APPNAME, host, port, ...args) {
     console.log("Initializing Routes Model");
-    super(APPNAME, 'localhost', MQTT_PORT);
+    super(appname, host, port, ...args);
     this.running = false;
+    this.port = port;
   }
 
   // ** Event Listeners **
@@ -52,7 +52,7 @@ class RoutesModel extends MicropedeClient {
   get isPlugin() {return true}
 
   async execute(payload, interval=1000) {
-    const LABEL = "<RoutesModel::execute>";
+    const LABEL = "<RoutesModel::execute>"; // console.log(LABEL);
     try {
       const routes = payload.routes;
       const tms = "transitionDurationMilliseconds";
@@ -70,7 +70,7 @@ class RoutesModel extends MicropedeClient {
         const len = route.path.length;
 
         let numRepeats;
-        const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+        const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
 
         // Check if route contains a loop before continuing
         // const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
@@ -78,7 +78,7 @@ class RoutesModel extends MicropedeClient {
           'electrodes-from-routes', {routes: [route]})).response[0].ids;
 
         if (ids[0] != _.last(ids)) {
-          const times = await ActiveElectrodeIntervals(route);
+          const times = await ActiveElectrodeIntervals(route, this.port);
           seq = seq.concat(times);
           continue;
         }
@@ -95,7 +95,7 @@ class RoutesModel extends MicropedeClient {
         for (let j = 0; j < numRepeats-1; j++) {
           route.path = route.path.concat(org);
         }
-        const times = await ActiveElectrodeIntervals(route);
+        const times = await ActiveElectrodeIntervals(route, this.port);
         seq = seq.concat(times);
       }
 
@@ -113,7 +113,7 @@ class RoutesModel extends MicropedeClient {
             resolve("complete");
           }
           this.running = true;
-          ExecutionLoop(seq, interval, 0, maxTime, onComplete);
+          ExecutionLoop(seq, interval, 0, maxTime, onComplete, this.port);
         });
       };
 
@@ -137,7 +137,7 @@ class RoutesModel extends MicropedeClient {
       if (!validate(payload)) throw(_.map(validate.errors, (e)=>JSON.stringify(e)));
       var route = _.omit(payload, "__head__");
 
-      const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
       // Validate path by checking if electrodesFromRoutes throws error
       // var e = await microdrop.device.electrodesFromRoute(route);
       var e = (await microdrop.triggerPlugin('device-model',
@@ -199,8 +199,8 @@ function ActiveElectrodesAtTime(elecs, t) {
   return {active, remaining}
 }
 
-async function ActiveElectrodeIntervals(r) {
-  const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+async function ActiveElectrodeIntervals(r, port) {
+  const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
   // Get electrode intervals based on a routes time properties
   const seq = (await microdrop.triggerPlugin('device-model',
       'electrodes-from-routes', {routes: [r]})).response[0];
@@ -216,21 +216,20 @@ async function ActiveElectrodeIntervals(r) {
   return times;
 }
 
- async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback) {
+ async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback, port) {
    try {
      // Execute Loop continuously until maxTime is reached
      await wait(interval);
 
      const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
-     const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+     const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
      await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
        'active-electrodes': _.map(active, "id")
      });
 
      if (remaining.length == 0) {callback(); return}
      if (currentTime+interval >= maxTime) {callback(); return}
-
-     ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback);
+     ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback, port);
    } catch (e) {
      console.error(DumpStack('ExecutionLoop', e));
    }

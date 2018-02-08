@@ -8,7 +8,8 @@ const Microdrop = require('../index.js');
 const electron = require('electron');
 
 const PKG_NAME = module.exports.name;
-
+const env = module.exports.environment;
+console.log({env});
 var parser = new ArgumentParser({
   version: module.exports.version,
   addHelp:true,
@@ -27,30 +28,29 @@ parser.addArgument(input, {
 // HTTP Port
 input = ['--http-port'];
 parser.addArgument(input, {
-  help: 'HTTP port (default 3000)',
-  defaultValue: 3000,
+  help: `HTTP port (default ${env.HTTP_PORT})`,
+  defaultValue: env.HTTP_PORT,
   type: 'int'
 });
 
 // Websocket port
 input = ['--mqtt-ws-port'];
 parser.addArgument(input, {
-  help: 'MQTT websocket port (default 8083)',
-  defaultValue: 8083,
+  help: `MQTT websocket port (default ${env.MQTT_WS_PORT})`,
+  defaultValue: env.MQTT_WS_PORT,
   type: 'int'
 });
 
 // TCP Port
 input = ['--mqtt-tcp-port'];
 parser.addArgument(input, {
-  help: 'MQTT TCP port (default 8083)',
-  defaultValue: 1884,
+  help: `MQTT TCP port (default ${env.MQTT_TCP_PORT})`,
+  defaultValue: env.MQTT_TCP_PORT,
   type: 'int'
 });
 
-
 const args = parser.parseArgs();
-
+console.log({args});
 if (args.reset != null) {
   Microdrop.reset(electron).then((d) => {
     electron.app.exit();

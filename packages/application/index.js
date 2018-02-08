@@ -25,7 +25,10 @@ const reset = (electron) => {
         protocol: 'file:',
         slashes: true
       }));
-
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('ports', JSON.stringify(ports));
+      });
+      
       // Reset indexedDB
       ipcMain.on('broker-ready', (event, arg) => {
         ipcMain.on('reset-db-success', () => {
@@ -61,12 +64,16 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
         slashes: true
       }));
 
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('ports', JSON.stringify(ports));
+      });
+
+
       // Load models
-      MicrodropModels.initAsElectronProcesses(electron);
+      MicrodropModels.initAsElectronProcesses(electron, ports);
 
       // Load main window
       ipcMain.on('broker-ready', function(event, arg) {
-        resolve('ready');
         win = new BrowserWindow(_.extend(options, {show}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
@@ -74,6 +81,9 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
           slashes: true
         }));
         win.on('closed', () => app.quit() );
+
+        // Resolve init
+        resolve('ready');
       });
 
     }

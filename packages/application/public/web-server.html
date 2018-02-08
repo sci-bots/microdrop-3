@@ -8,11 +8,18 @@
     <script>
       // You can also require other files to run in this process
       console.log("Creating view!");
-      require('./web-server.js')
+      const {ipcRenderer} = require('electron');
+      const {init} = require('./web-server.js');
+
+      ipcRenderer.on('ports', (e, data) => {
+        var ports = JSON.parse(data);
+        init(ports);
+      });
+
     </script>
 
     <!-- Make launch message dynamic (based on ports used in index.js) -->
     Visit localhost:3000 in your webbrowser
-    
+
   </body>
 </html>

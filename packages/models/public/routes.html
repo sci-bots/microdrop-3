@@ -4,9 +4,19 @@
   </head>
   <body>
     <script>
-      const RoutesModel = require('../RoutesModel.js');
       const pkginfo = require('pkginfo')(module);
-      model = new RoutesModel(undefined, module.exports.version);
+      const {ipcRenderer} = require('electron');
+
+      const RoutesModel = require('../RoutesModel.js');
+
+      const appname = host = n = undefined;
+      const version = module.exports.version;
+
+      ipcRenderer.on('ports', (e, data) => {
+        const {mqtt_tcp_port} = JSON.parse(data);
+        model = new RoutesModel(appname, host, mqtt_tcp_port, n, version);
+      });
+
     </script>
   </body>
 </html>

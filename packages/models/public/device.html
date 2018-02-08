@@ -4,13 +4,20 @@
   </head>
   <body>
     <script>
-      const DeviceModel = require('../DeviceModel.js');
       const electron = require('electron');
       const pkginfo = require('pkginfo')(module);
-      let args = [];
-      args[1] = module.exports.version;
-      args[3] = electron;
-      model = new DeviceModel(...args);
+      const DeviceModel = require('../DeviceModel.js');
+
+      const appname = host = n = options = undefined;
+      const version = module.exports.version;
+
+      electron.ipcRenderer.on('ports', (e, data) => {
+        const {mqtt_tcp_port} = JSON.parse(data);
+        const port = mqtt_tcp_port;
+
+        model = new DeviceModel(appname, host, port, n, version, options, electron);
+      });
+
     </script>
   </body>
 </html>

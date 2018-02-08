@@ -14,7 +14,6 @@ window.addEventListener('error', function(e) {
 });
 
 const APPNAME = 'microdrop';
-const MQTT_PORT = 1884;
 
 const ElectrodeSchema = {
   type: "object",
@@ -54,9 +53,10 @@ function MapElectrodesAndChannels(threeObject) {
 }
 
 class ElectrodesModel extends MicropedeClient {
-  constructor () {
+  constructor (appname=APPNAME, host, port, ...args) {
     console.log("Initializing Electrodes Model");
-    super(APPNAME, 'localhost', MQTT_PORT);
+    super(appname, host, port, ...args);
+    this.port = port;
   }
 
   listen() {
@@ -91,7 +91,7 @@ class ElectrodesModel extends MicropedeClient {
       if (!_.isString(electrodeId)) throw("electrodeId should be string");
       if (!_.isBoolean(state)) throw("state should be bool");
 
-      const microdrop = new MicropedeAsync(APPNAME, 'localhost', MQTT_PORT);
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
 
       // Get all connected electrodes based on the device object
       const threeObject = await microdrop.getState('device-model', 'three-object');

@@ -4,9 +4,18 @@
   </head>
   <body>
     <script>
-      const ElectrodesModel = require('../ElectrodesModel.js');
       const pkginfo = require('pkginfo')(module);
-      model = new ElectrodesModel(undefined, module.exports.version);
+      const {ipcRenderer} = require('electron');
+
+      const ElectrodesModel = require('../ElectrodesModel.js');
+
+      const appname = host = n = undefined;
+      const version = module.exports.version;
+
+      ipcRenderer.on('ports', (e, data) => {
+        const {mqtt_tcp_port} = JSON.parse(data);
+        model = new ElectrodesModel(appname, host, mqtt_tcp_port, n, version);
+      });
     </script>
   </body>
 </html>
