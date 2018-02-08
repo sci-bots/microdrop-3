@@ -6,14 +6,16 @@ const {fork, spawn} = require('child_process');
 const {Console} = require('console');
 
 const _ = require('lodash');
-const {ipcRenderer} = require('electron');
 const express = require('express');
+const {ipcRenderer} = require('electron');
+const pkginfo = require('pkginfo')(module);
 
 const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
 const MicrodropUI = require('@microdrop/ui/index.js');
 
-const env = require('../package.json').environment;
+const env = module.exports.environment;
+const version = module.exports.version;
 
 const console = new Console(process.stdout, process.stderr);
 window.addEventListener('unhandledrejection', function(event) {
@@ -23,26 +25,27 @@ window.addEventListener('error', function(e) {
     console.error(e.message);
 });
 
-
 class WebServer extends MicropedeClient {
-  constructor(args={}) {
+  constructor(broker) {
     // Check if plugins.json exists, and if not create it:
     if (!fs.existsSync(path.resolve(__dirname,"../utils/plugins.json")))
       WebServer.generatePluginJSON();
-    super('microdrop', env.host, env.MQTT_TCP_PORT);
+
+    super('microdrop', env.host, env.MQTT_TCP_PORT, undefined, version);
 
     Object.assign(this, this.ExpressServer());
     this.use(express.static(MicrodropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
 
-    // Get extra search paths from class inputs:
-    this.args = args;
-
     // Init default plugins
+    this.broker = broker;
     this.webPlugins     = this.WebPlugins();
   }
   listen() {
+    // TODO: pass in electron optionally (incase we switch to node later)
     ipcRenderer.send('broker-ready');
+    ipcRenderer.on('reset-db', this.reset.bind(this));
+
     this.findPlugins();
     this.on("plugin-found", this.onPluginFound.bind(this));
 
@@ -66,18 +69,18 @@ class WebServer extends MicropedeClient {
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
 
-      // args.push("--path");
-      // args.push(path.resolve(__dirname, "../.."));
-
-      if (this.args.path) {
-        for (const searchpath of this.args.path) {
-          args.push("--path");
-          args.push(searchpath);
-        }
-      }
       const plugin_finder = fork(
         path.resolve(__dirname,"../utils/find-microdrop-plugins"), args, {cwd: __dirname});
       plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
+  }
+  reset() {
+    const db = this.broker.db_settings.db(this.broker.db_settings.path);
+    db.open(() => {
+      console.log("Clearing database");
+      const req = db.idb.clear();
+      // this.broker.server.close();
+      ipcRenderer.send('reset-db-success');
+    });
   }
   retrievePluginData() {
     return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
@@ -276,7 +279,10 @@ class WebServer extends MicropedeClient {
 
 const broker = new Broker('microdrop',env.MQTT_WS_PORT, env.MQTT_TCP_PORT);
 console.log({env});
+
 broker.on('broker-ready', () => {
-  const webServer = new WebServer();
+  const webServer = new WebServer(broker);
+  if (window) {window.webServer = webServer}
 });
+
 broker.listen();

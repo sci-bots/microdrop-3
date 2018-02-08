@@ -5,7 +5,8 @@
   <body>
     <script>
       const RoutesModel = require('../RoutesModel.js');
-      model = new RoutesModel();
+      const pkginfo = require('pkginfo')(module);
+      model = new RoutesModel(undefined, module.exports.version);
     </script>
   </body>
 </html>

@@ -1,12 +1,13 @@
 {
   "name": "@microdrop/application",
+  "productName": "microdrop",
   "version": "1.1.39",
   "description": "",
-  "main": "index.js",
+  "main": "bin/microdrop",
   "scripts": {
     "test": "node _test.js",
     "remove:links": "rm -rf node_modules && npm install",
-    "start": "./node_modules/.bin/electron index.js",
+    "start": "./node_modules/.bin/electron .",
     "build": "exit 0"
   },
   "author": "Sci-Bots",
@@ -20,12 +21,13 @@
     "@microdrop/models": "^1.1.39",
     "@microdrop/state-saver": "^1.1.39",
     "@microdrop/ui": "^1.1.39",
-    "@micropede/broker": "0.0.23",
-    "@micropede/client": "0.0.23",
+    "@micropede/broker": "0.0.25",
+    "@micropede/client": "0.0.24",
     "argparse": "^1.0.9",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "electron-debug": "^1.5.0",
     "express": "^4.16.2",
+    "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git"
   },

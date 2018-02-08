@@ -1,13 +1,13 @@
 {
   "description": "Microdrop with MQTT support and Web UI",
   "scripts": {
-    "start": "npm run --prefix ./packages/application start",
+    "start": "electron ./packages/application",
     "bootstrap": "cd Micropede && lerna bootstrap && cd .. && lerna bootstrap",
     "hoist": "lerna bootstrap --hoist --no-optional",
     "build": "lerna run build",
     "test": "npm run --prefix packages/application test",
-    "git:add:defaults": "git add package-lock.json && git add packages/**/package-lock.json && git add **/*.web.js && git add **/build/*",
-    "upgrade:micropede": "lerna exec -- ncu @micropede/client @micropede/broker"
+    "git:add:defaults": " git add **/*/yarn.lock && git add **/*.web.js && git add **/build/*",
+    "upgrade:micropede": "lerna exec -- ncu -u @micropede/client @micropede/broker"
   },
   "repository": "git+https://github.com/Lucaszw/microdrop-3.git",
   "keywords": [
@@ -21,5 +21,8 @@
   },
   "homepage": "https://github.com/Lucaszw/microdrop-3#readme",
   "name": "microdrop-3",
-  "main": "lerna.json"
+  "main": "lerna.json",
+  "dependencies": {
+    "pkginfo": "^0.4.1"
+  }
 }

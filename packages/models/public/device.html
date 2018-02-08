@@ -6,7 +6,10 @@
     <script>
       const DeviceModel = require('../DeviceModel.js');
       const electron = require('electron');
-      let args = []; args[3] = electron;
+      const pkginfo = require('pkginfo')(module);
+      let args = [];
+      args[1] = module.exports.version;
+      args[3] = electron;
       model = new DeviceModel(...args);
     </script>
   </body>

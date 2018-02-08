@@ -17,7 +17,6 @@ const DEFAULT_DEVICE_LENGTH = 92;
 const ELECTRODE000_NEIGHBOURS = { left: 'electrode043', down: 'electrode001', right: 'electrode002' };
 const ROUTE = { start: 'electrode030', path: ['up', 'up', 'up', 'right', 'right']};
 const COMPUTED_ROUTE = ['electrode030','electrode029','electrode091','electrode084','electrode083','electrode082'];
-const DEFAULT_PROCESS_PLUGINS = [ 'device-model', 'electrodes-model', 'routes-model' ];
 
 const asyncTimer = (time) => {
   return new Promise((resolve, reject) => {

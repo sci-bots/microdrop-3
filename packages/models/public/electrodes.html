@@ -5,7 +5,8 @@
   <body>
     <script>
       const ElectrodesModel = require('../ElectrodesModel.js');
-      model = new ElectrodesModel();
+      const pkginfo = require('pkginfo')(module);
+      model = new ElectrodesModel(undefined, module.exports.version);
     </script>
   </body>
 </html>
