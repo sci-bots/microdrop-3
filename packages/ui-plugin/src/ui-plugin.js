@@ -1,3 +1,4 @@
+const request = require('browser-request');
 const Key = require('keyboard-shortcut');
 const {MicropedeClient} = require('@micropede/client/src/client.js');
 
@@ -7,8 +8,8 @@ if (!window.microdropPlugins)
 const APPNAME = 'microdrop';
 
 class UIPlugin extends MicropedeClient {
-  constructor(element, focusTracker) {
-    super(APPNAME);
+  constructor(element, focusTracker, port) {
+    super(APPNAME, undefined, port);
     this.element = element;
     this.focusTracker = focusTracker;
     Key("delete", () => {
@@ -31,16 +32,21 @@ class UIPlugin extends MicropedeClient {
 
   static Widget(panel, dock, focusTracker) {
     /* Add plugin to specified dock panel */
-    const widget = new PhosphorWidgets.Widget();
-    widget.addClass("content");
-    const plugin = new this(widget.node,focusTracker);
-    widget.title.label = plugin.name;
-    widget.title.closable = true;
-    widget.plugin = plugin;
-    panel.addWidget(widget,  {mode: "tab-before", ref: dock});
-    panel.activateWidget(widget);
-    focusTracker.add(widget);
-    return widget;
+    return new Promise((resolve, reject) => {
+      request('/mqtt-ws-port', (er, response, body) => {
+        const widget = new PhosphorWidgets.Widget();
+        widget.addClass("content");
+        const port = parseInt(body);
+        const plugin = new this(widget.node,focusTracker, port);
+        widget.title.label = plugin.name;
+        widget.plugin = plugin;
+        widget.title.closable = true;
+        panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+        panel.activateWidget(widget);
+        focusTracker.add(widget);
+        resolve(widget);
+      });
+    });
   }
 
 }

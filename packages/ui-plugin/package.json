@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@micropede/client": "0.0.24",
+    "browser-request": "^0.3.3",
     "keyboard-shortcut": "^1.2.0"
   },
   "publishConfig": {

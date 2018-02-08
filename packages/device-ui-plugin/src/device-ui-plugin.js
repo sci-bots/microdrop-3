@@ -12,15 +12,16 @@ const UIPlugin = require('@microdrop/ui-plugin');
 
 const {
   ParseSVGFromString,
-  ConstructObjectsFromSVG} = require('@microdrop/device-controller/src/svg-renderer');
+  ConstructObjectsFromSVG
+} = require('@microdrop/device-controller/src/svg-renderer');
 
 const DIRECTIONS = {LEFT: "left", UP: "up", DOWN: "down", RIGHT: "right"};
 window.MicropedeAsync = MicropedeAsync;
 window.MicropedeClient = MicropedeClient;
 
 class DeviceUIPlugin extends UIPlugin {
-  constructor(elem, focusTracker) {
-    super(elem, focusTracker);
+  constructor(elem, focusTracker, ...args) {
+    super(elem, focusTracker, ...args);
     this.controls = null;
     this.contextMenu = null;
     this.gui = null;

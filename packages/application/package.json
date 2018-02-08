@@ -29,7 +29,8 @@
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
-    "mosca": "git+https://github.com/Lucaszw/mosca.git"
+    "mosca": "git+https://github.com/Lucaszw/mosca.git",
+    "pkginfo": "^0.4.1"
   },
   "environment": {
     "HTTP_PORT": 3000,

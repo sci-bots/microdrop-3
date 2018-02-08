@@ -16,8 +16,8 @@ const StepMixins = require('./step-mixins');
 const APPNAME = 'microdrop';
 
 class StateSaverUI extends UIPlugin {
-  constructor(elem, focusTracker) {
-    super(elem, focusTracker);
+  constructor(elem, focusTracker, ...args) {
+    super(elem, focusTracker, ...args);
     _.extend(this, ElectrodeMixins);
     _.extend(this, StepMixins);
     _.extend(this, RouteMixins);
@@ -106,7 +106,7 @@ class StateSaverUI extends UIPlugin {
       this.trigger("set-step-index", 0);
       this.trigger("set-steps", steps);
     }
-    
+
     console.log("File restored :)", {payload, params});
   }
 

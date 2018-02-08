@@ -1,10 +1,12 @@
 const $ = require('jquery');
+const request = require('browser-request');
+
 const {WrapData} = require('@micropede/client/src/client.js');
 const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
 
 class PluginProcessManager extends UIPlugin {
   constructor(elem, focusTracker) {
-    super(elem, focusTracker, "PluginProcessManager");
+    super(elem, focusTracker);
   }
   listen() {
     this.onStateMsg("web-server", "process-plugins", this.onPluginsUpdated.bind(this));
@@ -146,6 +148,14 @@ class PluginProcessManager extends UIPlugin {
     _.each(this.plugins, (v,k) => container.append(this.PluginListItem(v,k)));
 
     return container[0];
+  }
+  static Init(node, focusTracker) {
+    return new Promise((resolve, reject) => {
+      request('/mqtt-ws-port', (er, response, body) => {
+        const port = parseInt(body);
+        resolve(new this(node, focusTracker, port));
+      });
+    });
   }
 };
 

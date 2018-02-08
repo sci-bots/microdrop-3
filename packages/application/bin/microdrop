@@ -6,7 +6,6 @@ const path = require('path');
 const {ArgumentParser} = require('argparse');
 const Microdrop = require('../index.js');
 const electron = require('electron');
-const fs = require('fs-extra');
 
 const PKG_NAME = module.exports.name;
 
@@ -16,12 +15,39 @@ var parser = new ArgumentParser({
   description: 'microdrop'
 });
 
+let input;
+
 // Reset (clear application data)
-var input = [ '-r', '--reset' ];
+input = [ '-r', '--reset' ];
 parser.addArgument(input, {
   help: 'Reset application data',
   nargs: 0
 })
+
+// HTTP Port
+input = ['--http-port'];
+parser.addArgument(input, {
+  help: 'HTTP port (default 3000)',
+  defaultValue: 3000,
+  type: 'int'
+});
+
+// Websocket port
+input = ['--mqtt-ws-port'];
+parser.addArgument(input, {
+  help: 'MQTT websocket port (default 8083)',
+  defaultValue: 8083,
+  type: 'int'
+});
+
+// TCP Port
+input = ['--mqtt-tcp-port'];
+parser.addArgument(input, {
+  help: 'MQTT TCP port (default 8083)',
+  defaultValue: 1884,
+  type: 'int'
+});
+
 
 const args = parser.parseArgs();
 
@@ -30,5 +56,5 @@ if (args.reset != null) {
     electron.app.exit();
   });
 } else {
-  Microdrop(electron);
+  Microdrop(electron, args);
 }

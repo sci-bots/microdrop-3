@@ -6,8 +6,8 @@ const yo = require('yo-yo');
 const UIPlugin = require('@microdrop/ui-plugin');
 
 class OverlayUIPlugin extends UIPlugin {
-  constructor(element, focusTracker) {
-    super(element, focusTracker);
+  constructor(element, focusTracker, ...args) {
+    super(element, focusTracker, ...args);
   }
 
   listen() {

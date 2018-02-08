@@ -11,6 +11,7 @@
     "@microdrop/ui-plugin": "^1.1.39",
     "@micropede/client": "0.0.24",
     "@phosphor/widgets": "^1.5.0",
+    "browser-request": "^0.3.3",
     "handlebars": "^4.0.11",
     "jquery": "^3.2.1",
     "keyboard-shortcut": "^1.2.0"

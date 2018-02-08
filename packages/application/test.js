@@ -18,6 +18,8 @@ const ELECTRODE000_NEIGHBOURS = { left: 'electrode043', down: 'electrode001', ri
 const ROUTE = { start: 'electrode030', path: ['up', 'up', 'up', 'right', 'right']};
 const COMPUTED_ROUTE = ['electrode030','electrode029','electrode091','electrode084','electrode083','electrode082'];
 
+const PORTS = {http_port: 3000, mqtt_ws_port: 8083, mqtt_tcp_port: 1884};
+
 const asyncTimer = (time) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve(), time);
@@ -29,7 +31,7 @@ describe('Microdrop', async function() {
   this.timeout(10000);
 
   before(async () => {
-    await Microdrop(electron, false, true);
+    await Microdrop(electron, PORTS, false, true);
     microdrop = new MicropedeAsync('microdrop', 'localhost', 1884);
 
     await new Promise((resolve, reject) => {

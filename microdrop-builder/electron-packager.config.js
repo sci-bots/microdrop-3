@@ -5,6 +5,7 @@ const options = {
   overwrite: true,
   packageManager: false,
   name: 'Microdrop',
+  asar: true,
   out: `${__dirname}/packager`
 };
 

@@ -63,96 +63,103 @@ panel.addWidget(dock);
 PhosphorWidgets.Widget.attach(panel, document.body);
 
 focusTracker = new PhosphorWidgets.FocusTracker();
-for (const [pluginName,pluginClass] of microdropPlugins) {
-  // const dock = docks[pluginClass.position()];
-  const widget = pluginClass.Widget(panel, dock, focusTracker);
-  widgetMap.set(widget.title.label, widget);
-  if (widget.plugin) pluginInstances.push(widget.plugin);
-}
-dock.dispose();
 
-function restorePanels() {
-  // Use first widget as anchor for latter added widgets
-  let firstWidget = null;
+const setup = async () => {
+  for (const [pluginName,pluginClass] of microdropPlugins) {
+    // const dock = docks[pluginClass.position()];
+    const widget = await pluginClass.Widget(panel, dock, focusTracker);
+    console.log({widget});
+    widgetMap.set(widget.title.label, widget);
+    if (widget.plugin) pluginInstances.push(widget.plugin);
+  }
+  dock.dispose();
 
-  function getChildren(obj) {
-    if (!obj) return;
-    // Traverse the layout structure, replacing widgetNames with widgetObjects
-    const children = obj.children;
+  function restorePanels() {
+    // Use first widget as anchor for latter added widgets
+    let firstWidget = null;
 
-    if ("widgets" in obj) {
-      const widgetObjects = new Array();
-      for (const title of obj.widgets){
-        // Replace each widgetName with widgetObject
-        let widget = widgetMap.get(title);
-        if (!firstWidget) firstWidget = widget;
-        widgetObjects.push(widget);
-        // Delete from widgetMap, to keep track of new
-        // widgets not saved in layout
-        widgetMap.delete(title);
+    function getChildren(obj) {
+      if (!obj) return;
+      // Traverse the layout structure, replacing widgetNames with widgetObjects
+      const children = obj.children;
+
+      if ("widgets" in obj) {
+        const widgetObjects = new Array();
+        for (const title of obj.widgets){
+          // Replace each widgetName with widgetObject
+          let widget = widgetMap.get(title);
+          if (!firstWidget) firstWidget = widget;
+          widgetObjects.push(widget);
+          // Delete from widgetMap, to keep track of new
+          // widgets not saved in layout
+          widgetMap.delete(title);
+        }
+        obj.widgets = widgetObjects;
       }
-      obj.widgets = widgetObjects;
+      // Continue traversal
+      if (children == undefined) return;
+      for (const child of children) {
+        getChildren(child);
+      }
     }
-    // Continue traversal
-    if (children == undefined) return;
-    for (const child of children) {
-      getChildren(child);
+
+    // Fetch the layout, and replace widgetNames with widgetObjects
+    const layout = JSON.parse(localStorage.getItem("microdrop:layout"));
+    getChildren(layout.main);
+    panel.restoreLayout(layout);
+
+    // For any widgets, not mentioned in they layout, add them to the first
+    // widget
+    for (const [title, widget] of widgetMap) {
+      panel.addWidget(widget,  {mode: "tab-after", ref: firstWidget});
     }
+    return layout;
   }
 
-  // Fetch the layout, and replace widgetNames with widgetObjects
-  const layout = JSON.parse(localStorage.getItem("microdrop:layout"));
-  getChildren(layout.main);
-  panel.restoreLayout(layout);
-
-  // For any widgets, not mentioned in they layout, add them to the first
-  // widget
-  for (const [title, widget] of widgetMap) {
-    panel.addWidget(widget,  {mode: "tab-after", ref: firstWidget});
-  }
-  return layout;
-}
-
-function savePanels() {
-  // Save layout to local storage
-  function getChildren(obj) {
-    // Traverse layout, replacing widgetObject with widgetName to make
-    // the layout JSON serializable
-    const children = obj.children;
-    if ("widgets" in obj) {
-      const widgetNames = new Array();
-      for (const widget of obj.widgets)
-        widgetNames.push(widget.title.label);
-      obj.widgets = widgetNames;
+  function savePanels() {
+    // Save layout to local storage
+    function getChildren(obj) {
+      // Traverse layout, replacing widgetObject with widgetName to make
+      // the layout JSON serializable
+      const children = obj.children;
+      if ("widgets" in obj) {
+        const widgetNames = new Array();
+        for (const widget of obj.widgets)
+          widgetNames.push(widget.title.label);
+        obj.widgets = widgetNames;
+      }
+      if (children == undefined) return;
+      for (const child of children) {
+        getChildren(child);
+      }
     }
-    if (children == undefined) return;
-    for (const child of children) {
-      getChildren(child);
+    // Fetch layout, serialize it, and then save to local storage
+    const layout = panel.saveLayout();
+    getChildren(layout.main);
+    localStorage.setItem("microdrop:layout", JSON.stringify(layout));
+    return layout;
+  }
+
+  panel.onUpdateRequest = (msg) => {
+    // Trigger update event in children:
+    for (const [i, plugin] of pluginInstances.entries()) {
+      plugin.trigger("updateRequest", msg);
     }
-  }
-  // Fetch layout, serialize it, and then save to local storage
-  const layout = panel.saveLayout();
-  getChildren(layout.main);
-  localStorage.setItem("microdrop:layout", JSON.stringify(layout));
-  return layout;
-}
 
-panel.onUpdateRequest = (msg) => {
-  // Trigger update event in children:
-  for (const [i, plugin] of pluginInstances.entries()) {
-    plugin.trigger("updateRequest", msg);
-  }
-
-  // Save layout everytime it is updated
-  if (window.hasLaunched)
-    savePanels();
-  else {
-    window.hasLaunched = true;
-    if ("microdrop:layout" in window.localStorage)
-      restorePanels()
-    else
+    // Save layout everytime it is updated
+    if (window.hasLaunched) {
       savePanels();
+    } else {
+      window.hasLaunched = true;
+      if ("microdrop:layout" in window.localStorage)
+        restorePanels()
+      else
+        savePanels();
+    }
   }
-}
 
-window.onresize = () => {panel.update()};
+  window.onresize = () => {panel.update()};
+
+};
+
+setup();

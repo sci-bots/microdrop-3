@@ -38,7 +38,7 @@ const reset = (electron) => {
 
 }
 
-const init = (electron, show=true, skipReady=false, debug=false) => {
+const init = (electron, ports, show=true, skipReady=false, debug=false) => {
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
 

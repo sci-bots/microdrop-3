@@ -13,7 +13,7 @@
 <body>
   <script>
   let focusTracker, panel, widgets;
-  const load = () => {
+  const load = async () => {
     widgets = new Object();
     widgets.pluginProcessManager = new PhosphorWidgets.Widget();
     widgets.pluginProcessManager.title.label = "Process Manager";
@@ -30,8 +30,8 @@
     panel.addWidget(widgets.uiPluginManager, {mode: 'split-bottom', ref: widgets.pluginProcessManager});
     PhosphorWidgets.Widget.attach(panel, document.body);
 
-    window.pluginProcessManager = new PluginManager.PluginProcessManager(widgets.pluginProcessManager.node, focusTracker);
-    window.uiPluginManager = new PluginManager.UIPluginManager(widgets.uiPluginManager.node, focusTracker);
+    window.pluginProcessManager = await PluginManager.PluginProcessManager.Init(widgets.pluginProcessManager.node, focusTracker);
+    window.uiPluginManager = await PluginManager.UIPluginManager.Init(widgets.uiPluginManager.node, focusTracker);
   };
   $(window).on("load", load);
   </script>

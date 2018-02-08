@@ -1,14 +1,15 @@
 const $ = require('jquery');
+const request = require('browser-request');
+
 const UIPlugin = require('@microdrop/ui-plugin/src/ui-plugin.js');
 const {WrapData} = require('@micropede/client/src/client.js');
 
 class UIPluginManager extends UIPlugin {
   constructor(element, focusTracker) {
-    super(element, focusTracker, "UIPluginManager");
+    super(element, focusTracker);
     this.pluginCards = new Backbone.Model();
   }
   listen() {
-    console.log("LISTENING!!", this);
     this.pluginCards.on("all", this.onPluginCardsChanged.bind(this));
     this.bindTriggerMsg("web-server", "remove-plugin", "remove-plugin");
     this.bindTriggerMsg("web-server", "update-ui-plugin-state", "update-state");
@@ -74,6 +75,14 @@ class UIPluginManager extends UIPlugin {
     for (const [filepath, plugin] of entries)
       cards.appendChild(this.ListItem(filepath, plugin));
     return cards;
+  }
+  static Init(node, focusTracker) {
+    return new Promise((resolve, reject) => {
+      request('/mqtt-ws-port', (er, response, body) => {
+        const port = parseInt(body);
+        resolve(new this(node, focusTracker, port));
+      });
+    });
   }
 }
 

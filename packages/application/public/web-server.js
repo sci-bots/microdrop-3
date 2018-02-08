@@ -39,8 +39,9 @@ class WebServer extends MicropedeClient {
 
     // Init default plugins
     this.broker = broker;
-    this.webPlugins     = this.WebPlugins();
+    this.webPlugins = this.WebPlugins();
   }
+
   listen() {
     // TODO: pass in electron optionally (incase we switch to node later)
     ipcRenderer.send('broker-ready');
@@ -51,6 +52,9 @@ class WebServer extends MicropedeClient {
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
+    this.get('/http-port',     (_, res) => {res.send(`${env.HTTP_PORT}`)});
+    this.get('/mqtt-tcp-port', (_, res) => {res.send(`${env.MQTT_TCP_PORT}`)});
+    this.get('/mqtt-ws-port',  (_, res) => {res.send(`${env.MQTT_WS_PORT}`)});
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
@@ -58,6 +62,7 @@ class WebServer extends MicropedeClient {
     this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
     this._listen(env.HTTP_PORT);
   }
+
 
   get filepath() {return __dirname;}
   findPlugins() {
