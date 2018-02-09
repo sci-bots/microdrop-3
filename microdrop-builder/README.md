@@ -1,4 +1,6 @@
-# Electron Packager Instructions
+# microdrop-builder
+
+## Electron Packager Instructions
 
 Run the following to generate the packager (from the root of microdrop-3):
 ```bash
