@@ -5,7 +5,7 @@ const options = {
   webPreferences: {
     webSecurity: false
   },
-  show: true
+  show: false
 };
 
 function initAsElectronProcesses(electron, ports) {

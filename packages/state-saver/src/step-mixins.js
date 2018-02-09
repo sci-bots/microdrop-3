@@ -9,7 +9,7 @@ const StepMixins = {};
   const action = obj.action;
   const index = obj.params.index;
 
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   const steps = await microdrop.getState("state-saver-ui", "steps");
 
   if (action == "removeNodes") {
@@ -25,7 +25,7 @@ StepMixins.keypressed = async function (e) {
   if (!_.isEqual(this.focusTracker.currentWidget.plugin, this)) return;
   // Don't do anything if state-saver is not on steps view
   if (this.view != 'steps') return;
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevStepIndex;
   try {
     prevStepIndex = await microdrop.getState('state-saver-ui', 'step-index', 500);
@@ -64,7 +64,7 @@ StepMixins.keypressed = async function (e) {
 StepMixins.exec = async function (item, steps, index) {
   /* Execute routes, then continue to the next step */
   this._running = true;
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   index = index || item.node.index;
   steps = steps || await microdrop.getState("state-saver-ui", "steps");
   await this.loadStep(item, index, steps);
@@ -88,7 +88,7 @@ StepMixins.loadStep = async function (item=null, index, steps) {
       if (!_.isInteger(index)) return;
     }
     this.trigger("set-step-index", index);
-    const microdrop = new MicropedeAsync(APPNAME);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     steps = steps || await microdrop.getState("state-saver-ui", "steps");
     var step = steps[index];
 
@@ -122,7 +122,7 @@ StepMixins.createStep = async function () {
   let steps;
   // Try and get previous steps if they exist
   try {
-    const microdrop = new MicropedeAsync(APPNAME);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     steps = await microdrop.getState("state-saver-ui", "steps", 1000);
   } catch (e) { steps = [];}
 
@@ -146,7 +146,7 @@ StepMixins.renderStepView = async function () {
   this.editor.set(_.get(this.json, ["state-saver-ui", "steps"]) || []);
   this.editor.node.items = [loadStep, execStep];
 
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
 
   _.set(this.element.style, "overflow", "hidden");
 
@@ -170,7 +170,7 @@ StepMixins.renderStepView = async function () {
 
 async function put(pluginName, k, v) {
   try {
-    const microdrop = new MicropedeAsync(APPNAME);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     const msg = {};
     _.set(msg, "__head__.plugin_name", microdrop.name);
     _.set(msg, k, v);

@@ -10,7 +10,7 @@ ElectrodeMixins.updateElectrode = async function () {
   if (editedProp == undefined) return;
 
   const newData = this.editor.get();
-  const microdrop = new MicropedeAsync(APPNAME);
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   const threeObject = await microdrop.getState('device-model', 'three-object');
 
   if (!_.includes(newData.id, 'electrode')) throw 'id invalid';
@@ -37,7 +37,7 @@ ElectrodeMixins.renderSelectedElectrode = async function () {
       <br>
     </div>`);
 
-    const microdrop = new MicropedeAsync(APPNAME);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let id = await microdrop.getState("electrode-controls", "selected-electrode", 500);
 
     const electrodes = _.get(this.json, ["device-model", "three-object"]) || [];

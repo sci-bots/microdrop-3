@@ -20,8 +20,8 @@ window.MicropedeAsync = MicropedeAsync;
 window.MicropedeClient = MicropedeClient;
 
 class DeviceUIPlugin extends UIPlugin {
-  constructor(elem, focusTracker, ...args) {
-    super(elem, focusTracker, ...args);
+  constructor(elem, focusTracker, port, ...args) {
+    super(elem, focusTracker, port, ...args);
     this.controls = null;
     this.contextMenu = null;
     this.gui = null;
@@ -69,7 +69,8 @@ class DeviceUIPlugin extends UIPlugin {
     const bbox = this.element.getBoundingClientRect();
     if (bbox.width == 0) return;
 
-    this.controls = await DeviceController.createScene(this.sceneContainer, payload);
+    this.controls = await DeviceController.createScene(
+      this.sceneContainer, payload, this.port);
     this.gui = CreateDatGUI(this.sceneContainer, this.controls);
   }
 
@@ -91,7 +92,7 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   contextMenuClicked(key, options) {
-    const microdrop = new MicropedeAsync('microdrop');
+    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
     switch (key) {
       case "changeDevice":
         this.changeDevice();

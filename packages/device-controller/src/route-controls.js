@@ -14,11 +14,14 @@ const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 const {FindAllNeighbours} = require('./electrode-controls');
 
 const APPNAME = 'microdrop';
-const microdrop = new MicropedeAsync(APPNAME);
+
+const DEFAULT_HOST = 'localhost';
+let microdrop;
 
 class RouteControls extends MicropedeClient {
-  constructor(scene, camera, electrodeControls) {
-    super(APPNAME);
+  constructor(scene, camera, electrodeControls, port=undefined) {
+    super(APPNAME, DEFAULT_HOST, port);
+    microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, port);
     electrodeControls.on("mousedown", this.drawRoute.bind(this));
     electrodeControls.on("mouseup", (e) => this.trigger("mouseup", e));
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
@@ -27,6 +30,7 @@ class RouteControls extends MicropedeClient {
     this.scene = scene;
     this.model = new Backbone.Model({routes: []});
     this.model.on("change:routes", this.renderRoutes.bind(this));
+    this.port = port;
   }
   listen() {
     this.onStateMsg("routes-model", "routes", this.renderRoutes.bind(this));

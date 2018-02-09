@@ -76,9 +76,7 @@ class WebServer extends MicropedeClient {
   reset() {
     const db = this.broker.db_settings.db(this.broker.db_settings.path);
     db.open(() => {
-      console.log("Clearing database");
       const req = db.idb.clear();
-      // this.broker.server.close();
       ipcRenderer.send('reset-db-success');
     });
   }
@@ -291,7 +289,6 @@ module.exports.init = (ports) => {
   });
 
   const broker = new Broker('microdrop',ports.mqtt_ws_port, ports.mqtt_tcp_port);
-  console.log({env});
 
   broker.on('broker-ready', () => {
     const webServer = new WebServer(broker, ports);

@@ -56,6 +56,12 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
         show: false
       };
 
+      const sendPorts = (win) => {
+        win.webContents.on('did-finish-load', () => {
+          win.webContents.send('ports', JSON.stringify(ports));
+        });
+      }
+
       // Load webserver:
       win = new BrowserWindow(options);
       win.loadURL(url.format({
@@ -63,10 +69,7 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
         protocol: 'file:',
         slashes: true
       }));
-
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('ports', JSON.stringify(ports));
-      });
+      sendPorts(win);
 
 
       // Load models
@@ -80,6 +83,7 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
           protocol: 'file:',
           slashes: true
         }));
+        sendPorts(win);
         win.on('closed', () => app.quit() );
 
         // Resolve init

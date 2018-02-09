@@ -6,7 +6,7 @@
     "hoist": "lerna bootstrap --hoist --no-optional",
     "build": "lerna run build",
     "test": "npm run --prefix packages/application test",
-    "git:add:defaults": " git add **/*/yarn.lock && git add **/*.web.js && git add **/build/*",
+    "add:defaults": " git add **/yarn.lock",
     "upgrade:micropede": "lerna exec -- ncu -u @micropede/client @micropede/broker"
   },
   "repository": "git+https://github.com/Lucaszw/microdrop-3.git",

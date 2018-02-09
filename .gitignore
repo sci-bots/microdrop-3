@@ -1,6 +1,8 @@
 microdrop-builder/packager/**/*
 **/dist/**/*
 **/build/**/*
+**/*.web.js
+
 # Logs
 logs
 *.log

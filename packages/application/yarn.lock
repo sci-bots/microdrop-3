@@ -115,6 +115,14 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+bel@^4.0.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/bel/-/bel-4.6.0.tgz#3ade16e236ab2204d8d1c66eac4bd573793ac999"
+  dependencies:
+    global "^4.3.0"
+    hyperx "^2.3.0"
+    on-load "^3.2.0"
+
 bl@^0.9.1:
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/bl/-/bl-0.9.5.tgz#c06b797af085ea00bc527afc8efcf11de2232054"
@@ -392,6 +400,10 @@ destroy@~1.0.4:
 diff@3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.3.1.tgz#aa8567a6eed03c531fc89d3f711cd0e5259dec75"
+
+dom-walk@^0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/dom-walk/-/dom-walk-0.1.1.tgz#672226dc74c8f799ad35307df936aba11acd6018"
 
 duplexer2@~0.1.4:
   version "0.1.4"
@@ -790,6 +802,13 @@ glob@7.1.2, glob@^7.0.5, glob@^7.1.1:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
+global@^4.3.0, global@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/global/-/global-4.3.2.tgz#e76989268a6c74c38908b1305b10fc0e394e9d0f"
+  dependencies:
+    min-document "^2.19.0"
+    process "~0.5.1"
+
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@~4.1.11:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
@@ -883,6 +902,16 @@ http-signature@~1.2.0:
     assert-plus "^1.0.0"
     jsprim "^1.2.2"
     sshpk "^1.7.0"
+
+hyperscript-attribute-to-property@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/hyperscript-attribute-to-property/-/hyperscript-attribute-to-property-1.0.0.tgz#825308d49bb8e2957923f731981bcc811cad7aff"
+
+hyperx@^2.3.0:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/hyperx/-/hyperx-2.3.2.tgz#17518dad514209b3f7090f149c08a9a64386396e"
+  dependencies:
+    hyperscript-attribute-to-property "^1.0.0"
 
 iconv-lite@0.4.19:
   version "0.4.19"
@@ -1256,6 +1285,12 @@ mime@1.4.1, mime@~1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.4.1.tgz#121f9ebc49e3766f311a76e1fa1c8003c4b03aa6"
 
+min-document@^2.19.0:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/min-document/-/min-document-2.19.0.tgz#7bd282e3f5842ed295bb748cdd9f1ffa2c824685"
+  dependencies:
+    dom-walk "^0.1.0"
+
 minimatch@^3.0.4, minimatch@~3.0.0:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.4.tgz#5166e286457f03306064be5497e8dbb0c3d32083"
@@ -1296,6 +1331,10 @@ mocha@^4.0.1:
     he "1.1.1"
     mkdirp "0.5.1"
     supports-color "4.4.0"
+
+morphdom@^2.1.0:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/morphdom/-/morphdom-2.3.3.tgz#70b0aec3db0832688f7fcbde2a8921cf508c4f16"
 
 "mosca@git+https://github.com/Lucaszw/mosca.git":
   version "2.7.0"
@@ -1381,6 +1420,10 @@ msgpack5@^3.3.0:
     readable-stream "^2.3.3"
     safe-buffer "^5.1.1"
 
+nanoassert@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/nanoassert/-/nanoassert-1.1.0.tgz#4f3152e09540fde28c76f44b19bbcd1d5a42478d"
+
 nanoid@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-0.2.2.tgz#e2ebc6ad3db5e0454fd8124d30ca39b06555fe56"
@@ -1448,6 +1491,13 @@ on-finished@~2.3.0:
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"
   dependencies:
     ee-first "1.1.1"
+
+on-load@^3.2.0:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/on-load/-/on-load-3.3.4.tgz#bf559019dadf353452ff89b8cacf6eacc4ee2681"
+  dependencies:
+    global "^4.3.2"
+    nanoassert "^1.1.0"
 
 once@^1.3.0, once@^1.3.1, once@^1.3.3, once@^1.4.0:
   version "1.4.0"
@@ -1575,6 +1625,10 @@ pretty-bytes@^1.0.2:
 process-nextick-args@~1.0.6:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
+
+process@~0.5.1:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/process/-/process-0.5.2.tgz#1638d8a8e34c2f440a91db95ab9aeb677fc185cf"
 
 progress-stream@^1.1.0:
   version "1.2.0"
@@ -2282,3 +2336,10 @@ yauzl@2.4.1:
   resolved "https://registry.yarnpkg.com/yauzl/-/yauzl-2.4.1.tgz#9528f442dab1b2284e58b4379bb194e22e0c4005"
   dependencies:
     fd-slicer "~1.0.1"
+
+yo-yo@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/yo-yo/-/yo-yo-1.4.1.tgz#9ce4b00fd880e5533b5e7f46a93d68d914ad6f64"
+  dependencies:
+    bel "^4.0.0"
+    morphdom "^2.1.0"

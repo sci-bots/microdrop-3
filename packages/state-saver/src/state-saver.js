@@ -95,7 +95,7 @@ class StateSaverUI extends UIPlugin {
     routes = routes ? routes : [];
     electrodes = electrodes ? electrodes : [];
 
-    const microdrop = new MicropedeAsync('microdrop');
+    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
     if (device) {
       await microdrop.putPlugin('device-model', 'three-object', device);
     }

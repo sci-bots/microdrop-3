@@ -44,7 +44,7 @@ function initRenderer() {
   renderer.setClearColor( "rgb(55, 55, 55)", 1 );
 }
 
-const createScene = async (_container=null, url='/default.svg') => {
+const createScene = async (_container=null, url='/default.svg', port=undefined) => {
   container = _container;
   if (!container) container = document.body;
   var bbox = container.getBoundingClientRect();
@@ -59,9 +59,9 @@ const createScene = async (_container=null, url='/default.svg') => {
   initCameraControls();
   initRenderer();
 
-  electrodeControls = new ElectrodeControls(scene, camera, renderer, container);
+  electrodeControls = new ElectrodeControls(scene, camera, renderer, container, port);
   await electrodeControls.loadSvg(url);
-  routeControls = new RouteControls(scene, camera, electrodeControls, container);
+  routeControls = new RouteControls(scene, camera, electrodeControls, port);
   videoControls = new VideoControls(scene, camera, renderer, updateFcts, electrodeControls.svgGroup);
   cameraControls.on("updateRequest", updateRequest.bind(this));
   animate();

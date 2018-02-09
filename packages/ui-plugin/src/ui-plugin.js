@@ -12,6 +12,7 @@ class UIPlugin extends MicropedeClient {
     super(APPNAME, undefined, port);
     this.element = element;
     this.focusTracker = focusTracker;
+    this.port = port;
     Key("delete", () => {
       if (this.hasFocus) this.trigger("delete");
     });
