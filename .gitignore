@@ -1,5 +1,6 @@
 microdrop-builder/packager/**/*
 **/dist/**/*
+**/build/**/*
 # Logs
 logs
 *.log

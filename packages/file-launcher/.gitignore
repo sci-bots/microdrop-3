@@ -3,3 +3,4 @@ dist/*.zip
 dist/*.blockmap
 dist/mac
 dist/win-*
+!build/**/*
