@@ -50,6 +50,7 @@ class WebServer extends MicropedeClient {
     this.get('/http-port',     (_, res) => {res.send(`${this.ports.http_port}`)});
     this.get('/mqtt-tcp-port', (_, res) => {res.send(`${this.ports.mqtt_tcp_port}`)});
     this.get('/mqtt-ws-port',  (_, res) => {res.send(`${this.ports.mqtt_ws_port}`)});
+    this.get('/web-plugin-paths', (_, res) => {res.send(this.getPluginPaths())});
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
@@ -126,7 +127,7 @@ class WebServer extends MicropedeClient {
     this.webPlugins = this.WebPlugins();
   }
 
-  generateDisplayTemplate() {
+  getPluginPaths() {
     // Generate input data for microdrop ui:
     const pluginPaths = new Array();
 
@@ -136,8 +137,7 @@ class WebServer extends MicropedeClient {
       }
     }
 
-    // Update html file with added / removed plugins:
-    MicrodropUI.UpdateDisplayTemplate(pluginPaths);
+    return pluginPaths;
   }
 
   getPluginData(pluginPath) {
@@ -257,7 +257,6 @@ class WebServer extends MicropedeClient {
       this.use(express.static(parentDir));
     }
     this.webPlugins = pluginData.webPlugins;
-    this.generateDisplayTemplate();
     return pluginData.webPlugins;
   }
 

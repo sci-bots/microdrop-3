@@ -1,5 +1,7 @@
-const request = require('browser-request');
 const Key = require('keyboard-shortcut');
+const PhosphorWidgets = require('@phosphor/widgets');
+const request = require('browser-request');
+
 const {MicropedeClient} = require('@micropede/client/src/client.js');
 
 if (!window.microdropPlugins)
@@ -43,7 +45,7 @@ class UIPlugin extends MicropedeClient {
         widget.plugin = plugin;
         widget.title.closable = true;
         panel.addWidget(widget,  {mode: "tab-before", ref: dock});
-        panel.activateWidget(widget);
+        // panel.activateWidget(widget);
         focusTracker.add(widget);
         resolve(widget);
       });

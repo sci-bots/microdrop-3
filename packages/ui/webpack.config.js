@@ -16,5 +16,15 @@ const pluginManagerConfig = {
   }
 };
 
+const displayConfig = {
+  entry: './src/display.js',
+  output: {
+    filename: './static/scripts/display.web.js',
+    library: 'Display',
+    libraryTarget: 'var'
+  }
+};
 
-module.exports = [phoshporConfig, pluginManagerConfig];
+
+
+module.exports = [phoshporConfig, pluginManagerConfig, displayConfig];
