@@ -13,6 +13,7 @@ const pkginfo = require('pkginfo')(module);
 const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
 const MicrodropUI = require('@microdrop/ui/index.js');
+const FindUserDefinedPlugins = require('../utils/find-microdrop-plugins.js');
 
 const env = module.exports.environment;
 const version = module.exports.version;
@@ -20,18 +21,18 @@ const version = module.exports.version;
 const console = new Console(process.stdout, process.stderr);
 
 class WebServer extends MicropedeClient {
-  constructor(broker, ports) {
-    // Check if plugins.json exists, and if not create it:
-    if (!fs.existsSync(path.resolve(__dirname,"../utils/plugins.json")))
-      WebServer.generatePluginJSON();
+  constructor(broker, ports, storage) {
+    if (storage == undefined) storage = window.localStorage;
+    if (storage.getItem('microdrop:plugins') == null) {
+      WebServer.initPlugins(storage);
+    }
 
     super('microdrop', env.host, ports.mqtt_tcp_port, undefined, version);
-
     Object.assign(this, this.ExpressServer());
     this.use(express.static(MicrodropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
 
-    // Init default plugins
+    this.storage = storage;
     this.broker = broker;
     this.webPlugins = this.WebPlugins();
     this.ports = ports;
@@ -43,7 +44,6 @@ class WebServer extends MicropedeClient {
     ipcRenderer.on('reset-db', this.reset.bind(this));
 
     this.findPlugins();
-    this.on("plugin-found", this.onPluginFound.bind(this));
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
@@ -63,16 +63,10 @@ class WebServer extends MicropedeClient {
   get filepath() {return __dirname;}
   findPlugins() {
       let args = [];
-
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
-        // Add path to all default plugins
-        args.push('--path');
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
-
-      const plugin_finder = fork(
-        path.resolve(__dirname,"../utils/find-microdrop-plugins"), args, {cwd: __dirname});
-      plugin_finder.on('message', (e) => this.trigger("plugin-found", e));
+      FindUserDefinedPlugins(args, this.storage, this.onPluginFound.bind(this));
   }
   reset() {
     const db = this.broker.db_settings.db(this.broker.db_settings.path);
@@ -82,7 +76,7 @@ class WebServer extends MicropedeClient {
     });
   }
   retrievePluginData() {
-    return JSON.parse(fs.readFileSync(WebServer.pluginsfile(), 'utf8'));
+    return JSON.parse(this.storage.getItem("microdrop:plugins"));
   }
   addFoundWebPlugin(plugin_data, plugin_path) {
     const file = path.resolve(plugin_path);
@@ -121,8 +115,7 @@ class WebServer extends MicropedeClient {
         state: state,
         data: packageData
       };
-      fs.writeFileSync(WebServer.pluginsfile(),
-        JSON.stringify(pluginData,null,4), 'utf8');
+      this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
     }
     this.webPlugins = this.WebPlugins();
   }
@@ -167,8 +160,7 @@ class WebServer extends MicropedeClient {
     pluginData.searchPaths = [...searchDirectories];
 
     // Save plugin data:
-    fs.writeFileSync(WebServer.pluginsfile(),
-      JSON.stringify(pluginData,null,4), 'utf8');
+    this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
 
     // Find Plugins:
     this.findPlugins();
@@ -192,8 +184,7 @@ class WebServer extends MicropedeClient {
     }
 
     // Write to file
-    fs.writeFileSync(WebServer.pluginsfile(),
-      JSON.stringify(pluginData,null,4), 'utf8');
+    this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
 
     // Update
     this.webPlugins = this.WebPlugins();
@@ -212,8 +203,7 @@ class WebServer extends MicropedeClient {
       return;
     }
     pluginData.webPlugins[plugin.path].state = plugin.state;
-    fs.writeFileSync(WebServer.pluginsfile(),
-      JSON.stringify(pluginData,null,4), 'utf8');
+    this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
     this.webPlugins = this.WebPlugins();
     this.trigger("set-web-plugins", this.webPlugins);
   }
@@ -260,17 +250,11 @@ class WebServer extends MicropedeClient {
     return pluginData.webPlugins;
   }
 
-  static pluginsfile() {
-    return path.resolve(path.join(__dirname, "../utils/plugins.json"));
-  }
-
-  static generatePluginJSON() {
+  static initPlugins(storage) {
     const pluginData = new Object();
     pluginData.webPlugins = new Object();
     pluginData.searchPaths = new Array();
-    const filepath = WebServer.pluginsfile();
-    const data = JSON.stringify(pluginData,null,4);
-    fs.writeFileSync(filepath, data, 'utf8');
+    storage.setItem('microdrop:plugins', JSON.stringify(pluginData));
   }
 }
 

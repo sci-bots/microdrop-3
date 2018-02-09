@@ -1,5 +1,5 @@
 const Key = require('keyboard-shortcut');
-const PhosphorWidgets = require('@phosphor/widgets');
+// const PhosphorWidgets = require('@phosphor/widgets');
 const request = require('browser-request');
 
 const {MicropedeClient} = require('@micropede/client/src/client.js');
@@ -33,7 +33,7 @@ class UIPlugin extends MicropedeClient {
     this[`_${k}`] = item;
   }
 
-  static Widget(panel, dock, focusTracker) {
+  static Widget(dock, focusTracker, PhosphorWidgets) {
     /* Add plugin to specified dock panel */
     return new Promise((resolve, reject) => {
       request('/mqtt-ws-port', (er, response, body) => {
@@ -44,7 +44,7 @@ class UIPlugin extends MicropedeClient {
         widget.title.label = plugin.name;
         widget.plugin = plugin;
         widget.title.closable = true;
-        panel.addWidget(widget,  {mode: "tab-before", ref: dock});
+        dock.addWidget(widget);
         // panel.activateWidget(widget);
         focusTracker.add(widget);
         resolve(widget);

@@ -30,8 +30,8 @@ function init() {
   let focusTracker;
 
   function createDock(title) {
-      var widget = new PhosphorWidgets.Panel();
-      widget.title.className = "dock hidden";
+      var widget = new PhosphorWidgets.DockPanel();
+      // widget.title.className = "dock hidden";
       return widget;
   }
 
@@ -65,10 +65,10 @@ function init() {
   window.widgetMap = new Map();
 
   panel.spacing = 10;
-  dock = createDock("Microdrop");
+  // dock = createDock("Microdrop");
 
   panel.id = 'main';
-  panel.addWidget(dock);
+  // dock.addWidget(panel);
 
   PhosphorWidgets.Widget.attach(panel, document.body);
 
@@ -77,12 +77,12 @@ function init() {
   const setup = async () => {
     for (const [pluginName,pluginClass] of microdropPlugins) {
       // const dock = docks[pluginClass.position()];
-      const widget = await pluginClass.Widget(panel, dock, focusTracker);
+      const widget = await pluginClass.Widget(panel, focusTracker, PhosphorWidgets);
       console.log({widget});
       widgetMap.set(widget.title.label, widget);
       if (widget.plugin) pluginInstances.push(widget.plugin);
     }
-    dock.dispose();
+    // dock.dispose();
 
     function restorePanels() {
       // Use first widget as anchor for latter added widgets
@@ -179,19 +179,23 @@ function init() {
 module.exports = () => {
   request('/web-plugin-paths', (er, response, body) => {
     const promises = [];
+    const head = document.getElementsByTagName('head')[0];
+
     for (const [i, path] of Object.entries(JSON.parse(body))) {
       const tag = yo`
         <script type="text/javascript" src="${path}"></script>
       `;
+      head.appendChild(tag);
       promises.push(new Promise((resolve, reject) => {
         tag.onload = () => {
           resolve('loaded')
         };
       }));
-      document.body.appendChild(tag);
+
     }
 
     Promise.all(promises).then((d) => {
+      console.log(promises);
       init();
     });
 
