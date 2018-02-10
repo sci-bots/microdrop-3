@@ -13,7 +13,7 @@ environment:
 
 init:
   - ECHO %PYTHON_VERSION%
-  - Install-Product node ''
+  - ps: Install-Product node ''
 
 install:
   # Run Tests
