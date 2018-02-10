@@ -13,16 +13,9 @@ environment:
 
 init:
   - ECHO %PYTHON_VERSION%
+  - Install-Product node ''
 
 install:
-  # Setup Conda (Must install in User directory for constructor to work)
-  - cmd: set PATH=%MINICONDA%\bin;%MINICONDA%;%MINICONDA%\Scripts;%PATH%
-  - cmd: conda config --add channels conda-forge
-  - cmd: conda config --add channels lucaszw
-  - cmd: conda config --add channels sci-bots
-  - cmd: conda update --yes --quiet conda
-  - cmd: conda install --yes nodejs=8 binstar
-
   # Run Tests
   - cmd: node --version
   - cmd: npm i --global yarn
