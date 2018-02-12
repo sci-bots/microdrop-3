@@ -1,28 +1,26 @@
 #!/usr/bin/env electron
 require('pkginfo')(module);
 const Microdrop = require('../index.js');
-const commander = require('commander');
 const electron = require('electron');
 
 // const PKG_NAME = module.exports.name;
 const env = module.exports.environment;
 
-commander
-  .version(module.exports.version)
-  .option('-r, --reset',     'Reset applcation data')
-  .option('--http-port <n>', `HTTP port (default ${env.HTTP_PORT})`, parseInt)
-  .option('--mqtt-ws-port <n>', `MQTT websocket port (default ${env.MQTT_WS_PORT})`, parseInt)
-  .option('--mqtt-tcp-port <n>', `MQTT TCP port (default ${env.MQTT_TCP_PORT})`, parseInt)
-  .parse(process.argv);
+const argv = require('yargs')
+  .default('http-port', env.HTTP_PORT)
+  .default('mqtt-ws-port', env.MQTT_WS_PORT)
+  .default('mqtt-tcp-port', env.MQTT_TCP_PORT)
+  .describe('reset', 'Reset MicroDrop data')
+  .argv;
 
 // Set defaults
 const ports = {
-  http_port:     commander.httpPort || env.HTTP_PORT,
-  mqtt_ws_port:  commander.mqtt_ws_port || env.MQTT_WS_PORT,
-  mqtt_tcp_port: commander.mqtt_tcp_port || env.MQTT_TCP_PORT
+  http_port:     argv.httpPort,
+  mqtt_ws_port:  argv.mqttWsPort,
+  mqtt_tcp_port: argv.mqttTcpPort
 };
 
-if (commander.reset == true) {
+if (argv.reset == true) {
   Microdrop.reset(electron, ports).then((d) => {
     process.exit();
     // electron.app.exit();
