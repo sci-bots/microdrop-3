@@ -2,11 +2,15 @@
 require('pkginfo')(module);
 const Microdrop = require('../index.js');
 const electron = require('electron');
+const isDev = require('electron-is-dev');
 
 // const PKG_NAME = module.exports.name;
 const env = module.exports.environment;
 
+if (!isDev) process.argv.unshift('');
+
 const argv = require('yargs')
+  .command('open <file>', 'open MicrodropFile')
   .default('http-port', env.HTTP_PORT)
   .default('mqtt-ws-port', env.MQTT_WS_PORT)
   .default('mqtt-tcp-port', env.MQTT_TCP_PORT)
@@ -27,5 +31,5 @@ if (argv.reset == true) {
   });
 } else {
   console.log({ports});
-  Microdrop(electron, ports);
+  Microdrop(electron, ports, argv.file);
 }

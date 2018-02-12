@@ -23,6 +23,7 @@
   "name": "microdrop-3",
   "main": "lerna.json",
   "dependencies": {
+    "electron-is-dev": "^0.3.0",
     "pkginfo": "^0.4.1"
   }
 }

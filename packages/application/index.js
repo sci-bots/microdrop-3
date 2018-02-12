@@ -1,8 +1,11 @@
 const url = require('url');
 const path = require('path');
 const {spawn} = require('child_process');
+const fs = require('fs');
 
+const mqtt = require('mqtt');
 const _ = require('lodash');
+
 const MicrodropModels = require('@microdrop/models');
 
 const sendPorts = (win, ports) => {
@@ -45,7 +48,7 @@ const reset = (electron, ports) => {
 
 }
 
-const init = (electron, ports, show=true, skipReady=false, debug=false) => {
+const init = (electron, ports, file=undefined, show=true, skipReady=false, debug=false) => {
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
 
@@ -74,7 +77,31 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
       MicrodropModels.initAsElectronProcesses(electron, ports);
 
       // Load main window
-      ipcMain.on('broker-ready', function(event, arg) {
+      ipcMain.on('broker-ready', (event, arg) => {
+
+        let filedata;
+
+        const address = `mqtt://localhost:${ports.mqtt_tcp_port}`;
+        const client  = mqtt.connect(address);
+
+        client.on('connect', () => {
+          client.subscribe('microdrop/state-saver-ui/connected');
+          client.on('message', ()=> {
+            if (file != undefined) {
+              fs.readFile(file, 'utf8', (err, data) => {
+                if (err) throw err;
+                const topic = 'microdrop/file-launcher/state/last-opened-file';
+                client.publish(topic, data, (err) => {
+                  if (err) throw err;
+                  client.end();
+                });
+              });
+            } else {
+              client.end();
+            }
+          });
+        });
+
         win = new BrowserWindow(_.extend(options, {show}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
