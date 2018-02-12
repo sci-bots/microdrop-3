@@ -1,59 +1,33 @@
 #!/usr/bin/env electron
 require('pkginfo')(module);
-
-const {ArgumentParser} = require('argparse');
 const Microdrop = require('../index.js');
+const commander = require('commander');
 const electron = require('electron');
 
+// const PKG_NAME = module.exports.name;
 const env = module.exports.environment;
 
-var parser = new ArgumentParser({
-  version: module.exports.version,
-  addHelp:true,
-  description: 'microdrop',
-  prog: process.argv[0]
-});
+commander
+  .version(module.exports.version)
+  .option('-r, --reset',     'Reset applcation data')
+  .option('--http-port <n>', `HTTP port (default ${env.HTTP_PORT})`, parseInt)
+  .option('--mqtt-ws-port <n>', `MQTT websocket port (default ${env.MQTT_WS_PORT})`, parseInt)
+  .option('--mqtt-tcp-port <n>', `MQTT TCP port (default ${env.MQTT_TCP_PORT})`, parseInt)
+  .parse(process.argv);
 
-let input;
+// Set defaults
+const ports = {
+  http_port:     commander.httpPort || env.HTTP_PORT,
+  mqtt_ws_port:  commander.mqtt_ws_port || env.MQTT_WS_PORT,
+  mqtt_tcp_port: commander.mqtt_tcp_port || env.MQTT_TCP_PORT
+};
 
-
-// Reset (clear application data)
-input = [ '-r', '--reset' ];
-parser.addArgument(input, {
-  help: 'Reset application data',
-  nargs: 0
-})
-
-// HTTP Port
-input = ['--http-port'];
-parser.addArgument(input, {
-  help: `HTTP port (default ${env.HTTP_PORT})`,
-  defaultValue: env.HTTP_PORT,
-  type: 'int'
-});
-
-// Websocket port
-input = ['--mqtt-ws-port'];
-parser.addArgument(input, {
-  help: `MQTT websocket port (default ${env.MQTT_WS_PORT})`,
-  defaultValue: env.MQTT_WS_PORT,
-  type: 'int'
-});
-
-// TCP Port
-input = ['--mqtt-tcp-port'];
-parser.addArgument(input, {
-  help: `MQTT TCP port (default ${env.MQTT_TCP_PORT})`,
-  defaultValue: env.MQTT_TCP_PORT,
-  type: 'int'
-});
-
-const args = parser.parseArgs();
-
-if (args.reset != null) {
-  Microdrop.reset(electron).then((d) => {
-    electron.app.exit();
+if (commander.reset == true) {
+  Microdrop.reset(electron, ports).then((d) => {
+    process.exit();
+    // electron.app.exit();
   });
 } else {
-  Microdrop(electron, args);
+  console.log({ports});
+  Microdrop(electron, ports);
 }

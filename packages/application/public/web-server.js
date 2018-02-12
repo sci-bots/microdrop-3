@@ -70,11 +70,22 @@ class WebServer extends MicropedeClient {
   }
   reset() {
     const db = this.broker.db_settings.db(this.broker.db_settings.path);
+
     db.open(() => {
-      const req = db.idb.clear();
-      ipcRenderer.send('reset-db-success');
+      console.log("reseting db");
+      db.idb.clear();
+      setTimeout(() => {
+        ipcRenderer.send('reset-db-success');
+      }, 2000);
     });
+
+    setTimeout(() => {
+      console.log("Timed out attempting reset");
+      ipcRenderer.send('reset-db-success');
+    }, 5000);
+
   }
+
   retrievePluginData() {
     return JSON.parse(this.storage.getItem("microdrop:plugins"));
   }

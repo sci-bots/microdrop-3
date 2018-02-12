@@ -5,8 +5,13 @@ const {spawn} = require('child_process');
 const _ = require('lodash');
 const MicrodropModels = require('@microdrop/models');
 
+const sendPorts = (win, ports) => {
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('ports', JSON.stringify(ports));
+  });
+}
 
-const reset = (electron) => {
+const reset = (electron, ports) => {
   /* Reset level-js / indexedDB data in Electron webserver */
   const {app, ipcMain, BrowserWindow} = electron;
 
@@ -25,15 +30,14 @@ const reset = (electron) => {
         protocol: 'file:',
         slashes: true
       }));
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('ports', JSON.stringify(ports));
-      });
-      
+      sendPorts(win, ports);
+
       // Reset indexedDB
       ipcMain.on('broker-ready', (event, arg) => {
         ipcMain.on('reset-db-success', () => {
           resolve('reset-complete');
         });
+        console.log("Sending reset event...");
         event.sender.send('reset-db');
       });
     });
@@ -56,12 +60,6 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
         show: false
       };
 
-      const sendPorts = (win) => {
-        win.webContents.on('did-finish-load', () => {
-          win.webContents.send('ports', JSON.stringify(ports));
-        });
-      }
-
       // Load webserver:
       win = new BrowserWindow(options);
       win.loadURL(url.format({
@@ -69,7 +67,7 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
         protocol: 'file:',
         slashes: true
       }));
-      sendPorts(win);
+      sendPorts(win, ports);
 
 
       // Load models
@@ -83,7 +81,7 @@ const init = (electron, ports, show=true, skipReady=false, debug=false) => {
           protocol: 'file:',
           slashes: true
         }));
-        sendPorts(win);
+        sendPorts(win, ports);
         win.on('closed', () => app.quit() );
 
         // Resolve init
