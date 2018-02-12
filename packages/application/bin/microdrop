@@ -1,22 +1,21 @@
 #!/usr/bin/env electron
 require('pkginfo')(module);
 
-const path = require('path');
-
 const {ArgumentParser} = require('argparse');
 const Microdrop = require('../index.js');
 const electron = require('electron');
 
-const PKG_NAME = module.exports.name;
 const env = module.exports.environment;
-console.log({env});
+
 var parser = new ArgumentParser({
   version: module.exports.version,
   addHelp:true,
-  description: 'microdrop'
+  description: 'microdrop',
+  prog: process.argv[0]
 });
 
 let input;
+
 
 // Reset (clear application data)
 input = [ '-r', '--reset' ];
@@ -50,7 +49,7 @@ parser.addArgument(input, {
 });
 
 const args = parser.parseArgs();
-console.log({args});
+
 if (args.reset != null) {
   Microdrop.reset(electron).then((d) => {
     electron.app.exit();
