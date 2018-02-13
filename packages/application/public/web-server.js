@@ -60,8 +60,8 @@ class WebServer extends MicropedeClient {
 
   listen() {
     // TODO: pass in electron optionally (incase we switch to node later)
-    ipcRenderer.send('broker-ready');
     ipcRenderer.on('reset-db', this.reset.bind(this));
+    ipcRenderer.send('broker-ready');
 
     this.findPlugins();
 
@@ -93,7 +93,7 @@ class WebServer extends MicropedeClient {
 
   reset() {
     this.storage.clear();
-    ipcRenderer.send('reset-db-success');
+    ipcRenderer.sendSync('reset-db-success');
   }
 
   retrievePluginData() {
@@ -121,9 +121,8 @@ class WebServer extends MicropedeClient {
     }
 
     // Add plugin, and write to plugins.json
-    const pluginData = this.retrievePluginData();
-
-    if (!(pluginDir in pluginData.webPlugins)) {
+    let pluginData = this.retrievePluginData() || localStorage.getItem('microdrop:plugins');
+    if (!(pluginDir in _.get(pluginData, 'webPlugins') )) {
       let state = "disabled";
 
       if (_.includes(env.defaultEnabled, `@microdrop/${pluginName}`) ||

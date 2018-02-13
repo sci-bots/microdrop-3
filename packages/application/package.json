@@ -33,6 +33,7 @@
     "mosca": "git+https://github.com/Lucaszw/mosca.git",
     "msgpack5": "^4.0.1",
     "pkginfo": "^0.4.1",
+    "request": "^2.83.0",
     "yargs": "^11.0.0",
     "yo-yo": "^1.4.1"
   },

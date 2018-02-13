@@ -82,7 +82,6 @@ const reset = (electron, ports) => {
         ipcMain.on('reset-db-success', () => {
           resolve('reset-complete');
         });
-        console.log("Sending reset event...");
         event.sender.send('reset-db');
       });
     });

@@ -7,7 +7,7 @@ const isDev = require('electron-is-dev');
 // const PKG_NAME = module.exports.name;
 const env = module.exports.environment;
 
-if (!isDev) process.argv.unshift('');
+if (!isDev) process.argv.splice(1, 0, '');
 
 const Ports = (argv) => {
  return {
@@ -35,6 +35,7 @@ const argv = require('yargs')
   })
   .command('reset', 'Reset MicroDrop data', async (yargs) => {
     await Microdrop.reset(electron, Ports(yargs.argv));
+    console.log("reset complete");
     process.exit();
   })
   .command('$0', 'the default command', () => {}, (argv) => {
