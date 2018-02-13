@@ -9,27 +9,30 @@ const env = module.exports.environment;
 
 if (!isDev) process.argv.unshift('');
 
+const Ports = (argv) => {
+ return {
+   http_port:     argv.httpPort,
+   mqtt_ws_port:  argv.mqttWsPort,
+   mqtt_tcp_port: argv.mqttTcpPort
+ };
+}
+
 const argv = require('yargs')
-  .command('open <file>', 'open MicrodropFile')
   .default('http-port', env.HTTP_PORT)
   .default('mqtt-ws-port', env.MQTT_WS_PORT)
   .default('mqtt-tcp-port', env.MQTT_TCP_PORT)
-  .describe('reset', 'Reset MicroDrop data')
-  .argv;
-
-// Set defaults
-const ports = {
-  http_port:     argv.httpPort,
-  mqtt_ws_port:  argv.mqttWsPort,
-  mqtt_tcp_port: argv.mqttTcpPort
-};
-
-if (argv.reset == true) {
-  Microdrop.reset(electron, ports).then((d) => {
+  .command('dump', 'dump state to file', async (yargs) => {
+    const ports = Ports(yargs.argv);
+    console.log(await Microdrop.dump(electron, ports));
     process.exit();
-    // electron.app.exit();
-  });
-} else {
-  console.log({ports});
-  Microdrop(electron, ports, argv.file);
-}
+  })
+  .command('start', 'start microdrop', async (yargs) => {
+    Microdrop(electron, Ports(yargs.argv), argv.file);
+  })
+  .command('reset', 'Reset MicroDrop data', async (yargs) => {
+    Microdrop.reset(electron, Ports(argv)).then((d) => {
+      process.exit();
+      // electron.app.exit();
+    });
+  })
+  .argv;

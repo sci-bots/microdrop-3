@@ -24,11 +24,13 @@
     "@micropede/broker": "0.0.25",
     "@micropede/client": "0.0.26",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
+    "d64": "^1.0.0",
     "electron-debug": "^1.5.0",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git",
+    "msgpack5": "^4.0.1",
     "pkginfo": "^0.4.1",
     "yargs": "^11.0.0",
     "yo-yo": "^1.4.1"

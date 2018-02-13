@@ -6,8 +6,10 @@ const {fork, spawn} = require('child_process');
 const {Console} = require('console');
 
 const _ = require('lodash');
+const d64 = require('d64');
 const express = require('express');
 const {ipcRenderer} = require('electron');
+const msgpack5 = require('msgpack5');
 const pkginfo = require('pkginfo')(module);
 
 const Broker = require('@micropede/broker/src/index.js');
@@ -19,6 +21,8 @@ const env = module.exports.environment;
 const version = module.exports.version;
 
 const console = new Console(process.stdout, process.stderr);
+
+const APPNAME = 'microdrop';
 
 class WebServer extends MicropedeClient {
   constructor(broker, ports, storage) {
@@ -38,6 +42,22 @@ class WebServer extends MicropedeClient {
     this.ports = ports;
   }
 
+  storageRaw() {
+    let items = _.pickBy(this.storage, (v,k)=>{
+      return _.includes(k, `${APPNAME}!!`)
+    });
+    return items;
+  }
+
+  storageClean() {
+    const items = this.storageRaw();
+    return _.mapValues(items, function (v) {
+      v = msgpack.decode(d64.decode(v.substring(5)));
+      if (v.payload) v.payload = JSON.parse(v.payload)
+      return v;
+    });
+  }
+
   listen() {
     // TODO: pass in electron optionally (incase we switch to node later)
     ipcRenderer.send('broker-ready');
@@ -51,6 +71,8 @@ class WebServer extends MicropedeClient {
     this.get('/mqtt-tcp-port', (_, res) => {res.send(`${this.ports.mqtt_tcp_port}`)});
     this.get('/mqtt-ws-port',  (_, res) => {res.send(`${this.ports.mqtt_ws_port}`)});
     this.get('/web-plugin-paths', (_, res) => {res.send(this.getPluginPaths())});
+    this.get('/storage-clean', (_, res) => {res.send(this.storageClean())});
+    this.get('/storage-raw', (_, res) => {res.send(this.storageRaw())});
 
     this.bindStateMsg("web-plugins", "set-web-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
@@ -68,22 +90,10 @@ class WebServer extends MicropedeClient {
       }
       FindUserDefinedPlugins(args, this.storage, this.onPluginFound.bind(this));
   }
+
   reset() {
-    const db = this.broker.db_settings.db(this.broker.db_settings.path);
-
-    db.open(() => {
-      console.log("reseting db");
-      db.idb.clear();
-      setTimeout(() => {
-        ipcRenderer.send('reset-db-success');
-      }, 2000);
-    });
-
-    setTimeout(() => {
-      console.log("Timed out attempting reset");
-      ipcRenderer.send('reset-db-success');
-    }, 5000);
-
+    this.storage.clear();
+    ipcRenderer.send('reset-db-success');
   }
 
   retrievePluginData() {

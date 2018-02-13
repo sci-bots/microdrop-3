@@ -3,6 +3,7 @@ const path = require('path');
 const {spawn} = require('child_process');
 const fs = require('fs');
 
+const request = require('request');
 const mqtt = require('mqtt');
 const _ = require('lodash');
 
@@ -11,6 +12,36 @@ const MicrodropModels = require('@microdrop/models');
 const sendPorts = (win, ports) => {
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ports', JSON.stringify(ports));
+  });
+}
+
+const dump = (electron, ports) => {
+  const {app, ipcMain, BrowserWindow} = electron;
+  return new Promise((resolve, reject) => {
+    electron.app.on('ready', () => {
+      const options = {
+        webPreferences: { webSecurity: false },
+        show: false
+      };
+
+      // Launch webserver process
+      let win;
+      win = new BrowserWindow(options);
+      win.loadURL(url.format({
+        pathname: path.resolve(__dirname, 'public/web-server.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
+      sendPorts(win, ports);
+
+      // Get
+      ipcMain.on('broker-ready', (event, arg) => {
+        const address = `http://localhost:${ports.http_port}/storage-raw`;
+        request(address, (error, response, body)  => {
+          resolve(body);
+        });
+      });
+    });
   });
 }
 
@@ -131,6 +162,7 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
 module.exports = init;
 module.exports.init = init;
 module.exports.reset = reset;
+module.exports.dump = dump;
 
 if (require.main === module) {
   const electron = require('electron');
