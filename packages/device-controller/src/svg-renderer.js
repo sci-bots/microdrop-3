@@ -9,8 +9,9 @@ const DEFAULT_TIMEOUT = 5000;
 const OFF_COLOR = "rgb(175, 175, 175)";
 const SVG_SAMPLE_LENGTH = 30;
 
-const ParseSVGFromString = (s) => {
-  const el = document.createElement('html');
+const ParseSVGFromString = (s, doc=undefined) => {
+  if (doc==undefined) doc = document;
+  const el = doc.createElement('html');
   el.innerHTML = s;
   return el.getElementsByTagName('svg')[0];
 }

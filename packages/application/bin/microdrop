@@ -26,13 +26,18 @@ const argv = require('yargs')
     console.log(await Microdrop.dump(electron, ports));
     process.exit();
   })
-  .command('start', 'start microdrop', async (yargs) => {
-    Microdrop(electron, Ports(yargs.argv), argv.file);
+  .command('launch <file>', 'launch microdrop', () => {}, async (argv) => {
+    Microdrop(electron, Ports(argv), argv.file);
+  })
+  .command('load-device <file>', 'load device file', () => {}, async (argv) => {
+    await Microdrop.loadSvg(electron, Ports(argv), argv.file);
+    process.exit();
   })
   .command('reset', 'Reset MicroDrop data', async (yargs) => {
-    Microdrop.reset(electron, Ports(argv)).then((d) => {
-      process.exit();
-      // electron.app.exit();
-    });
+    await Microdrop.reset(electron, Ports(yargs.argv));
+    process.exit();
+  })
+  .command('$0', 'the default command', () => {}, (argv) => {
+    Microdrop(electron, Ports(argv));
   })
   .argv;

@@ -17,11 +17,12 @@
     "electron-mocha": "^5.0.0"
   },
   "dependencies": {
+    "@microdrop/device-controller": "^1.1.40",
     "@microdrop/device-ui-plugin": "^1.1.40",
     "@microdrop/models": "^1.1.40",
     "@microdrop/state-saver": "^1.1.40",
     "@microdrop/ui": "^1.1.40",
-    "@micropede/broker": "0.0.25",
+    "@micropede/broker": "0.0.27",
     "@micropede/client": "0.0.26",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "d64": "^1.0.0",

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Microdrop: Read SVG </title>
+  </head>
+  <body>
+    <!-- Renderer process for handling SVG extraction using twojs (for electron) -->
+    <script>
+      const {ipcRenderer, BrowserWindow} = require('electron');
+      const {
+        ParseSVGFromString,
+        ConstructObjectsFromSVG
+      } = require('@microdrop/device-controller/src/svg-renderer');
+
+      ipcRenderer.send('svg-reader-ready');
+
+      console.log("waiting for filecontent...");
+      ipcRenderer.on('file-content', (e, data) => {
+        console.log("RECEIVED DATA");
+        const svg = ParseSVGFromString(data);
+        const objects = ConstructObjectsFromSVG(svg);
+        ipcRenderer.send('three-object', JSON.stringify(objects));
+      });
+
+    </script>
+  </body>
+</html>

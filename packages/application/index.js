@@ -8,11 +8,30 @@ const mqtt = require('mqtt');
 const _ = require('lodash');
 
 const MicrodropModels = require('@microdrop/models');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const sendPorts = (win, ports) => {
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ports', JSON.stringify(ports));
   });
+}
+
+const createClient = (port) => {
+  return new Promise((resolve, reject) => {
+    const address = `mqtt://localhost:${port}`;
+    const client  = mqtt.connect(address);
+    client.on('connect', () => {
+      resolve(client);
+    });
+  });
+}
+
+const launchWebserver = (win) => {
+  win.loadURL(url.format({
+    pathname: path.resolve(__dirname, 'public/web-server.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
 }
 
 const dump = (electron, ports) => {
@@ -27,11 +46,7 @@ const dump = (electron, ports) => {
       // Launch webserver process
       let win;
       win = new BrowserWindow(options);
-      win.loadURL(url.format({
-        pathname: path.resolve(__dirname, 'public/web-server.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
+      launchWebserver(win);
       sendPorts(win, ports);
 
       // Get
@@ -59,11 +74,7 @@ const reset = (electron, ports) => {
       // Launch webserver process
       let win;
       win = new BrowserWindow(options);
-      win.loadURL(url.format({
-        pathname: path.resolve(__dirname, 'public/web-server.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
+      launchWebserver(win);
       sendPorts(win, ports);
 
       // Reset indexedDB
@@ -78,6 +89,43 @@ const reset = (electron, ports) => {
   });
 
 }
+
+const loadSvg = (electron, ports, file=undefined) => {
+  const {ipcMain, BrowserWindow} = electron;
+  const port = ports.mqtt_tcp_port;
+
+  const options = {
+    webPreferences: {
+      webSecurity: false
+    },
+    show: false
+  };
+
+  return new Promise((resolve, reject) => {
+    fs.readFile(path.resolve(file), 'utf8', (err, content) => {
+      if (err) throw err;
+      const win = new BrowserWindow(options);
+
+      win.loadURL(url.format({
+        pathname: path.resolve(__dirname, 'public/read-svg.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
+
+      ipcMain.on('svg-reader-ready', (event, arg) => {
+        win.webContents.send('file-content', content);
+      });
+
+      ipcMain.on('three-object', async (event, data) => {
+        const micropede = new MicropedeAsync('microdrop', undefined, port);
+        await micropede.putPlugin('device-model', 'three-object', JSON.parse(data));
+        resolve('complete');
+      });
+    });
+  });
+}
+
+
 
 const init = (electron, ports, file=undefined, show=true, skipReady=false, debug=false) => {
   return new Promise((resolve, reject) => {
@@ -96,13 +144,8 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
 
       // Load webserver:
       win = new BrowserWindow(options);
-      win.loadURL(url.format({
-        pathname: path.resolve(__dirname, 'public/web-server.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
+      launchWebserver(win);
       sendPorts(win, ports);
-
 
       // Load models
       MicrodropModels.initAsElectronProcesses(electron, ports);
@@ -113,9 +156,7 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
         let filedata;
 
         const address = `mqtt://localhost:${ports.mqtt_tcp_port}`;
-        const client  = mqtt.connect(address);
-
-        client.on('connect', () => {
+        createClient(ports.mqtt_tcp_port).then((client) => {
           client.subscribe('microdrop/state-saver-ui/connected');
           client.on('message', ()=> {
             if (file != undefined) {
@@ -132,7 +173,6 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
             }
           });
         });
-
         win = new BrowserWindow(_.extend(options, {show}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
@@ -163,6 +203,7 @@ module.exports = init;
 module.exports.init = init;
 module.exports.reset = reset;
 module.exports.dump = dump;
+module.exports.loadSvg = loadSvg;
 
 if (require.main === module) {
   const electron = require('electron');

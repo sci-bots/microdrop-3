@@ -2,17 +2,6 @@
 # yarn lockfile v1
 
 
-"@micropede/broker@0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@micropede/broker/-/broker-0.0.25.tgz#fa3ce6c46128d8086f2313704dc9fabf01f4a87b"
-  dependencies:
-    backbone "^1.3.3"
-    eventemitter2 "^5.0.1"
-    level-js "^2.2.4"
-    lodash "^4.17.4"
-    mosca "git+https://github.com/Lucaszw/mosca.git"
-    mqtt "^2.15.1"
-
 "@types/node@^8.0.24":
   version "8.5.10"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.10.tgz#49bd3637125dea5f55d7d1e8f51efd6cb835e1f7"
@@ -23,7 +12,7 @@ abstract-leveldown@^2.0.3:
   dependencies:
     xtend "~4.0.0"
 
-abstract-leveldown@~0.12.0, abstract-leveldown@~0.12.1:
+abstract-leveldown@~0.12.1:
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/abstract-leveldown/-/abstract-leveldown-0.12.4.tgz#29e18e632e60e4e221d5810247852a63d7b2e410"
   dependencies:
@@ -102,10 +91,6 @@ async-cache@~1.1.0:
   dependencies:
     lru-cache "^4.0.0"
 
-async-limiter@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
-
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -117,12 +102,6 @@ aws-sign2@~0.7.0:
 aws4@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.6.0.tgz#83ef5ca860b2b32e4a0deedee8c771b9db57471e"
-
-backbone@^1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.3.3.tgz#4cc80ea7cb1631ac474889ce40f2f8bc683b2999"
-  dependencies:
-    underscore ">=1.8.3"
 
 balanced-match@^1.0.0:
   version "1.0.0"
@@ -319,7 +298,7 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-concat-stream@1.6.0, concat-stream@^1.4.7, concat-stream@^1.6.0, concat-stream@~1.6.0:
+concat-stream@1.6.0, concat-stream@^1.4.7, concat-stream@~1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.0.tgz#0aac662fd52be78964d5532f694784e70110acf7"
   dependencies:
@@ -454,7 +433,7 @@ duplexer2@~0.1.4:
   dependencies:
     readable-stream "^2.0.2"
 
-duplexify@^3.2.0, duplexify@^3.5.1, duplexify@^3.5.3:
+duplexify@^3.2.0, duplexify@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/duplexify/-/duplexify-3.5.3.tgz#8b5818800df92fd0125b27ab896491912858243e"
   dependencies:
@@ -595,10 +574,6 @@ esutils@^2.0.2:
 etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
-
-eventemitter2@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-5.0.1.tgz#6197a095d5fb6b57e8942f6fd7eaad63a09c9452"
 
 execa@^0.7.0:
   version "0.7.0"
@@ -938,7 +913,7 @@ he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
-help-me@^1.0.0, help-me@^1.0.1:
+help-me@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/help-me/-/help-me-1.1.0.tgz#8f2d508d0600b4a456da2f086556e7e5c056a3c6"
   dependencies:
@@ -989,10 +964,6 @@ hyperx@^2.3.0:
 iconv-lite@0.4.19:
   version "0.4.19"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.19.tgz#f7468f60135f5e5dad3399c0a81be9a1603a082b"
-
-idb-wrapper@^1.5.0:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/idb-wrapper/-/idb-wrapper-1.7.2.tgz#8251afd5e77fe95568b1c16152eb44b396767ea2"
 
 indent-string@^2.1.0:
   version "2.1.0"
@@ -1110,10 +1081,6 @@ isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
 
-isbuffer@~0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/isbuffer/-/isbuffer-0.0.0.tgz#38c146d9df528b8bf9b0701c3d43cf12df3fc39b"
-
 isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
@@ -1221,17 +1188,6 @@ level-iterator-stream@~1.3.0:
     level-errors "^1.0.3"
     readable-stream "^1.0.33"
     xtend "^4.0.0"
-
-level-js@^2.2.4:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/level-js/-/level-js-2.2.4.tgz#bc055f4180635d4489b561c9486fa370e8c11697"
-  dependencies:
-    abstract-leveldown "~0.12.0"
-    idb-wrapper "^1.5.0"
-    isbuffer "~0.0.0"
-    ltgt "^2.1.2"
-    typedarray-to-buffer "~1.0.0"
-    xtend "~2.1.2"
 
 level-post@~1.0.3:
   version "1.0.5"
@@ -1515,15 +1471,6 @@ mqtt-packet@^3.0.0, mqtt-packet@^3.4.7:
     bl "^0.9.1"
     inherits "^2.0.1"
 
-mqtt-packet@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/mqtt-packet/-/mqtt-packet-5.4.0.tgz#387104c06aa68fbb9f8159d0c722dd5c3e45df22"
-  dependencies:
-    bl "^1.2.1"
-    inherits "^2.0.3"
-    process-nextick-args "^1.0.7"
-    safe-buffer "^5.1.0"
-
 mqtt@^1.6.3:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-1.14.1.tgz#7e376987153d01793e946d26d46122ebf0c03554"
@@ -1542,24 +1489,6 @@ mqtt@^1.6.3:
     split2 "^2.0.1"
     websocket-stream "^3.0.1"
     xtend "^4.0.0"
-
-mqtt@^2.15.1:
-  version "2.15.2"
-  resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-2.15.2.tgz#300290945646a4a6f3160b375460a17ade703583"
-  dependencies:
-    commist "^1.0.0"
-    concat-stream "^1.6.0"
-    end-of-stream "^1.1.0"
-    help-me "^1.0.1"
-    inherits "^2.0.3"
-    minimist "^1.2.0"
-    mqtt-packet "^5.4.0"
-    pump "^2.0.0"
-    readable-stream "^2.3.3"
-    reinterval "^1.1.0"
-    split2 "^2.1.1"
-    websocket-stream "^5.0.1"
-    xtend "^4.0.1"
 
 ms@2.0.0:
   version "2.0.0"
@@ -1827,7 +1756,7 @@ pretty-bytes@^1.0.2:
     get-stdin "^4.0.1"
     meow "^3.1.0"
 
-process-nextick-args@^1.0.7, process-nextick-args@~1.0.6:
+process-nextick-args@~1.0.6:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
 
@@ -2027,7 +1956,7 @@ reduplexer@^1.1.0:
     inherits "^2.0.1"
     readable-stream "~1.0.26-2"
 
-reinterval@^1.0.1, reinterval@^1.1.0:
+reinterval@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/reinterval/-/reinterval-1.1.0.tgz#3361ecfa3ca6c18283380dd0bb9546f390f5ece7"
 
@@ -2096,7 +2025,7 @@ rimraf@^2.2.8:
   dependencies:
     glob "^7.0.5"
 
-safe-buffer@5.1.1, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
+safe-buffer@5.1.1, safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
 
@@ -2203,7 +2132,7 @@ speedometer@~0.1.2:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/speedometer/-/speedometer-0.1.4.tgz#9876dbd2a169d3115402d48e6ea6329c8816a50d"
 
-split2@^2.0.1, split2@^2.1.1:
+split2@^2.0.1:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/split2/-/split2-2.2.0.tgz#186b2575bcf83e85b7d18465756238ee4ee42493"
   dependencies:
@@ -2436,10 +2365,6 @@ type-is@~1.6.15:
     media-typer "0.3.0"
     mime-types "~2.1.15"
 
-typedarray-to-buffer@~1.0.0:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-1.0.4.tgz#9bb8ba0e841fb3f4cf1fe7c245e9f3fa8a5fe99c"
-
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
@@ -2462,17 +2387,9 @@ ultron@1.0.x:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.0.2.tgz#ace116ab557cd197386a4e88f4685378c8b2e4fa"
 
-ultron@~1.1.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.1.1.tgz#9fe1536a10a664a65266a1e3ccf85fd36302bc9c"
-
 unc-path-regex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
-
-underscore@>=1.8.3:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
 
 unique-stream@^2.0.2:
   version "2.2.1"
@@ -2534,17 +2451,6 @@ websocket-stream@^3.0.1:
     ws "^1.0.1"
     xtend "^4.0.0"
 
-websocket-stream@^5.0.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/websocket-stream/-/websocket-stream-5.1.1.tgz#68d23916cdf53689cff73e213fa2178dbcea6169"
-  dependencies:
-    duplexify "^3.5.1"
-    inherits "^2.0.1"
-    readable-stream "^2.3.3"
-    safe-buffer "^5.1.1"
-    ws "^3.2.0"
-    xtend "^4.0.0"
-
 websocket-stream@~3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/websocket-stream/-/websocket-stream-3.1.0.tgz#c6d9d13230b77e474c4b6736c295bba77cdd7f87"
@@ -2587,19 +2493,11 @@ ws@^1.0.1:
     options ">=0.0.5"
     ultron "1.0.x"
 
-ws@^3.2.0:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.3.tgz#f1cf84fe2d5e901ebce94efaece785f187a228f2"
-  dependencies:
-    async-limiter "~1.0.0"
-    safe-buffer "~5.1.0"
-    ultron "~1.1.0"
-
 "xtend@>=4.0.0 <4.1.0-0", xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
 
-xtend@~2.1.1, xtend@~2.1.2:
+xtend@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-2.1.2.tgz#6efecc2a4dad8e6962c4901b337ce7ba87b5d28b"
   dependencies:

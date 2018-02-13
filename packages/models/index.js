@@ -9,7 +9,7 @@ const options = {
 };
 
 function initAsElectronProcesses(electron, ports) {
-  const {BrowserWindow, ipcMain} = electron;
+  const {BrowserWindow} = electron;
 
   const sendPorts = (win) => {
     win.webContents.on('did-finish-load', () => {
