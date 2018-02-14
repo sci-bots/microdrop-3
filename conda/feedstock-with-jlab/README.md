@@ -1,5 +1,5 @@
 # @microdrop/feedstock
-Conda Recipe for Microdrop
+Conda Recipe for MicroDrop
 
 ```bash
 npm i --global gulp 

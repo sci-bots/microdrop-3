@@ -5,7 +5,7 @@ require('font-awesome/css/font-awesome.css');
 
 var _ = require('lodash');
 var $ = require('jquery');
-var MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+var MicroDropAsync = require('@microdrop/async/MicroDropAsync');
 var Mustache = require('mustache');
 var {Widget, Panel, FocusTracker} = require('@phosphor/widgets');
 var {ILayoutRestorer} = require('@jupyterlab/application');
@@ -17,11 +17,11 @@ var StateListener = require('./StateListener');
 
 const MIME_TYPE = 'text/plain';
 const MIME_TYPES = ['text/plain', 'text/microdrop+json', 'text/microdrop'];
-const NAME = 'Microdrop';
+const NAME = 'MicroDrop';
 
 const DIRTY_CLASS = 'jp-mod-dirty';
 
-class UIPluginLauncher extends MicrodropAsync.MqttClient {
+class UIPluginLauncher extends MicroDropAsync.MqttClient {
   constructor(panel) {
     super("UIPluginLauncher");
     this.panel = panel;

@@ -1,3 +1,3 @@
 # @microdrop/application
 
-Top Level Application for Microdrop
+Top Level Application for MicroDrop

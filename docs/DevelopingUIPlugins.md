@@ -25,7 +25,7 @@ Currently, plugins cannot access their own external libraries. However, the foll
 
 Your plugin class must include a static method called position() which returns either:
 
-topLeft, topRight, bottomLeft, or bottomRight. This will determine where the plugin will be anchored on Microdrops UI.
+topLeft, topRight, bottomLeft, or bottomRight. This will determine where the plugin will be anchored on MicroDrops UI.
 ```javascript
   static position() {
     /* topLeft, topRight, bottomLeft, or bottomRight */
@@ -94,7 +94,7 @@ If you are inheriting from MQTTClient or UI Plugin then these topics are wrapped
 
 ## Message Payload
 
-All default Microdrop Plugins are JSON Objects with a "_ _ head _ _" key that contains the plugin name, plugin version, and (TODO: microdrop version). This is to ensure compatibility of plugins across plugin and microdrop versions.
+All default MicroDrop Plugins are JSON Objects with a "_ _ head _ _" key that contains the plugin name, plugin version, and (TODO: microdrop version). This is to ensure compatibility of plugins across plugin and microdrop versions.
 
 ```javascript
   DefaultHeader() {

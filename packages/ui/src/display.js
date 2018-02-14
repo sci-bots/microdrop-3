@@ -65,7 +65,7 @@ function init() {
   window.widgetMap = new Map();
 
   panel.spacing = 10;
-  // dock = createDock("Microdrop");
+  // dock = createDock("MicroDrop");
 
   panel.id = 'main';
   // dock.addWidget(panel);

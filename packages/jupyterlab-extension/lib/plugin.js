@@ -5,7 +5,7 @@ require('font-awesome/css/font-awesome.css');
 
 var _ = require('lodash');
 var $ = require('jquery');
-var MicrodropAsync = require('@microdrop/async/MicrodropAsync');
+var MicroDropAsync = require('@microdrop/async/MicroDropAsync');
 var Mustache = require('mustache');
 var {Widget, Panel, FocusTracker} = require('@phosphor/widgets');
 var {ILayoutRestorer} = require('@jupyterlab/application');
@@ -18,7 +18,7 @@ var UIPluginLauncher = require('./UIPluginLauncher.js');
 
 const MIME_TYPE = 'text/microdrop';
 const MIME_TYPES = ['text/microdrop', 'text/microdrop+json'];
-const NAME = 'Microdrop';
+const NAME = 'MicroDrop';
 
 const DIRTY_CLASS = 'jp-mod-dirty';
 
@@ -191,7 +191,7 @@ exports.default = [{
 
     launcher.add({
       displayName: "UI Plugin Launcher",
-      category: "Microdrop",
+      category: "MicroDrop",
       rank: 0,
       callback: callback
     });

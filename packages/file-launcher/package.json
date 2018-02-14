@@ -8,7 +8,7 @@
     "build": "exit 0"
   },
   "keywords": [
-    "Microdrop",
+    "MicroDrop",
     "File",
     "Launcher"
   ],
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.sci-bots.microdrop-launcher",
-    "productName": "Microdrop Launcher",
+    "productName": "MicroDrop Launcher",
     "copyright": "Copyright © 2018 Sci-Bots",
     "nsis": {
       "oneClick": true,

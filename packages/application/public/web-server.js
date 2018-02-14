@@ -14,7 +14,7 @@ const pkginfo = require('pkginfo')(module);
 
 const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
-const MicrodropUI = require('@microdrop/ui/index.js');
+const MicroDropUI = require('@microdrop/ui/index.js');
 const FindUserDefinedPlugins = require('../utils/find-microdrop-plugins.js');
 
 const env = module.exports.environment;
@@ -33,7 +33,7 @@ class WebServer extends MicropedeClient {
 
     super('microdrop', env.host, ports.mqtt_tcp_port, undefined, version);
     Object.assign(this, this.ExpressServer());
-    this.use(express.static(MicrodropUI.GetUIPath(), {extensions:['html']}));
+    this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
 
     this.storage = storage;

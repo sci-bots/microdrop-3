@@ -1,7 +1,7 @@
 {
   "name": "@microdrop/feedstock-with-jlab",
   "version": "0.0.4",
-  "description": "Conda Recipe for Microdrop",
+  "description": "Conda Recipe for MicroDrop",
   "main": "gulpfile.js",
   "scripts": {
     "install-pkgs": "npm install"
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Lucaszw/microdrop-feedstock.git"
   },
   "keywords": [
-    "Microdrop",
+    "MicroDrop",
     "Jupyterlab",
     "Feedstock"
   ],

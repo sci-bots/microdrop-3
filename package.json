@@ -1,5 +1,5 @@
 {
-  "description": "Microdrop with MQTT support and Web UI",
+  "description": "MicroDrop with MQTT support and Web UI",
   "scripts": {
     "start": "electron ./packages/application",
     "bootstrap": "cd Micropede && lerna bootstrap && cd .. && lerna bootstrap",
@@ -11,7 +11,7 @@
   },
   "repository": "git+https://github.com/Lucaszw/microdrop-3.git",
   "keywords": [
-    "Microdrop",
+    "MicroDrop",
     "Web UI"
   ],
   "author": "Sci-Bots",

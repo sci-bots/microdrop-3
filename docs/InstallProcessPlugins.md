@@ -54,7 +54,7 @@ conda install --channel https://conda.anaconda.org/lucaszw microdrop.droplet-pla
 ```
 
 
-## Registering Plugin with Microdrop ##
+## Registering Plugin with MicroDrop ##
 
 Plugins can be registered by launching the plugin separately while microdrop is running, or by adding the plugin path through the plugin manager ui found at http://localhost:PORT/plugin-manager. The process is outlined for installing droplet-planning-plugin as an example.
 

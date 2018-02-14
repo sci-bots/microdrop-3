@@ -25,7 +25,7 @@ def camelToSnake(s):
 
 class MqttClient(MqttMessages):
     """
-       Example MqttClient for Application Frameworks (such as Microdrop)
+       Example MqttClient for Application Frameworks (such as MicroDrop)
        Used with the following broker:
        https://github.com/sci-bots/microdrop-3.0/blob/master/MoscaServer.js
     """

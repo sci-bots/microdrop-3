@@ -1,12 +1,12 @@
-# Microdrop JupyterLab Extension
+# MicroDrop JupyterLab Extension
 
-A JupyterLab extension to interface with Microdrop 3.0
+A JupyterLab extension to interface with MicroDrop 3.0
 
 
 ## Prerequisites
 
 * JupyterLab
-* Microdrop 3
+* MicroDrop 3
 
 
 ## Development

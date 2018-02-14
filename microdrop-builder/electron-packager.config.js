@@ -4,8 +4,8 @@ const options = {
   derefSymlinks: true,
   overwrite: true,
   packageManager: false,
-  name: 'Microdrop',
-  asar: true,
+  name: 'MicroDrop',
+  asar: false,
   out: `${__dirname}/packager`
 };
 

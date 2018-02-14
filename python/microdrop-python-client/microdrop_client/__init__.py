@@ -1,4 +1,4 @@
-""" Library for controlling Microdrop """
+""" Library for controlling MicroDrop """
 
 __version__ = '0.0.1'
 
@@ -33,8 +33,8 @@ class MyMqttClient(MqttClient):
         return self._name
 
 
-class Microdrop:
-    """ Library for controlling Microdrop """
+class MicroDrop:
+    """ Library for controlling MicroDrop """
     def __init__(self):
         self.mqttclient = MyMqttClient()
         self.loop = asyncio.get_event_loop()
@@ -77,7 +77,7 @@ class Microdrop:
 
     async def get_state(self, sender, prop, timeout=DEFAULT_TIMEOUT):
         """ Get state of microdrop property """
-        LABEL = '<MicrodropPython::get_state>'
+        LABEL = '<MicroDropPython::get_state>'
         topic = f'microdrop/{sender}/state/{prop}'
 
         try:
@@ -97,7 +97,7 @@ class Microdrop:
             raise self.dump_stack([LABEL, topic], err)
 
     async def get_subscriptions(self, receiver, timeout=DEFAULT_TIMEOUT):
-        LABEL = f'<MicrodropPython::get_subscriptions::{receiver}>'
+        LABEL = f'<MicroDropPython::get_subscriptions::{receiver}>'
         try:
             payload = await self.trigger_plugin(receiver, 'get-subscriptions',
                                                 {}, timeout)
@@ -106,7 +106,7 @@ class Microdrop:
             raise self.dump_stack(LABEL, err)
 
     async def put_plugin(self, receiver, prop, val, timeout=DEFAULT_TIMEOUT):
-        LABEL = f'<MicrodropPython::put_plugin::{receiver}>'
+        LABEL = f'<MicroDropPython::put_plugin::{receiver}>'
         try:
             if not isinstance(val, dict):
                 msg = {}
@@ -119,7 +119,7 @@ class Microdrop:
 
     async def trigger_plugin(self, receiver, action, val={},
                              timeout=DEFAULT_TIMEOUT):
-        LABEL = f'<MicrodropPython::trigger_plugin::{receiver}::{action}>'
+        LABEL = f'<MicroDropPython::trigger_plugin::{receiver}::{action}>'
         try:
             await self.reset_client()
             result = await self.call_action(receiver, action, val, 'trigger',
@@ -130,7 +130,7 @@ class Microdrop:
 
     async def call_action(self, receiver, action, val, msg_type='trigger',
                           timeout=DEFAULT_TIMEOUT):
-        LABEL = '<MicrodropPython::call_action>'
+        LABEL = '<MicroDropPython::call_action>'
         no_timeout = False
         if (timeout == -1):
             timeout = DEFAULT_TIMEOUT

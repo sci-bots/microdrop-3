@@ -8,7 +8,7 @@
     "build": "./node_modules/.bin/webpack"
   },
   "keywords": [
-    "Microdrop",
+    "MicroDrop",
     "Save",
     "State",
     "Plugin"

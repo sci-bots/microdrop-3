@@ -10,7 +10,7 @@ var {Console} = require('console');
 var console = new Console(process.stdout, process.stderr);
 
 var MicropedeAsync = require('@micropede/client/src/async.js');
-var Microdrop = require('./index.js');
+var MicroDrop = require('./index.js');
 
 const DEFAULT_DEVICE_JSON = './public/resources/default.json';
 const DEFAULT_DEVICE_LENGTH = 92;
@@ -27,11 +27,11 @@ const asyncTimer = (time) => {
 }
 let microdrop;
 
-describe('Microdrop', async function() {
+describe('MicroDrop', async function() {
   this.timeout(10000);
 
   before(async () => {
-    await Microdrop(electron, PORTS, undefined, false, true);
+    await MicroDrop(electron, PORTS, undefined, false, true);
     microdrop = new MicropedeAsync('microdrop', 'localhost', 1884);
 
     await new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ describe('Microdrop', async function() {
       });
 
       asyncTimer(10000).then((d) => {
-        reject('Microdrop.before timed out');
+        reject('MicroDrop.before timed out');
       });
     });
 

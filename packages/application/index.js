@@ -7,7 +7,7 @@ const request = require('request');
 const mqtt = require('mqtt');
 const _ = require('lodash');
 
-const MicrodropModels = require('@microdrop/models');
+const MicroDropModels = require('@microdrop/models');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const sendPorts = (win, ports) => {
@@ -147,7 +147,7 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
       sendPorts(win, ports);
 
       // Load models
-      MicrodropModels.initAsElectronProcesses(electron, ports);
+      MicroDropModels.initAsElectronProcesses(electron, ports);
 
       // Load main window
       ipcMain.on('broker-ready', (event, arg) => {

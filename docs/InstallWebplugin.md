@@ -12,7 +12,7 @@ Since UI plugins have no dependencies, they can be achieved by any means, includ
 
 ## Installing UI Plugins
 
-First, ensure that Microdrop is running on your computer:
+First, ensure that MicroDrop is running on your computer:
 
 ```sh
 >> microdrop-3.cmd
