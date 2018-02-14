@@ -71,7 +71,7 @@ class DeviceUIPlugin extends UIPlugin {
 
     this.controls = await DeviceController.createScene(
       this.sceneContainer, payload, this.port);
-    this.gui = CreateDatGUI(this.sceneContainer, this.controls);
+    this.gui = await CreateDatGUI(this.element, this.controls);
   }
 
   changeDevice() {
@@ -148,42 +148,78 @@ class DeviceUIPlugin extends UIPlugin {
     const selector = $(`#${id}`);
 
     // Create a custom "drag threshold event for context menu"
-    element.onmousedown = async (e) => {
-      if (e.button != 2) return;
-      const x1 = e.clientX;
-      const y1 = e.clientY;
-      e = await new Promise((resolve, reject) => {
-        element.onmouseup = (e) => {resolve(e)}
-      });
-
-      const x2 = e.clientX;
-      const y2 = e.clientY;
-
-      const dx = x2-x1;
-      const dy = y2-y1;
-
-      let shouldFire = false;
-
-      const c = Math.sqrt(dx*dx + dy*dy);
-
-      if (isNaN(c)) { selector.contextMenu(); }
-      if (c <= 10)  { selector.contextMenu({x: x2, y: y2}); }
-
-    };
-
-    return menu;
+    // element.onmousedown = async (e) => {
+    //   if (e.button == 2) {
+    //     const x1 = e.clientX;
+    //     const y1 = e.clientY;
+    //     e = await new Promise((resolve, reject) => {
+    //       element.onmouseup = (e) => {resolve(e)}
+    //     });
+    //
+    //     const x2 = e.clientX;
+    //     const y2 = e.clientY;
+    //
+    //     const dx = x2-x1;
+    //     const dy = y2-y1;
+    //
+    //     let shouldFire = false;
+    //
+    //     const c = Math.sqrt(dx*dx + dy*dy);
+    //
+    //     if (isNaN(c)) { selector.contextMenu(); }
+    //     if (c <= 10)  { selector.contextMenu({x: x2, y: y2}); }
+    //   };
+    // }
   }
 
-  static CreateDatGUI(container=null, menu={}) {
+  static async CreateDatGUI(container=null, menu={}) {
+
+    let mediaDevices = await navigator.mediaDevices.enumerateDevices();
+    mediaDevices = _.filter(mediaDevices, {kind: 'videoinput'});
+    const defaultOption = {'Choose Device': -1};
+    const keys = _.map(mediaDevices, (v, i) => {return i + ' ' + v.label });
+    const deviceOptions = _.zipObject(keys, _.map(mediaDevices, 'deviceId'));
+
+    let devices = {
+      _device: -1,
+      get device() {return this._device;},
+      set device(_device) {
+        navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
+          mediaDevices = _.filter(mediaDevices, {kind: 'videoinput'});
+
+          const info = _.filter(mediaDevices, {deviceId: _device})[0];
+          window.URL = (window.URL || window.webkitURL || window.mozURL ||
+                        window.msURL);
+          var constraints = {
+            video: {deviceId: info.deviceId ? {exact: info.deviceId} : undefined}
+          };
+          navigator.mediaDevices.getUserMedia(constraints)
+          .then(function(stream) {
+            const plane = menu.videoControls.plane;
+            plane.video.src = URL.createObjectURL(stream);
+            if (!plane.videoTexture) plane.initVideo();
+          });
+          this._device = _device;
+        });
+      }
+    };
+
     if (!container) container = document.body;
     const gui = new Dat.GUI({autoPlace: false});
     gui.add(menu.cameraControls, 'enableRotate');
     gui.add(menu.videoControls, "display_anchors");
     gui.add(menu.electrodeControls, "showElectrodeIds");
+    gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
     gui.domElement.style.right = "0px";
     container.appendChild(gui.domElement);
+
+    // Fix dat.gui ui (as select menus are broken for some reason)
+    gui.domElement.style.overflow = 'visible';
+    gui.domElement.onclick = (e) => {e.stopPropagation()};
+
+    return gui;
   }
 }
 
