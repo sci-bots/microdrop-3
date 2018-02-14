@@ -207,7 +207,7 @@ class DeviceUIPlugin extends UIPlugin {
     if (!container) container = document.body;
     const gui = new Dat.GUI({autoPlace: false});
     gui.add(menu.cameraControls, 'enableRotate');
-    gui.add(menu.videoControls, "display_anchors");
+    const anchorState = gui.add(menu.videoControls, "display_anchors");
     gui.add(menu.electrodeControls, "showElectrodeIds");
     gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
     gui.domElement.style.position = "absolute";
@@ -218,6 +218,11 @@ class DeviceUIPlugin extends UIPlugin {
     // Fix dat.gui ui (as select menus are broken for some reason)
     gui.domElement.style.overflow = 'visible';
     gui.domElement.onclick = (e) => {e.stopPropagation()};
+
+    anchorState.onChange((state) => {
+      if (state == true)  menu.electrodeControls.enabled = false;
+      if (state == false) menu.electrodeControls.enabled = true;
+    });
 
     return gui;
   }

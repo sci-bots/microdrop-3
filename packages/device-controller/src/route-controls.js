@@ -181,6 +181,7 @@ class RouteControls extends MicropedeClient {
     colorSelectedRoutes("rgb(99, 246, 255)");
   }
   async drawRoute(e) {
+    if (this.electrodeControls.enabled == false) return;
     if (e.origDomEvent.button == 2) {this.selectRoute(e); return}
 
     /* Draw a route starting with electrode that triggered this event*/

@@ -37,7 +37,9 @@ class ElectrodeControls extends MicropedeClient {
 
     this.overlays = [];
     this.port = port;
-    console.log("PORT::::", this.port);
+
+    // Mouse event assigned using THREEx.DomEvents in svg-renderer
+    this.enabled = true;
     this.on("mousedown", this.mousedown.bind(this));
     this.layers = 1;
   }
@@ -340,6 +342,8 @@ class ElectrodeControls extends MicropedeClient {
   }
 
   async mousedown(event) {
+    if (!this.enabled) return;
+    
     /* Called when electrode object is clicked */
     if (event.origDomEvent.button != 0) return;
     if (event.origDomEvent.altKey) return;
