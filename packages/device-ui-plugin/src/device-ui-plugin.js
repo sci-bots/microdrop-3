@@ -148,28 +148,28 @@ class DeviceUIPlugin extends UIPlugin {
     const selector = $(`#${id}`);
 
     // Create a custom "drag threshold event for context menu"
-    // element.onmousedown = async (e) => {
-    //   if (e.button == 2) {
-    //     const x1 = e.clientX;
-    //     const y1 = e.clientY;
-    //     e = await new Promise((resolve, reject) => {
-    //       element.onmouseup = (e) => {resolve(e)}
-    //     });
-    //
-    //     const x2 = e.clientX;
-    //     const y2 = e.clientY;
-    //
-    //     const dx = x2-x1;
-    //     const dy = y2-y1;
-    //
-    //     let shouldFire = false;
-    //
-    //     const c = Math.sqrt(dx*dx + dy*dy);
-    //
-    //     if (isNaN(c)) { selector.contextMenu(); }
-    //     if (c <= 10)  { selector.contextMenu({x: x2, y: y2}); }
-    //   };
-    // }
+    element.onmousedown = async (e) => {
+      if (e.button == 2) {
+        const x1 = e.clientX;
+        const y1 = e.clientY;
+        e = await new Promise((resolve, reject) => {
+          element.onmouseup = (e) => {resolve(e)}
+        });
+
+        const x2 = e.clientX;
+        const y2 = e.clientY;
+
+        const dx = x2-x1;
+        const dy = y2-y1;
+
+        let shouldFire = false;
+
+        const c = Math.sqrt(dx*dx + dy*dy);
+
+        if (isNaN(c)) { selector.contextMenu(); }
+        if (c <= 10)  { selector.contextMenu({x: x2, y: y2}); }
+      }
+    }
   }
 
   static async CreateDatGUI(container=null, menu={}) {

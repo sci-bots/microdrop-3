@@ -10,8 +10,6 @@ require('threex-domevents')(THREE, THREEx);
 const ThreeHelpers = require('three-helpers.svg-paths-group')(THREE);
 const PlaneTransform = require('three.planetransform')(THREE);
 
-window.THREEx = THREEx;
-
 const ANCHOR_KEY = 'microdrop:device-controller:anchors';
 
 function GetBoundingBox(object) {
@@ -103,7 +101,7 @@ class VideoControls {
       }
       this.scene.add(anchors.group);
 
-      this.plane.updatePos = true;
+      this.plane.updatePos = false;
       this.plane.set_anchors(anchors.positions);
 
       // Position anchor meshes above video and electrodes.
