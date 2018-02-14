@@ -124,9 +124,11 @@ class DeviceUIPlugin extends UIPlugin {
   static CreateContextMenu(element, callback) {
     const id = uuid();
     element.setAttribute("id", id);
-    return $.contextMenu({
+
+    const menu = $.contextMenu({
         selector: `#${id}`,
         callback: callback,
+        trigger: 'none',
         items: {
             clearElectrodes: {name: "Clear Electrodes"},
             "sep1": "---------",
@@ -142,6 +144,34 @@ class DeviceUIPlugin extends UIPlugin {
             "select2": {name: "Select Route: Alt-Click", disabled: true}
         }
     });
+
+    const selector = $(`#${id}`);
+
+    // Create a custom "drag threshold event for context menu"
+    element.onmousedown = async (e) => {
+      if (e.button != 2) return;
+      const x1 = e.clientX;
+      const y1 = e.clientY;
+      e = await new Promise((resolve, reject) => {
+        element.onmouseup = (e) => {resolve(e)}
+      });
+
+      const x2 = e.clientX;
+      const y2 = e.clientY;
+
+      const dx = x2-x1;
+      const dy = y2-y1;
+
+      let shouldFire = false;
+
+      const c = Math.sqrt(dx*dx + dy*dy);
+
+      if (isNaN(c)) { selector.contextMenu(); }
+      if (c <= 10)  { selector.contextMenu({x: x2, y: y2}); }
+
+    };
+
+    return menu;
   }
 
   static CreateDatGUI(container=null, menu={}) {
