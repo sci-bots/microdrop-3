@@ -2,6 +2,7 @@ microdrop-builder/packager/**/*
 **/dist/**/*
 **/build/**/*
 **/*.web.js
+**/__pycache__/**/*
 
 # Logs
 logs
