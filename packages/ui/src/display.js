@@ -177,14 +177,22 @@ function init() {
 }
 
 module.exports = () => {
-  request('/web-plugin-paths', (er, response, body) => {
+  request('/web-plugins.json', (a, b, c) => {
+    const webPlugins = JSON.parse(c);
+
     const promises = [];
     const head = document.getElementsByTagName('head')[0];
 
-    for (const [i, path] of Object.entries(JSON.parse(body))) {
+    for (const [path, plugin] of Object.entries(webPlugins)) {
+      console.log(plugin.state);
+      if (plugin.state == 'disabled') continue;
+      const name = plugin.data.name;
+      const script = plugin.data.script;
+      console.log({webPlugins});
       const tag = yo`
-        <script type="text/javascript" src="${path}"></script>
+        <script type="text/javascript" src="${name}/${script}"></script>
       `;
+
       head.appendChild(tag);
       promises.push(new Promise((resolve, reject) => {
         tag.onload = () => {

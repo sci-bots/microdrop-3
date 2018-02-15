@@ -12,28 +12,7 @@
 
 <body>
   <script>
-  let focusTracker, panel, widgets;
-  const load = async () => {
-    widgets = new Object();
-    widgets.pluginProcessManager = new PhosphorWidgets.Widget();
-    widgets.pluginProcessManager.title.label = "Process Manager";
-    widgets.pluginProcessManager.addClass("content")
-    widgets.uiPluginManager = new PhosphorWidgets.Widget();
-    widgets.uiPluginManager.title.label = "UI Plugin Manager";
-    widgets.uiPluginManager.addClass("content")
-
-    focusTracker = new PhosphorWidgets.FocusTracker();
-
-    panel = new PhosphorWidgets.DockPanel();
-    panel.id = 'main';
-    panel.addWidget(widgets.pluginProcessManager);
-    panel.addWidget(widgets.uiPluginManager, {mode: 'split-bottom', ref: widgets.pluginProcessManager});
-    PhosphorWidgets.Widget.attach(panel, document.body);
-
-    window.pluginProcessManager = await PluginManager.PluginProcessManager.Init(widgets.pluginProcessManager.node, focusTracker);
-    window.uiPluginManager = await PluginManager.UIPluginManager.Init(widgets.uiPluginManager.node, focusTracker);
-  };
-  $(window).on("load", load);
+    const pm = new PluginManager();
   </script>
 </body>
 

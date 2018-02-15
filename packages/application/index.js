@@ -9,6 +9,7 @@ const _ = require('lodash');
 
 const MicroDropModels = require('@microdrop/models');
 const MicropedeAsync = require('@micropede/client/src/async.js');
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const sendPorts = (win, ports) => {
   win.webContents.on('did-finish-load', () => {
@@ -127,6 +128,8 @@ const loadSvg = (electron, ports, file=undefined) => {
 
 
 const init = (electron, ports, file=undefined, show=true, skipReady=false, debug=false) => {
+  const LABEL = 'main';
+
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
 
@@ -151,28 +154,55 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
 
       // Load main window
       ipcMain.on('broker-ready', (event, arg) => {
-
         let filedata;
 
+        const client = new MicropedeClient("microdrop", "localhost", ports.mqtt_tcp_port, "main");
+        client.listen = () => {
+          client.onTriggerMsg("browse", async (payload) => {
+            try {
+              const filepath = await new Promise((resolve, reject) => {
+                win = new BrowserWindow();
+                win.show();
+                dialog.showOpenDialog(win, {
+                  properties: [
+                    'openDirectory'
+                  ]
+                }, (filePaths) => {
+                  resolve(filePaths[0]);
+                });
+              });
+              win.close();
+              return client.notifySender(payload, filepath, "browse");
+            } catch (e) {
+              return client.notifySender(payload, DumpStack(LABEL, e), "browse", "failed");
+            }
+          });
+        }
+
+        // TODO: Move into micropede client
         const address = `mqtt://localhost:${ports.mqtt_tcp_port}`;
-        createClient(ports.mqtt_tcp_port).then((client) => {
-          client.subscribe('microdrop/state-saver-ui/connected');
-          client.on('message', ()=> {
+        createClient(ports.mqtt_tcp_port).then((c) => {
+          c.subscribe('microdrop/state-saver-ui/connected');
+          c.subscribe('microdrop/state-saver-ui/connected');
+
+          c.on('message', ()=> {
             if (file != undefined) {
               fs.readFile(file, 'utf8', (err, data) => {
                 if (err) throw err;
                 const topic = 'microdrop/file-launcher/state/last-opened-file';
-                client.publish(topic, data, (err) => {
+                c.publish(topic, data, (err) => {
                   if (err) throw err;
-                  client.end();
+                  c.end();
                 });
               });
             } else {
-              client.end();
+              c.end();
             }
           });
         });
-        win = new BrowserWindow(_.extend(options, {show}));
+
+
+        win = new BrowserWindow(_.extend(options, {show:true}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
           protocol: 'file:',

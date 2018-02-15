@@ -2,66 +2,6 @@
 # yarn lockfile v1
 
 
-"@microdrop/device-controller@^1.1.40":
-  version "1.1.40"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.40.tgz#da9a91ec6c1f0039f5b19b959bbef9be8d2b8507"
-  dependencies:
-    "@micropede/client" "^0.0.24"
-    backbone "^1.3.3"
-    colormap "^2.3.0"
-    jquery "^3.2.1"
-    keyboard-shortcut "^1.2.0"
-    lodash "^4.17.4"
-    mqtt "^2.14.0"
-    three "^0.87.1"
-    three-helpers.mouse-event-handler "^1.0.1"
-    three-helpers.svg-paths-group "^1.0.3"
-    three-orbit-controls "^82.1.0"
-    three-window-resize "^1.0.4"
-    three.meshline "^1.0.3"
-    three.planetransform "^1.0.1"
-    threex-domevents "^1.0.0"
-    two.js "github:jonobr1/two.js#dev"
-    yo-yo "^1.4.1"
-
-"@microdrop/ui-plugin@^1.1.40":
-  version "1.1.40"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.40.tgz#937374a07ded133a441986e2e3284cf1c109a68c"
-  dependencies:
-    "@micropede/client" "0.0.24"
-    browser-request "^0.3.3"
-    keyboard-shortcut "^1.2.0"
-
-"@micropede/client@0.0.24", "@micropede/client@^0.0.24":
-  version "0.0.24"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.24.tgz#2c440d938bd43fec7e8b787fbe31aaf25ccf82e2"
-  dependencies:
-    "@micropede/mixins" "^0.0.23"
-    backbone "^1.3.3"
-    detect-node "^2.0.3"
-    jquery "^3.3.1"
-    lodash "^4.17.4"
-    mqtt "^2.15.1"
-    route-recognizer "^0.3.3"
-    uuid "^3.2.1"
-
-"@micropede/client@0.0.26":
-  version "0.0.26"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.26.tgz#f17016394ab294a87433fd4c93d278569452a7e2"
-  dependencies:
-    "@micropede/mixins" "^0.0.23"
-    backbone "^1.3.3"
-    detect-node "^2.0.3"
-    jquery "^3.3.1"
-    lodash "^4.17.4"
-    mqtt "^2.15.1"
-    route-recognizer "^0.3.3"
-    uuid "^3.2.1"
-
-"@micropede/mixins@^0.0.23":
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@micropede/mixins/-/mixins-0.0.23.tgz#88de54cb9f7a83b4da825c8df6b1dbed826a7503"
-
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -296,12 +236,6 @@ babel-code-frame@^6.26.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-backbone@^1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.3.3.tgz#4cc80ea7cb1631ac474889ce40f2f8bc683b2999"
-  dependencies:
-    underscore ">=1.8.3"
-
 balanced-match@^0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-0.4.2.tgz#cb3f3e3c732dc0f01ee70b403f302e61d7709838"
@@ -408,10 +342,6 @@ braces@^2.3.0:
 brorand@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
-
-browser-request@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/browser-request/-/browser-request-0.3.3.tgz#9ece5b5aca89a29932242e18bf933def9876cc17"
 
 browserify-aes@^1.0.0, browserify-aes@^1.0.4:
   version "1.1.1"
@@ -676,12 +606,6 @@ color@^0.11.0:
     clone "^1.0.2"
     color-convert "^1.3.0"
     color-string "^0.3.0"
-
-colormap@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/colormap/-/colormap-2.3.0.tgz#f725c757c5c6f0940a5342a723c68044ac06cc15"
-  dependencies:
-    lerp "^1.0.3"
 
 colormin@^1.0.5:
   version "1.1.2"
@@ -972,10 +896,6 @@ detect-file@^1.0.0:
 detect-libc@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
-
-detect-node@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.3.tgz#a2033c09cc8e158d37748fbde7507832bd6ce127"
 
 diffie-hellman@^5.0.0:
   version "5.0.2"
@@ -2064,7 +1984,7 @@ jquery-contextmenu@^2.6.3:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/jquery-contextmenu/-/jquery-contextmenu-2.6.3.tgz#02a937ad2a2bbf5e311f1db7c1eb3047dc183481"
 
-jquery@^3.2.1, jquery@^3.3.1:
+jquery@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 
@@ -2171,10 +2091,6 @@ lcid@^1.0.0:
   resolved "https://registry.yarnpkg.com/lcid/-/lcid-1.0.0.tgz#308accafa0bc483a3867b4b6f2b9506251d1b835"
   dependencies:
     invert-kv "^1.0.0"
-
-lerp@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/lerp/-/lerp-1.0.3.tgz#a18c8968f917896de15ccfcc28d55a6b731e776e"
 
 leven@^1.0.0:
   version "1.0.2"
@@ -2316,7 +2232,7 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@^4.14.0, lodash@^4.17.4:
+lodash@^4.14.0:
   version "4.17.5"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
 
@@ -2511,24 +2427,6 @@ mqtt-packet@^5.4.0:
     process-nextick-args "^1.0.7"
     safe-buffer "^5.1.0"
 
-mqtt@^2.14.0, mqtt@^2.15.1:
-  version "2.15.2"
-  resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-2.15.2.tgz#300290945646a4a6f3160b375460a17ade703583"
-  dependencies:
-    commist "^1.0.0"
-    concat-stream "^1.6.0"
-    end-of-stream "^1.1.0"
-    help-me "^1.0.1"
-    inherits "^2.0.3"
-    minimist "^1.2.0"
-    mqtt-packet "^5.4.0"
-    pump "^2.0.0"
-    readable-stream "^2.3.3"
-    reinterval "^1.1.0"
-    split2 "^2.1.1"
-    websocket-stream "^5.0.1"
-    xtend "^4.0.1"
-
 mqtt@^2.3.1:
   version "2.15.1"
   resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-2.15.1.tgz#86fc34e387495df60cd0ccb75cd97743344a4b28"
@@ -2686,10 +2584,6 @@ num2fraction@^1.2.2:
 number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
-
-numeric@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/numeric/-/numeric-1.2.6.tgz#765b02bef97988fcf880d4eb3f36b80fa31335aa"
 
 oauth-sign@~0.8.1:
   version "0.8.2"
@@ -3499,10 +3393,6 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-route-recognizer@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/route-recognizer/-/route-recognizer-0.3.3.tgz#1d365e27fa6995e091675f7dc940a8c00353bd29"
-
 safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
@@ -3872,47 +3762,6 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-three-helpers.mouse-event-handler@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/three-helpers.mouse-event-handler/-/three-helpers.mouse-event-handler-1.0.1.tgz#fb3e041a46858a07d3816e42bc67848ccb4a38f8"
-  dependencies:
-    backbone "^1.3.3"
-    lodash "^4.17.4"
-
-three-helpers.svg-paths-group@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/three-helpers.svg-paths-group/-/three-helpers.svg-paths-group-1.0.3.tgz#71db179939a592d4c4aff8bdf5cf245bcc8008be"
-  dependencies:
-    lodash "^4.17.4"
-    two.js "github:jonobr1/two.js#dev"
-
-three-orbit-controls@^82.1.0:
-  version "82.1.0"
-  resolved "https://registry.yarnpkg.com/three-orbit-controls/-/three-orbit-controls-82.1.0.tgz#11a7f33d0a20ecec98f098b37780f6537374fab4"
-
-three-window-resize@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/three-window-resize/-/three-window-resize-1.0.4.tgz#d636a65d22f587c87c3d3b6129d9b5d20b0d7d09"
-
-three.meshline@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/three.meshline/-/three.meshline-1.0.3.tgz#85e9190d9de16bbdcffcc083746c3ea82be15a9b"
-
-three.planetransform@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/three.planetransform/-/three.planetransform-1.0.1.tgz#64b7e5fee7cefe8bde1e872188e6ab63f3003869"
-  dependencies:
-    lodash "^4.17.4"
-    numeric "^1.2.6"
-
-three@^0.87.1:
-  version "0.87.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.87.1.tgz#466a34edc4543459ced9b9d7d276b65216fe2ba8"
-
-threex-domevents@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/threex-domevents/-/threex-domevents-1.0.0.tgz#def3811e438c14ffae205033a4edb64850f1da45"
-
 through2-filter@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/through2-filter/-/through2-filter-2.0.0.tgz#60bc55a0dacb76085db1f9dae99ab43f83d622ec"
@@ -4002,10 +3851,6 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
-"two.js@github:jonobr1/two.js#dev":
-  version "0.7.0"
-  resolved "https://codeload.github.com/jonobr1/two.js/tar.gz/13b52cc4a5e1763a147cadb5d05e2294f047d4d1"
-
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
@@ -4042,10 +3887,6 @@ ultron@~1.1.0:
 unc-path-regex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
-
-underscore@>=1.8.3:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
 
 union-value@^1.0.0:
   version "1.0.0"
@@ -4129,7 +3970,7 @@ util@0.10.3, util@^0.10.3:
   dependencies:
     inherits "2.0.1"
 
-uuid@^3.0.0, uuid@^3.1.0, uuid@^3.2.1:
+uuid@^3.0.0, uuid@^3.1.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
 

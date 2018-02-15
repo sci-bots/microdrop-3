@@ -72,8 +72,7 @@ async function findUserDefinedPlugins(extraPaths=[], storage=undefined, callback
     }
 
     // Get all subdirectories:
-    const subDirectories = getDirectories(searchPath);
-
+    const subDirectories = await getDirectories(searchPath);
     // Check each sub directory for a microdrop.json file
     for (const dir of subDirectories) {
       if (await exists(path.join(dir, "microdrop.json"))) {

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html style="height:100%;">
   <head>
     <meta charset="UTF-8">
     <title>MicroDrop</title>
   </head>
-  <body>
+  <body style="height:100%; overflow:hidden;">
     <script>
       // You can also require other files to run in this process
       const {ipcRenderer} = require('electron');
@@ -13,13 +13,49 @@
       ipcRenderer.on('ports', (e, data) => {
         var ports = JSON.parse(data);
 
-        const view = yo`
-          <webview src="http://localhost:${ports.http_port}/display"
-          style="position: fixed; top:0px; left: 0px; width:100%; height:100%">
-          </webview>
-        `;
-        document.body.appendChild(view);
+        const content = yo`<div style="height:100%"></div>`;
 
+        const switchView = (tab) => {
+          content.innerHTML = '';
+          const view = yo`
+            <webview src="http://localhost:${ports.http_port}/${tab}"
+            style="
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            left: 0px;
+            z-index: -1;
+            ">
+            </webview>
+          `;
+          content.appendChild(view);
+        }
+
+        const view = yo`
+          <div style="height:100%;">
+            <div id='header' style='text-align: center; padding-bottom: 7px;' >
+              <button onclick=${switchView.bind(this, 'display')} >Display</button>
+              <button onclick=${switchView.bind(this, 'plugin-manager')}>Plugin Manager</button>
+            </div>
+            ${content}
+          </div>
+        `;
+
+        // const view = yo`
+        //   <webview src="http://localhost:${ports.http_port}/display"
+        //   style="position: fixed; top:0px; left: 0px; width:100%; height:100%">
+        //   </webview>
+        // `;
+
+        // const view = yo`
+        //   <webview src="http://localhost:${ports.http_port}/plugin-manager"
+        //   style="position: fixed; top:0px; left: 0px; width:100%; height:100%">
+        //   </webview>
+        // `;
+
+        document.body.appendChild(view);
+        switchView('display')
       });
 
     </script>

@@ -1,0 +1,6 @@
+{
+  "name": "dropbot-plugin",
+  "version": "0.0.1",
+  "type": "process",
+  "script": "python ./dropbot_plugin/__init__.py "
+}
