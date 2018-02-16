@@ -26,7 +26,7 @@ const argv = require('yargs')
     console.log(await MicroDrop.dump(electron, ports));
     process.exit();
   })
-  .command('launch <file>', 'launch microdrop', () => {}, async (argv) => {
+  .command('launch [file]', 'launch microdrop', () => {}, async (argv) => {
     MicroDrop(electron, Ports(argv), argv.file);
   })
   .command('load-device <file>', 'load device file', () => {}, async (argv) => {
@@ -38,7 +38,7 @@ const argv = require('yargs')
     console.log("reset complete");
     process.exit();
   })
-  .command('$0', 'the default command', () => {}, (argv) => {
-    MicroDrop(electron, Ports(argv));
+  .command('$0 [file]', 'the default command', () => {}, (argv) => {
+    MicroDrop(electron, Ports(argv), argv.file);
   })
   .argv;

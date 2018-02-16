@@ -1,4 +1,4 @@
-microdrop-builder/packager/**/*
+packages/builder/packager/**/*
 **/dist/**/*
 **/build/**/*
 **/*.web.js

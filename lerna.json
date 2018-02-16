@@ -14,7 +14,7 @@
     "packages/ui",
     "packages/models",
     "packages/microdrop",
-    "microdrop-builder"
+    "packages/builder"
   ],
   "version": "1.1.41",
   "npmClient": "yarn"

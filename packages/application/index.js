@@ -11,6 +11,8 @@ const MicroDropModels = require('@microdrop/models');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
+const APPNAME = 'microdrop';
+
 const sendPorts = (win, ports) => {
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ports', JSON.stringify(ports));
@@ -125,10 +127,7 @@ const loadSvg = (electron, ports, file=undefined) => {
   });
 }
 
-
-
 const init = (electron, ports, file=undefined, show=true, skipReady=false, debug=false) => {
-  const LABEL = 'main';
 
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
@@ -156,7 +155,7 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
       ipcMain.on('broker-ready', (event, arg) => {
         let filedata;
 
-        const client = new MicropedeClient("microdrop", "localhost", ports.mqtt_tcp_port, "main");
+        const client = new MicropedeClient(APPNAME, "localhost", ports.mqtt_tcp_port, APPNAME);
         client.listen = () => {
           client.onTriggerMsg("browse", async (payload) => {
             try {
@@ -174,33 +173,20 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
               win.close();
               return client.notifySender(payload, filepath, "browse");
             } catch (e) {
-              return client.notifySender(payload, DumpStack(LABEL, e), "browse", "failed");
+              return client.notifySender(payload, DumpStack(APPNAME, e), "browse", "failed");
             }
+          });
+
+          client.onNotifyMsg("state-saver-ui", "connected", (a,b,topic) => {
+            fs.readFile(file, 'utf8', (err, data) => {
+              const _topic = 'microdrop/file-launcher/state/last-opened-file';
+              client.sendMessage(_topic, file).then((d) => {
+                // TODO: change client.client to client.mqtt or something
+                client.client.unsubscribe(topic);
+              })
+            });
           });
         }
-
-        // TODO: Move into micropede client
-        const address = `mqtt://localhost:${ports.mqtt_tcp_port}`;
-        createClient(ports.mqtt_tcp_port).then((c) => {
-          c.subscribe('microdrop/state-saver-ui/connected');
-          c.subscribe('microdrop/state-saver-ui/connected');
-
-          c.on('message', ()=> {
-            if (file != undefined) {
-              fs.readFile(file, 'utf8', (err, data) => {
-                if (err) throw err;
-                const topic = 'microdrop/file-launcher/state/last-opened-file';
-                c.publish(topic, data, (err) => {
-                  if (err) throw err;
-                  c.end();
-                });
-              });
-            } else {
-              c.end();
-            }
-          });
-        });
-
 
         win = new BrowserWindow(_.extend(options, {show:true}));
         win.loadURL(url.format({

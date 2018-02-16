@@ -33,7 +33,7 @@ class PluginManager extends MicropedeClient {
 
   async browse(input, e) {
     const micropede = new MicropedeAsync(this.appName, this.host, this.port);
-    const data = await micropede.triggerPlugin('main', 'browse', {}, -1);
+    const data = await micropede.triggerPlugin(this.appName, 'browse', {}, -1);
     input.value = data.response;
     await this.addPath(input, e);
   }
