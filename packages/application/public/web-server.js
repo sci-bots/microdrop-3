@@ -39,7 +39,7 @@ class WebServer extends MicropedeClient {
     this.storage = storage;
     this.broker = broker;
     this.ports = ports;
-    this.runningChildren = [];
+    this.runningChildren = {};
   }
 
   storageRaw() {
@@ -77,7 +77,7 @@ class WebServer extends MicropedeClient {
 
     this.bindStateMsg("plugins", "set-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
-    this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
+    this.onTriggerMsg("remove-plugin-path", this.removePluginPath.bind(this));
     this.onTriggerMsg("update-plugin-state", this.updatePluginState.bind(this));
 
     this._listen(this.ports.http_port);
@@ -102,7 +102,7 @@ class WebServer extends MicropedeClient {
     const LABEL ='web-server:add-proccess-plugin'; console.log(LABEL);
     const storage = this.storage || localStorage;
     try {
-      const pluginName = path.basename(pluginDir);
+      const pluginName = packageData.name
       let pluginData = JSON.parse(storage.getItem('microdrop:plugins'));
       const processPlugins = _.get(pluginData, 'processPlugins') || {};
 
@@ -114,6 +114,19 @@ class WebServer extends MicropedeClient {
           data: packageData
         });
       }
+
+      // Listen for when a process plugin is connected or disconnected
+      this.onSignalMsg(pluginName, 'disconnected', () => {
+        pluginData.processPlugins[pluginDir].state = 'stopped';
+        this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+        this.trigger("set-plugins")
+      });
+
+      this.onSignalMsg(pluginName, 'connected', () => {
+        pluginData.processPlugins[pluginDir].state = 'running';
+        this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+        this.trigger("set-plugins");
+      });
 
       this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
     } catch (e) {
@@ -192,18 +205,26 @@ class WebServer extends MicropedeClient {
 
   }
 
-  onRemovePluginPath(payload) {
+  removePluginPath(payload) {
     const LABEL = 'web-server:remove-plugin-path';
     try {
       const pluginData = JSON.parse(this.storage.getItem("microdrop:plugins"));
       const pluginPath = path.resolve(payload.path);
-      // Remove (web) plugins under this path
+
+      // TODO: Kill running process plugins when removed from path
+
+      // Remove all plugins along path:
       for (const [id, plugin] of Object.entries(pluginData.webPlugins)){
         if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
           delete pluginData.webPlugins[id];
       }
 
-      // Remove entry in pluginData.searchPaths
+      for (const [id, plugin] of Object.entries(pluginData.processPlugins)){
+        if (path.resolve(plugin.path).indexOf(pluginPath) != -1)
+          delete pluginData.processPlugins[id];
+      }
+
+      // Remove entry in searchPaths
       for (const [i, path] of Object.entries(pluginData.searchPaths)){
         if (path == pluginPath) {
           pluginData.searchPaths.splice(i, 1);
@@ -216,6 +237,7 @@ class WebServer extends MicropedeClient {
       this.findPlugins();
       return this.notifySender(payload, pluginData, "remove-plugin-path");
     } catch (e) {
+      console.error(LABEL, e);
       return this.notifySender(payload, DumpStack(LABEL, e), "remove-plugin-path", "failed");
     }
   }
@@ -241,15 +263,21 @@ class WebServer extends MicropedeClient {
       this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
 
       // If process plugin then call exection script as a child_process
-      if (plugin.data.type == 'process' && plugin.state == 'running') {
-        console.log("Starting Plugin...", plugin.data.script);
-        const options = { shell: true , stdio: 'inherit', cwd: plugin.path };
-        const runningChild = spawn(plugin.data.script, [], options);
-        this.runningChildren.push(runningChild);
+      if (plugin.data.type == 'process') {
+        if (plugin.state == 'running') {
+          console.log("Starting plugin:", plugin.data.script);
+          const options = { shell: true , stdio: 'inherit', cwd: plugin.path };
+          const runningChild = spawn(plugin.data.script, [], options);
+          this.runningChildren[plugin.path] = runningChild;
+        } else {
+          if (_.get(this.runningChildren, plugin.path) != undefined)
+            this.runningChildren[plugin.path].kill();
+        }
       }
 
       return this.notifySender(payload, pluginData, "update-plugin-state");
     } catch (e) {
+      console.error(e);
       return this.notifySender(payload, DumpStack(LABEL, e), "update-plugin-state", "failed");
     }
   }

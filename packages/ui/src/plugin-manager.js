@@ -153,6 +153,7 @@ const STYLES = {
     border-radius: 5px;
     color: white;
     background-color: #3F51B5;
+    width: 80px;
   `,
   input: `
     font-size: 12px;
