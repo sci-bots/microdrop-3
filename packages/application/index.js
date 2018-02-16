@@ -177,15 +177,17 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
             }
           });
 
-          client.onNotifyMsg("state-saver-ui", "connected", (a,b,topic) => {
-            fs.readFile(file, 'utf8', (err, data) => {
-              const _topic = 'microdrop/file-launcher/state/last-opened-file';
-              client.sendMessage(_topic, file).then((d) => {
-                // TODO: change client.client to client.mqtt or something
-                client.client.unsubscribe(topic);
-              })
+          if (file !== undefined) {
+            client.onNotifyMsg("state-saver-ui", "connected", (a,b,topic) => {
+              fs.readFile(file, 'utf8', (err, data) => {
+                const _topic = 'microdrop/file-launcher/state/last-opened-file';
+                client.sendMessage(_topic, JSON.parse(data)).then((d) => {
+                  // TODO: change client.client to client.mqtt or something
+                  client.client.unsubscribe(topic);
+                })
+              });
             });
-          });
+          }
         }
 
         win = new BrowserWindow(_.extend(options, {show:true}));
