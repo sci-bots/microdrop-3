@@ -2,7 +2,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const url = require('url');
-const {fork, spawn} = require('child_process');
+const {spawn} = require('child_process');
 const {Console} = require('console');
 
 const _ = require('lodash');
@@ -38,8 +38,8 @@ class WebServer extends MicropedeClient {
 
     this.storage = storage;
     this.broker = broker;
-    this.webPlugins = this.WebPlugins();
     this.ports = ports;
+    this.runningChildren = [];
   }
 
   storageRaw() {
@@ -75,10 +75,10 @@ class WebServer extends MicropedeClient {
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
 
-    this.bindStateMsg("web-plugins", "set-web-plugins");
+    this.bindStateMsg("plugins", "set-plugins");
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.onRemovePluginPath.bind(this));
-    this.onTriggerMsg("update-ui-plugin-state", this.onUpdateUIPluginState.bind(this));
+    this.onTriggerMsg("update-plugin-state", this.updatePluginState.bind(this));
 
     this._listen(this.ports.http_port);
   }
@@ -90,7 +90,7 @@ class WebServer extends MicropedeClient {
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
-      FindUserDefinedPlugins(args, this.storage, this.onPluginFound.bind(this));
+      FindUserDefinedPlugins(args, this.storage || localStorage, this.onPluginFound.bind(this));
   }
 
   reset() {
@@ -98,15 +98,31 @@ class WebServer extends MicropedeClient {
     ipcRenderer.sendSync('reset-db-success');
   }
 
-  retrievePluginData() {
-    return JSON.parse(this.storage.getItem("microdrop:plugins"));
+  addProcessPlugin(packageData, pluginDir) {
+    const LABEL ='web-server:add-proccess-plugin'; console.log(LABEL);
+    const storage = this.storage || localStorage;
+    try {
+      const pluginName = path.basename(pluginDir);
+      let pluginData = JSON.parse(storage.getItem('microdrop:plugins'));
+      const processPlugins = _.get(pluginData, 'processPlugins') || {};
+
+      if (!(pluginDir in processPlugins)) {
+        _.set(pluginData.processPlugins, pluginDir, {
+          name: pluginName,
+          path: pluginDir,
+          state: 'stopped',
+          data: packageData
+        });
+      }
+
+      this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+    } catch (e) {
+      console.error(LABEL, e);
+    }
   }
-  addFoundWebPlugin(plugin_data, plugin_path) {
-    const file = path.resolve(plugin_path);
-    this.addWebPlugin(file, plugin_data);
-    this.trigger("set-web-plugins", this.webPlugins);
-  }
-  addWebPlugin(pluginDir, packageData) {
+  addWebPlugin(packageData, pluginDir) {
+    const storage = this.storage || localStorage;
+
     const file = path.resolve(pluginDir, packageData.script);
     const fileExists = fs.existsSync(file);
     const extension = path.extname(file);
@@ -117,38 +133,31 @@ class WebServer extends MicropedeClient {
     if (!fileExists) error = "file does not exists";
     if (extension != ".js") error = "plugins must be javascript (.js) files";
     if (error) {
-      // this.trigger("set-web-plugins-failed", error);
       console.error(error, file);
       return;
     }
 
     // Add plugin, and write to plugins.json
-    let pluginData = this.retrievePluginData() || localStorage.getItem('microdrop:plugins');
-    if (!(pluginDir in _.get(pluginData, 'webPlugins') )) {
+    let pluginData = JSON.parse(storage.getItem('microdrop:plugins'));
+    const webPlugins = _.get(pluginData, "webPlugins") || {};
+
+    if (!(pluginDir in webPlugins )) {
       let state = "disabled";
 
       if (_.includes(env.defaultEnabled, `@microdrop/${pluginName}`) ||
           _.includes(env.defaultEnabled, pluginName)) {
         state = "enabled";
       }
-      pluginData.webPlugins[pluginDir] = {
+
+      _.set(pluginData.webPlugins, pluginDir, {
         name: pluginName,
         path: pluginDir,
         state: state,
         data: packageData
-      };
+      });
+
       this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
     }
-    this.webPlugins = this.WebPlugins();
-  }
-
-  getPluginData(pluginPath) {
-    /* Read microdrop.json file found at path*/
-    const microdropFile = path.join(pluginPath, "microdrop.json");
-    if (fs.existsSync(microdropFile))
-      return JSON.parse(fs.readFileSync(microdropFile, 'utf8'));
-    else
-      return false;
   }
 
   onAddPluginPath(payload) {
@@ -156,7 +165,7 @@ class WebServer extends MicropedeClient {
     try {
       const pluginData = JSON.parse(this.storage.getItem("microdrop:plugins"));
       let pluginPath = path.resolve(payload.path);
-      
+
       // Retrieve Search Paths:
       const searchDirectories = new Set(pluginData.searchPaths);
 
@@ -208,49 +217,60 @@ class WebServer extends MicropedeClient {
       return this.notifySender(payload, pluginData, "remove-plugin-path");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "remove-plugin-path", "failed");
-
     }
   }
 
-  onUpdateUIPluginState(payload) {
-    const LABEL = 'web-server:update-ui-plugin';
+  updatePluginState(payload) {
+    const LABEL = 'web-server:update-plugin';
     try {
-      // TODO: Make method more general (i.e. just ui plugin state)
-
       // Get plugin data
       const plugin = payload;
       const pluginData = JSON.parse(this.storage.getItem("microdrop:plugins"));
 
+      let plugins;
+      if (plugin.data.type == 'ui') plugins = pluginData.webPlugins;
+      if (plugin.data.type == 'process') plugins = pluginData.processPlugins;
+
       // Ensure plugin exists
-      if (!(plugin.path in pluginData.webPlugins)) {
+      if (!(plugin.path in plugins) ) {
         throw(`Cannot update plugin state; plugin not found: ${plugin.path}`)
       }
 
       // Update plugin data
-      pluginData.webPlugins[plugin.path].state = plugin.state;
+      plugins[plugin.path].state = plugin.state;
       this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
 
-      return this.notifySender(payload, pluginData, "update-ui-plugin-state");
+      // If process plugin then call exection script as a child_process
+      if (plugin.data.type == 'process' && plugin.state == 'running') {
+        console.log("Starting Plugin...", plugin.data.script);
+        const options = { shell: true , stdio: 'inherit', cwd: plugin.path };
+        const runningChild = spawn(plugin.data.script, [], options);
+        this.runningChildren.push(runningChild);
+      }
+
+      return this.notifySender(payload, pluginData, "update-plugin-state");
     } catch (e) {
-      return this.notifySender(payload, DumpStack(LABEL, e), "update-ui-plugin-state", "failed");
+      return this.notifySender(payload, DumpStack(LABEL, e), "update-plugin-state", "failed");
     }
   }
 
-  onAddWebPlugin(payload) {
-    // Validate old plugins (ensure they still exist)
-    const file = path.resolve(payload);
-    // Add plugin to list of web-plugins:
-    this.addWebPlugin(file);
-  }
   onPluginFound(payload){
     const pluginPath = payload.plugin_path;
-    const pluginData = this.getPluginData(pluginPath);
+    const microdropFile = path.join(pluginPath, "microdrop.json");
+
+    /* Read microdrop.json file found at path*/
+    if (!fs.existsSync(microdropFile)) return false;
+    const pluginData = JSON.parse(fs.readFileSync(microdropFile, 'utf8'));
 
     // Check if plugin is a ui plugin:
     if (pluginData.type == "ui") {
-      this.addFoundWebPlugin(pluginData, pluginPath);
+      this.addWebPlugin(pluginData, pluginPath);
+    } else {
+      this.addProcessPlugin(pluginData, pluginPath);
     }
+    this.trigger("set-plugins");
   }
+
   onShowIndex(req, res) {
     res.send(
       `Navigate to one of the following: <br>
@@ -271,16 +291,18 @@ class WebServer extends MicropedeClient {
   }
   WebPlugins() {
     const pluginData = JSON.parse(this.storage.getItem("microdrop:plugins"));
-    for (const [pluginDir, plugin] of Object.entries(pluginData.webPlugins)) {
+    const webPlugins = _.get(pluginData, "webPlugins") || {};
+    for (const [pluginDir, plugin] of Object.entries(webPlugins)) {
       const parentDir = path.resolve(pluginDir, "..");
       this.use(express.static(parentDir));
     }
-    return pluginData.webPlugins;
+    return _.get(pluginData, "webPlugins") || {} ;
   }
 
   static initPlugins(storage) {
     const pluginData = new Object();
     pluginData.webPlugins = new Object();
+    pluginData.processPlugins = new Object();
     pluginData.searchPaths = new Array();
     storage.setItem('microdrop:plugins', JSON.stringify(pluginData));
   }

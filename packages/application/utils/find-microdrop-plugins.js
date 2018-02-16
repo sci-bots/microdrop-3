@@ -50,7 +50,8 @@ async function findUserDefinedPlugins(extraPaths=[], storage=undefined, callback
   if (storage == undefined) storage = window.localStorage;
 
   const pluginsData = JSON.parse(storage.getItem("microdrop:plugins"));
-  const searchPaths = pluginsData.searchPaths;
+  const searchPaths = pluginsData.searchPaths || [];
+
 
   // Append path arguments to searchpaths:
   for (const searchpath of extraPaths)

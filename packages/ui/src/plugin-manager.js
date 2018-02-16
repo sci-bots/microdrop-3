@@ -18,15 +18,18 @@ class PluginManager extends MicropedeClient {
   }
 
   listen() {
-    this.onStateMsg('web-server', 'web-plugins', (d) => {
+    this.onStateMsg('web-server', 'plugins', (d) => {
       request('/plugins.json', (a, b, c) => this.render(JSON.parse(c)));
     });
   }
 
   async toggleState(plugin, e) {
-    plugin.state = (plugin.state == 'enabled') ? 'disabled' :  'enabled';
+    if (plugin.state == 'enabled' || plugin.state == 'disabled')
+      plugin.state = (plugin.state == 'enabled') ? 'disabled' :  'enabled';
+    else
+      plugin.state = (plugin.state == 'running') ? 'stopped' : 'running';
     const micropede = new MicropedeAsync(this.appName, this.host, this.port);
-    const data = await micropede.triggerPlugin('web-server', 'update-ui-plugin-state', plugin);
+    const data = await micropede.triggerPlugin('web-server', 'update-plugin-state', plugin);
     this.render(data.response);
     localStorage.removeItem("microdrop:layout");
   }
@@ -49,68 +52,81 @@ class PluginManager extends MicropedeClient {
   }
 
   async render(plugins) {
+    console.log({plugins})
     this.container.innerHTML = '';
     const lists = {};
 
     const input = yo`<input style='${STYLES.input}; ${STYLES.addInput}'/>`;
 
-    lists.webPlugins = yo`
+    const header = yo`
+    <li style='${STYLES.li} text-align:center;' >
+        <div style='${STYLES.clearfix} margin: 0 auto;'>
+          ${input}
+          <button style='${STYLES.button}; background: rgb(218, 218, 218);'
+            onclick=${this.browse.bind(this, input)}>
+            Browse
+          </button>
+          <button style='${STYLES.button}; margin-left: 5px;'
+            onclick=${this.addPath.bind(this, input)}>
+            Add Path
+          </button>
+      </div>
+    </li>
+    `;
+
+    const renderList = (plugins) => _.map(plugins, (d,p) => {
+      return yo`<li style='${STYLES.li}'>
+        <div style='${STYLES.clearfix} margin: 0 auto;'>
+          <div style='width:160px; display: inline-block'>${d.name}</div>
+          <input style='${STYLES.input};margin-right: 5px;' value='${p}' />
+          ${this.statusButton(d)}
+          <button onclick=${this.removePlugin.bind(this, d)}
+            style='
+              ${STYLES.button};
+              background-color: #FF9800;
+              margin-left: 5px;'>
+            Remove
+          </button>
+        </div>
+      </li>`
+    });
+
+    const list = yo`
       <div>
         <ul style='${STYLES.ul};'>
-          <li style='${STYLES.li} text-align:center;' >
-              <div style='${STYLES.clearfix} margin: 0 auto;'>
-                ${input}
-                <button style='${STYLES.button}; background: rgb(218, 218, 218);'
-                  onclick=${this.browse.bind(this, input)}>
-                  Browse
-                </button>
-                <button style='${STYLES.button}; margin-left: 5px;'
-                  onclick=${this.addPath.bind(this, input)}>
-                  Add Path
-                </button>
-            </div>
-          </li>
-          ${
-          _.map(plugins.webPlugins, (d,p) => {
-            return yo`<li style='${STYLES.li}'>
-              <div style='${STYLES.clearfix} margin: 0 auto;'>
-                <div style='width:160px; display: inline-block'>${d.name}</div>
-                <input style='${STYLES.input};margin-right: 5px;' value='${p}' />
-                ${this.statusButton(d)}
-                <button onclick=${this.removePlugin.bind(this, d)}
-                  style='
-                    ${STYLES.button};
-                    background-color: #FF9800;
-                    margin-left: 5px;'>
-                  Remove
-                </button>
-              </div>
-            </li>`
-          })
-        }</ul>
+          ${header}
+          ${renderList(plugins.webPlugins)}
+          ${renderList(plugins.processPlugins)}
+        </ul>
       </div>
     `;
-    this.container.appendChild(lists.webPlugins);
+    this.container.appendChild(list);
   }
 
   statusButton(d) {
     const green = '#4CAF50';
     const red = '#f44336';
 
-    let button;
+    let background, msg;
     if (d.state == 'enabled') {
-      button = yo`
-        <button style='${STYLES.button}' onclick=${this.toggleState.bind(this, d)}>
-          disable
-        </button>`;
-      button.style.background = red;
-    } else {
-      button = yo`
-        <button style='${STYLES.button}' onclick=${this.toggleState.bind(this, d)}>
-          enable
-        </button>`;
-      button.style.background = green;
+      background = red; msg = 'disable';
     }
+    if (d.state == 'disabled') {
+      background = green; msg = 'enable';
+    }
+    if (d.state == 'running') {
+      background = red; msg = 'stop';
+    }
+    if (d.state == 'stopped') {
+      background = green; msg = 'start';
+    }
+
+    const button = yo`
+      <button style='${STYLES.button}; background: ${background}'
+      onclick=${this.toggleState.bind(this, d)}>
+        ${msg}
+      </button>`;
+
     return button;
   }
 
