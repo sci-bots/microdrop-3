@@ -53,11 +53,16 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   onUpdateRequest(msg) {
-    if (!this.controls) return;
-    this.controls.cameraControls.trigger("updateRequest", this);
+    if (!this.controls) {
+      if (this._url) this.renderDevice(this._url);
+      return;
+    } else{
+      this.controls.cameraControls.trigger("updateRequest", this);
+    }
   }
 
   async renderDevice(payload) {
+    this._url = payload;
     if (this.sceneContainer) {
       this.sceneContainer.innerHTML = '';
     } else  {
@@ -70,7 +75,7 @@ class DeviceUIPlugin extends UIPlugin {
     if (bbox.width == 0) return;
 
     this.controls = await DeviceController.createScene(
-      this.sceneContainer, payload, this.port);
+      this.sceneContainer, this._url, this.port);
     this.gui = await CreateDatGUI(this.element, this.controls);
   }
 

@@ -6,14 +6,11 @@ const yo = require('yo-yo');
 //<script type="text/javascript" src="state-saver\build\state-saver.web.js"></script>
 
 function init() {
-  console.log("INITIALZING>...");
-  
   // Add all window objects that extend UIPlugin to microdropPlugin list
   for (const [key, val] of Object.entries(window)){
     if (!val) continue;
     if (!val.prototype) continue;
     if (Object.getPrototypeOf(val).name == "UIPlugin") {
-      // console.log(key);
       window.microdropPlugins.set(key, val);
     }
   }
@@ -78,7 +75,6 @@ function init() {
     for (const [pluginName,pluginClass] of microdropPlugins) {
       // const dock = docks[pluginClass.position()];
       const widget = await pluginClass.Widget(panel, focusTracker, PhosphorWidgets);
-      console.log({widget});
       widgetMap.set(widget.title.label, widget);
       if (widget.plugin) pluginInstances.push(widget.plugin);
     }
@@ -184,11 +180,9 @@ module.exports = () => {
     const head = document.getElementsByTagName('head')[0];
 
     for (const [path, plugin] of Object.entries(webPlugins)) {
-      console.log(plugin.state);
       if (plugin.state == 'disabled') continue;
       const name = plugin.data.name;
       const script = plugin.data.script;
-      console.log({webPlugins});
       const tag = yo`
         <script type="text/javascript" src="${name}/${script}"></script>
       `;
@@ -203,7 +197,6 @@ module.exports = () => {
     }
 
     Promise.all(promises).then((d) => {
-      console.log(promises);
       init();
     });
 
