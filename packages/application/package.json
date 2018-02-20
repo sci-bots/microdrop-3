@@ -41,6 +41,7 @@
     "HTTP_PORT": 3000,
     "MQTT_TCP_PORT": 1884,
     "MQTT_WS_PORT": 8083,
+    "DEFAULT_RUNNING_PLUGINS": [],
     "host": "localhost",
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",

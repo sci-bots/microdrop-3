@@ -10,9 +10,8 @@
       const {ipcRenderer} = require('electron');
       const yo = require('yo-yo');
 
-      ipcRenderer.on('ports', (e, data) => {
-        var ports = JSON.parse(data);
-
+      ipcRenderer.on('ready', (e, data) => {
+        var ports = JSON.parse(data).ports;
         const content = yo`<div style="height:100%"></div>`;
 
         const switchView = (tab) => {

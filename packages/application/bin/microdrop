@@ -21,13 +21,15 @@ const argv = require('yargs')
   .default('http-port', env.HTTP_PORT)
   .default('mqtt-ws-port', env.MQTT_WS_PORT)
   .default('mqtt-tcp-port', env.MQTT_TCP_PORT)
+  .default('with-plugins', env.DEFAULT_RUNNING_PLUGINS)
+  .array('with-plugins')
   .command('dump', 'dump state to file', async (yargs) => {
     const ports = Ports(yargs.argv);
     console.log(await MicroDrop.dump(electron, ports));
     process.exit();
   })
   .command('launch [file]', 'launch microdrop', () => {}, async (argv) => {
-    MicroDrop(electron, Ports(argv), argv.file);
+    MicroDrop(electron, Ports(argv), argv.withPlugins, argv.file);
   })
   .command('load-device <file>', 'load device file', () => {}, async (argv) => {
     await MicroDrop.loadSvg(electron, Ports(argv), argv.file);
@@ -39,6 +41,6 @@ const argv = require('yargs')
     process.exit();
   })
   .command('$0 [file]', 'the default command', () => {}, (argv) => {
-    MicroDrop(electron, Ports(argv), argv.file);
+    MicroDrop(electron, Ports(argv), argv.withPlugins, argv.file);
   })
   .argv;

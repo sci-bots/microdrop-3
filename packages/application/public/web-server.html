@@ -11,12 +11,12 @@
       const {init} = require('./web-server.js');
       const yo = require('yo-yo');
 
-      ipcRenderer.on('ports', (e, data) => {
-        var ports = JSON.parse(data);
+      ipcRenderer.on('ready', (e, data) => {
+        var {ports, defaultRunningPlugins} = JSON.parse(data);
         document.body.appendChild(yo`
           <div>Visit localhost:${ports.http_port} in your browser</div>
         `);
-        init(ports);
+        init(ports, defaultRunningPlugins);
       });
 
     </script>

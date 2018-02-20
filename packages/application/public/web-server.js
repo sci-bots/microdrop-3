@@ -25,7 +25,7 @@ const console = new Console(process.stdout, process.stderr);
 const APPNAME = 'microdrop';
 
 class WebServer extends MicropedeClient {
-  constructor(broker, ports, storage) {
+  constructor(broker, ports, storage, defaultRunningPlugins=[]) {
     if (storage == undefined) storage = window.localStorage;
     if (storage.getItem('microdrop:plugins') == null) {
       WebServer.initPlugins(storage);
@@ -40,6 +40,7 @@ class WebServer extends MicropedeClient {
     this.broker = broker;
     this.ports = ports;
     this.runningChildren = {};
+    this.defaultRunningPlugins = defaultRunningPlugins;
   }
 
   storageRaw() {
@@ -64,6 +65,8 @@ class WebServer extends MicropedeClient {
     ipcRenderer.send('broker-ready');
 
     this.findPlugins();
+    this.startDefaultRunningPlugins();
+
 
     /* Listen for http, mqtt, and local events */
     this.get('/', this.onShowIndex.bind(this));
@@ -242,6 +245,37 @@ class WebServer extends MicropedeClient {
     }
   }
 
+  startDefaultRunningPlugins() {
+    try {
+      const pluginData = JSON.parse(this.storage.getItem("microdrop:plugins"));
+      const plugins = pluginData.processPlugins;
+
+      for (const [i, jsonFile] of Object.entries(this.defaultRunningPlugins)) {
+        console.log("JSON FILE::");
+        console.log(jsonFile);
+        const data = require(path.resolve(jsonFile));
+        console.log("STARTING PLUGIN");
+        console.log(data);
+        const pluginPath = path.dirname(path.resolve(jsonFile));
+        plugins[pluginPath] = {
+          path: pluginPath,
+          state: 'running',
+          data: data,
+          name: data.name
+        };
+
+        const options = { shell: true , stdio: 'inherit', cwd: pluginPath };
+        console.log(data.script);
+        const runningChild = spawn(data.script, [], options);
+        this.runningChildren[pluginPath] = runningChild;
+      }
+
+      this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   updatePluginState(payload) {
     const LABEL = 'web-server:update-plugin';
     try {
@@ -339,7 +373,7 @@ class WebServer extends MicropedeClient {
 module.exports = WebServer;
 module.exports.WebServer = WebServer;
 
-module.exports.init = (ports) => {
+module.exports.init = (ports, defaultRunningPlugins=[]) => {
   /* Initialize Electron Web Server */
 
   window.addEventListener('unhandledrejection', function(event) {
@@ -352,7 +386,7 @@ module.exports.init = (ports) => {
   const broker = new Broker('microdrop',ports.mqtt_ws_port, ports.mqtt_tcp_port);
 
   broker.on('broker-ready', () => {
-    const webServer = new WebServer(broker, ports);
+    const webServer = new WebServer(broker, ports, undefined, defaultRunningPlugins);
     if (window) {window.webServer = webServer}
   });
 

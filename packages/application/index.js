@@ -13,9 +13,21 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const APPNAME = 'microdrop';
 
+const sendDefaults = (win, defaultRunningPlugins) => {
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('default-running-plugins', JSON.stringify(defaultRunningPlugins));
+  });
+}
+
 const sendPorts = (win, ports) => {
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ports', JSON.stringify(ports));
+  });
+}
+
+const sendReadyPing = (win, msg={}) => {
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('ready', JSON.stringify(msg));
   });
 }
 
@@ -35,6 +47,7 @@ const launchWebserver = (win) => {
     protocol: 'file:',
     slashes: true
   }));
+  return win;
 }
 
 const dump = (electron, ports) => {
@@ -50,7 +63,7 @@ const dump = (electron, ports) => {
       let win;
       win = new BrowserWindow(options);
       launchWebserver(win);
-      sendPorts(win, ports);
+      sendReadyPing(win, {ports});
 
       // Get
       ipcMain.on('broker-ready', (event, arg) => {
@@ -127,7 +140,7 @@ const loadSvg = (electron, ports, file=undefined) => {
   });
 }
 
-const init = (electron, ports, file=undefined, show=true, skipReady=false, debug=false) => {
+const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=true, skipReady=false, debug=false) => {
 
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
@@ -146,7 +159,7 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
       // Load webserver:
       win = new BrowserWindow(options);
       launchWebserver(win);
-      sendPorts(win, ports);
+      sendReadyPing(win, {ports, defaultRunningPlugins});
 
       // Load models
       MicroDropModels.initAsElectronProcesses(electron, ports);
@@ -196,7 +209,8 @@ const init = (electron, ports, file=undefined, show=true, skipReady=false, debug
           protocol: 'file:',
           slashes: true
         }));
-        sendPorts(win, ports);
+
+        sendReadyPing(win, {ports});
         win.on('closed', () => app.quit() );
 
         // Resolve init
