@@ -251,12 +251,15 @@ class WebServer extends MicropedeClient {
       const plugins = pluginData.processPlugins;
 
       for (const [i, jsonFile] of Object.entries(this.defaultRunningPlugins)) {
-        console.log("JSON FILE::");
-        console.log(jsonFile);
+        if (!fs.existsSync(path.resolve(jsonFile))) {
+          throw `Error: ${jsonFile} does not exists (expecting path to microdrop.json file)`
+        }
+
         const data = require(path.resolve(jsonFile));
-        console.log("STARTING PLUGIN");
-        console.log(data);
         const pluginPath = path.dirname(path.resolve(jsonFile));
+
+        this.addProcessPlugin(data, pluginPath);
+
         plugins[pluginPath] = {
           path: pluginPath,
           state: 'running',
@@ -265,7 +268,6 @@ class WebServer extends MicropedeClient {
         };
 
         const options = { shell: true , stdio: 'inherit', cwd: pluginPath };
-        console.log(data.script);
         const runningChild = spawn(data.script, [], options);
         this.runningChildren[pluginPath] = runningChild;
       }
