@@ -79,6 +79,7 @@ class DropBot(MicropedeClient):
         self.on_put_msg("schema", self.put_schema)
 
     def put_schema(self, payload, params):
+        """ Modify the schema """
         try:
             for key in payload:
                 if key == '__head__':
@@ -95,6 +96,7 @@ class DropBot(MicropedeClient):
             return self.notify_sender(payload, [e], "schema", "failed")
 
     def put_property(self, payload, params):
+        """ Modify a property (validated based on the schema) """
         print(params)
         for key in payload:
             if (key == '__head__'):

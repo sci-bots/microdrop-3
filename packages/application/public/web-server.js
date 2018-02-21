@@ -267,7 +267,14 @@ class WebServer extends MicropedeClient {
           name: data.name
         };
 
-        const options = { shell: true , stdio: 'inherit', cwd: pluginPath };
+        const env = process.env;
+        env.MICRODROP = path.resolve(__dirname, '..');
+        const options = {
+          shell: true ,
+          stdio: 'inherit',
+          cwd: pluginPath,
+          env: env
+        };
         const runningChild = spawn(data.script, [], options);
         this.runningChildren[pluginPath] = runningChild;
       }
@@ -302,7 +309,17 @@ class WebServer extends MicropedeClient {
       if (plugin.data.type == 'process') {
         if (plugin.state == 'running') {
           console.log("Starting plugin:", plugin.data.script);
-          const options = { shell: true , stdio: 'inherit', cwd: plugin.path };
+
+          const env = process.env;
+          env.MICRODROP = path.resolve(__dirname, '..');
+
+          const options = {
+            shell: true ,
+            stdio: 'inherit',
+            cwd: plugin.path,
+            env: env
+          };
+
           const runningChild = spawn(plugin.data.script, [], options);
           this.runningChildren[plugin.path] = runningChild;
         } else {

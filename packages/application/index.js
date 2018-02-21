@@ -91,7 +91,7 @@ const reset = (electron, ports) => {
       let win;
       win = new BrowserWindow(options);
       launchWebserver(win);
-      sendPorts(win, ports);
+      sendReadyPing(win, {ports});
 
       // Reset indexedDB
       ipcMain.on('broker-ready', (event, arg) => {

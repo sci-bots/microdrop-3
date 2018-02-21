@@ -8,7 +8,8 @@
     "test": "node _test.js",
     "remove:links": "rm -rf node_modules && npm install",
     "start": "./node_modules/.bin/electron .",
-    "build": "exit 0"
+    "build": "exit 0",
+    "postinstall": "node post-install.js"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
@@ -29,6 +30,7 @@
     "electron-debug": "^1.5.0",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
+    "hasbin": "^1.2.3",
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git",
     "msgpack5": "^4.0.1",

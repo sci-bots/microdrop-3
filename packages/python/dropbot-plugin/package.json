@@ -1,0 +1,21 @@
+{
+  "name": "@microdrop/dropbot-plugin",
+  "scripts": {
+    "install": "$MICRODROP/miniconda/bin/conda env create --force -f=./environment.yml -p ./environment",
+    "start": "source $MICRODROP/miniconda/bin/activate ./environment && python dropbot_plugin/__init__.py",
+    "dev": "yarn dev-p1 && yarn dev-p2",
+    "dev-p1": "source $MICRODROP/miniconda/bin/activate ./environment && pip uninstall micropede || true",
+    "dev-p2": "$MICRODROP/miniconda/bin/conda develop ../../../Micropede/packages/python -p ./environment"
+  },
+  "help": {
+    "install": "create conda environment to hold python packages",
+    "start": "run python script from withing conda environment",
+    "dev": "link micropede package locally"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "hasbin": "^1.2.3"
+  }
+}
