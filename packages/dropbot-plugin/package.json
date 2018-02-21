@@ -1,7 +1,8 @@
 {
   "name": "@microdrop/dropbot-plugin",
   "scripts": {
-    "install": "conda env create --force -f=./environment.yml -p ./environment",
+    "install": "",
+    "postinstall": "conda env create --force -f=./environment.yml -p ./environment",
     "start": "source activate ./environment || true && activate ./environment || true && python dropbot_plugin/__init__.py",
     "dev": "yarn dev-p1 && yarn dev-p2",
     "dev-p1": "source activate ./environment || true && activate ./environment || true && pip uninstall micropede || true",
