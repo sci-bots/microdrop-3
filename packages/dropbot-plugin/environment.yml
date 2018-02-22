@@ -1,7 +1,4 @@
-name: dropbot_plugin
-
+name: @microdrop/dropbot-plugin
 dependencies:
-  - python=3.6
-  - pip:
-    - ../../Micropede/packages/python
-    - pydash
+  - python==3.6
+  

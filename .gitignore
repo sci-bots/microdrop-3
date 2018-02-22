@@ -1,4 +1,6 @@
 packages/builder/packager/**/*
+
+**/yac_environment/*
 **/dist/**/*
 **/build/**/*
 **/*.web.js

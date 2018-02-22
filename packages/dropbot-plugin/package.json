@@ -1,19 +1,12 @@
 {
-  "name": "@microdrop/dropbot-plugin",
-  "scripts": {
-    "install": "",
-    "postinstall": "conda env create --force -f=./environment.yml -p ./environment",
-    "start": "source activate ./environment || true && activate ./environment || true && python dropbot_plugin/__init__.py",
-    "dev": "yarn dev-p1 && yarn dev-p2",
-    "dev-p1": "source activate ./environment || true && activate ./environment || true && pip uninstall micropede || true",
-    "dev-p2": "conda develop ../../../Micropede/packages/python -p ./environment"
-  },
-  "help": {
-    "install": "create conda environment to hold python packages",
-    "start": "run python script from withing conda environment",
-    "dev": "link micropede package locally"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+    "name": "@microdrop/dropbot-plugin",
+    "publishConfig": {
+        "access": "public"
+    },
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "keywords": [
+        "yac-project"
+    ]
 }

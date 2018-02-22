@@ -22,5 +22,7 @@
   "homepage": "https://github.com/Lucaszw/microdrop-3#readme",
   "name": "microdrop-3",
   "main": "lerna.json",
-  "dependencies": {}
+  "devDependencies": {
+    "lerna": "^2.9.0"
+  }
 }
