@@ -1,4 +1,4 @@
-# MicroDrop 3
+<img src="https://raw.githubusercontent.com/sci-bots/microdrop-3/master/docs/MicroDrop.PNG" />
 
 [![Build Status](https://travis-ci.org/sci-bots/microdrop-3.svg?branch=master)](https://travis-ci.org/sci-bots/microdrop-3)
 [![Build status](https://ci.appveyor.com/api/projects/status/am9mpa48m038s7ec?svg=true)](https://ci.appveyor.com/project/SciBots/microdrop-3)
