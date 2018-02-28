@@ -25,6 +25,7 @@
     "@microdrop/ui": "^1.1.40",
     "@micropede/broker": "0.0.27",
     "@micropede/client": "0.0.26",
+    "@yac/api": "^0.0.17",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "d64": "^1.0.0",
     "electron-debug": "^1.5.0",

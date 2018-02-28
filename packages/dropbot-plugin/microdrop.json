@@ -1,6 +1,0 @@
-{
-  "name": "dropbot",
-  "version": "0.0.1",
-  "type": "process",
-  "script": "yac exec 'python dropbot_plugin/__init__.py'"
-}

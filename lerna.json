@@ -4,6 +4,7 @@
     "Micropede/packages/broker",
     "Micropede/packages/client",
     "Micropede/packages/mixins",
+    "yac/packages/*",
     "packages/application",
     "packages/application/ui/src",
     "packages/device-controller",

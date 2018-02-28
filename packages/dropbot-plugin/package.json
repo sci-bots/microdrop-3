@@ -4,9 +4,12 @@
         "access": "public"
     },
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "python dropbot_plugin/__init__.py",
     "license": "MIT",
     "keywords": [
-        "yac-project"
-    ]
+        "yac-project", "microdrop"
+    ],
+    "scripts": {
+      "dev": "yac dev ../../Micropede/packages/python micropede"
+    }
 }
