@@ -92,7 +92,6 @@ class WebServer extends MicropedeClient {
       `;
 
       const html = `<iframe style="${style}" src="${yac.dashboard.url()}"></iframe>`;
-      console.log(html);
       res.send(html);
     });
 
