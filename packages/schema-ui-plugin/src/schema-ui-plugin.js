@@ -13,11 +13,40 @@ const ajv = new Ajv({useDefaults: true});
 
 let schema_hash = '';
 
+function FindPath(object, deepKey, path="") {
+  /* Get path to nested key (only works if key is unique) */
+
+  // If object contains key then return path
+  if (_.get(object, deepKey)){
+    return `${path}.${deepKey}`.slice(1);
+  }
+
+  // Otherwise, search all child objects:
+  else {
+    let keys =  _.keys(object);
+    let _path;
+    _.each(keys, (k) => {
+      // Skip keys that are not objects:
+      if (!_.isObject(object[k])) return true;
+      // Check if key found along path:
+      let p = FindPath(object[k], deepKey, `${path}.${k}`);
+      // If path isn't false, exit each loop (path has been found):
+      if (p) { _path = p; return false; }
+    });
+
+    // Return path if defined
+    if (_path) return _path;
+  }
+  return false;
+};
+
+_.findPath = (...args) => {return FindPath(...args)}
+
 class SchemaUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
 
-    this.plugins = ["dropbot"];
+    this.plugins = ["dropbot", "routes-model"];
 
     this.tabs = yo`
       <div>
@@ -29,10 +58,10 @@ class SchemaUIPlugin extends UIPlugin {
     this.element.appendChild(yo`
       <div class="container-fluid">
         <div class="row">
-          <div class="col-sm-9">${this.tabs}</div>
+          <div class="col-sm-12">${this.tabs}</div>
         </div>
         <div class="row">
-          <div class="col-sm-9">${this.content}</div>
+          <div class="col-sm-12">${this.content}</div>
         </div>
       </div>
     `);
@@ -48,11 +77,13 @@ class SchemaUIPlugin extends UIPlugin {
     // Reset client
     await this.disconnectClient();
     await this.connectClient(this.clientId, this.host, this.port);
+    // console.log("CLIENT:");
+    // console.log(this.client);
 
     this.pluginName = pluginName;
     await this.getSchema(pluginName);
 
-    console.log("changeSchema", ...args);
+    console.log("changeSchema", pluginName);
   }
 
   async getSchema(pluginName) {
@@ -95,6 +126,8 @@ class SchemaUIPlugin extends UIPlugin {
         return
       } else {
         await this.onStateMsg(pluginName, k, (payload, params) => {
+          console.log("STATE MSG::");
+          console.log(pluginName, k, payload);
           this.json[k] = payload;
           this.editor.set(this.json);
         });
@@ -118,14 +151,27 @@ class SchemaUIPlugin extends UIPlugin {
     const validate = ajv.compile(this.editor.schema);
     if (!validate(data)) throw(validate.errors);
 
-    const key = _.get(last, 'params.node.field');
-    const val = data[key];
+    let key = _.get(last, 'params.node.field');
+    let val = data[key];
 
+    // Ignore variables for now
     if (`${val}`[0] == '$') return;
+
+    // Find path to key in schema (subSchema):
+    let path = _.findPath(this.editor.schema, key);
+    const subSchema = _.get(this.editor.schema, path);
+
+    // If subSchema depends on parent prop, change key accordingly
+    if (subSchema.set_with) {
+      key = subSchema.set_with;
+      val = data[key];
+    }
 
     const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
     const msg = {};
 
+    console.log("CLIENT:");
+    console.log(this.client);
     await this.sendMessage(topic, {[key]: val});
     console.log("Message sent!");
     console.log({key, val});

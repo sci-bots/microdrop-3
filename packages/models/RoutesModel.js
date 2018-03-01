@@ -18,6 +18,29 @@ window.addEventListener('error', function(e) {
 
 const APPNAME = 'microdrop';
 
+const RoutesSchema = {
+  type: "object",
+  properties: {
+    routes: {
+      type: "array",
+      properties: {
+        route: {
+          type: "object",
+          properties: {
+            start: {type: "string", set_with: 'routes'},
+            path:  {type: "array", set_with: 'routes'},
+            trailLength: {type: "integer", minimum: 1, default: 1, set_with: 'routes'},
+            repeatDurationSeconds: {type: "number", minium: 0, default: 1, set_with: 'routes'},
+            transitionDurationMilliseconds: {type: "integer", minimum: 100, default: 1000, set_with: 'routes'},
+            routeRepeats: {type: "integer", minimum: 1, default: 1, set_with: 'routes'}
+          },
+          required: ["start", "path"]
+        }
+      }
+    }
+  }
+};
+
 const RouteSchema = {
   type: "object",
   properties: {
@@ -37,6 +60,7 @@ class RoutesModel extends MicropedeClient {
     super(appname, host, port, ...args);
     this.running = false;
     this.port = port;
+    this.schema = RoutesSchema;
   }
 
   // ** Event Listeners **
