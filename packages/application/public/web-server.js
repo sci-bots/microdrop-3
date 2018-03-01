@@ -270,7 +270,7 @@ class WebServer extends MicropedeClient {
     res.send(
       `Navigate to one of the following: <br>
       <b>/process-plugins</b> : Manage process plugins (yac dashboard) <br>
-      <b>/web-plugins</b> : Manage js ui plugins  <br>
+      <b>/ui-plugins</b> : Manage js ui plugins  <br>
       <b>/display</b> : Display User Interface (Enable plugins in plugin-manager first) <br>
       `);
   }

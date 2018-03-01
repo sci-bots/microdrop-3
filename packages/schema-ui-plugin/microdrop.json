@@ -1,0 +1,6 @@
+{
+  "name": "schema-ui-plugin",
+  "version": "1.1.41",
+  "type": "ui",
+  "script": "build/schema-ui-plugin.web.js"
+}

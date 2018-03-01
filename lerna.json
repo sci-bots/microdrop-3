@@ -16,7 +16,8 @@
     "packages/models",
     "packages/microdrop",
     "packages/builder",
-    "packages/dropbot-plugin"
+    "packages/dropbot-plugin",
+    "packages/schema-ui-plugin"
   ],
   "version": "1.1.41",
   "npmClient": "yarn"
