@@ -11,8 +11,6 @@ const _ = require('lodash');
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
-let schema_hash = '';
-
 function FindPath(object, deepKey, path="") {
   /* Get path to nested key (only works if key is unique) */
 
@@ -67,6 +65,7 @@ class SchemaUIPlugin extends UIPlugin {
     `);
 
     this.json = {};
+    this.schema_hash = '';
     this.editor = new JSONEditor(this.content, {
       onChange: _.debounce(this.onChange.bind(this), 750).bind(this)
     });
@@ -98,9 +97,9 @@ class SchemaUIPlugin extends UIPlugin {
 
     // Only update when schema has changed
     let hash = sha256(JSON.stringify(schema));
-    if (hash == schema_hash) return;
+    if (hash == this.schema_hash) return;
     else {
-      schema_hash = hash;
+      this.schema_hash = hash;
     }
 
     // Hide __hidden__ properties
@@ -126,10 +125,16 @@ class SchemaUIPlugin extends UIPlugin {
         return
       } else {
         await this.onStateMsg(pluginName, k, (payload, params) => {
-          console.log("STATE MSG::");
-          console.log(pluginName, k, payload);
           this.json[k] = payload;
-          this.editor.set(this.json);
+
+          // Only re-draw if the current displayed content differs from
+          // the new payload
+          let prevHash = sha256(JSON.stringify(this.editor.get()));
+          let hash = sha256(JSON.stringify(this.json));
+
+          if (hash != prevHash) {
+            this.editor.set(this.json);
+          }
         });
         this.json[k] = v.default;
       }
