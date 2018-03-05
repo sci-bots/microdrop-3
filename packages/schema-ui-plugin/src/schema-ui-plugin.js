@@ -6,10 +6,23 @@ const MicropedeAsync = require('@micropede/client/src/async.js');
 const Ajv = require('ajv');
 const JSONEditor = require('jsoneditor');
 const sha256 = require('sha256');
+const Sortable = require('sortablejs');
 const yo = require('yo-yo');
 const _ = require('lodash');
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
+
+const StepMixins = require('./step-mixins');
+
+const unselect = (b) => {
+  b.classList.remove("btn-primary");
+  b.classList.add("btn-outline-secondary");
+}
+
+const select = (b) => {
+  b.classList.remove("btn-outline-secondary");
+  b.classList.add("btn-primary");
+}
 
 function FindPath(object, deepKey, path="") {
   /* Get path to nested key (only works if key is unique) */
@@ -40,26 +53,53 @@ function FindPath(object, deepKey, path="") {
 
 _.findPath = (...args) => {return FindPath(...args)}
 
+
 class SchemaUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
-
+    _.extend(this, StepMixins);
     this.plugins = ["dropbot", "routes-model"];
 
     this.tabs = yo`
-      <div>
+      <div style="${Styles.tabs}">
         ${_.map(this.plugins, (n) => yo`
-          <button onclick=${this.changeSchema.bind(this,n)}>${n}</button>
-        `)}
+            <button id="tab-${n}"
+            class="tab-btn btn btn-sm btn-outline-secondary"
+            style="${Styles.tabButton}"
+            onclick=${this.changeSchema.bind(this,n)}>
+              ${n}
+            </button>
+          `
+        )}
       </div>`;
+
+    this.steps = yo`<div></div>`;
     this.content = yo`<div></div>`;
     this.element.appendChild(yo`
-      <div class="container-fluid">
+      <div class="container-fluid" style="padding: 0px;">
         <div class="row">
           <div class="col-sm-12">${this.tabs}</div>
         </div>
         <div class="row">
-          <div class="col-sm-12">${this.content}</div>
+          <div class="col-sm-3" style="padding-right:0px;">
+            <div style="${Styles.stepButtonContainer}">
+              <button
+                class="btn btn-sm btn-outline-info"
+                style="width:100%;margin:3px 0px;"
+                onclick=${this.showAll.bind(this)}>
+                Show All
+              </button>
+
+              <button
+                class="btn btn-sm btn-outline-success"
+                style="width:100%"
+                onclick=${this.createStep.bind(this)}>
+                Create Step
+              </button>
+              ${this.steps}
+            </div>
+          </div>
+          <div class="col-sm-9" style="padding-left:0px;margin-left:0px;">${this.content}</div>
         </div>
       </div>
     `);
@@ -67,22 +107,105 @@ class SchemaUIPlugin extends UIPlugin {
     this.json = {};
     this.schema_hash = '';
     this.editor = new JSONEditor(this.content, {
-      onChange: _.debounce(this.onChange.bind(this), 750).bind(this)
+      onChange: _.debounce(this.onChange.bind(this), 750).bind(this),
+      navigationBar: false,
+      statusBar: false,
+      search: false
     });
-
+    this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
+    Styles.apply(elem);
   }
 
-  async changeSchema(pluginName, e) {
+  async showAll(e) {
+    // Load all states based on last loaded schema
+    this.schema_hash = '';
+    this.loadedStep = undefined;
+    this.changeSchema(this.pluginName);
+  }
+
+  async loadStates(states) {
+    // Load each plugin in state:
+    await Promise.all(_.map(this.plugins, async (p) => {
+      // Load each key in each plugin:
+      await Promise.all(_.map(states[p], async (v,k) => {
+        const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+        try {
+          await microdrop.putPlugin(p, k, v);
+        } catch (e) {
+          console.error(e);
+        }
+      }));
+    }));
+  }
+
+  async changeSchema(pluginName) {
+
     // Reset client
     await this.disconnectClient();
     await this.connectClient(this.clientId, this.host, this.port);
-    // console.log("CLIENT:");
-    // console.log(this.client);
 
     this.pluginName = pluginName;
-    await this.getSchema(pluginName);
+    let pluginBtns = [...this.tabs.querySelectorAll('.tab-btn')];
+    let selectedBtn = this.tabs.querySelector(`#tab-${this.pluginName}`);
 
-    console.log("changeSchema", pluginName);
+    // Change the select button to the one containing this plugin name
+    _.each(pluginBtns, unselect);
+    select(selectedBtn);
+
+    await this.loadSchemaByPluginName(pluginName);
+
+    if (this.loadedStep != undefined) {
+      const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+      const step = (await microdrop.getState(this.name, 'steps', 500))[this.loadedStep];
+      let e = {target: this.steps.querySelector(`#step-${this.loadedStep}`)};
+      this.loadStep(this.loadedStep, step, e);
+    }
+
+  }
+
+  async getStateForPlugin(pluginName, schema) {
+    let microdrop;
+
+    // Get all subscriptions for the schema
+    microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+    let subs = await microdrop.getSubscriptions(pluginName);
+
+    // Filter subscriptions for those that match a put endpoint
+    let puttableProperties = _.compact(_.map(subs, (s) => {
+      if (_.includes(s, '/put/')) {
+        return s.split(`${APPNAME}/put/${pluginName}/`)[1];
+      }
+    }));
+
+    // Await the state of every property that has a subscription
+    let state = {};
+    let dat = _.compact(await Promise.all(_.map(puttableProperties, async (prop) => {
+      microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+      try {
+        return {k: prop, v: await microdrop.getState(pluginName, prop, 500)};
+      } catch (e) {
+        return undefined;
+      }
+    })));
+    _.each(dat, (o) => {state[o.k] = o.v});
+
+    // Validate against the schema (which also applies defaults)
+    let validate = ajv.compile(schema);
+    validate(state);
+
+    // Remove hidden properties, and those that are not changeable on a
+    // per step basis
+    _.each(_.keys(state), (k) => {
+      if (k.slice(0,2) == '__' && k.slice(-2) == '__') {
+        delete state[k];
+      } else {
+        // Get path to prop in schema:
+        const p = _.findPath(schema, k);
+        if (_.get(schema, `${p}.per_step`) == false)
+          delete state[k];
+      }
+    });
+    return state;
   }
 
   async getSchema(pluginName) {
@@ -90,16 +213,8 @@ class SchemaUIPlugin extends UIPlugin {
     let schema;
     try {
       schema = await microdrop.getState(pluginName, 'schema', 500);
-      console.log({schema});
     } catch (e) {
       console.error("Failed to get schema from dropbot plugin:", e);
-    }
-
-    // Only update when schema has changed
-    let hash = sha256(JSON.stringify(schema));
-    if (hash == this.schema_hash) return;
-    else {
-      this.schema_hash = hash;
     }
 
     // Hide __hidden__ properties
@@ -115,12 +230,27 @@ class SchemaUIPlugin extends UIPlugin {
         properties[k].pattern = v.pattern || '^[\$]';
     });
 
+    schema.properties = properties;
+    return schema;
+  }
+
+  async loadSchemaByPluginName(pluginName) {
+
+    const schema = await this.getSchema(pluginName);
+
+    // Only update when schema has changed
+    let hash = sha256(JSON.stringify(schema));
+    if (hash == this.schema_hash) return;
+    else {
+      this.schema_hash = hash;
+    }
+
     // Iterate through properties, and check for a subscription,
     // otherwise add one
     const subscriptions = this.subscriptions;
 
     this.json = {};
-    await Promise.all(_.map(properties, async (v,k) => {
+    await Promise.all(_.map(schema.properties, async (v,k) => {
       if (_.includes(this.subscriptions, `${APPNAME}/${pluginName}/state/${k}`)) {
         return
       } else {
@@ -135,6 +265,9 @@ class SchemaUIPlugin extends UIPlugin {
           if (hash != prevHash) {
             this.editor.set(this.json);
           }
+
+          // If a step is selected, then update the value in the step also:
+          this.updateStep(pluginName, k, payload);
         });
         this.json[k] = v.default;
       }
@@ -147,7 +280,7 @@ class SchemaUIPlugin extends UIPlugin {
   }
 
   listen() {
-    // this.getSchema();
+    this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
   }
 
   async onChange(...args) {
@@ -167,7 +300,7 @@ class SchemaUIPlugin extends UIPlugin {
     const subSchema = _.get(this.editor.schema, path);
 
     // If subSchema depends on parent prop, change key accordingly
-    if (subSchema.set_with) {
+    if (_.get(subSchema, 'set_with')) {
       key = subSchema.set_with;
       val = data[key];
     }
@@ -175,13 +308,48 @@ class SchemaUIPlugin extends UIPlugin {
     const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
     const msg = {};
 
-    console.log("CLIENT:");
-    console.log(this.client);
     await this.sendMessage(topic, {[key]: val});
-    console.log("Message sent!");
-    console.log({key, val});
   }
 
+}
+
+
+const Styles = {
+  apply(container) {
+    container.style.padding = "0px";
+    // Enter all styling that is applied programmably here:
+    let editor = container.getElementsByClassName('jsoneditor')[0];
+    let menu = container.getElementsByClassName('jsoneditor-menu')[0];
+    let elemBody = menu.parentElement.getElementsByClassName('jsoneditor-outer')[0];
+
+    editor.style.border = '1px solid white';
+    menu.style.display = 'none';
+    elemBody.style.position = 'relative';
+    elemBody.style.top = '35px';
+    elemBody.style.paddingTop = '0px';
+  },
+  tabs: `
+    background: #eaeaea;
+    border-top: 1px solid #b5b5b5;
+    border-bottom: 1px solid #b5b5b5;
+    padding: 3px;
+  `,
+  stepButton: `
+    margin: 3px 0px;
+    width: 100%;
+    background: white;
+    color: black;
+    border: 1px solid #b5b5b5;
+  `,
+  stepButtonContainer: `
+    padding: 3px;
+    border-right: 1px solid #a7a7a7;
+    height: 100%;
+    width: 100%;
+  `,
+  tabButton: `
+    margin: 0px 3px;
+  `
 }
 
 module.exports = SchemaUIPlugin;
