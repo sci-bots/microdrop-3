@@ -22,7 +22,7 @@ const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
         class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
         style="flex-grow: 1;"
         onclick=${clickCallback.bind(this, index, state)}>
-        Step ${index}
+        Step ${state.__name__}
       </button>
       <button
         class="btn btn-sm btn-outline-danger"
@@ -45,15 +45,15 @@ StepMixins.onStepState = function(payload, params) {
 }
 
 StepMixins.onStepReorder = async function(evt) {
-  // const index1 = evt.oldIndex;
-  // const index2 = evt.newIndex;
-  // const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-  // const prevSteps = await microdrop.getState(this.name, 'steps', 500) || [];
-  // const item1 = _.cloneDeep(prevSteps[index1]);
-  // const item2 = _.cloneDeep(prevSteps[index2]);
-  // prevSteps[index1] = item2;
-  // prevSteps[index2] = item1;
-  // this.setState('steps', prevSteps);
+  const index1 = evt.oldIndex;
+  const index2 = evt.newIndex;
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+  const prevSteps = await microdrop.getState(this.name, 'steps', 500) || [];
+  const item1 = _.cloneDeep(prevSteps[index1]);
+  const item2 = _.cloneDeep(prevSteps[index2]);
+  prevSteps[index1] = item2;
+  prevSteps[index2] = item1;
+  this.setState('steps', prevSteps);
 }
 
 StepMixins.loadStep = async function(index, state, e) {
@@ -78,7 +78,6 @@ StepMixins.loadStep = async function(index, state, e) {
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
-  console.log("UPDATING STEP!", {index: this.loadedStep});
 
   if (this.loadedStep != undefined) {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
@@ -120,8 +119,6 @@ StepMixins.loadStatesForStep = async function(states, index) {
         const steps = await microdrop.getState(this.name, 'steps');
         const step = steps[index];
         _.set(step, [p,k], payload);
-        console.log("STEP UPDATED!!", index);
-        console.log({steps, step, k, payload});
         this.setState('steps',steps);
       });
 
@@ -155,6 +152,7 @@ StepMixins.createStep = async function (e) {
   } catch (e) { prevSteps = []; }
 
   // Write current state as new step
+  state.__name__ = prevSteps.length;
   prevSteps.push(state);
   await this.setState('steps', prevSteps);
 }
