@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@microdrop/ui-plugin": "^1.1.40",
-    "@micropede/client": "0.0.26",
+    "@micropede/client": "0.0.28",
     "file-saver": "^1.3.3",
     "jsoneditor": "github:Lucaszw/jsoneditor#master",
     "keyboard-shortcut": "^1.2.0",

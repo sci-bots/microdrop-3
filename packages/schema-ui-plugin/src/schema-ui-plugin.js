@@ -15,11 +15,13 @@ const ajv = new Ajv({useDefaults: true});
 const StepMixins = require('./step-mixins');
 
 const unselect = (b) => {
+  if (b == null) return;
   b.classList.remove("btn-primary");
   b.classList.add("btn-outline-secondary");
 }
 
 const select = (b) => {
+  if (b == null) return;
   b.classList.remove("btn-outline-secondary");
   b.classList.add("btn-primary");
 }
@@ -74,14 +76,14 @@ class SchemaUIPlugin extends UIPlugin {
       </div>`;
 
     this.steps = yo`<div></div>`;
-    this.content = yo`<div></div>`;
+    this.content = yo`<div style="zoom:0.9"></div>`;
     this.element.appendChild(yo`
       <div class="container-fluid" style="padding: 0px;">
         <div class="row">
           <div class="col-sm-12">${this.tabs}</div>
         </div>
         <div class="row">
-          <div class="col-sm-3" style="padding-right:0px;">
+          <div class="col-sm-4" style="padding-right:0px;">
             <div style="${Styles.stepButtonContainer}">
               <button
                 class="btn btn-sm btn-outline-info"
@@ -99,7 +101,7 @@ class SchemaUIPlugin extends UIPlugin {
               ${this.steps}
             </div>
           </div>
-          <div class="col-sm-9" style="padding-left:0px;margin-left:0px;">${this.content}</div>
+          <div class="col-sm-8" style="padding-left:0px;margin-left:0px;">${this.content}</div>
         </div>
       </div>
     `);
@@ -110,32 +112,24 @@ class SchemaUIPlugin extends UIPlugin {
       onChange: _.debounce(this.onChange.bind(this), 750).bind(this),
       navigationBar: false,
       statusBar: false,
-      search: false
+      search: false,
+      indentation: 0
     });
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
     Styles.apply(elem);
   }
 
   async showAll(e) {
+    // Remove client for steps:
+    if (this.stepClient) {
+      try { await this.stepClient.disconnectClient();} catch (e) {}
+      delete this.stepClient;
+    }
+
     // Load all states based on last loaded schema
     this.schema_hash = '';
     this.loadedStep = undefined;
     this.changeSchema(this.pluginName);
-  }
-
-  async loadStates(states) {
-    // Load each plugin in state:
-    await Promise.all(_.map(this.plugins, async (p) => {
-      // Load each key in each plugin:
-      await Promise.all(_.map(states[p], async (v,k) => {
-        const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-        try {
-          await microdrop.putPlugin(p, k, v);
-        } catch (e) {
-          console.error(e);
-        }
-      }));
-    }));
   }
 
   async changeSchema(pluginName) {
@@ -153,14 +147,6 @@ class SchemaUIPlugin extends UIPlugin {
     select(selectedBtn);
 
     await this.loadSchemaByPluginName(pluginName);
-
-    if (this.loadedStep != undefined) {
-      const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-      const step = (await microdrop.getState(this.name, 'steps', 500))[this.loadedStep];
-      let e = {target: this.steps.querySelector(`#step-${this.loadedStep}`)};
-      this.loadStep(this.loadedStep, step, e);
-    }
-
   }
 
   async getStateForPlugin(pluginName, schema) {
@@ -266,8 +252,6 @@ class SchemaUIPlugin extends UIPlugin {
             this.editor.set(this.json);
           }
 
-          // If a step is selected, then update the value in the step also:
-          this.updateStep(pluginName, k, payload);
         });
         this.json[k] = v.default;
       }
