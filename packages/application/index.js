@@ -203,7 +203,7 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           }
         }
 
-        win = new BrowserWindow(_.extend(options, {show:true}));
+        win = new BrowserWindow(_.extend(options, {show}));
         win.loadURL(url.format({
           pathname: path.resolve(__dirname, 'public/index.html'),
           protocol: 'file:',

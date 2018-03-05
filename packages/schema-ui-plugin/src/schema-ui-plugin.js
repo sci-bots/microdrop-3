@@ -76,7 +76,7 @@ class SchemaUIPlugin extends UIPlugin {
       </div>`;
 
     this.steps = yo`<div></div>`;
-    this.content = yo`<div style="zoom:0.9"></div>`;
+    this.content = yo`<div style="zoom:0.8"></div>`;
     this.element.appendChild(yo`
       <div class="container-fluid" style="padding: 0px;">
         <div class="row">
