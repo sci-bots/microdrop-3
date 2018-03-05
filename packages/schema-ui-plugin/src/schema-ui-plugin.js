@@ -73,6 +73,11 @@ class SchemaUIPlugin extends UIPlugin {
             </button>
           `
         )}
+        <button class="btn btn-sm btn-success"
+          style="${Styles.tabButton}"
+          onclick=${this.executeSteps.bind(this)}>
+          Execute
+        </button>
       </div>`;
 
     this.steps = yo`<div></div>`;

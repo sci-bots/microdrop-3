@@ -21,7 +21,7 @@ const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
         id="step-${index}"
         class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
         style="flex-grow: 1;"
-        onclick=${clickCallback.bind(this, index, state)}>
+        onclick=${clickCallback.bind(this, index)}>
         Step ${state.__name__}
       </button>
       <button
@@ -32,6 +32,21 @@ const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
       </button>
     </div>
   `;
+}
+
+StepMixins.executeSteps = async function(e) {
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+
+  console.log("Executing Steps!");
+  const steps = await microdrop.getState(this.name, 'steps');
+  for (let i =this.loadedStep || 0;i<steps.length; i++ ){
+    await this.loadStep(i);
+    const routes = await microdrop.getState('routes-model', 'routes');
+
+    // TODO: Should be dynamic
+    await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
+  }
+  console.log("Done!");
 }
 
 StepMixins.onStepState = function(payload, params) {
@@ -56,25 +71,27 @@ StepMixins.onStepReorder = async function(evt) {
   this.setState('steps', prevSteps);
 }
 
-StepMixins.loadStep = async function(index, state, e) {
+StepMixins.loadStep = async function(index) {
   this.schema_hash = '';
   // Change unloaded steps to secondary buttons, and loaded step
   // to primary button
-  let stepElements = [...this.steps.getElementsByClassName('step-main')];
+  let stepElements = [...this.steps.querySelectorAll('.step-main')];
+  let btn = this.steps.querySelector(`#step-${index}`);
   _.each(stepElements, unselect);
-  select(e.target);
+  select(btn);
 
   // Change loaded step
   this.loadedStep = index;
 
   // If a plugin is selected, update the schemas
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   if (this.pluginName) {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     await this.loadSchemaByPluginName(this.pluginName);
   }
 
   // Load the step data
-  this.loadStatesForStep(state, index);
+  const state = (await microdrop.getState(this.name, 'steps'))[index];
+  return await this.loadStatesForStep(state, index);
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
@@ -105,8 +122,8 @@ StepMixins.loadStatesForStep = async function(states, index) {
     this.port, clientName);
 
   // Iterate through each plugin + key
-  await Promise.all(_.map(this.plugins, async (p) => {
-    await Promise.all(_.map(states[p], async (v,k) => {
+  return await Promise.all(_.map(this.plugins, async (p) => {
+    return await Promise.all(_.map(states[p], async (v,k) => {
 
       // Call a put on each key
       microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
@@ -121,7 +138,7 @@ StepMixins.loadStatesForStep = async function(states, index) {
         _.set(step, [p,k], payload);
         this.setState('steps',steps);
       });
-
+      return;
     }));
   }));
 }
