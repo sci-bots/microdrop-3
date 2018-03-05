@@ -6,10 +6,11 @@ const {spawn} = require('child_process');
 const {Console} = require('console');
 
 const _ = require('lodash');
+const bodyParser = require('body-parser');
 const d64 = require('d64');
 const express = require('express');
 const {ipcRenderer} = require('electron');
-const msgpack5 = require('msgpack5');
+const msgpack = require('msgpack5')();
 const pkginfo = require('pkginfo')(module);
 const yac = require('@yac/api');
 
@@ -36,7 +37,7 @@ class WebServer extends MicropedeClient {
     Object.assign(this, this.ExpressServer());
     this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
-
+    this.use(bodyParser.json());
     this.storage = storage;
     this.broker = broker;
     this.ports = ports;

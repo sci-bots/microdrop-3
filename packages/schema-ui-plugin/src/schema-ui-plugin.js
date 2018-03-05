@@ -4,11 +4,15 @@ const UIPlugin = require('@microdrop/ui-plugin');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const Ajv = require('ajv');
+const FileSaver = require('file-saver');
+const generateName = require('sillyname');
 const JSONEditor = require('jsoneditor');
+const request = require('browser-request');
 const sha256 = require('sha256');
 const Sortable = require('sortablejs');
 const yo = require('yo-yo');
 const _ = require('lodash');
+
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
@@ -73,10 +77,20 @@ class SchemaUIPlugin extends UIPlugin {
             </button>
           `
         )}
-        <button class="btn btn-sm btn-success"
-          style="${Styles.tabButton}"
+        <button class="btn btn-sm btn-outline-success"
+          style="${Styles.tabButton};float:right;"
           onclick=${this.executeSteps.bind(this)}>
           Execute
+        </button>
+        <button class="btn btn-sm btn-outline-secondary"
+          style="${Styles.tabButton};float:right;"
+          onclick=${this.saveToFile.bind(this)}>
+          Save to File
+        </button>
+        <button class="btn btn-sm btn-outline-secondary"
+          style="${Styles.tabButton};float:right;"
+          onclick=${this.openFile.bind(this)}>
+          Open File
         </button>
       </div>`;
 
@@ -124,6 +138,39 @@ class SchemaUIPlugin extends UIPlugin {
     Styles.apply(elem);
   }
 
+  async saveToFile(e) {
+    const type = "application/json;charset=utf-8";
+    request('/storage-clean', (response, err, body) => {
+      const blob = new Blob([body], {type});
+      FileSaver.saveAs(blob, `${generateName()}.microdrop`);
+    });
+  }
+
+  async openFile(e) {
+    console.log("Opening file!");
+    /* Open a file-browser window to select a microdrop file */
+    const handler = (e) => {
+      const f = e.target.files[0];
+      const ext = f.name.split(".").pop().toLowerCase();
+
+      if (ext !== 'microdrop') {
+        alert("Invalid extension, file must be .microdrop");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        const payload = JSON.parse(content);
+        console.log({payload});
+        // this.restoreFile(payload);
+      };
+      reader.readAsText(f);
+    }
+
+    const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
+    fileinput.click();
+  }
+
   async showAll(e) {
     // Remove client for steps:
     if (this.stepClient) {
@@ -138,7 +185,6 @@ class SchemaUIPlugin extends UIPlugin {
   }
 
   async changeSchema(pluginName) {
-
     // Reset client
     await this.disconnectClient();
     await this.connectClient(this.clientId, this.host, this.port);
@@ -217,8 +263,8 @@ class SchemaUIPlugin extends UIPlugin {
 
     // Extend schema properties to include variables:
     _.each(properties, (v,k) => {
-        properties[k].type = _.uniq([v.type, "string"]);
-        properties[k].pattern = v.pattern || '^[\$]';
+      properties[k].type = _.uniq([v.type, "string"]);
+      properties[k].pattern = v.pattern || '^[\$]';
     });
 
     schema.properties = properties;

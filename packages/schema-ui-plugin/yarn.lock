@@ -2,11 +2,33 @@
 # yarn lockfile v1
 
 
-"@micropede/client@^0.0.26":
-  version "0.0.26"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.26.tgz#f17016394ab294a87433fd4c93d278569452a7e2"
+"@microdrop/ui-plugin@^1.1.40":
+  version "1.1.40"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.40.tgz#937374a07ded133a441986e2e3284cf1c109a68c"
+  dependencies:
+    "@micropede/client" "0.0.24"
+    browser-request "^0.3.3"
+    keyboard-shortcut "^1.2.0"
+
+"@micropede/client@0.0.24":
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.24.tgz#2c440d938bd43fec7e8b787fbe31aaf25ccf82e2"
   dependencies:
     "@micropede/mixins" "^0.0.23"
+    backbone "^1.3.3"
+    detect-node "^2.0.3"
+    jquery "^3.3.1"
+    lodash "^4.17.4"
+    mqtt "^2.15.1"
+    route-recognizer "^0.3.3"
+    uuid "^3.2.1"
+
+"@micropede/client@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.28.tgz#916aae3a31a6633c94aac2026e01bae550da2692"
+  dependencies:
+    "@micropede/mixins" "^0.0.23"
+    ajv "^6.1.1"
     backbone "^1.3.3"
     detect-node "^2.0.3"
     jquery "^3.3.1"
@@ -60,6 +82,14 @@ ajv@^4.9.1:
 ajv@^6.1.0, ajv@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.2.0.tgz#afac295bbaa0152449e522742e4547c1ae9328d2"
+  dependencies:
+    fast-deep-equal "^1.0.0"
+    fast-json-stable-stringify "^2.0.0"
+    json-schema-traverse "^0.3.0"
+
+ajv@^6.1.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.2.1.tgz#28a6abc493a2abe0fb4c8507acaedb43fa550671"
   dependencies:
     fast-deep-equal "^1.0.0"
     fast-json-stable-stringify "^2.0.0"
@@ -323,6 +353,10 @@ braces@^2.3.0, braces@^2.3.1:
 brorand@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
+
+browser-request@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/browser-request/-/browser-request-0.3.3.tgz#9ece5b5aca89a29932242e18bf933def9876cc17"
 
 browserify-aes@^1.0.0, browserify-aes@^1.0.4:
   version "1.1.1"
@@ -1119,6 +1153,10 @@ fastparse@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/fastparse/-/fastparse-1.1.1.tgz#d1e2643b38a94d7583b479060e6c4affc94071f8"
 
+file-saver@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-1.3.3.tgz#cdd4c44d3aa264eac2f68ec165bc791c34af1232"
+
 fill-range@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-4.0.0.tgz#d544811d428f98eb06a63dc402d2403c328c38f7"
@@ -1728,6 +1766,12 @@ jsprim@^1.2.2:
     extsprintf "1.3.0"
     json-schema "0.2.3"
     verror "1.10.0"
+
+keyboard-shortcut@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/keyboard-shortcut/-/keyboard-shortcut-1.2.0.tgz#54d6b4a5d2e2e91129d87d98fc6c70f1c2721187"
+  dependencies:
+    vkeys "^1.1.0"
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
   version "3.2.2"
@@ -2876,6 +2920,10 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
+sillyname@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/sillyname/-/sillyname-0.1.0.tgz#cfd98858e2498671347775efe3bb5141f46c87d6"
+
 snapdragon-node@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/snapdragon-node/-/snapdragon-node-2.1.1.tgz#6c175f86ff14bdb0724563e8f3c1b021a286853b"
@@ -3350,6 +3398,10 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+vkeys@^1.1.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/vkeys/-/vkeys-1.2.0.tgz#983b32161b629a526111648223e0432b6004d39b"
 
 vm-browserify@0.0.4:
   version "0.0.4"
