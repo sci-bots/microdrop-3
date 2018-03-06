@@ -99,7 +99,7 @@ class SchemaUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
-    this.plugins = ["dropbot", "routes-model", "electrodes-model"];
+    this.plugins = ["dropbot", "routes-model", "electrodes-model", "device-model"];
 
     this.tabs = yo`
       <div style="${Styles.tabs}">
