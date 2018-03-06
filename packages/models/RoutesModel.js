@@ -23,19 +23,18 @@ const RoutesSchema = {
   properties: {
     routes: {
       type: "array",
-      properties: {
-        route: {
-          type: "object",
-          properties: {
-            start: {type: "string", set_with: 'routes'},
-            path:  {type: "array", set_with: 'routes'},
-            trailLength: {type: "integer", minimum: 1, default: 1, set_with: 'routes'},
-            repeatDurationSeconds: {type: "number", minium: 0, default: 1, set_with: 'routes'},
-            transitionDurationMilliseconds: {type: "integer", minimum: 100, default: 1000, set_with: 'routes'},
-            routeRepeats: {type: "integer", minimum: 1, default: 1, set_with: 'routes'}
-          },
-          required: ["start", "path"]
-        }
+      default: [],
+      items: {
+        type: "object",
+        properties: {
+          start: {type: "string", set_with: 'routes'},
+          path:  {type: "array", set_with: 'routes', default: []},
+          trailLength: {type: "integer", minimum: 1, default: 1, set_with: 'routes'},
+          repeatDurationSeconds: {type: "number", minium: 0, default: 1, set_with: 'routes'},
+          transitionDurationMilliseconds: {type: "integer", minimum: 100, default: 1000, set_with: 'routes'},
+          routeRepeats: {type: "integer", minimum: 1, default: 1, set_with: 'routes'}
+        },
+        required: ["start", "path"]
       }
     }
   }

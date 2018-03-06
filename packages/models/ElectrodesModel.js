@@ -24,6 +24,21 @@ const ElectrodeSchema = {
   required: ['id', 'channel']
 }
 
+const ElectrodesSchema = {
+  type: "object",
+  properties: {
+    "active-electrodes": {
+      type: "array",
+      default: [],
+      items: {
+        type: "string",
+        pattern:'^electrode',
+        set_with: 'active-electrodes'
+      }
+    }
+  }
+};
+
 function MapElectrodesAndChannels(threeObject) {
   /* Generate electrode and channel maps from three object */
   const LABEL = "<ElectrodesModel::MapElectrodesAndChannels>";
@@ -57,6 +72,7 @@ class ElectrodesModel extends MicropedeClient {
     console.log("Initializing Electrodes Model");
     super(appname, host, port, ...args);
     this.port = port;
+    this.schema = ElectrodesSchema;
   }
 
   listen() {

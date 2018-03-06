@@ -57,14 +57,33 @@ function FindPath(object, deepKey, path="") {
   return false;
 };
 
-_.findPath = (...args) => {return FindPath(...args)}
+const FindPaths = (object, deepKey) => {
+  let paths = [];
+  let lastPath = false;
+  let _object = _.cloneDeep(object);
+  do {
+    lastPath = FindPath(_object, deepKey);
+    if (lastPath != false) {
+      let newPath = _.toPath(lastPath).slice(0,-1);
+      newPath.push(`_${deepKey}`);
+      let oldObj = _.get(_object, lastPath);
+      _.set(_object, newPath, oldObj);
+      _.unset(_object, lastPath);
+      paths.push(lastPath.replace(new RegExp(`_${deepKey}`, "g"), deepKey));
+    }
+  } while (lastPath != false);
 
+  return paths;
+}
+
+_.findPath  = (...args) => {return FindPath(...args)}
+_.findPaths = (...args) => {return FindPaths(...args)}
 
 class SchemaUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
-    this.plugins = ["dropbot", "routes-model"];
+    this.plugins = ["dropbot", "routes-model", "electrodes-model"];
 
     this.tabs = yo`
       <div style="${Styles.tabs}">
@@ -147,7 +166,6 @@ class SchemaUIPlugin extends UIPlugin {
   }
 
   async openFile(e) {
-    console.log("Opening file!");
     /* Open a file-browser window to select a microdrop file */
     const handler = (e) => {
       const f = e.target.files[0];
@@ -166,7 +184,7 @@ class SchemaUIPlugin extends UIPlugin {
         request(req, (...args) => {
           location.reload();
         });
-        
+
         // this.restoreFile(payload);
       };
       reader.readAsText(f);
@@ -259,20 +277,33 @@ class SchemaUIPlugin extends UIPlugin {
       console.error("Failed to get schema from dropbot plugin:", e);
     }
 
-    // Hide __hidden__ properties
-    let properties = schema.properties;
-    properties = _.pickBy(properties, (v,k)=> {
-      if (k.slice(0,2) == '__' && k.slice(-2) == '__') return false;
-      return true;
-    });
+    const extendSchema = (key) => {
+      const keyPaths = _.findPaths(schema, 'properties');
+      _.each(keyPaths, (keyPath) => {
+        let obj = _.get(schema, keyPath);
 
-    // Extend schema properties to include variables:
-    _.each(properties, (v,k) => {
-      properties[k].type = _.uniq([v.type, "string"]);
-      properties[k].pattern = v.pattern || '^[\$]';
-    });
+        // Remove hidden keys from schema
+        obj = _.pickBy(obj, (v,k)=> {
+          if (k.slice(0,2) == '__' && k.slice(-2) == '__') return false;
+          return true;
+        });
 
-    schema.properties = properties;
+        // Extend schema obj to include variables:
+        _.each(obj, (v,k) => {
+          if (_.includes(v.type, 'string')) return;
+          if (_.isArray(v.type))  v.type.push("string");
+          if (!_.isArray(v.type)) v.type = [v.type, "string"];
+          obj[k].type = _.uniq(v.type);
+          obj[k].pattern = v.pattern || '^[\$]';
+        });
+
+        _.set(schema, keyPath, obj);
+      });
+    }
+
+    extendSchema('properties');
+    extendSchema('items');
+
     return schema;
   }
 
@@ -330,10 +361,9 @@ class SchemaUIPlugin extends UIPlugin {
     if (!validate(data)) throw(validate.errors);
 
     let key = _.get(last, 'params.node.field');
+    // If no key, then likely dealing with a list property
+    if (key == undefined) key = _.get(last, 'params.node.parent.field');
     let val = data[key];
-
-    // Ignore variables for now
-    if (`${val}`[0] == '$') return;
 
     // Find path to key in schema (subSchema):
     let path = _.findPath(this.editor.schema, key);
@@ -344,6 +374,9 @@ class SchemaUIPlugin extends UIPlugin {
       key = subSchema.set_with;
       val = data[key];
     }
+
+    // Ignore variables for now
+    if (`${val}`[0] == '$') return;
 
     const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
     const msg = {};
