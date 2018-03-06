@@ -24,6 +24,26 @@ window.addEventListener('error', function(e) {
     console.error(e.message);
 });
 
+const DeviceSchema = {
+  type: "object",
+  properties: {
+    "three-object": {
+      type: "array",
+      default: [],
+      per_step: false,
+      items: {
+        id: {
+          type: "string",
+          pattern: "^electrode"
+        },
+        translation: {
+          type: "integer"
+        }
+      }
+    }
+  }
+};
+
 class DeviceModel extends MicropedeClient {
   constructor (appname=APPNAME, host, port, ...args) {
     console.log("Initializing Device Model");
@@ -31,6 +51,7 @@ class DeviceModel extends MicropedeClient {
     this.scene = null;
     this.group = null;
     this.port = port;
+    this.schema = DeviceSchema;
   }
 
   listen() {

@@ -1,9 +1,9 @@
 window.$ = require('jquery');
 window.Popper = require('popper.js');
-
 require('bootstrap/dist/css/bootstrap.min.css');
 require('bootstrap/js/dist/tooltip.js');
 require('open-iconic/font/css/open-iconic-bootstrap.css');
+require('./jsoneditorstyles.js');
 
 const Ajv = require('ajv');
 const FileSaver = require('file-saver');

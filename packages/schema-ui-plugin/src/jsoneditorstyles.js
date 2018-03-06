@@ -1,0 +1,9 @@
+require('jsoneditor/src/css/autocomplete.css');
+require('jsoneditor/src/css/contextmenu.css');
+require('jsoneditor/src/css/jsoneditor.css');
+require('jsoneditor/src/css/menu.css');
+require('jsoneditor/src/css/navigationbar.css');
+require('jsoneditor/src/css/reset.css');
+require('jsoneditor/src/css/searchbox.css');
+require('jsoneditor/src/css/statusbar.css');
+require('jsoneditor/src/css/treepath.css');

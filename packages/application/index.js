@@ -153,7 +153,7 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
         webPreferences: {
           webSecurity: false
         },
-        show: false
+        show: true
       };
 
       // Load webserver:

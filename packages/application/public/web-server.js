@@ -123,6 +123,9 @@ class WebServer extends MicropedeClient {
   get filepath() {return __dirname;}
   findPlugins() {
       let args = [];
+      console.log("LOOKING FOR PLUGINS::");
+      console.log(env.defaultEnabled)
+
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
@@ -135,43 +138,50 @@ class WebServer extends MicropedeClient {
   }
 
   addWebPlugin(packageData, pluginDir) {
-    const storage = this.storage || localStorage;
+    const LABEL = "webserver:addwebplugin";
+    try {
+      const storage = this.storage || localStorage;
 
-    const file = path.resolve(pluginDir, packageData.script);
-    const fileExists = fs.existsSync(file);
-    const extension = path.extname(file);
-    const pluginName = path.basename(pluginDir);
+      const file = path.resolve(pluginDir, packageData.script);
+      const fileExists = fs.existsSync(file);
+      const extension = path.extname(file);
+      const pluginName = path.basename(pluginDir);
 
-    // Ensure file exists, and is a javascript file:
-    let error;
-    if (!fileExists) error = "file does not exists";
-    if (extension != ".js") error = "plugins must be javascript (.js) files";
-    if (error) {
-      console.error(error, file);
-      return;
-    }
-
-    // Add plugin, and write to plugins.json
-    let pluginData = JSON.parse(storage.getItem('microdrop:plugins'));
-    const webPlugins = _.get(pluginData, "webPlugins") || {};
-
-    if (!(pluginDir in webPlugins )) {
-      let state = "disabled";
-
-      if (_.includes(env.defaultEnabled, `@microdrop/${pluginName}`) ||
-          _.includes(env.defaultEnabled, pluginName)) {
-        state = "enabled";
+      // Ensure file exists, and is a javascript file:
+      let error;
+      if (!fileExists) error = "file does not exists";
+      if (extension != ".js") error = "plugins must be javascript (.js) files";
+      if (error) {
+        console.error(error, file);
+        return;
       }
 
-      _.set(pluginData.webPlugins, pluginDir, {
-        name: pluginName,
-        path: pluginDir,
-        state: state,
-        data: packageData
-      });
+      // Add plugin, and write to plugins.json
+      let pluginData = JSON.parse(storage.getItem('microdrop:plugins'));
+      const webPlugins = _.get(pluginData, "webPlugins") || {};
 
-      this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+      if (!(pluginDir in webPlugins )) {
+        let state = "disabled";
+
+        if (_.includes(env.defaultEnabled, `@microdrop/${pluginName}`) ||
+            _.includes(env.defaultEnabled, pluginName)) {
+          state = "enabled";
+        }
+
+        _.set(pluginData.webPlugins, pluginDir, {
+          name: pluginName,
+          path: pluginDir,
+          state: state,
+          data: packageData
+        });
+
+        this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
+      }
+
+    } catch (e) {
+      console.error(LABEL, e);
     }
+
   }
 
   onAddPluginPath(payload) {

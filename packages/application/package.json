@@ -21,10 +21,10 @@
     "@microdrop/device-controller": "^1.1.40",
     "@microdrop/device-ui-plugin": "^1.1.40",
     "@microdrop/models": "^1.1.40",
-    "@microdrop/state-saver": "^1.1.40",
     "@microdrop/ui": "^1.1.40",
     "@micropede/broker": "0.0.28",
     "@micropede/client": "0.0.28",
+    "@microdrop/schema-ui-plugin": "^1.1.41",
     "@yac/api": "0.0.19",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "d64": "^1.0.0",
@@ -48,7 +48,7 @@
     "host": "localhost",
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",
-      "@microdrop/state-saver"
+      "@microdrop/schema-ui-plugin"
     ]
   },
   "publishConfig": {
