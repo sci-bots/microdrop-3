@@ -1,7 +1,9 @@
-require('bootstrap/dist/css/bootstrap.min.css');
+window.$ = require('jquery');
+window.Popper = require('popper.js');
 
-const UIPlugin = require('@microdrop/ui-plugin');
-const MicropedeAsync = require('@micropede/client/src/async.js');
+require('bootstrap/dist/css/bootstrap.min.css');
+require('bootstrap/js/dist/tooltip.js');
+require('open-iconic/font/css/open-iconic-bootstrap.css');
 
 const Ajv = require('ajv');
 const FileSaver = require('file-saver');
@@ -12,6 +14,9 @@ const sha256 = require('sha256');
 const Sortable = require('sortablejs');
 const yo = require('yo-yo');
 const _ = require('lodash');
+
+const UIPlugin = require('@microdrop/ui-plugin');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
@@ -76,6 +81,17 @@ const FindPaths = (object, deepKey) => {
   return paths;
 }
 
+const TabButton = (title, icon, callback, classes="") => {
+  return yo`
+    <button class="btn btn-sm ${classes}"
+      style="${Styles.tabButton};"
+      onclick=${callback.bind(this)}
+      data-toggle="tooltip" data-placement="bottom" title="${title}">
+      <span class="oi ${icon}"></span>
+    </button>
+  `;
+}
+
 _.findPath  = (...args) => {return FindPath(...args)}
 _.findPaths = (...args) => {return FindPaths(...args)}
 
@@ -90,27 +106,20 @@ class SchemaUIPlugin extends UIPlugin {
         ${_.map(this.plugins, (n) => yo`
             <button id="tab-${n}"
             class="tab-btn btn btn-sm btn-outline-secondary"
-            style="${Styles.tabButton}"
+            style="${Styles.tabButton}; font-size: 11px;"
             onclick=${this.changeSchema.bind(this,n)}>
               ${n}
             </button>
           `
         )}
-        <button class="btn btn-sm btn-outline-success"
-          style="${Styles.tabButton};float:right;"
-          onclick=${this.executeSteps.bind(this)}>
-          Execute
-        </button>
-        <button class="btn btn-sm btn-outline-secondary"
-          style="${Styles.tabButton};float:right;"
-          onclick=${this.saveToFile.bind(this)}>
-          Save to File
-        </button>
-        <button class="btn btn-sm btn-outline-secondary"
-          style="${Styles.tabButton};float:right;"
-          onclick=${this.openFile.bind(this)}>
-          Open File
-        </button>
+        <span style="float:right;display:inline-block;">
+          ${TabButton('Download', 'oi-data-transfer-download',
+            this.saveToFile.bind(this), 'btn-outline-secondary')}
+          ${TabButton('Save', 'oi-file', this.openFile.bind(this),
+            'btn-outline-secondary')}
+          ${TabButton('Execute', 'oi-media-play', this.executeSteps.bind(this),
+            'btn-outline-success')}
+        </span>
       </div>`;
 
     this.steps = yo`<div></div>`;
@@ -391,10 +400,14 @@ const Styles = {
   apply(container) {
     container.style.padding = "0px";
     // Enter all styling that is applied programmably here:
+
+    // Activate tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Modify the style of the JSON editor to be more compact:
     let editor = container.getElementsByClassName('jsoneditor')[0];
     let menu = container.getElementsByClassName('jsoneditor-menu')[0];
     let elemBody = menu.parentElement.getElementsByClassName('jsoneditor-outer')[0];
-
     editor.style.border = '1px solid white';
     menu.style.display = 'none';
     elemBody.style.position = 'relative';
