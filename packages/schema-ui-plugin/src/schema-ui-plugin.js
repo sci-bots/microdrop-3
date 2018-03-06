@@ -140,7 +140,7 @@ class SchemaUIPlugin extends UIPlugin {
 
   async saveToFile(e) {
     const type = "application/json;charset=utf-8";
-    request('/storage-clean', (response, err, body) => {
+    request('/storage-raw', (response, err, body) => {
       const blob = new Blob([body], {type});
       FileSaver.saveAs(blob, `${generateName()}.microdrop`);
     });
@@ -159,9 +159,14 @@ class SchemaUIPlugin extends UIPlugin {
       }
       const reader = new FileReader();
       reader.onload = (e) => {
-        const content = e.target.result;
-        const payload = JSON.parse(content);
-        console.log({payload});
+        const body = e.target.result;
+        const payload = JSON.parse(body);
+
+        const req = {method:'POST', url:'/load-storage', body: body, json:true};
+        request(req, (...args) => {
+          location.reload();
+        });
+        
         // this.restoreFile(payload);
       };
       reader.readAsText(f);

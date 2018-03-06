@@ -37,7 +37,7 @@ class WebServer extends MicropedeClient {
     Object.assign(this, this.ExpressServer());
     this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
-    this.use(bodyParser.json());
+    this.use(bodyParser.json({limit: '50mb'}));
     this.storage = storage;
     this.broker = broker;
     this.ports = ports;
@@ -79,9 +79,24 @@ class WebServer extends MicropedeClient {
     this.get('/mqtt-tcp-port', (_, res) => {res.send(`${this.ports.mqtt_tcp_port}`)});
     this.get('/mqtt-ws-port',  (_, res) => {res.send(`${this.ports.mqtt_ws_port}`)});
     this.get('/storage-clean', (_, res) => {res.send(this.storageClean())});
-    this.get('/storage-raw', (_, res) => {res.send(this.storageRaw())});
+    this.get('/storage-raw', (_, res) => {res.send(JSON.stringify(this.storage))});
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
+    this.post('/load-storage', (req, res) => {
+      const LABEL = 'webserver:load-storage';
+      try {
+        const storage = req.body;
+        _.each(storage, (v,k) => {
+          if (_.includes(k, 'microdrop!!')) {
+            this.storage.setItem(k,v);
+          }
+        });
+        res.send('done');
+      } catch (e) {
+        console.error(LABEL, e);
+        res.status(500).json({ error: e.toString() });
+      }
+    });
     this.get('/process-plugins', (_, res) => {
       const style = `
         position: absolute;
@@ -186,6 +201,7 @@ class WebServer extends MicropedeClient {
 
       return this.notifySender(payload, pluginData, "add-plugin-path");
     } catch (e) {
+      console.error(LABEL, e);
       return this.notifySender(payload, DumpStack(LABEL, e), "add-plugin-path", "failed");
     }
 
@@ -244,7 +260,7 @@ class WebServer extends MicropedeClient {
 
       return this.notifySender(payload, pluginData, "update-plugin-state");
     } catch (e) {
-      console.error(e);
+      console.error(LABEL, e);
       return this.notifySender(payload, DumpStack(LABEL, e), "update-plugin-state", "failed");
     }
   }
