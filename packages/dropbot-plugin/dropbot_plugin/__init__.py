@@ -1,3 +1,4 @@
+from dropbot import SerialProxy
 from micropede.client import MicropedeClient , dump_stack
 
 SCHEMA = {
