@@ -3,6 +3,7 @@ module.exports = exports = {};
 const $ = require('jquery');
 const _ = require('lodash');
 const Backbone = require('backbone');
+const sha256 = require('sha256');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
@@ -47,6 +48,11 @@ class RouteControls extends MicropedeClient {
     const electrodes = (await microdrop.triggerPlugin('device-model',
       'electrodes-from-routes', {routes})).response;
 
+    const removeLine = (line) => {
+      this.scene.remove(line);
+      delete this.lines[line.uuid];
+    }
+
     // Reset all lines to not visited
     _.each(this.lines, (l)=>{l.visited = false});
 
@@ -55,25 +61,33 @@ class RouteControls extends MicropedeClient {
       const uuid = sequence.uuid;
       const ids = sequence.ids;
 
-      // If line already exists for route, visit and then continue
+      // Generate a hash based on the electrode ids;
+      const hash = sha256(JSON.stringify(ids));
+
+      // If line already exists for route,
       if (this.lines[uuid]) {
-        this.lines[uuid].visited = true;
-        continue;
-      };
+        // check if its path has changed (via a change in the id hash)
+        if (this.lines.hash == hash) {
+          this.lines[uuid].visited = true;
+          continue;
+        } else {
+          removeLine(this.lines[uuid]);
+        }
+      }
 
       // Otherwise get the electrodeIds from the route, and draw a new line
       const line = GenerateLinesFromIds(ids, group);
       this.scene.add(line);
       line.visited = true;
       line.uuid = uuid;
+      line.hash = hash;
       this.lines[uuid] = line;
     }
 
     // Remove all lines not visited from scene (as they must have been removed)
     for (const [uuid, line] of Object.entries(this.lines)){
       if (line.visited == true) continue;
-      this.scene.remove(line);
-      delete this.lines[uuid];
+      removeLine(line);
     }
 
     let lines = this.lines;

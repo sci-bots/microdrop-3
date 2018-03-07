@@ -123,9 +123,6 @@ class WebServer extends MicropedeClient {
   get filepath() {return __dirname;}
   findPlugins() {
       let args = [];
-      console.log("LOOKING FOR PLUGINS::");
-      console.log(env.defaultEnabled)
-
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
         args.push(path.resolve(require.resolve(plugin), '..'));
       }
