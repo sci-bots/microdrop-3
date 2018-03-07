@@ -20,13 +20,15 @@
   "dependencies": {
     "@microdrop/device-controller": "^1.1.40",
     "@microdrop/device-ui-plugin": "^1.1.40",
+    "@microdrop/dropbot-plugin": "^1.1.41",
     "@microdrop/models": "^1.1.40",
+    "@microdrop/schema-ui-plugin": "^1.1.41",
     "@microdrop/ui": "^1.1.40",
     "@micropede/broker": "0.0.28",
     "@micropede/client": "0.0.28",
-    "@microdrop/schema-ui-plugin": "^1.1.41",
     "@yac/api": "0.0.19",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
+    "cors": "^2.8.4",
     "d64": "^1.0.0",
     "electron-debug": "^1.5.0",
     "express": "^4.16.2",
@@ -49,6 +51,9 @@
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",
       "@microdrop/schema-ui-plugin"
+    ],
+    "defaultProcessPlugins": [
+      "@microdrop/dropbot-plugin"
     ]
   },
   "publishConfig": {

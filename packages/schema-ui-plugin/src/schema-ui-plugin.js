@@ -283,7 +283,7 @@ class SchemaUIPlugin extends UIPlugin {
     try {
       schema = await microdrop.getState(pluginName, 'schema', 500);
     } catch (e) {
-      console.error("Failed to get schema from dropbot plugin:", e);
+      console.error(`Failed to get schema for: ${pluginName}`, e);
     }
 
     const extendSchema = (key) => {
@@ -359,8 +359,12 @@ class SchemaUIPlugin extends UIPlugin {
     this.editor.schema = schema;
   }
 
-  listen() {
-    this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
+  async listen() {
+    await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
+    // const _topic = 'microdrop/file-launcher/state/last-opened-file';
+    await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
+      console.log({payload, params});
+    });
   }
 
   async onChange(...args) {

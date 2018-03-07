@@ -7,6 +7,7 @@ const {Console} = require('console');
 
 const _ = require('lodash');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const d64 = require('d64');
 const express = require('express');
 const {ipcRenderer} = require('electron');
@@ -29,12 +30,17 @@ const APPNAME = 'microdrop';
 class WebServer extends MicropedeClient {
   constructor(broker, ports, storage, defaultRunningPlugins=[]) {
     if (storage == undefined) storage = window.localStorage;
+    // Add key to local storage that tracks ui plugins:
     if (storage.getItem('microdrop:plugins') == null) {
       WebServer.initPlugins(storage);
     }
-
+    
     super('microdrop', env.host, ports.mqtt_tcp_port, undefined, version);
     Object.assign(this, this.ExpressServer());
+    this.use(cors({
+      'origin': '*',
+      'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
+    }));
     this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
     this.use(bodyParser.json({limit: '50mb'}));
@@ -45,15 +51,11 @@ class WebServer extends MicropedeClient {
     this.defaultRunningPlugins = defaultRunningPlugins;
   }
 
-  storageRaw() {
+  storageClean() {
     let items = _.pickBy(this.storage, (v,k)=>{
       return _.includes(k, `${APPNAME}!!`)
     });
-    return items;
-  }
 
-  storageClean() {
-    const items = this.storageRaw();
     return _.mapValues(items, function (v) {
       v = msgpack.decode(d64.decode(v.substring(5)));
       if (v.payload) v.payload = JSON.parse(v.payload)
@@ -66,10 +68,33 @@ class WebServer extends MicropedeClient {
     ipcRenderer.on('reset-db', this.reset.bind(this));
     ipcRenderer.send('broker-ready');
 
-    // Launch Yac dashboard (for monitoring process plugins)
+    this.get('/yacinfo', (req, res) => {
+      if (this.yacinfo == undefined) {
+        this.yacinfo = {};
+        let projects = [];
+        _.each(env.defaultProcessPlugins, (name) => {
+          let _path = require.resolve(path.join(name, 'package.json'));
+          projects.push({
+            name: name,
+            path: path.dirname(_path),
+            prevLog: [],
+            autostart: true
+          });
+        });
+        this.yacinfo.yacProjects = projects;
+      }
+      res.send(this.yacinfo);
+    });
+    this.post('/yacinfo', (req, res) => {
+      this.yacinfo = req.body;
+      res.send('yacinfo updated');
+    });
+
+    const resourcesDir = path.resolve(__dirname, 'resources');
     yac.dashboard.addKeywordFilter(APPNAME);
-    yac.dashboard.setLogo(path.resolve(__dirname, 'resources/logo.svg'));
-    yac.dashboard();
+    yac.dashboard.setLogo(path.resolve(resourcesDir, 'logo.svg'));
+    const url = `http://localhost:${this.ports.http_port}`;
+    yac.dashboard(undefined, `${url}/yacinfo`, {url:true});
 
     this.findPlugins();
 

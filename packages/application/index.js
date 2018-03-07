@@ -191,7 +191,7 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           });
 
           if (file !== undefined) {
-            client.onNotifyMsg("state-saver-ui", "connected", (a,b,topic) => {
+            client.onNotifyMsg("schema-ui-plugin", "connected", (a,b,topic) => {
               fs.readFile(file, 'utf8', (err, data) => {
                 const _topic = 'microdrop/file-launcher/state/last-opened-file';
                 client.sendMessage(_topic, JSON.parse(data)).then((d) => {

@@ -17,12 +17,11 @@ const {FindAllNeighbours} = require('./electrode-controls');
 const APPNAME = 'microdrop';
 
 const DEFAULT_HOST = 'localhost';
-let microdrop;
 
 class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     super(APPNAME, DEFAULT_HOST, port);
-    microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, port);
+
     electrodeControls.on("mousedown", this.drawRoute.bind(this));
     electrodeControls.on("mouseup", (e) => this.trigger("mouseup", e));
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
@@ -45,6 +44,7 @@ class RouteControls extends MicropedeClient {
     const LABEL = "<RouteControls::renderRoutes>";
 
     const group = this.electrodeControls.svgGroup;
+    const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
     const electrodes = (await microdrop.triggerPlugin('device-model',
       'electrodes-from-routes', {routes})).response;
 
@@ -124,6 +124,7 @@ class RouteControls extends MicropedeClient {
   async selectRoute(e) {
     const id = e.target.name;
     const lineWidth = 0.3;
+    const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
     let routes = await microdrop.getState('routes-model', 'routes', 500);
     const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
         'electrodes-from-routes', {routes})).response;
@@ -156,12 +157,14 @@ class RouteControls extends MicropedeClient {
     const clearCallback = (e) => {
       const uuids = _.map(selectedRoutes, 'uuid');
       routes = _.filter(routes, (r) => !_.includes(uuids, r.uuid));
+      const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
       microdrop.putPlugin('routes-model', 'routes', routes);
       this.off("clear-route");
       this.off("execute-route");
     }
 
     const execCallback = (e) => {
+      const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
       switch (e.key) {
         case "executeRoute":
           microdrop.triggerPlugin('routes-model', 'execute',
