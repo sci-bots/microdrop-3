@@ -1,0 +1,5 @@
+{
+  "name": "dropbot-plugin",
+  "type": "ui",
+  "script": "build/dropbot-ui-plugin.web.js"
+}

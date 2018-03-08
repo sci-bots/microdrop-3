@@ -11,6 +11,16 @@
         "microdrop"
     ],
     "scripts": {
-        "dev": "yac dev ../../Micropede/packages/python micropede"
+        "dev": "yac dev ../../Micropede/packages/python micropede",
+        "build": "./node_modules/.bin/webpack"
+    },
+    "devDependencies": {},
+    "dependencies": {
+        "@microdrop/ui-plugin": "^1.1.40",
+        "@micropede/client": "^0.0.28",
+        "browser-request": "^0.3.3",
+        "lodash": "^4.17.5",
+        "webpack": "3",
+        "yo-yo": "^1.4.1"
     }
 }

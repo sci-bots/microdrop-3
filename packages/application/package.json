@@ -50,7 +50,8 @@
     "host": "localhost",
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",
-      "@microdrop/schema-ui-plugin"
+      "@microdrop/schema-ui-plugin",
+      "@microdrop/dropbot-plugin"
     ],
     "defaultProcessPlugins": [
       "@microdrop/dropbot-plugin"

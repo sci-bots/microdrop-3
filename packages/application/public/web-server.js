@@ -34,7 +34,7 @@ class WebServer extends MicropedeClient {
     if (storage.getItem('microdrop:plugins') == null) {
       WebServer.initPlugins(storage);
     }
-    
+
     super('microdrop', env.host, ports.mqtt_tcp_port, undefined, version);
     Object.assign(this, this.ExpressServer());
     this.use(cors({
@@ -149,7 +149,9 @@ class WebServer extends MicropedeClient {
   findPlugins() {
       let args = [];
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
-        args.push(path.resolve(require.resolve(plugin), '..'));
+        let _path = path.dirname(require.resolve(path.join(plugin, 'package.json')));
+        console.log({_path});
+        args.push(_path);
       }
       FindUserDefinedPlugins(args, this.storage || localStorage, this.onPluginFound.bind(this));
   }
