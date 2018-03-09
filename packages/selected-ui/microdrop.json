@@ -1,0 +1,5 @@
+{
+  "name": "selected-ui",
+  "type": "ui",
+  "script": "build/selected-ui.web.js"
+}
