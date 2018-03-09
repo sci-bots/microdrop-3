@@ -52,13 +52,13 @@ class ElectrodeControls extends MicropedeClient {
     this.render();
   }
 
-  get showElectrodeIds() {
-    return this._showElectrodeIds || false;
+  get showChannels() {
+    return this._showChannels || false;
   }
 
-  set showElectrodeIds(_showElectrodeIds) {
-    this._showElectrodeIds = _showElectrodeIds;
-    if (_showElectrodeIds) {
+  set showChannels(_showChannels) {
+    this._showChannels = _showChannels;
+    if (_showChannels) {
       for (const child of [...this.svgGroup.children]) {
         child.fill.material.map = child.texture;
         child.fill.material.map.needsUpdate = true;
@@ -149,15 +149,25 @@ class ElectrodeControls extends MicropedeClient {
     }
   }
 
-  render() {
-    for (const child of [...this.svgGroup.children]) {
-      child.texture = this.generateTextTextureForElectrode(child);
-    }
+  async render() {
+
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+    const threeObject = await microdrop.getState('device-model', 'three-object');
+    console.log({threeObject});
+    _.each(this.svgGroup.children, async (child) => {
+      child.texture = this.generateTextTextureForElectrode(child, threeObject);
+    });
+    //
+    // for (const child of [...this.svgGroup.children]) {
+    //
+    // }
   }
 
-  generateTextTextureForElectrode(electrode) {
-    const name = electrode.name;
-    const number = name.split('electrode')[1];
+  generateTextTextureForElectrode(electrode, threeObject) {
+    const obj = _.find(threeObject, {id: electrode.name});
+
+    const number = obj.channel;
+    // const number = name.split('electrode')[1];
     const material = electrode.fill.material;
 
     // Create a canvas containg text for the electrode number
@@ -343,7 +353,7 @@ class ElectrodeControls extends MicropedeClient {
 
   async mousedown(event) {
     if (!this.enabled) return;
-    
+
     /* Called when electrode object is clicked */
     if (event.origDomEvent.button != 0) return;
     if (event.origDomEvent.altKey) return;

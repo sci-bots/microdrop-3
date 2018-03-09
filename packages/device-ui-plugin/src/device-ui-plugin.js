@@ -213,7 +213,7 @@ class DeviceUIPlugin extends UIPlugin {
     const gui = new Dat.GUI({autoPlace: false});
     gui.add(menu.cameraControls, 'enableRotate');
     const anchorState = gui.add(menu.videoControls, "display_anchors");
-    gui.add(menu.electrodeControls, "showElectrodeIds");
+    gui.add(menu.electrodeControls, "showChannels");
     gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
