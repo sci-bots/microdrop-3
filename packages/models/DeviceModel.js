@@ -58,6 +58,7 @@ class DeviceModel extends MicropedeClient {
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
+    // this.onTriggerMsg("get-area", this.getArea.bind(this));
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
@@ -73,6 +74,21 @@ class DeviceModel extends MicropedeClient {
     this.scene = scene;
     this.group = group;
   }
+
+  // getArea(payload, params) {
+  //   /* Calculate the area for a given electrode*/
+  //   const LABEL = 'device-model:getArea';
+  //   try {
+  //     if (this.group == undefined ) throw `three js group objects not defined`;
+  //     if (!payload.electrode) throw `missing electrode id`;
+  //     const area = GetArea(this.group, payload.electrode);
+  //     return this.notifySender(payload, area, "get-area");
+  //   } catch (e) {
+  //     console.error(LABEL, e);
+  //     return this.notifySender(payload, DumpStack(LABEL, e),
+  //       "get-area", 'failed');
+  //   }
+  // }
 
   electrodesFromRoutes(payload) {
     /* Validate that a path is possible on the current device */

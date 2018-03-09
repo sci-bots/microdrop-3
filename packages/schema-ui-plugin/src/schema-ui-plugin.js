@@ -193,8 +193,6 @@ class SchemaUIPlugin extends UIPlugin {
         request(req, (...args) => {
           location.reload();
         });
-
-        // this.restoreFile(payload);
       };
       reader.readAsText(f);
     }
