@@ -41,6 +41,11 @@ const DeviceSchema = {
           type: "integer"
         }
       }
+    },
+    "ppi": {
+      type: "integer",
+      default: 96,
+      per_step: false
     }
   }
 };
@@ -65,6 +70,7 @@ class DeviceModel extends MicropedeClient {
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
+    this.onPutMsg('ppi', this.putPPI.bind(this));
     this.sendIpcMessage('device-model-ready');
   }
 
@@ -79,6 +85,17 @@ class DeviceModel extends MicropedeClient {
   }
 
   setPPI(ppi) { this.ppi = ppi }
+  async putPPI(payload, params) {
+    /* Calculate the area for a given electrode*/
+    const LABEL = 'device-model:putPPI';
+    try {
+      await this.setState('ppi', payload.ppi);
+      return this.notifySender(payload, payload.ppi, 'ppi');
+    } catch (e) {
+      console.error(LABEL, e);
+      return this.notifySender(payload, DumpStack(LABEL, e), 'ppi', 'failed');
+    }
+  }
 
   getArea(payload, params) {
     /* Calculate the area for a given electrode*/
