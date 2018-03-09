@@ -4,6 +4,7 @@ const Backbone = require('backbone');
 const Colormap = require('colormap');
 const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
+const Polygon = require('polygon');
 const yo = require('yo-yo');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
@@ -150,17 +151,12 @@ class ElectrodeControls extends MicropedeClient {
   }
 
   async render() {
-
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     const threeObject = await microdrop.getState('device-model', 'three-object');
-    console.log({threeObject});
+    // console.log({threeObject, children: this.svgGroup.children});
     _.each(this.svgGroup.children, async (child) => {
       child.texture = this.generateTextTextureForElectrode(child, threeObject);
     });
-    //
-    // for (const child of [...this.svgGroup.children]) {
-    //
-    // }
   }
 
   generateTextTextureForElectrode(electrode, threeObject) {
@@ -407,6 +403,32 @@ class ElectrodeControls extends MicropedeClient {
 
 }
 
+// const SetConsole = function(console) {
+//   const {Console} = require('console');
+//   const console = new Console(process.stdout, process.stderr);
+//   window.addEventListener('unhandledrejection', function(event) {
+//       console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+//   });
+//   window.addEventListener('error', function(e) {
+//       console.error(e.message);
+//   });
+// }
+
+// const GetArea = function(group, electrode) {
+//   /* Calculate area of a polygon */
+//
+//   // Find object in group
+//   const obj = _.find(group.children, {name: electrode});
+//   console.log({obj});
+//   // Return vertices in the z=0 plane
+//   const v = _.filter(_.get(obj, 'fill.geometry.vertices'), (v) => v.z == 0);
+//   console.log({v});
+//
+//   // Compute area based on a polygon constructed from the vertices
+//   const polygon = new Polygon(v);
+//   return polygon.area();
+// }
+
 const FindAllNeighbours = function(group, object) {
   const LABEL = "<ElectrodeControls::FindAllNeighbours>";
 
@@ -523,4 +545,10 @@ function FindIntersectsInDirection(obj, dir, group ) {
   return _.values(intersects);
 }
 
-module.exports = {ElectrodeControls, FindAllNeighbours, FindNeighbourInDirection};
+module.exports = {ElectrodeControls,FindAllNeighbours, FindNeighbourInDirection};
+// module.exports = ElectrodeControls;
+// module.exports.SetConsole = SetConsole;
+// module.exports.ElectrodeControls = ElectrodeControls;
+// module.exports.FindAllNeighbours = FindAllNeighbours;
+// module.exports.FindNeighbourInDirection = FindNeighbourInDirection;
+// module.exports.GetArea = GetArea;
