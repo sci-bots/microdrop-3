@@ -87,7 +87,7 @@ class DeviceUIPlugin extends UIPlugin {
         const content = e.target.result;
         const svg = ParseSVGFromString(content);
         const objects = ConstructObjectsFromSVG(svg);
-        this.trigger('put-device', {'three-object': objects});
+        this.trigger('put-device', {'three-object': objects, ppi: objects.ppi});
       };
       reader.readAsText(f);
     }

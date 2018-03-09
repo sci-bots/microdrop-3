@@ -14,6 +14,7 @@ const ElectrodeControls =
   require('@microdrop/device-controller/src/electrode-controls');
 
 const APPNAME = 'microdrop';
+const DEFAULT_PPI = 96;
 
 const ajv = new Ajv({useDefaults: true});
 const console = new Console(process.stdout, process.stderr);
@@ -56,6 +57,7 @@ class DeviceModel extends MicropedeClient {
   }
 
   listen() {
+    this.onStateMsg('device-model', 'ppi', this.setPPI.bind(this));
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
@@ -76,13 +78,15 @@ class DeviceModel extends MicropedeClient {
     this.group = group;
   }
 
+  setPPI(ppi) { this.ppi = ppi }
+
   getArea(payload, params) {
     /* Calculate the area for a given electrode*/
     const LABEL = 'device-model:getArea';
     try {
       if (this.group == undefined ) throw `three js group objects not defined`;
       if (!payload.electrode) throw `missing electrode id`;
-      const area = ElectrodeControls.GetArea(this.group, payload.electrode);
+      const area = ElectrodeControls.GetArea(this.group, payload.electrode, this.ppi);
       return this.notifySender(payload, area, "get-area");
     } catch (e) {
       console.error(LABEL, e);
@@ -208,6 +212,7 @@ class DeviceModel extends MicropedeClient {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
       await this.setState('three-object', threeObject);
+      await this.setState('ppi', payload.ppi ? payload.ppi : DEFAULT_PPI);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
       console.error(LABEL, e);

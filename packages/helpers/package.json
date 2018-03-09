@@ -5,5 +5,8 @@
   "main": "helpers.js",
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "detect-node": "^2.0.3"
+  }
 }

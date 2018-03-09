@@ -404,8 +404,8 @@ class ElectrodeControls extends MicropedeClient {
 
 }
 
-const GetArea = function(group, electrode) {
-  /* Calculate area of a polygon */
+const GetArea = function(group, electrode, ppi=96) {
+  /* Calculate area of a polygon, and convert to mm */
 
   // Find object in group
   const obj = _.find(group.children, {name: electrode});
@@ -414,7 +414,10 @@ const GetArea = function(group, electrode) {
 
   // Compute area based on a polygon constructed from the vertices
   const polygon = new Polygon(v);
-  return polygon.area();
+  let area_ppi = polygon.area();
+
+  // convert ppi to inches to mm:
+  return area_ppi * (1 / (ppi*ppi)) * ((25.4*25.5)/1);
 }
 
 const FindAllNeighbours = function(group, object) {

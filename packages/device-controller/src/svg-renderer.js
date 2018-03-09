@@ -93,6 +93,8 @@ const ConstructObjectsFromSVG = function (file) {
   /* Construct JSON serializable geometries from svg file */
   const two = new Two();
 
+  const ppi = $(file).attr('ppi') || 96;
+
   const paths = $(file).find('path');
   const shapes2D = _.map(paths, (p) => two.interpret(p));
   const electrodeMap = {};
@@ -110,6 +112,7 @@ const ConstructObjectsFromSVG = function (file) {
     obj.shape = JSON.parse(JSON.stringify(shape));
     objects.push(obj);
   }
+  objects.ppi = ppi;
   return objects;
 }
 
@@ -195,7 +198,7 @@ const GenerateSvgGroup = async (url='/default.svg') => {
     group.geometry = fill.geometry;
     svgGroup.add(group);
   }
-
+  svgGroup.ppi = objects.ppi;
   return svgGroup;
 }
 
