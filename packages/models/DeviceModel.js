@@ -35,10 +35,15 @@ const DeviceSchema = {
       items: {
         id: {
           type: "string",
-          pattern: "^electrode"
+          pattern: "^electrode",
+          set_with: "three-object"
         },
         translation: {
           type: "integer"
+        },
+        area: {
+          type: "integer",
+          set_with: 'three-object'
         }
       }
     },
@@ -79,6 +84,7 @@ class DeviceModel extends MicropedeClient {
   get filepath() {return __dirname;}
 
   setThreeObject(threeObject) {
+    if (this.scene != null) return;
     const {scene, group} = SVGRenderer.ConstructScene(threeObject);
     this.scene = scene;
     this.group = group;
@@ -167,7 +173,7 @@ class DeviceModel extends MicropedeClient {
       if (!this.group) throw("group undefined");
       if (!payload.electrodeId) throw("expected 'electrodeId' in payload");
       const electrodeId = payload.electrodeId;
-      const neighbours = ElectrodeCOntrols.FindAllNeighbours(this.group, electrodeId);
+      const neighbours = ElectrodeControls.FindAllNeighbours(this.group, electrodeId);
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
     } catch (e) {
@@ -224,12 +230,25 @@ class DeviceModel extends MicropedeClient {
 
   async putThreeObject(payload) {
     const LABEL = `<DeviceModel::putThreeObject>`;
-    // console.log(LABEL);
+    console.log(LABEL);
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
+      const ppi = payload.ppi ? payload.ppi : DEFAULT_PPI;
+      await this.setState('ppi', ppi);
+
+      // Initialize scene
+      const {scene, group} = SVGRenderer.ConstructScene(threeObject);
+      this.scene = scene;
+      this.group = group;
+
+      // Compute area for every electrode
+      _.each(threeObject, (obj) => {
+        if (obj.area) return;
+        obj.area = ElectrodeControls.GetArea(this.group, obj.id, ppi);
+      });
+
       await this.setState('three-object', threeObject);
-      await this.setState('ppi', payload.ppi ? payload.ppi : DEFAULT_PPI);
       return this.notifySender(payload, 'success', "three-object");
     } catch (e) {
       console.error(LABEL, e);
