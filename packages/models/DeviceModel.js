@@ -10,7 +10,7 @@ const _ = require('lodash');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const SVGRenderer = require('@microdrop/device-controller/src/svg-renderer');
-const {FindNeighbourInDirection, FindAllNeighbours} =
+const ElectrodeControls =
   require('@microdrop/device-controller/src/electrode-controls');
 
 const APPNAME = 'microdrop';
@@ -52,12 +52,14 @@ class DeviceModel extends MicropedeClient {
     this.group = null;
     this.port = port;
     this.schema = DeviceSchema;
+    ElectrodeControls.SetConsole();
   }
 
   listen() {
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
+    this.onTriggerMsg("get-area", this.getArea.bind(this));
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
@@ -72,6 +74,21 @@ class DeviceModel extends MicropedeClient {
     const {scene, group} = SVGRenderer.ConstructScene(threeObject);
     this.scene = scene;
     this.group = group;
+  }
+
+  getArea(payload, params) {
+    /* Calculate the area for a given electrode*/
+    const LABEL = 'device-model:getArea';
+    try {
+      if (this.group == undefined ) throw `three js group objects not defined`;
+      if (!payload.electrode) throw `missing electrode id`;
+      const area = ElectrodeControls.GetArea(this.group, payload.electrode);
+      return this.notifySender(payload, area, "get-area");
+    } catch (e) {
+      console.error(LABEL, e);
+      return this.notifySender(payload, DumpStack(LABEL, e),
+        "get-area", 'failed');
+    }
   }
 
   electrodesFromRoutes(payload) {
@@ -107,7 +124,7 @@ class DeviceModel extends MicropedeClient {
         let dir;
         const ids = [id];
         for (const [i, dir] of r.path.entries()) {
-          const n = FindNeighbourInDirection(this.group, id, dir);
+          const n = ElectrodeControls.FindNeighbourInDirection(this.group, id, dir);
           if (!n || _.isEmpty(n)) throw(`Failed to get step at index ${i}`);
           if (n.id == undefined)  throw(`missing key 'id' at step ${i}`);
           ids.push(n.id);
@@ -129,7 +146,7 @@ class DeviceModel extends MicropedeClient {
       if (!this.group) throw("group undefined");
       if (!payload.electrodeId) throw("expected 'electrodeId' in payload");
       const electrodeId = payload.electrodeId;
-      const neighbours = FindAllNeighbours(this.group, electrodeId);
+      const neighbours = ElectrodeCOntrols.FindAllNeighbours(this.group, electrodeId);
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
     } catch (e) {

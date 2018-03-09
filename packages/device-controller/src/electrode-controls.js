@@ -9,6 +9,7 @@ const yo = require('yo-yo');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const {MicropedeClient} = require('@micropede/client/src/client.js');
+const MicrodropHelpers = require('@microdrop/helpers');
 
 const SVGRenderer = require('./svg-renderer');
 
@@ -153,7 +154,7 @@ class ElectrodeControls extends MicropedeClient {
   async render() {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     const threeObject = await microdrop.getState('device-model', 'three-object');
-    // console.log({threeObject, children: this.svgGroup.children});
+    console.log({threeObject, children: this.svgGroup.children});
     _.each(this.svgGroup.children, async (child) => {
       child.texture = this.generateTextTextureForElectrode(child, threeObject);
     });
@@ -403,31 +404,18 @@ class ElectrodeControls extends MicropedeClient {
 
 }
 
-// const SetConsole = function(console) {
-//   const {Console} = require('console');
-//   const console = new Console(process.stdout, process.stderr);
-//   window.addEventListener('unhandledrejection', function(event) {
-//       console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
-//   });
-//   window.addEventListener('error', function(e) {
-//       console.error(e.message);
-//   });
-// }
+const GetArea = function(group, electrode) {
+  /* Calculate area of a polygon */
 
-// const GetArea = function(group, electrode) {
-//   /* Calculate area of a polygon */
-//
-//   // Find object in group
-//   const obj = _.find(group.children, {name: electrode});
-//   console.log({obj});
-//   // Return vertices in the z=0 plane
-//   const v = _.filter(_.get(obj, 'fill.geometry.vertices'), (v) => v.z == 0);
-//   console.log({v});
-//
-//   // Compute area based on a polygon constructed from the vertices
-//   const polygon = new Polygon(v);
-//   return polygon.area();
-// }
+  // Find object in group
+  const obj = _.find(group.children, {name: electrode});
+  // Return vertices in the z=0 plane
+  const v = _.filter(_.get(obj, 'geometry.vertices'), (v) => v.z == 0);
+
+  // Compute area based on a polygon constructed from the vertices
+  const polygon = new Polygon(v);
+  return polygon.area();
+}
 
 const FindAllNeighbours = function(group, object) {
   const LABEL = "<ElectrodeControls::FindAllNeighbours>";
@@ -545,10 +533,9 @@ function FindIntersectsInDirection(obj, dir, group ) {
   return _.values(intersects);
 }
 
-module.exports = {ElectrodeControls,FindAllNeighbours, FindNeighbourInDirection};
-// module.exports = ElectrodeControls;
-// module.exports.SetConsole = SetConsole;
-// module.exports.ElectrodeControls = ElectrodeControls;
-// module.exports.FindAllNeighbours = FindAllNeighbours;
-// module.exports.FindNeighbourInDirection = FindNeighbourInDirection;
-// module.exports.GetArea = GetArea;
+module.exports = ElectrodeControls;
+module.exports.SetConsole = MicrodropHelpers.SetConsole;
+module.exports.ElectrodeControls = ElectrodeControls;
+module.exports.FindAllNeighbours = FindAllNeighbours;
+module.exports.FindNeighbourInDirection = FindNeighbourInDirection;
+module.exports.GetArea = GetArea;
