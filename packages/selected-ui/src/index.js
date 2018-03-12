@@ -55,7 +55,8 @@ class SelectedUI extends UIPlugin {
     const threeObject = _.get(this.deviceJSON, 'three-object');
     let index = _.findIndex(threeObject, {id: this.selectedElectrode})
     threeObject[index] = electrodeData;
-    microdrop.putPlugin('device-model', 'three-object', threeObject);
+    let payload = {threeObject, electrodeId: this.selectedElectrode};
+    microdrop.putPlugin('device-model', 'three-object', payload);
     console.log(this.deviceJSON);
   }
 

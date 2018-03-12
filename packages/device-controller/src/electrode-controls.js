@@ -414,7 +414,7 @@ const GetArea = function(group, electrode, ppi=96) {
 
   // Compute area based on a polygon constructed from the vertices
   const polygon = new Polygon(v);
-  let area_ppi = polygon.area();
+  let area_ppi = Math.abs(polygon.area());
 
   // convert ppi to inches to mm:
   return area_ppi * (1 / (ppi*ppi)) * ((25.4*25.5)/1);

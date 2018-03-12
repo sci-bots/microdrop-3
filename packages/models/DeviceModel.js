@@ -228,13 +228,27 @@ class DeviceModel extends MicropedeClient {
     return overlay;
   }
 
+  updatePPIUsingElectrodeArea(threeObject, ppi, id) {
+    let electrode = _.find(threeObject, {id});
+    if (electrode == undefined) return ppi;
+
+    let realArea = electrode.area;
+    let expectedArea = ElectrodeControls.GetArea(this.group, electrode.id, ppi);
+    if (realArea == expectedArea) return ppi;
+
+    let expectedPPI = ppi;
+    ppi = Math.sqrt(Math.abs((Math.pow(expectedPPI, 2) * expectedArea) / (realArea))) ;
+    return ppi;
+  }
+
   async putThreeObject(payload) {
     const LABEL = `<DeviceModel::putThreeObject>`;
     console.log(LABEL);
     try {
       const threeObject = payload["three-object"] || payload["threeObject"];
       if (!threeObject) throw("expected 'three-object' in payload");
-      const ppi = payload.ppi ? payload.ppi : DEFAULT_PPI;
+      let ppi = payload.ppi ? payload.ppi : DEFAULT_PPI;
+
       await this.setState('ppi', ppi);
 
       // Initialize scene
@@ -242,9 +256,18 @@ class DeviceModel extends MicropedeClient {
       this.scene = scene;
       this.group = group;
 
+      let ppiChanged = false;
+      // Check if user changed electrode area, and update ppi accordingly
+      if (payload.electrodeId != undefined) {
+        let id = payload.electrodeId;
+        ppi = this.updatePPIUsingElectrodeArea(threeObject, ppi, id);
+        await this.setState('ppi', ppi);
+        ppiChanged = true;
+      }
+
       // Compute area for every electrode
       _.each(threeObject, (obj) => {
-        if (obj.area) return;
+        if (obj.area && !ppiChanged) return;
         obj.area = ElectrodeControls.GetArea(this.group, obj.id, ppi);
       });
 
