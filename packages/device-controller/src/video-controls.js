@@ -44,6 +44,7 @@ class VideoControls {
     var plane = new PlaneTransform(scene, camera, renderer, {width, height});
     this.plane = plane;
 
+    this.updateFcts = updateFcts;
     updateFcts.push(function(delta, now){
       plane.update(delta, now);
     });
@@ -56,6 +57,7 @@ class VideoControls {
     this.svgGroup = svgGroup;
     this.scene = scene;
     // this.anchors = null;
+    this.renderer = renderer;
     this.canvas = renderer.domElement;
     this.camera = camera;
 
@@ -65,6 +67,28 @@ class VideoControls {
         this.plane.applyPrevGeometry(diagonalRatioArray, positionArray);
       }
     }
+  }
+
+  reset() {
+    localStorage.removeItem(ANCHOR_KEY);
+    const [width, height] = GetSize(this.svgGroup);
+    const bbox = GetBoundingBox(this.svgGroup);
+    this.scene.remove(this.anchors.group);
+    this.scene.remove(this.plane.mesh);
+    this.anchors = new Anchors(bbox);
+    var plane = new PlaneTransform(this.scene, this.camera, this.renderer, {width, height});
+    this.plane = plane;
+
+    this.updateFcts.push(function(delta, now){
+      plane.update(delta, now);
+    });
+
+    this.planeReady().then((d)=> {
+      console.log("PLANE READY!!");
+      if (d.status != "failed")
+        plane.mesh.position.z = -0.5; // Ensure video plane is behind device
+    });
+
   }
 
   planeReady(_interval=200, _timeout=5000) {

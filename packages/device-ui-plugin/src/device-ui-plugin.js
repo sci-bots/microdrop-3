@@ -184,6 +184,8 @@ class DeviceUIPlugin extends UIPlugin {
     const defaultOption = {'Choose Device': -1};
     const keys = _.map(mediaDevices, (v, i) => {return i + ' ' + v.label });
     const deviceOptions = _.zipObject(keys, _.map(mediaDevices, 'deviceId'));
+    const gui = new Dat.GUI({autoPlace: false});
+    let anchorState;
 
     let devices = {
       _device: -1,
@@ -206,15 +208,21 @@ class DeviceUIPlugin extends UIPlugin {
           });
           this._device = _device;
         });
+      },
+      resetAnchors() {
+        menu.videoControls.reset();
+        anchorState.setValue(false);
+        // localStorage.removeItem('microdrop:device-controller:anchors');
+        // location.reload();
       }
     };
 
     if (!container) container = document.body;
-    const gui = new Dat.GUI({autoPlace: false});
     gui.add(menu.cameraControls, 'enableRotate');
-    const anchorState = gui.add(menu.videoControls, "display_anchors");
+    anchorState = gui.add(menu.videoControls, "display_anchors");
     gui.add(menu.electrodeControls, "showChannels");
     gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
+    gui.add(devices, 'resetAnchors');
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
     gui.domElement.style.right = "0px";
