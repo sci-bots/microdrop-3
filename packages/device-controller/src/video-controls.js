@@ -69,6 +69,38 @@ class VideoControls {
     }
   }
 
+  getPoints() {
+    /*Get points and diagonalRatios for flip and rotate operations*/
+
+    const bbox = GetBoundingBox(this.svgGroup);
+    var anchors = new Anchors(bbox);
+    var {transform, diagonalRatioArray, positionArray} =
+      this.plane.set_anchors(anchors.positions);
+
+    let p1,p2,p3,p4;
+    p1 = positionArray.slice(0,3);
+    p2 = positionArray.slice(3,6);
+    p3 = positionArray.slice(6,9);
+    p4 = positionArray.slice(9,12);
+
+    return {p1,p2,p3,p4, diagonalRatioArray}
+  }
+
+  rotate() {
+    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
+    this.plane.applyPrevGeometry(diagonalRatioArray, [...p3,...p1,...p4,...p2]);
+  }
+
+  flipHorizontal() {
+    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
+    this.plane.applyPrevGeometry(diagonalRatioArray, [...p2,...p1,...p4,...p3]);
+  }
+
+  flipVertical() {
+    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
+    this.plane.applyPrevGeometry(diagonalRatioArray, [...p3,...p4,...p1,...p2]);
+  }
+
   reset() {
     localStorage.removeItem(ANCHOR_KEY);
     const [width, height] = GetSize(this.svgGroup);
@@ -84,7 +116,6 @@ class VideoControls {
     });
 
     this.planeReady().then((d)=> {
-      console.log("PLANE READY!!");
       if (d.status != "failed")
         plane.mesh.position.z = -0.5; // Ensure video plane is behind device
     });

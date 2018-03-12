@@ -214,6 +214,15 @@ class DeviceUIPlugin extends UIPlugin {
         anchorState.setValue(false);
         // localStorage.removeItem('microdrop:device-controller:anchors');
         // location.reload();
+      },
+      rotateVideo() {
+        menu.videoControls.rotate();
+      },
+      flipHorizontal() {
+        menu.videoControls.flipHorizontal();
+      },
+      flipVertical() {
+        menu.videoControls.flipVertical();
       }
     };
 
@@ -223,6 +232,9 @@ class DeviceUIPlugin extends UIPlugin {
     gui.add(menu.electrodeControls, "showChannels");
     gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
     gui.add(devices, 'resetAnchors');
+    gui.add(devices, 'rotateVideo');
+    gui.add(devices, 'flipHorizontal');
+    gui.add(devices, 'flipVertical');
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
     gui.domElement.style.right = "0px";
