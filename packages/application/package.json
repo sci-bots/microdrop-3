@@ -23,6 +23,7 @@
     "@microdrop/dropbot-plugin": "^1.1.41",
     "@microdrop/models": "^1.1.40",
     "@microdrop/schema-ui-plugin": "^1.1.41",
+    "@microdrop/selected-ui": "^1.1.41",
     "@microdrop/ui": "^1.1.40",
     "@micropede/broker": "0.0.28",
     "@micropede/client": "0.0.29",
@@ -51,7 +52,8 @@
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",
       "@microdrop/schema-ui-plugin",
-      "@microdrop/dropbot-plugin"
+      "@microdrop/dropbot-plugin",
+			"@microdrop/selected-ui"
     ],
     "defaultProcessPlugins": [
       "@microdrop/dropbot-plugin"
