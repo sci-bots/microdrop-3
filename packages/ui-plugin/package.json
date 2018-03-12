@@ -26,7 +26,7 @@
     "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@micropede/client": "0.0.28",
+    "@micropede/client": "0.0.29",
     "browser-request": "^0.3.3",
     "keyboard-shortcut": "^1.2.0"
   },
