@@ -152,7 +152,7 @@ class DeviceUIPlugin extends UIPlugin {
 
     const selector = $(`#${id}`);
 
-    // Create a custom "drag threshold event for context menu"
+    // Create a custom "drag threshold" event for context menu
     element.onmousedown = async (e) => {
       if (e.button == 2) {
         const x1 = e.clientX;
@@ -187,6 +187,7 @@ class DeviceUIPlugin extends UIPlugin {
     const gui = new Dat.GUI({autoPlace: false});
     let anchorState;
 
+    // Device handling object for Dat.GUI
     let devices = {
       _device: -1,
       get device() {return this._device;},
@@ -212,8 +213,6 @@ class DeviceUIPlugin extends UIPlugin {
       resetAnchors() {
         menu.videoControls.reset();
         anchorState.setValue(false);
-        // localStorage.removeItem('microdrop:device-controller:anchors');
-        // location.reload();
       },
       rotateVideo() {
         menu.videoControls.rotate();
@@ -223,9 +222,20 @@ class DeviceUIPlugin extends UIPlugin {
       },
       flipVertical() {
         menu.videoControls.flipVertical();
+      },
+      get fluxelOpacity() {
+        return this._fluxelOpacity || _.get(menu, 'electrodeControls.svgGroup.defaultOpacity');
+      },
+      set fluxelOpacity(_fluxelOpacity) {
+        this._fluxelOpacity = _fluxelOpacity;
+        let children = _.get(menu, 'electrodeControls.svgGroup.children');
+        _.each(children, (child) => {
+          _.set(child, 'fill.material.opacity', _fluxelOpacity);
+        });
       }
     };
 
+    // Setup Dat.GUI
     if (!container) container = document.body;
     gui.add(menu.cameraControls, 'enableRotate');
     anchorState = gui.add(menu.videoControls, "display_anchors");
@@ -235,6 +245,8 @@ class DeviceUIPlugin extends UIPlugin {
     gui.add(devices, 'rotateVideo');
     gui.add(devices, 'flipHorizontal');
     gui.add(devices, 'flipVertical');
+    gui.add(devices, 'fluxelOpacity', 0, 1);
+
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
     gui.domElement.style.right = "0px";

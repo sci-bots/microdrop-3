@@ -8,6 +8,7 @@ const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 const DEFAULT_TIMEOUT = 5000;
 const OFF_COLOR = "rgb(175, 175, 175)";
 const SVG_SAMPLE_LENGTH = 30;
+const DEFAULT_FLUXEL_OPACITY = 0.3;
 
 const ParseSVGFromString = (s, doc=undefined) => {
   if (doc==undefined) doc = document;
@@ -177,7 +178,7 @@ const GenerateSvgGroup = async (url='/default.svg') => {
     outline.autoClose = true;
 
     // Generate fill (slightly extruded to allow for collisions)
-    var options = {color: OFF_COLOR, transparent: true, opacity: 0.4,
+    var options = {color: OFF_COLOR, transparent: true, opacity: DEFAULT_FLUXEL_OPACITY,
       wireframe: false, side: THREE.DoubleSide};
     var meshMaterial = new THREE.MeshBasicMaterial(options);
     var collisionMaterial = new THREE.MeshBasicMaterial(_.extend(_.clone(options), {opacity: 0}));
@@ -199,6 +200,7 @@ const GenerateSvgGroup = async (url='/default.svg') => {
     svgGroup.add(group);
   }
   svgGroup.ppi = objects.ppi;
+  svgGroup.defaultOpacity = DEFAULT_FLUXEL_OPACITY;
   return svgGroup;
 }
 
