@@ -27,7 +27,7 @@
     "@microdrop/ui": "^1.1.40",
     "@micropede/broker": "0.0.28",
     "@micropede/client": "0.0.29",
-    "@yac/api": "0.0.20",
+    "@yac/api": "0.0.21",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "cors": "^2.8.4",
     "d64": "^1.0.0",
