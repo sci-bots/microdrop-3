@@ -223,12 +223,19 @@ class DeviceUIPlugin extends UIPlugin {
       flipVertical() {
         menu.videoControls.flipVertical();
       },
-      get fluxelOpacity() {
-        return this._fluxelOpacity || _.get(menu, 'electrodeControls.svgGroup.defaultOpacity');
+      get offOpacity() {
+        return this._offOpacity || _.get(menu, 'electrodeControls.offOpacity');
       },
-      set fluxelOpacity(_fluxelOpacity) {
-        this._fluxelOpacity = _fluxelOpacity;
-        menu.electrodeControls.setOpacity(_fluxelOpacity);
+      set offOpacity(_offOpacity) {
+        this._offOpacity = _offOpacity;
+        menu.electrodeControls.setOffOpacity(_offOpacity);
+      },
+      get onOpacity() {
+        return this._onOpacity || _.get(menu, 'electrodeControls.onOpacity');
+      },
+      set onOpacity(_onOpacity) {
+        this._onOpacity = _onOpacity;
+        menu.electrodeControls.setOnOpacity(_onOpacity);
       }
     };
 
@@ -242,7 +249,8 @@ class DeviceUIPlugin extends UIPlugin {
     gui.add(devices, 'rotateVideo');
     gui.add(devices, 'flipHorizontal');
     gui.add(devices, 'flipVertical');
-    gui.add(devices, 'fluxelOpacity', 0, 1);
+    gui.add(devices, 'offOpacity', 0, 1);
+    gui.add(devices, 'onOpacity', 0, 1);
 
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";

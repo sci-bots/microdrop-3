@@ -20,6 +20,8 @@ const NEIGHBOUR_COLOR = "rgb(219, 215, 215)";
 const OFF_COLOR = "rgb(175, 175, 175)";
 const ON_COLOR = "rgb(245, 235, 164)";
 const SELECTED_COLOR = "rgb(120, 255, 168)";
+const DEFAULT_OFF_OPACITY  = 0.3;
+const DEFAULT_ON_OPACITY  = 0.3;
 
 const APPNAME = 'microdrop';
 const DEFAULT_PORT = 8083;
@@ -44,6 +46,8 @@ class ElectrodeControls extends MicropedeClient {
     this.enabled = true;
     this.on("mousedown", this.mousedown.bind(this));
     this.layers = 1;
+    this.offOpacity = DEFAULT_OFF_OPACITY;
+    this.onOpacity  = DEFAULT_ON_OPACITY;
   }
 
   listen() {
@@ -74,18 +78,28 @@ class ElectrodeControls extends MicropedeClient {
     }
   }
 
-  setOpacity(opacity) {
+  setOnOpacity(opacity) {
+    this.onOpacity = opacity;
+    this.opacityUpdated();
+  }
+
+  setOffOpacity(opacity) {
+    this.offOpacity = opacity;
+    this.opacityUpdated();
+  }
+
+  opacityUpdated() {
+    /* Called after off / on opacity is updated*/
     let children = this.svgGroup.children;
     _.each(children, (child) => {
-      _.set(child, 'fill.material.opacity', opacity);
+      _.set(child, 'fill.material.opacity', child.on ? this.onOpacity : this.offOpacity);
       let prevColor = child.outline.material.color;
       let material = new MeshLineMaterial({
         color: prevColor,
         lineWidth: 0.2,
-        opacity: opacity,
+        opacity: child.on ? this.onOpacity : this.offOpacity,
         transparent: true
       });
-      material.opacity = opacity;
       material.color = prevColor;
       child.outline.material = material;
     });
@@ -101,12 +115,16 @@ class ElectrodeControls extends MicropedeClient {
     const prevOn  = _.filter(objects, ["fill.material.color", onColor]);
     for (const [i, obj] of prevOn.entries()) {
       obj.fill.material.color = offColor;
+      obj.fill.material.opacity = this.offOpacity;
+      obj.on = false;
     }
 
     // Change currently on electrodes to on color
     const currOn = _.filter(objects, (o)=>{return _.includes(elec, o.name)});
     for (const [i, obj] of currOn.entries()) {
       obj.fill.material.color = onColor;
+      obj.fill.material.opacity = this.onOpacity;
+      obj.on = true;
     }
   }
 
@@ -340,16 +358,14 @@ class ElectrodeControls extends MicropedeClient {
   }
 
   unselectElectrode() {
-    let opacity = _.get(this.selectedElectrode, 'outline.material.opacity');
     let color = new THREE.Color("black");
     let material = new MeshLineMaterial({
       color: color,
-      opacity: opacity,
+      opacity: this.offOpacity,
       lineWidth: 0.2,
       transparent: true
     });
     material.color = color;
-    material.opacity = opacity;
     this.selectedElectrode.outline.material = material;
 
 
@@ -369,16 +385,14 @@ class ElectrodeControls extends MicropedeClient {
     this.turnOnElectrode(electrodeId);
     const electrodeObject = this.electrodeObjects[electrodeId];
 
-    let opacity = _.get(electrodeObject, 'outline.material.opacity');
     let color = new THREE.Color("red");
     let material = new MeshLineMaterial({
       color: color,
-      opacity: opacity,
+      opacity: this.onOpacity,
       lineWidth: 0.2,
       transparent: true
     });
     material.color = color;
-    material.opacity = opacity;
     electrodeObject.outline.material = material;
 
     this.selectedElectrode = electrodeObject;
