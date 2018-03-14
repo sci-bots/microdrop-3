@@ -15,6 +15,7 @@ npm i --global yarn
 yarn global add lerna
 
 yarn upgrade:micropede
+yarn upgrade:yac
 yarn bootstrap
 yarn build
 yarn start
