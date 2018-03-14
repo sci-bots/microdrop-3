@@ -12,7 +12,7 @@ MicroDrop with MQTT communication and web front end
 git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
 npm i --global yarn
-yarn global add lerna
+yarn global add lerna @yac/yac
 
 yarn upgrade:micropede
 yarn upgrade:yac
