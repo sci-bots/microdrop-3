@@ -3,6 +3,8 @@ const path = require('path');
 const {spawn} = require('child_process');
 const fs = require('fs');
 
+const terminate = require('terminate');
+const psTree = require('ps-tree');
 const request = require('request');
 const mqtt = require('mqtt');
 const _ = require('lodash');
@@ -153,7 +155,7 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
         webPreferences: {
           webSecurity: false
         },
-        show: true
+        show: false
       };
 
       // Load webserver:
@@ -212,6 +214,18 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
 
         sendReadyPing(win, {ports});
         win.on('closed', () => app.quit() );
+
+        app.on('before-quit', (e) => {
+          e.preventDefault();
+          psTree(process.pid, async (err, children) => {
+            await Promise.all(_.map(children , (c) => {
+              return new Promise((r, b) => {
+                terminate(c.PID, (e)=>r(e));
+              })
+            }));
+            process.exit();
+          });
+        });
 
         // Resolve init
         resolve('ready');

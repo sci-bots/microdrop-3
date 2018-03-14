@@ -366,7 +366,6 @@ module.exports.init = (ports, defaultRunningPlugins=[]) => {
   window.addEventListener('error', function(e) {
       console.error(e.message);
   });
-
   const broker = new Broker('microdrop',ports.mqtt_ws_port, ports.mqtt_tcp_port);
 
   broker.on('broker-ready', () => {
