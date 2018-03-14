@@ -17,20 +17,20 @@ Section
   # Uninstaller
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
-  File $ZIPFILE
+  File "${ZIPFILE}"
   File "logo.ico"
   File "license.rtf"
 
-  Nsis7z::ExtractWithDetails "$INSTDIR\$ZIPFILE"
+  Nsis7z::ExtractWithDetails "$INSTDIR\${ZIPFILE}"
 
   Var /GLOBAL MINICONDA
-  StrCpy $MINICONDA "$INSTDIR\$DIRNAME\miniconda"
+  StrCpy $MINICONDA "$INSTDIR\${DIRNAME}\miniconda"
 
   # Start Menu
   createDirectory "$SMPROGRAMS\${COMPANYNAME}"
-  createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$MINICONDA\pythonw.exe" "$MINICONDA\cwp.py $WINDIR\system32\cmd.exe /k $MINICONDA\Scripts\activate.bat $INSTDIR\$DIRNAME\MicroDrop.exe" "$INSTDIR\logo.ico"
+  createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$MINICONDA\pythonw.exe" "$MINICONDA\cwp.py $MINICONDA $WINDIR\system32\cmd.exe $\"/K$\" $MINICONDA\Scripts\activate.bat $MINICONDA && $INSTDIR\${DIRNAME}\MicroDrop.exe" "$INSTDIR\logo.ico"
 
-  Delete "$INSTDIR\$ZIPFILE"
+  Delete "$INSTDIR\${ZIPFILE}"
 
 SectionEnd
 
