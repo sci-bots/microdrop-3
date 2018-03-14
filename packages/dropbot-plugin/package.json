@@ -12,7 +12,7 @@
     ],
     "scripts": {
         "dev": "yac dev ../../Micropede/packages/python micropede",
-        "build": "./node_modules/.bin/webpack"
+        "build": "./node_modules/.bin/webpack && yac install && yarn dev"
     },
     "devDependencies": {},
     "dependencies": {

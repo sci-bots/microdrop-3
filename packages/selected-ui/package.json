@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@microdrop/ui-plugin": "^1.1.40",
+    "@micropede/client": "^0.0.29",
     "css-loader": "^0.28.10",
     "jsoneditor": "^5.14.0",
     "lodash": "^4.17.5",

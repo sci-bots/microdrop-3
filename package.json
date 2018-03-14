@@ -2,7 +2,7 @@
   "description": "MicroDrop with MQTT support and Web UI",
   "scripts": {
     "start": "electron ./packages/application",
-    "bootstrap": "cd Micropede && lerna bootstrap && cd .. && lerna bootstrap",
+    "bootstrap": "lerna bootstrap",
     "hoist": "lerna bootstrap --hoist --no-optional",
     "build": "lerna run build",
     "test": "npm run --prefix packages/application test",
