@@ -1,41 +1,44 @@
 {
-  "name": "@microdrop/builder",
-  "version": "1.1.41",
-  "description": "Launcher / Installer for MicroDrop",
-  "main": "node_modules/@microdrop/application/bin/microdrop",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
-    "start": "./node_modules/.bin/electron node_modules/@microdrop/application/bin/microdrop",
-    "builder": "./node_modules/.bin/electron-builder",
-    "packager": "node electron-packager.config.js"
-  },
-  "author": "Sci-Bots",
-  "license": "BSD-2-Clause",
-  "devDependencies": {
-    "electron": "^1.7.12",
-    "electron-builder": "^19.56.0",
-    "electron-packager": "^11.0.0"
-  },
-  "dependencies": {
-    "@microdrop/application": "^1.1.41"
-  },
-  "build": {
-    "appId": "com.sci-bots.microdrop",
-    "productName": "microdrop",
-    "copyright": "Copyright © 2018 Sci-Bots",
-    "nsis": {
-      "oneClick": true,
-      "perMachine": true
+    "name": "@microdrop/builder",
+    "version": "1.1.41",
+    "description": "Launcher / Installer for MicroDrop",
+    "main": "node_modules/@microdrop/application/bin/microdrop",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 0",
+        "start": "./node_modules/.bin/electron node_modules/@microdrop/application/bin/microdrop",
+        "builder": "./node_modules/.bin/electron-builder",
+        "packager": "node electron-packager.config.js"
     },
-    "fileAssociations": {
-      "ext": "microdrop"
+    "author": "Sci-Bots",
+    "license": "BSD-2-Clause",
+    "devDependencies": {
+        "electron": "^1.7.12",
+        "electron-builder": "^19.56.0",
+        "electron-packager": "^11.0.0"
     },
-    "files": [
-      "node_modules/@microdrop/application/**/*"
-    ],
-    "publishConfig": {
-      "access": "public"
+    "dependencies": {
+        "@microdrop/application": "^1.1.41"
     },
-    "asar": false
-  }
+    "build": {
+        "appId": "com.sci-bots.microdrop",
+        "productName": "microdrop",
+        "copyright": "Copyright © 2018 Sci-Bots",
+        "nsis": {
+            "oneClick": true,
+            "perMachine": true
+        },
+        "fileAssociations": {
+            "ext": "microdrop"
+        },
+        "files": [
+            "node_modules/@microdrop/application/**/*"
+        ],
+        "publishConfig": {
+            "access": "public"
+        },
+        "asar": false
+    },
+    "keywords": [
+        "yac-project"
+    ]
 }
