@@ -83,22 +83,23 @@ class VideoControls {
     p3 = positionArray.slice(6,9);
     p4 = positionArray.slice(9,12);
 
-    return {p1,p2,p3,p4, diagonalRatioArray}
+    let [d1,d2,d3,d4] = diagonalRatioArray;
+    return {p1,p2,p3,p4,d1,d2,d3,d4}
   }
 
   rotate() {
-    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
-    this.plane.applyPrevGeometry(diagonalRatioArray, [...p3,...p1,...p4,...p2]);
+    var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
+    this.plane.applyPrevGeometry([d3,d1,d4,d2], [...p3,...p1,...p4,...p2]);
   }
 
   flipHorizontal() {
-    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
-    this.plane.applyPrevGeometry(diagonalRatioArray, [...p2,...p1,...p4,...p3]);
+    var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
+    this.plane.applyPrevGeometry([d2,d1,d4,d3], [...p2,...p1,...p4,...p3]);
   }
 
   flipVertical() {
-    var {p1,p2,p3,p4, diagonalRatioArray} = this.getPoints();
-    this.plane.applyPrevGeometry(diagonalRatioArray, [...p3,...p4,...p1,...p2]);
+    var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
+    this.plane.applyPrevGeometry([d3,d4,d1,d2], [...p3,...p4,...p1,...p2]);
   }
 
   reset() {
