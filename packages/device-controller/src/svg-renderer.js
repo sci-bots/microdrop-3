@@ -35,15 +35,15 @@ const ExtractShape = function (twojs_shape) {
      var prev = twojs_shape.vertices[i - 1];
 
      const command = vert._command;
-     if (command == Two.Commands.move)  shape.moveTo(vert.x, vert.y);
-     if (command == Two.Commands.line)  shape.lineTo(vert.x, vert.y);
+     if (command == Two.Commands.move)  shape.moveTo(vert.x, -vert.y);
+     if (command == Two.Commands.line)  shape.lineTo(vert.x, -vert.y);
      if (command == Two.Commands.close) shape.closePath();
      if (command == Two.Commands.curve) {
        shape.bezierCurveTo(
        prev.controls.right.x + prev.x,
        prev.controls.right.y + prev.y,
        vert.controls.left.x + vert.x,
-       vert.controls.left.y + vert.y, vert.x, vert.y
+       -1* (vert.controls.left.y + vert.y), vert.x, -1*vert.y
        );
      }
    }
@@ -66,8 +66,8 @@ const ConstructScene = function(objects) {
     const geometry = new THREE.ExtrudeGeometry(shape, {bevelEnabled, amount});
     const fill = new THREE.Mesh(geometry, material);
     fill.name = obj.id;
-    fill.position.x += obj.translation.x;
-    fill.position.y += obj.translation.y;
+    fill.position.x = obj.translation.x;
+    fill.position.y = -1 * obj.translation.y;
     group.add(fill);
   }
   scene.add(group);
@@ -148,6 +148,16 @@ const GeneratePlaneUV = (geometry) => {
   return geometry;
 }
 
+const ComputeBoundingBox = (obj) => {
+  const helper = new THREE.BoundingBoxHelper(obj, 0xff0000);
+  helper.update();
+  helper.geometry.computeBoundingBox();
+  const bbox = helper.geometry.boundingBox;
+  var width = bbox.max.x - bbox.min.x;
+  var height = bbox.max.y - bbox.min.y;
+  return {width, height};
+}
+
 const GenerateSvgGroup = async (url='/default.svg') => {
   let objects;
   if (_.isString(url))
@@ -191,14 +201,18 @@ const GenerateSvgGroup = async (url='/default.svg') => {
     var group = new THREE.Group();
     group.add(fill);
     group.add(outline);
-    group.position.x += obj.translation.x;
-    group.position.y += obj.translation.y;
+    group.position.x = obj.translation.x;
+    group.position.y = -1 * obj.translation.y;
     group.name = obj.id;
     group.fill = fill;
     group.outline = outline;
     group.geometry = fill.geometry;
     svgGroup.add(group);
   }
+
+  let bbox = ComputeBoundingBox(svgGroup);
+  svgGroup.position.y += bbox.height;
+
   svgGroup.ppi = objects.ppi;
   svgGroup.defaultOpacity = DEFAULT_FLUXEL_OPACITY;
   return svgGroup;
