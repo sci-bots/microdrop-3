@@ -228,10 +228,7 @@ class DeviceUIPlugin extends UIPlugin {
       },
       set fluxelOpacity(_fluxelOpacity) {
         this._fluxelOpacity = _fluxelOpacity;
-        let children = _.get(menu, 'electrodeControls.svgGroup.children');
-        _.each(children, (child) => {
-          _.set(child, 'fill.material.opacity', _fluxelOpacity);
-        });
+        menu.electrodeControls.setOpacity(_fluxelOpacity);
       }
     };
 

@@ -74,6 +74,23 @@ class ElectrodeControls extends MicropedeClient {
     }
   }
 
+  setOpacity(opacity) {
+    let children = this.svgGroup.children;
+    _.each(children, (child) => {
+      _.set(child, 'fill.material.opacity', opacity);
+      let prevColor = child.outline.material.color;
+      let material = new MeshLineMaterial({
+        color: prevColor,
+        lineWidth: 0.2,
+        opacity: opacity,
+        transparent: true
+      });
+      material.opacity = opacity;
+      material.color = prevColor;
+      child.outline.material = material;
+    });
+  }
+
   drawElectrodes(elec) {
     const LABEL = "ElectrodeControls::drawElectrodes";
     const objects = this.svgGroup.children;
@@ -154,7 +171,6 @@ class ElectrodeControls extends MicropedeClient {
   async render() {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     const threeObject = await microdrop.getState('device-model', 'three-object');
-    console.log({threeObject, children: this.svgGroup.children});
     _.each(this.svgGroup.children, async (child) => {
       child.texture = this.generateTextTextureForElectrode(child, threeObject);
     });
@@ -324,8 +340,19 @@ class ElectrodeControls extends MicropedeClient {
   }
 
   unselectElectrode() {
-    this.selectedElectrode.outline.material = new MeshLineMaterial({
-      color: new THREE.Color("black"), lineWidth: 0.2 });
+    let opacity = _.get(this.selectedElectrode, 'outline.material.opacity');
+    let color = new THREE.Color("black");
+    let material = new MeshLineMaterial({
+      color: color,
+      opacity: opacity,
+      lineWidth: 0.2,
+      transparent: true
+    });
+    material.color = color;
+    material.opacity = opacity;
+    this.selectedElectrode.outline.material = material;
+
+
     this.selectedElectrode = null;
     this.trigger("set-selected-electrode", "null");
   }
@@ -341,8 +368,18 @@ class ElectrodeControls extends MicropedeClient {
     // Turn on and color the selected electrode
     this.turnOnElectrode(electrodeId);
     const electrodeObject = this.electrodeObjects[electrodeId];
-    electrodeObject.outline.material = new MeshLineMaterial({
-      color: new THREE.Color("red"), lineWidth: 0.2 });
+
+    let opacity = _.get(electrodeObject, 'outline.material.opacity');
+    let color = new THREE.Color("red");
+    let material = new MeshLineMaterial({
+      color: color,
+      opacity: opacity,
+      lineWidth: 0.2,
+      transparent: true
+    });
+    material.color = color;
+    material.opacity = opacity;
+    electrodeObject.outline.material = material;
 
     this.selectedElectrode = electrodeObject;
     this.trigger("set-selected-electrode", electrodeId);

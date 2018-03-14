@@ -178,8 +178,16 @@ const GenerateSvgGroup = async (url='/default.svg') => {
 
     // Generate outline
     points.autoClose = true;
-    var options = {color: new THREE.Color("black"), lineWidth: 0.2};
+    var color = new THREE.Color("black");
+    var options = {
+      color: color,
+      lineWidth: 0.2,
+      transparent: true,
+      opacity: DEFAULT_FLUXEL_OPACITY
+    };
     var material = new MeshLineMaterial(options);
+    material.color = color;
+    material.opacity = DEFAULT_FLUXEL_OPACITY;
     var meshLine = new MeshLine();
     meshLine.setGeometry(points);
     var outline = new THREE.Mesh(meshLine.geometry, material);
