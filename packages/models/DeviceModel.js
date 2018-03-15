@@ -72,27 +72,35 @@ class DeviceModel extends MicropedeClient {
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
     this.onTriggerMsg("electrodes-from-routes", this.electrodesFromRoutes.bind(this));
     this.onTriggerMsg("get-area", this.getArea.bind(this));
+    this.onTriggerMsg('load-default', this.loadDefaultDevice.bind(this));
     this.onPutMsg("three-object", this.putThreeObject.bind(this));
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
     this.onPutMsg('ppi', this.putPPI.bind(this));
     this.sendIpcMessage('device-model-ready');
-
-    await this.loadDefaultDevice();
   }
 
   get isPlugin() {return true}
   get channel() {return "microdrop/device"}
   get filepath() {return __dirname;}
 
-  async loadDefaultDevice() {
-    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+  async loadDefaultDevice(payload, params) {
+    const LABEL = 'device-model:loadDefaultDevice'; console.log(LABEL);
     try {
-      await microdrop.getState('device-model', 'three-object', 500);
+      const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+      let threeObject;
+
+      try {
+        threeObject = await microdrop.getState('device-model', 'threeObject', 500);
+      } catch (e) {
+        threeObject = require(path.resolve(__dirname, 'default.json'));
+        await this.putThreeObject({threeObject});
+      }
+
+      return this.notifySender(payload, threeObject, "load-default");
     } catch (e) {
-      // If fail to get state, then load default svg:
-      let threeObject = require(path.resolve(__dirname, 'default.json'));
-      await this.putThreeObject({threeObject});
+      return this.notifySender(payload, DumpStack(LABEL, e),
+      "load-default", "failed");
     }
   }
 

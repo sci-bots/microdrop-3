@@ -13,10 +13,13 @@ const express = require('express');
 const {ipcRenderer} = require('electron');
 const msgpack = require('msgpack5')();
 const pkginfo = require('pkginfo')(module);
+const psTree = require('ps-tree');
+const terminate = require('terminate');
 const yac = require('@yac/api');
 
 const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 const MicroDropUI = require('@microdrop/ui/index.js');
 const FindUserDefinedPlugins = require('../utils/find-microdrop-plugins.js');
 
@@ -31,7 +34,9 @@ class WebServer extends MicropedeClient {
   constructor(broker, ports, storage, defaultRunningPlugins=[]) {
     if (storage == undefined) storage = window.localStorage;
     // Add key to local storage that tracks ui plugins:
+    let firstLoad = false;
     if (storage.getItem('microdrop:plugins') == null) {
+      firstLoad = true;
       WebServer.initPlugins(storage);
     }
 
@@ -48,6 +53,7 @@ class WebServer extends MicropedeClient {
     this.broker = broker;
     this.ports = ports;
     this.runningChildren = {};
+    this.firstLoad = firstLoad;
     this.defaultRunningPlugins = defaultRunningPlugins;
   }
 
@@ -63,7 +69,13 @@ class WebServer extends MicropedeClient {
     });
   }
 
-  listen() {
+  async listen() {
+    if (this.firstLoad) {
+      this.setState('first-load', true);
+    } else {
+      this.setState('first-load', false);
+    }
+
     // TODO: pass in electron optionally (incase we switch to node later)
     ipcRenderer.on('reset-db', this.reset.bind(this));
     ipcRenderer.send('broker-ready');
@@ -91,10 +103,31 @@ class WebServer extends MicropedeClient {
     });
 
     const resourcesDir = path.resolve(__dirname, 'resources');
+
+    let storage = this.storage || window.localStorage;
+
+    // Terminate zombies processes from prev yac instance:
+    let prevPids = storage.getItem('microdrop:pids');
+    if (prevPids) {
+      let pids = JSON.parse(prevPids);
+      _.each(pids, (pid) => {
+        terminate(pid);
+      });
+    }
+
+    // Start yac dashboard
     yac.dashboard.addKeywordFilter(APPNAME);
     yac.dashboard.setLogo(path.resolve(resourcesDir, 'logo.svg'));
     const url = `http://localhost:${this.ports.http_port}`;
     yac.dashboard(undefined, `${url}/yacinfo`, {url:true});
+
+    // Track pids of child processes
+    setInterval(async () => {
+      let p = process.pid;
+      let children = await new Promise((r, b) => {psTree(p, (e, c) => r(c))});
+      let pids = JSON.stringify(_.map(children, 'PID'));
+      storage.setItem('microdrop:pids', pids);
+    }, 500);
 
     this.findPlugins();
 
@@ -137,6 +170,7 @@ class WebServer extends MicropedeClient {
     });
 
     this.bindStateMsg("plugins", "set-plugins");
+    this.bindTriggerMsg("device-model", "load-default", 'load-device');
     this.onTriggerMsg("add-plugin-path", this.onAddPluginPath.bind(this));
     this.onTriggerMsg("remove-plugin-path", this.removePluginPath.bind(this));
     this.onTriggerMsg("update-plugin-state", this.updatePluginState.bind(this));

@@ -31,6 +31,17 @@ class DeviceUIPlugin extends UIPlugin {
   listen() {
     this.on("updateRequest", this.onUpdateRequest.bind(this));
     this.onStateMsg('device-model', 'three-object', this.renderDevice.bind(this));
+
+    let loaded = false;
+    this.onStateMsg('web-server', 'first-load', async (firstLoad) => {
+      if (firstLoad == true && loaded == false) {
+        console.log("SETTING DEVICE!");
+        loaded = true;
+        const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+        await microdrop.triggerPlugin('device-model', 'load-default');
+      }
+    });
+
     this.bindPutMsg('device-model', 'three-object', 'put-device');
 
     // XXX: Sometimes updateRequest doesn't fire on page reload (thus force it with timeout)
