@@ -247,6 +247,7 @@ class Anchors {
         } else {
           this.centers = _fp.pipe(_fp.map(_fp.zipObject(["x", "y"])),
                                           _fp.values)(this.default_positions);
+          _.each(this.centers, (o) => o.y -= this.bounding_box.height);
         }
 
         this.shapes = [];
@@ -256,8 +257,7 @@ class Anchors {
           const shape = new THREE.Mesh(geometry, material);
           shape.position.x = pos.x;
           // XXX: Subtract height (since added to svgGroup position)
-          shape.position.y = pos.y - this.bounding_box.height;
-          console.log("SHAPE::", i, pos);
+          shape.position.y = pos.y;
           shape.scale.x *= 2;
           shape.scale.y *= 2;
 
