@@ -97,7 +97,7 @@ class ElectrodeControls extends MicropedeClient {
       let material = new MeshLineMaterial({
         color: prevColor,
         lineWidth: 0.2,
-        opacity: child.on ? this.onOpacity : this.offOpacity,
+        opacity: child.on ? 0 : this.offOpacity,
         transparent: true
       });
       material.color = prevColor;
@@ -388,7 +388,7 @@ class ElectrodeControls extends MicropedeClient {
     let color = new THREE.Color("red");
     let material = new MeshLineMaterial({
       color: color,
-      opacity: this.onOpacity,
+      opacity: 0,
       lineWidth: 0.2,
       transparent: true
     });
