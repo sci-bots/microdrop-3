@@ -66,7 +66,7 @@ class DeviceModel extends MicropedeClient {
     ElectrodeControls.SetConsole();
   }
 
-  listen() {
+  async listen() {
     this.onStateMsg('device-model', 'ppi', this.setPPI.bind(this));
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
@@ -77,11 +77,24 @@ class DeviceModel extends MicropedeClient {
     this.onPutMsg("overlays", this.putOverlays.bind(this));
     this.onPutMsg('ppi', this.putPPI.bind(this));
     this.sendIpcMessage('device-model-ready');
+
+    await this.loadDefaultDevice();
   }
 
   get isPlugin() {return true}
   get channel() {return "microdrop/device"}
   get filepath() {return __dirname;}
+
+  async loadDefaultDevice() {
+    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+    try {
+      await microdrop.getState('device-model', 'three-object', 500);
+    } catch (e) {
+      // If fail to get state, then load default svg:
+      let threeObject = require(path.resolve(__dirname, 'default.json'));
+      await this.putThreeObject({threeObject});
+    }
+  }
 
   setThreeObject(threeObject) {
     if (this.scene != null) return;
