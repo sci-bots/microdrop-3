@@ -91,13 +91,14 @@ class ElectrodeControls extends MicropedeClient {
   opacityUpdated() {
     /* Called after off / on opacity is updated*/
     let children = this.svgGroup.children;
+    let selectedElectrode = this.selectedElectrode || {name: null};
     _.each(children, (child) => {
       _.set(child, 'fill.material.opacity', child.on ? this.onOpacity : this.offOpacity);
       let prevColor = child.outline.material.color;
       let material = new MeshLineMaterial({
         color: prevColor,
         lineWidth: 0.2,
-        opacity: child.on ? 0 : this.offOpacity,
+        opacity: (child.on && child.name != this.selectedElectrode.name) ? 0 : this.onOpacity,
         transparent: true
       });
       material.color = prevColor;
@@ -117,6 +118,17 @@ class ElectrodeControls extends MicropedeClient {
       obj.fill.material.color = offColor;
       obj.fill.material.opacity = this.offOpacity;
       obj.on = false;
+
+      let selected = this.selectedElectrode || {name: null};
+      let color = new THREE.Color(obj.name == selected.name ? 'red' : 'black');
+      let material = new MeshLineMaterial({
+        color: color,
+        lineWidth: 0.2,
+        opacity: this.offOpacity,
+        transparent: true
+      });
+      material.color = color;
+      obj.outline.material = material;
     }
 
     // Change currently on electrodes to on color
@@ -125,6 +137,19 @@ class ElectrodeControls extends MicropedeClient {
       obj.fill.material.color = onColor;
       obj.fill.material.opacity = this.onOpacity;
       obj.on = true;
+
+      let selected = this.selectedElectrode || {name: null};
+      if (obj.name == selected.name) continue;
+
+      let color = new THREE.Color('black');
+      let material = new MeshLineMaterial({
+        color: color,
+        lineWidth: 0.2,
+        opacity: 0,
+        transparent: true
+      });
+      material.color = color;
+      obj.outline.material = material;
     }
   }
 
@@ -388,7 +413,7 @@ class ElectrodeControls extends MicropedeClient {
     let color = new THREE.Color("red");
     let material = new MeshLineMaterial({
       color: color,
-      opacity: 0,
+      opacity: this.onOpacity,
       lineWidth: 0.2,
       transparent: true
     });
