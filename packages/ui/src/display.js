@@ -2,8 +2,31 @@ const PhosphorWidgets = require('@phosphor/widgets');
 const request = require('browser-request');
 const yo = require('yo-yo');
 
-//<script type="text/javascript" src="device-ui-plugin\build\device-ui-plugin.web.js"></script>
-//<script type="text/javascript" src="state-saver\build\state-saver.web.js"></script>
+const DEFAULT_LAYOUT = {
+"main":{
+  "type":"split-area",
+  "orientation":"vertical",
+  "children":[
+    {"type":"split-area","orientation":"horizontal",
+    "children":[
+      {"type":"tab-area",
+      "widgets":["device-ui-plugin"],
+      "currentIndex":0},
+      {"type":"tab-area",
+      "widgets":["schema-ui-plugin"],
+      "currentIndex":0}],
+      "sizes":[0.6,0.4]},
+      {"type":"split-area","orientation":"horizontal",
+      "children":[
+        {"type":"tab-area","widgets":["selected-ui"],"currentIndex":0},
+        {"type":"tab-area","widgets":["dropbot-ui-plugin"],"currentIndex":0}
+      ],
+      "sizes":[0.6,0.4]}
+    ],
+    "sizes":[0.7,0.3]
+  }
+};
+
 
 function init() {
   // Add all window objects that extend UIPlugin to microdropPlugin list
@@ -159,8 +182,15 @@ function init() {
         window.hasLaunched = true;
         if ("microdrop:layout" in window.localStorage)
           restorePanels()
-        else
-          savePanels();
+        else {
+          try {
+            localStorage.setItem('microdrop:layout', JSON.stringify(DEFAULT_LAYOUT));
+            restorePanels();
+          } catch (e) {
+            savePanels();
+          }
+        }
+
       }
     }
 
