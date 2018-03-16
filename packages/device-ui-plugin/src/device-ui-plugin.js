@@ -192,7 +192,6 @@ class DeviceUIPlugin extends UIPlugin {
 
     let mediaDevices = await navigator.mediaDevices.enumerateDevices();
     mediaDevices = _.filter(mediaDevices, {kind: 'videoinput'});
-    const defaultOption = {'Choose Device': -1};
     const keys = _.map(mediaDevices, (v, i) => {return i + ' ' + v.label });
     const deviceOptions = _.zipObject(keys, _.map(mediaDevices, 'deviceId'));
     const gui = new Dat.GUI({autoPlace: false});
@@ -204,23 +203,44 @@ class DeviceUIPlugin extends UIPlugin {
     }
 
     // Device handling object for Dat.GUI
+    let stream;
     let devices = {
       _device: -1,
       get device() {return this._device;},
       set device(_device) {
+        const plane = menu.videoControls.plane;
+        window.URL = (window.URL || window.webkitURL || window.mozURL ||
+                      window.msURL);
+
+        if (_device == -2) {
+          // Remove video feed if _device == -2
+          this._device = _device;
+          localStorage.setItem("microdrop:last-webcam", -2);
+          _.each(mediaDevices, (info) => {
+            var constraints = {
+              video: {deviceId: {exact: info.deviceId}}
+            };
+            navigator.mediaDevices.getUserMedia(constraints)
+              .then(function(stream) {
+                stream.getTracks().forEach(track => track.stop())
+                plane.video.src = URL.createObjectURL(stream);
+                plane.initVideo();
+            });
+          });
+          return;
+        }
+
         navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
           mediaDevices = _.filter(mediaDevices, {kind: 'videoinput'});
 
           const info = _.filter(mediaDevices, {deviceId: _device})[0];
-          window.URL = (window.URL || window.webkitURL || window.mozURL ||
-                        window.msURL);
           var constraints = {
             video: {deviceId: info.deviceId ? {exact: info.deviceId} : undefined}
           };
           navigator.mediaDevices.getUserMedia(constraints)
-          .then(function(stream) {
+          .then(function(_stream) {
+            stream = _stream;
             localStorage.setItem("microdrop:last-webcam", info.deviceId);
-            const plane = menu.videoControls.plane;
             plane.video.src = URL.createObjectURL(stream);
             if (!plane.videoTexture) plane.initVideo();
           });
@@ -256,12 +276,17 @@ class DeviceUIPlugin extends UIPlugin {
       }
     };
 
+    const defaultDeviceOptions = {
+      'Choose Device': -1,
+      'No Device': -2
+    };
+
     // Setup Dat.GUI
     if (!container) container = document.body;
     gui.add(menu.cameraControls, 'enableRotate');
     anchorState = gui.add(menu.videoControls, "display_anchors");
     gui.add(menu.electrodeControls, "showChannels");
-    gui.add(devices, 'device',  _.extend({'Choose Device': -1}, deviceOptions));
+    gui.add(devices, 'device',  _.extend(defaultDeviceOptions, deviceOptions));
     gui.add(devices, 'resetAnchors');
     gui.add(devices, 'rotateVideo');
     gui.add(devices, 'flipHorizontal');
@@ -272,7 +297,7 @@ class DeviceUIPlugin extends UIPlugin {
     // Get list of video feeds, and restore if present
     const allFeeds = await getVideoFeeds();
     const lastFeed = localStorage.getItem('microdrop:last-webcam');
-    if (_.indexOf(allFeeds, lastFeed) != -1 ) {
+    if (_.indexOf([...allFeeds,...["-2"]], lastFeed) != -1 ) {
       devices.device = lastFeed;
     }
 
