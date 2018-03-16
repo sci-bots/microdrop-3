@@ -198,6 +198,11 @@ class DeviceUIPlugin extends UIPlugin {
     const gui = new Dat.GUI({autoPlace: false});
     let anchorState;
 
+    const getVideoFeeds = async () => {
+      let mediaDevices = await navigator.mediaDevices.enumerateDevices();
+      return _.map(_.filter(mediaDevices, {kind: 'videoinput'}), "deviceId");
+    }
+
     // Device handling object for Dat.GUI
     let devices = {
       _device: -1,
@@ -214,6 +219,7 @@ class DeviceUIPlugin extends UIPlugin {
           };
           navigator.mediaDevices.getUserMedia(constraints)
           .then(function(stream) {
+            localStorage.setItem("microdrop:last-webcam", info.deviceId);
             const plane = menu.videoControls.plane;
             plane.video.src = URL.createObjectURL(stream);
             if (!plane.videoTexture) plane.initVideo();
@@ -262,6 +268,13 @@ class DeviceUIPlugin extends UIPlugin {
     gui.add(devices, 'flipVertical');
     gui.add(devices, 'offOpacity', 0, 1);
     gui.add(devices, 'onOpacity', 0, 1);
+
+    // Get list of video feeds, and restore if present
+    const allFeeds = await getVideoFeeds();
+    const lastFeed = localStorage.getItem('microdrop:last-webcam');
+    if (_.indexOf(allFeeds, lastFeed) != -1 ) {
+      devices.device = lastFeed;
+    }
 
     gui.domElement.style.position = "absolute";
     gui.domElement.style.top = "0px";
