@@ -98,7 +98,7 @@ class ElectrodeControls extends MicropedeClient {
       let material = new MeshLineMaterial({
         color: prevColor,
         lineWidth: 0.2,
-        opacity: (child.on && child.name != this.selectedElectrode.name) ? 0 : this.onOpacity,
+        opacity: (child.on && child.name != selectedElectrode.name) ? 0 : this.offOpacity,
         transparent: true
       });
       material.color = prevColor;
