@@ -60,7 +60,7 @@ class VideoControls {
     this.renderer = renderer;
     this.canvas = renderer.domElement;
     this.camera = camera;
-
+    this.numRotations = 0;
     if (localStorage.getItem(ANCHOR_KEY)) {
       var {diagonalRatioArray, positionArray} = JSON.parse(localStorage.getItem(ANCHOR_KEY));
       if (diagonalRatioArray) {
@@ -90,16 +90,20 @@ class VideoControls {
   rotate() {
     var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
     this.plane.applyPrevGeometry([d3,d1,d4,d2], [...p3,...p1,...p4,...p2]);
+    this.numRotations += 1;
+    this.saveAnchors();
   }
 
   flipHorizontal() {
     var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
     this.plane.applyPrevGeometry([d2,d1,d4,d3], [...p2,...p1,...p4,...p3]);
+    this.saveAnchors();
   }
 
   flipVertical() {
     var {p1,p2,p3,p4,d1,d2,d3,d4} = this.getPoints();
     this.plane.applyPrevGeometry([d3,d4,d1,d2], [...p3,...p4,...p1,...p2]);
+    this.saveAnchors();
   }
 
   reset() {
@@ -119,6 +123,9 @@ class VideoControls {
     this.planeReady().then((d)=> {
       if (d.status != "failed")
         plane.mesh.position.z = -0.5; // Ensure video plane is behind device
+        const rotations = this.numRotations;
+        this.numRotations = 0;
+        for (var i=0;i<rotations;i++) { this.rotate(); }
     });
 
   }
@@ -140,6 +147,18 @@ class VideoControls {
         resolve({status: "failed", plane: this.plane});
       }, _timeout);
     });
+  }
+
+  saveAnchors(anchors) {
+    anchors = anchors || this.anchors;
+    // Store the current anchor setup
+    const anchorData = {};
+    var {transform, diagonalRatioArray, positionArray} =
+      this.plane.set_anchors(anchors.positions);
+    anchorData.positions = anchors.positions;
+    anchorData.diagonalRatioArray = diagonalRatioArray;
+    anchorData.positionArray = positionArray;
+    localStorage.setItem(ANCHOR_KEY, JSON.stringify(anchorData));
   }
 
   adjustVideoAnchors() {
@@ -182,11 +201,7 @@ class VideoControls {
                   this.plane.set_anchors(anchors.positions);
 
                 // Store the current anchor setup
-                const anchorData = {};
-                anchorData.positions = anchors.positions;
-                anchorData.diagonalRatioArray = diagonalRatioArray;
-                anchorData.positionArray = positionArray;
-                localStorage.setItem(ANCHOR_KEY, JSON.stringify(anchorData));
+                this.saveAnchors(anchors);
             }
           }, false);
       }
@@ -256,7 +271,6 @@ class Anchors {
 
           const shape = new THREE.Mesh(geometry, material);
           shape.position.x = pos.x;
-          // XXX: Subtract height (since added to svgGroup position)
           shape.position.y = pos.y;
           shape.scale.x *= 2;
           shape.scale.y *= 2;
