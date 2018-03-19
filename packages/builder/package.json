@@ -1,6 +1,6 @@
 {
     "name": "@microdrop/builder",
-    "version": "1.1.42",
+    "version": "1.1.43",
     "description": "Launcher / Installer for MicroDrop",
     "main": "node_modules/@microdrop/application/bin/microdrop",
     "scripts": {
@@ -17,7 +17,7 @@
         "electron-packager": "^11.0.0"
     },
     "dependencies": {
-        "@microdrop/application": "^1.1.42"
+        "@microdrop/application": "^1.1.43"
     },
     "build": {
         "appId": "com.sci-bots.microdrop",
