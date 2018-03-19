@@ -6,7 +6,8 @@ const options = {
   packageManager: false,
   name: 'MicroDrop',
   asar: false,
-  out: `${__dirname}/packager`
+  out: `${__dirname}/packager`,
+  ignore: `${__dirname}/nsis`
 };
 
 packager(options).then((d) => {

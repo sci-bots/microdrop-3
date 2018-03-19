@@ -4,7 +4,7 @@ const path = require('path');
 const {spawnSync} = require('child_process');
 
 function makeNsis() {
-  spawnSync(`makensis ${path.resolve(__dirname, 'script.nsi')}`, [], {shell: true, stdio: 'inherit'});
+  spawnSync(`makensis ${path.resolve(__dirname, 'script.nsh')}`, [], {shell: true, stdio: 'inherit'});
 }
 
 module.exports = makeNsis;
