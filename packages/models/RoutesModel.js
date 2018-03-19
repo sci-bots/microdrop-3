@@ -167,7 +167,7 @@ class RoutesModel extends MicropedeClient {
         'electrodes-from-routes', {routes: [route]}))[0];
 
       // Get previously stored routes (if failure then set to empty array)
-      let routes
+      let routes;
       try {
         // routes = await microdrop.routes.routes(500);
         routes = await microdrop.getState('routes-model', 'routes', 500);

@@ -51,6 +51,11 @@ const DeviceSchema = {
       type: "integer",
       default: 96,
       per_step: false
+    },
+    "max-distance": {
+      type: "number",
+      default: 0.5,
+      per_step: false
     }
   }
 };
@@ -77,6 +82,7 @@ class DeviceModel extends MicropedeClient {
     this.onPutMsg("overlay", this.putOverlay.bind(this));
     this.onPutMsg("overlays", this.putOverlays.bind(this));
     this.onPutMsg('ppi', this.putPPI.bind(this));
+    this.onPutMsg('max-distance', this.putMaxDistance.bind(this));
     this.sendIpcMessage('device-model-ready');
   }
 
@@ -124,6 +130,18 @@ class DeviceModel extends MicropedeClient {
     }
   }
 
+  async putMaxDistance(payload, params) {
+    /* Set max distance allowable when looking for neighbours */
+    const LABEL = 'device-model:max-distance';
+    try {
+      await this.setState('max-distance', payload['max-distance']);
+      return this.notifySender(payload, payload['max-distance'], 'max-distance');
+    } catch (e) {
+      console.error(LABEL, e);
+      return this.notifySender(payload, DumpStack(LABEL, e), 'max-distance', 'failed');
+    }
+  }
+
   getArea(payload, params) {
     /* Calculate the area for a given electrode*/
     const LABEL = 'device-model:getArea';
@@ -139,12 +157,20 @@ class DeviceModel extends MicropedeClient {
     }
   }
 
-  electrodesFromRoutes(payload) {
+  async electrodesFromRoutes(payload) {
     /* Validate that a path is possible on the current device */
     const LABEL = `<DeviceModel::electrodesFromRoutes>`; //console.log(LABEL);
     try {
       let routes = payload.routes;
       let length = routes.length;
+
+      let maxDistance;
+      try {
+        let microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+        maxDistance = await microdrop.getState('device-model', 'max-distance', 500);
+      } catch (e) {
+        maxDistance = ElectrodeControls.MAX_DISTANCE;
+      }
 
       // Validate input payload:
       if (!routes) throw("expecting routes in payload");
@@ -172,7 +198,7 @@ class DeviceModel extends MicropedeClient {
         let dir;
         const ids = [id];
         for (const [i, dir] of r.path.entries()) {
-          const n = ElectrodeControls.FindNeighbourInDirection(this.group, id, dir);
+          const n = ElectrodeControls.FindNeighbourInDirection(this.group, id, dir, maxDistance);
           if (!n || _.isEmpty(n)) throw(`Failed to get step at index ${i}`);
           if (n.id == undefined)  throw(`missing key 'id' at step ${i}`);
           ids.push(n.id);
@@ -187,17 +213,25 @@ class DeviceModel extends MicropedeClient {
     }
   }
 
-  getNeighbouringElectrodes(payload) {
+  async getNeighbouringElectrodes(payload) {
     const LABEL = `<DeviceModel::getNeighbouringElectrodes>`; //console.log(LABEL);
     try {
       if (!this.scene) throw("scene undefined");
       if (!this.group) throw("group undefined");
       if (!payload.electrodeId) throw("expected 'electrodeId' in payload");
       const electrodeId = payload.electrodeId;
-      const neighbours = ElectrodeControls.FindAllNeighbours(this.group, electrodeId);
+      let microdrop = new MicropedeAsync("microdrop", undefined, this.port);
+      let maxDistance;
+      try {
+        maxDistance = await microdrop.getState('device-model', 'max-distance', 500);
+      } catch (e) {
+        maxDistance = ElectrodeControls.MAX_DISTANCE;
+      }
+      const neighbours = ElectrodeControls.FindAllNeighbours(this.group, electrodeId, maxDistance);
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
     } catch (e) {
+      console.error(LABEL, e);
       return this.notifySender(payload, DumpStack(LABEL, e),
         "get-neighbouring-electrodes", 'failed');
     }
