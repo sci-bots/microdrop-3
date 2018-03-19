@@ -372,7 +372,8 @@ class ElectrodeControls extends MicropedeClient {
     if (obj == undefined) return undefined;
     const intersects = FindIntersectsInDirection(obj.fill, dir, collisionObjects);
     // Use first intersect for now:
-    const intersect = intersects[0];
+    // const intersect = intersects[0];
+    const intersect = _.minBy(intersects, 'distance');
     if (!intersect) return undefined;
 
     const neighbour = new Object();
@@ -444,12 +445,13 @@ class ElectrodeControls extends MicropedeClient {
     if (event.target.uuid != event2.target.uuid) return;
 
     let activeElectrodes;
+    let microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
     try {
-      let microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
-      activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 500);
+      activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 300);
     } catch (e) {
       activeElectrodes = [];
     }
+
     const id = event.target.name;
     let isOn = _.includes(activeElectrodes, id);
 
@@ -496,20 +498,20 @@ const GetArea = function(group, electrode, ppi=96) {
   return area_ppi * (1 / (ppi*ppi)) * ((25.4*25.5)/1);
 }
 
-const FindAllNeighbours = function(group, object) {
+const FindAllNeighbours = function(group, object, maxDistance=MAX_DISTANCE) {
   const LABEL = "<ElectrodeControls::FindAllNeighbours>";
 
   /* Find neighbours in all directions */
   const neighbours = {};
   if (_.isString(object)) {object = _.filter(group.children, {name: object})[0]};
   for (const [k, dir] of Object.entries(DIRECTIONS)) {
-    const n = FindNeighbourInDirection(group, object, dir);
+    const n = FindNeighbourInDirection(group, object, dir, maxDistance);
     if (n) neighbours[dir] = n.id;
   }
   return neighbours;
 }
 
-const FindNeighbourInDirection = function(group, object, dir) {
+const FindNeighbourInDirection = function(group, object, dir, maxDistance=MAX_DISTANCE) {
   const LABEL = "<ElectrodeControls::FindNeighbourInDirection>";
 
   /* Find neighbours in a particular direction */
@@ -518,8 +520,8 @@ const FindNeighbourInDirection = function(group, object, dir) {
   if (_.isString(object)) {object = _.filter(group.children, {name: object})[0]};
 
   if (object == undefined) return undefined;
-  const intersects = FindIntersectsInDirection(object, dir, group);
-  const intersect = intersects[0];
+  const intersects = FindIntersectsInDirection(object, dir, group, maxDistance);
+  const intersect = _.minBy(intersects, 'distance');
   if (!intersect) return undefined;
 
   const neighbour = {};
@@ -529,7 +531,7 @@ const FindNeighbourInDirection = function(group, object, dir) {
   return neighbour;
 }
 
-function FindNearestIntersectFromEdge(objName, point, direction, group) {
+function FindNearestIntersectFromEdge(objName, point, direction, group, maxDistance=MAX_DISTANCE) {
   const LABEL = "<ElectrodeControls::FindNearestIntersectFromEdge>";
   /* Find neighbour of an object along an edge normal to the rays direction */
   /*  objName: name of currentObject
@@ -550,16 +552,14 @@ function FindNearestIntersectFromEdge(objName, point, direction, group) {
   // Cast another ray from the objects edge, ignoring starting object
   raycaster.set(start.point, direction);
   var intersects = raycaster.intersectObjects( group.children , true);
+  _.remove(intersects, {object: {name: objName}});
   _.remove(intersects, {distance: 0});
-
   // Return object with smallest distance from start object
-  const intersect = _.min(intersects, "distance");
-  if (!intersect) return undefined;
-  if (intersect.distance > MAX_DISTANCE) return undefined;
+  const intersect = _.min(intersects, "distance");  if (_.get(intersect, 'distance') > maxDistance) return undefined;
   return intersect;
 }
 
-function FindIntersectsInDirection(obj, dir, group ) {
+function FindIntersectsInDirection(obj, dir, group, maxDistance=MAX_DISTANCE) {
   const LABEL = "<ElectrodeControls::FindIntersectsInDirection>";
   if (_.isString(obj)) {obj = _.filter(group.children, {name: object})[0]};
 
@@ -591,7 +591,7 @@ function FindIntersectsInDirection(obj, dir, group ) {
     for (var i=0;i<numSteps;i++) {
       point.y += step;
       const intersect = FindNearestIntersectFromEdge(n, point, direction,
-        group);
+        group, maxDistance);
       if (!intersect) continue;
       const uuid = intersect.object.uuid;
       intersects[uuid] = intersect;
@@ -603,7 +603,7 @@ function FindIntersectsInDirection(obj, dir, group ) {
     for (var i=0;i<numSteps;i++) {
       point.x += step;
       const intersect = FindNearestIntersectFromEdge(n, point, direction,
-        group);
+        group, maxDistance);
       if (!intersect) continue;
       const uuid = intersect.object.uuid;
       intersects[uuid] = intersect;
@@ -618,3 +618,4 @@ module.exports.ElectrodeControls = ElectrodeControls;
 module.exports.FindAllNeighbours = FindAllNeighbours;
 module.exports.FindNeighbourInDirection = FindNeighbourInDirection;
 module.exports.GetArea = GetArea;
+module.exports.MAX_DISTANCE = MAX_DISTANCE;

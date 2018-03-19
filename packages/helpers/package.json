@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/helpers",
-  "version": "1.1.41",
+  "version": "1.1.42",
   "description": "Helper functions used across microdrop monorepo packages",
   "main": "helpers.js",
   "author": "Sci-Bots",

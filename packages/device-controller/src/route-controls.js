@@ -12,7 +12,9 @@ const {MicropedeClient} = require('@micropede/client/src/client.js');
 
 const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 
-const {FindAllNeighbours} = require('./electrode-controls');
+const ElectrodeControls = require('./electrode-controls');
+const FindAllNeighbours = ElectrodeControls.FindAllNeighbours;
+const MAX_DISTANCE = ElectrodeControls.MAX_DISTANCE;
 
 const APPNAME = 'microdrop';
 
@@ -102,7 +104,7 @@ class RouteControls extends MicropedeClient {
       this.model.set("routes", routes);
     }
   }
-  createLocalRoute(path) {
+  createLocalRoute(path, maxDistance=MAX_DISTANCE) {
     const localRoute = new Object();
     localRoute.start = path[0];
     localRoute.path = [];
@@ -110,8 +112,7 @@ class RouteControls extends MicropedeClient {
       if (i == 0) continue;
       const prev = path[i-1];
       const next = path[i];
-      const neighbours = FindAllNeighbours(this.electrodeControls.svgGroup, prev);
-
+      const neighbours = FindAllNeighbours(this.electrodeControls.svgGroup, prev, maxDistance);
       if (_.invert(neighbours)[next]) {
         localRoute.path.push(_.invert(neighbours)[next]);
       } else {
@@ -208,12 +209,21 @@ class RouteControls extends MicropedeClient {
     const group = this.electrodeControls.svgGroup;
     const scene = this.scene;
 
+    let maxDistance;
+    let microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+    try {
+      maxDistance = await microdrop.getState('device-model', 'max-distance', 300);
+    } catch (e) {
+      maxDistance = MAX_DISTANCE;
+    }
+
     // Add start electrode
-    var line = AddToPath(e.target.name, path, group);
+    path.push(e.target.name);
+    var line = AddToPath(e.target.name, path, group, maxDistance);
 
     // Add all electrodes that are hovered over
     const mouseover = this.on("mouseover", (e) => {
-      var line = AddToPath(e.target.name, path, group, lines);
+      var line = AddToPath(e.target.name, path, group, maxDistance);
       if (line) {lines.push(line); scene.add(line);}
     });
 
@@ -224,7 +234,7 @@ class RouteControls extends MicropedeClient {
       });
     };
     e = await mouseup();
-    AddToPath(e.target.name, path, group, lines);
+    AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove events
     this.off("mouseup");
@@ -234,8 +244,7 @@ class RouteControls extends MicropedeClient {
     for (const [i, line] of lines.entries()){
       this.scene.remove(line);
     }
-
-    const localRoute = this.createLocalRoute(path);
+    const localRoute = this.createLocalRoute(path, maxDistance);
 
     if (path.length > 1) {
       this.trigger("put-route", localRoute);
@@ -246,14 +255,14 @@ class RouteControls extends MicropedeClient {
   }
 }
 
-const AddToPath = (name, path, group) => {
+const AddToPath = (name, path, group, maxDistance=MAX_DISTANCE) => {
   const prev = _.last(path);
   if (name == prev) return;
   let neighbours = [];
-  if (prev != undefined)
-    neighbours = FindAllNeighbours(group, prev);
-  if (!_.invert(neighbours)[name] && prev != undefined) return;
-
+  // if (prev != undefined) {
+  //   neighbours = FindAllNeighbours(group, prev, maxDistance);
+  // }
+  // if (!_.invert(neighbours)[name] && prev != undefined) return;
   if (path.length > 0) {
     const line = GenerateLineFromElectrodeIds(prev, name, group);
     path.push(name);
