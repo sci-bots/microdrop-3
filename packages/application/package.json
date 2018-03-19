@@ -65,5 +65,5 @@
     "access": "public"
   },
   "private": false,
-  "bin": "bin/microdrop"
+  "bin": {"microdrop": "./bin/microdrop"}
 }
