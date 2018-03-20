@@ -35,7 +35,6 @@ class DeviceUIPlugin extends UIPlugin {
     let loaded = false;
     this.onStateMsg('web-server', 'first-load', async (firstLoad) => {
       if (firstLoad == true && loaded == false) {
-        console.log("SETTING DEVICE!");
         loaded = true;
         const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
         await microdrop.triggerPlugin('device-model', 'load-default');
@@ -87,6 +86,13 @@ class DeviceUIPlugin extends UIPlugin {
 
     this.controls = await DeviceController.createScene(
       this.sceneContainer, this._url, this.port);
+
+    // Listen to right click event for electrodeControls (in order to
+    // be able to select it from the context menu)
+    this.listenTo(this.controls.electrodeControls, 'right-click', (e) => {
+      this._lastElectrodeRightClick = e;
+    });
+
     this.gui = await CreateDatGUI(this.element, this.controls);
   }
 
@@ -133,6 +139,10 @@ class DeviceUIPlugin extends UIPlugin {
           microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
         });
         break;
+      case "selectElectrode":
+        const id = _.get(this._lastElectrodeRightClick, 'target.name');
+        this.controls.electrodeControls.selectElectrode(id, false);
+        break;
     }
     return true;
   }
@@ -156,8 +166,8 @@ class DeviceUIPlugin extends UIPlugin {
             "sep3": "---------",
             changeDevice: {name: "Change Device"},
             "sep4": "----------",
-            "select1": {name: "Select Electrode: Shift-Click", disabled: true},
-            "select2": {name: "Select Route: Alt-Click", disabled: true}
+            "selectElectrode": {name: "Select Electrode (Shift-Click)"},
+            "selectRoute": {name: "Select Route (Alt-Click)"}
         }
     });
 

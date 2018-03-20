@@ -399,7 +399,7 @@ class ElectrodeControls extends MicropedeClient {
     this.trigger("set-selected-electrode", "null");
   }
 
-  selectElectrode(electrodeId) {
+  selectElectrode(electrodeId, turnOn=true) {
     /* Change the electrode currently being tracked*/
 
     // Reset the outline of the previously selected electrode
@@ -408,7 +408,8 @@ class ElectrodeControls extends MicropedeClient {
     }
 
     // Turn on and color the selected electrode
-    this.turnOnElectrode(electrodeId);
+    if (turnOn == true) this.turnOnElectrode(electrodeId);
+
     const electrodeObject = this.electrodeObjects[electrodeId];
 
     let color = new THREE.Color("red");
@@ -429,7 +430,10 @@ class ElectrodeControls extends MicropedeClient {
     if (!this.enabled) return;
 
     /* Called when electrode object is clicked */
-    if (event.origDomEvent.button != 0) return;
+    if (event.origDomEvent.button != 0) {
+      this.trigger("right-click", event);
+      return;
+    }
     if (event.origDomEvent.altKey) return;
 
     // Await for mouse up event

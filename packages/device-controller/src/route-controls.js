@@ -200,7 +200,10 @@ class RouteControls extends MicropedeClient {
   }
   async drawRoute(e) {
     if (this.electrodeControls.enabled == false) return;
-    if (e.origDomEvent.button == 2) {this.selectRoute(e); return}
+    if (e.origDomEvent.button == 2) {
+      this.selectRoute(e);
+      return;
+    }
 
     /* Draw a route starting with electrode that triggered this event*/
     const lines = [];
