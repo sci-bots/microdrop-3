@@ -200,7 +200,8 @@ class RouteControls extends MicropedeClient {
     e = await mousedown();
     colorSelectedRoutes("rgb(99, 246, 255)");
     // XXX: Find a better way to identify if should execute...
-    if (e.target.innerText != 'Execute Route')
+    if (e.target.innerText == 'Execute Route') return;
+    if (e.target.innerText == 'Clear Route') return;
       selectedRoutes = [];
   }
 
