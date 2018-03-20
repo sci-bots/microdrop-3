@@ -235,7 +235,7 @@ class SchemaUIPlugin extends UIPlugin {
 
     // Get all subscriptions for the schema
     microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    let subs = await microdrop.getSubscriptions(pluginName);
+    let subs = await microdrop.getSubscriptions(pluginName, 300);
 
     // Filter subscriptions for those that match a put endpoint
     let puttableProperties = _.compact(_.map(subs, (s) => {
@@ -279,7 +279,7 @@ class SchemaUIPlugin extends UIPlugin {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let schema;
     try {
-      schema = await microdrop.getState(pluginName, 'schema', 500);
+      schema = await microdrop.getState(pluginName, 'schema', 300);
     } catch (e) {
       console.error(`Failed to get schema for: ${pluginName}`, e);
     }
