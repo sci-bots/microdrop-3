@@ -211,8 +211,10 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           protocol: 'file:',
           slashes: true
         }));
+        win.webContents.openDevTools();
 
         sendReadyPing(win, {ports});
+
         win.on('closed', () => app.quit() );
 
         app.on('before-quit', (e) => {
