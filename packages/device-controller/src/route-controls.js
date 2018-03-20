@@ -130,7 +130,7 @@ class RouteControls extends MicropedeClient {
     const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
         'electrodes-from-routes', {routes})).response;
 
-    const selectedRoutes = [];
+    let selectedRoutes = [];
 
     const colorSelectedRoutes = (str) => {
       const color = new THREE.Color(str);
@@ -166,6 +166,7 @@ class RouteControls extends MicropedeClient {
 
     const execCallback = (e) => {
       const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
+      if (selectedRoutes.length <= 0 ) return;
       switch (e.key) {
         case "executeRoute":
           microdrop.triggerPlugin('routes-model', 'execute',
@@ -188,16 +189,21 @@ class RouteControls extends MicropedeClient {
       return new Promise((resolve, reject) => {
         let listener;
         listener = (e) => {
-          document.removeEventListener("mousedown", listener); resolve(e);
+          // remove listener once mouse down (i.e. listen once), then resolve
+          document.removeEventListener("mousedown", listener);
+          resolve(e);
         };
         document.addEventListener("mousedown", listener);
       });
     };
 
     e = await mousedown();
-
     colorSelectedRoutes("rgb(99, 246, 255)");
+    // XXX: Find a better way to identify if should execute...
+    if (e.target.innerText != 'Execute Route')
+      selectedRoutes = [];
   }
+
   async drawRoute(e) {
     if (this.electrodeControls.enabled == false) return;
     if (e.origDomEvent.button == 2) {
