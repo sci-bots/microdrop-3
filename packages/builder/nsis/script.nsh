@@ -12,6 +12,7 @@ page directory
 page instfiles
 
 Section
+  DetailPrint $TEMP
   SetOutPath $INSTDIR
 
   # Uninstaller
@@ -28,7 +29,7 @@ Section
 
   # Start Menu
   createDirectory "$SMPROGRAMS\${COMPANYNAME}"
-  createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$MINICONDA\pythonw.exe" "$MINICONDA\cwp.py $MINICONDA $WINDIR\system32\cmd.exe $\"/K$\" $MINICONDA\Scripts\activate.bat $MINICONDA && $INSTDIR\${DIRNAME}\MicroDrop.exe" "$INSTDIR\logo.ico"
+  createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$MINICONDA\pythonw.exe" "$MINICONDA\cwp.py $MINICONDA $WINDIR\system32\cmd.exe /c start $MINICONDA\Scripts\activate.bat $MINICONDA && $WINDIR\system32\cmd.exe /c start $INSTDIR\${DIRNAME}\MicroDrop.exe" "$INSTDIR\logo.ico"
 
   Delete "$INSTDIR\${ZIPFILE}"
 

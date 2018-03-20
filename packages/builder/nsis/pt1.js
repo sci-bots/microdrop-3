@@ -15,7 +15,7 @@ function moveMicrodropOutput() {
   });
 }
 
-function fetchMiniconda() {
+function fetchMiniconda(callback) {
   const MINICONDA_URL = 'https://repo.continuum.io/miniconda/Miniconda2-latest-Windows-x86.exe';
   const filepath = path.resolve(__dirname, "miniconda.exe");
   const file = fs.createWriteStream(filepath);
@@ -25,9 +25,19 @@ function fetchMiniconda() {
 
   file.on('finish', function(){
     spawnSync(`cmd /C start /wait "" ${filepath} /NoRegistry=1 /RegisterPython=0 /AddToPath=0 /InstallationType=JustMe /S /D=${path.resolve(__dirname, 'MicroDrop/miniconda')}`, [], {shell: true, stdio: 'inherit'});
+    callback();
   });
 
 };
 
-moveMicrodropOutput();
-fetchMiniconda();
+module.exports.moveMicrodropOutput = moveMicrodropOutput;
+module.exports.fetchMiniconda = fetchMiniconda;
+module.exports = (callback) => {
+  moveMicrodropOutput();
+  fetchMiniconda(callback);
+}
+
+if (require.main === module) {
+  moveMicrodropOutput();
+  fetchMiniconda();
+}
