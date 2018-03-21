@@ -213,8 +213,9 @@ module.exports = () => {
       if (plugin.state == 'disabled') continue;
       const name = plugin.data.name;
       const script = plugin.data.script;
+      console.log({path, plugin});
       const tag = yo`
-        <script type="text/javascript" src="${name}/${script}"></script>
+        <script type="text/javascript" src="/fetch-file?file=${path}/${script}"></script>
       `;
 
       head.appendChild(tag);

@@ -156,8 +156,12 @@ StepMixins.createStep = async function (e) {
   // Fetch the entire microdrop state
   await Promise.all(_.map(this.plugins, async (plugin) => {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    let schema    = await this.getSchema(plugin);
-    state[plugin] = await this.getStateForPlugin(plugin, schema);
+    try {
+      let schema    = await this.getSchema(plugin);
+      state[plugin] = await this.getStateForPlugin(plugin, schema);
+    } catch (e) {
+      console.error(e);
+    }
     return;
   }));
 
@@ -165,7 +169,7 @@ StepMixins.createStep = async function (e) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevSteps;
   try {
-    prevSteps = await microdrop.getState(this.name, 'steps', 500);
+    prevSteps = await microdrop.getState(this.name, 'steps', 300);
   } catch (e) { prevSteps = []; }
 
   // Write current state as new step

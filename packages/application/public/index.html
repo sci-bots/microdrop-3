@@ -29,13 +29,32 @@
             ">
             </webview>
           `;
+
           content.appendChild(view);
         }
 
-        const menu = new Menu()
-        menu.append(new MenuItem({label: 'Display', click: switchView.bind(this, 'display')}));
-        menu.append(new MenuItem({label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')}));
-        menu.append(new MenuItem({label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')}));
+        let menu;
+        if (process.platform != 'darwin') {
+          menu = new Menu();
+          menu.append(new MenuItem({label: 'Display', }));
+          menu.append(new MenuItem({label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')}));
+          menu.append(new MenuItem({label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')}));
+          Menu.setApplicationMenu(menu);
+        } else {
+          const template = [
+            {},
+            {
+              label: 'Show',
+              submenu: [
+                {label: 'Display', click: switchView.bind(this, 'display')},
+                {label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')},
+                {label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')}
+              ]
+            }
+          ];
+          menu = Menu.buildFromTemplate(template);
+        }
+        
         Menu.setApplicationMenu(menu);
 
         document.body.appendChild(content);
