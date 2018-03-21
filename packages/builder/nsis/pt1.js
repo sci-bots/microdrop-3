@@ -16,7 +16,7 @@ function moveMicrodropOutput() {
 }
 
 function fetchMiniconda(callback) {
-  const MINICONDA_URL = 'https://repo.continuum.io/miniconda/Miniconda2-latest-Windows-x86.exe';
+  const MINICONDA_URL = 'https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe';
   const filepath = path.resolve(__dirname, "miniconda.exe");
   const file = fs.createWriteStream(filepath);
   const request = https.get(MINICONDA_URL, function(response) {
