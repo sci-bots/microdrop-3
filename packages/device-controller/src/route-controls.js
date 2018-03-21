@@ -24,19 +24,21 @@ class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     super(APPNAME, DEFAULT_HOST, port);
 
-    electrodeControls.on("mousedown", (e) => {
-      this.drawRoute(e);
+    let isRoute = true;
+
+    electrodeControls.on("mousedown", async (e) => {
+      isRoute = true;
+      await new Promise((resolve, reject) => {
+        setTimeout(()=> resolve(), 50);
+      });
+      if (isRoute) this.drawRoute(e);
     });
 
     electrodeControls.on("mouseup", (e) => {
-      /// XXX: Add small delay for mouseup event
-      // Implementing this way can make the ui seem buggy...
-      if (!this._routeWaiting) {
-        setTimeout(() => this.trigger("mouseup", e), 400);
-      } else {
-        this.trigger("mouseup", e);
-      }
+      isRoute = false;
+      this.trigger("mouseup", e);
     });
+
 
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
     this.electrodeControls = electrodeControls;
