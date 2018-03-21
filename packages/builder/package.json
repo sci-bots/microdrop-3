@@ -1,7 +1,9 @@
 {
     "name": "@microdrop/builder",
+    "productName": "MicroDrop",
+    "author": "Sci-Bots",
     "version": "1.1.44",
-    "description": "Launcher / Installer for MicroDrop",
+    "description": "Digital Microfluidic Control Software",
     "main": "node_modules/@microdrop/application/bin/microdrop",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 0",

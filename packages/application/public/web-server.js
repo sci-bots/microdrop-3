@@ -140,6 +140,7 @@ class WebServer extends MicropedeClient {
     this.get('/storage-raw', (_, res) => {res.send(JSON.stringify(this.storage))});
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
+    this.get('/fetch-file', (req, res) => {res.send(this.fetchFile(req))});
     this.post('/load-storage', (req, res) => {
       const LABEL = 'webserver:load-storage';
       try {
@@ -226,12 +227,13 @@ class WebServer extends MicropedeClient {
           state = "enabled";
         }
 
-        _.set(pluginData.webPlugins, pluginDir, {
+        if (!pluginData.webPlugins)pluginData.webPlugins = {};
+        pluginData.webPlugins[pluginDir] = {
           name: pluginName,
           path: pluginDir,
           state: state,
           data: packageData
-        });
+        };
 
         this.storage.setItem("microdrop:plugins", JSON.stringify(pluginData));
       }
@@ -358,6 +360,11 @@ class WebServer extends MicropedeClient {
       <b>/ui-plugins</b> : Manage js ui plugins  <br>
       <b>/display</b> : Display User Interface (Enable plugins in plugin-manager first) <br>
       `);
+  }
+
+  fetchFile(req) {
+    let file = req.param("file");
+    return fs.readFileSync(file);
   }
 
   ExpressServer() {
