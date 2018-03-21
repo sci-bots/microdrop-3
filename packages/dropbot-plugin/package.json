@@ -5,7 +5,7 @@
     },
     "version": "1.1.42",
     "main": "python dropbot_plugin/__init__.py",
-    "license": "MIT",
+    "license": "BSD-2-Clause",
     "keywords": [
         "yac-project",
         "microdrop"
@@ -21,5 +21,7 @@
         "lodash": "^4.17.5",
         "webpack": "3",
         "yo-yo": "^1.4.1"
-    }
+    },
+    "author": "Sci-Bots",
+    "private": false
 }
