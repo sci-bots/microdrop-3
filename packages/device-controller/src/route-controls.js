@@ -24,8 +24,20 @@ class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     super(APPNAME, DEFAULT_HOST, port);
 
-    electrodeControls.on("mousedown", this.drawRoute.bind(this));
-    electrodeControls.on("mouseup", (e) => this.trigger("mouseup", e));
+    electrodeControls.on("mousedown", (e) => {
+      this.drawRoute(e);
+    });
+
+    electrodeControls.on("mouseup", (e) => {
+      /// XXX: Add small delay for mouseup event
+      // Implementing this way can make the ui seem buggy...
+      if (!this._routeWaiting) {
+        setTimeout(() => this.trigger("mouseup", e), 400);
+      } else {
+        this.trigger("mouseup", e);
+      }
+    });
+
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
     this.electrodeControls = electrodeControls;
     this.lines = {};
@@ -212,6 +224,16 @@ class RouteControls extends MicropedeClient {
       return;
     }
 
+    const drawHandler = _.extend({}, Backbone.Events);
+    // Add last electrode
+    const mouseup = () => {
+      return new Promise((resolve, reject) => {
+        this.on("mouseup", (e) => {
+          resolve(e);
+        });
+      });
+    };
+
     /* Draw a route starting with electrode that triggered this event*/
     const lines = [];
     const path = [];
@@ -232,28 +254,24 @@ class RouteControls extends MicropedeClient {
     var line = AddToPath(e.target.name, path, group, maxDistance);
 
     // Add all electrodes that are hovered over
-    const mouseover = this.on("mouseover", (e) => {
+    const mouseover = drawHandler.listenTo(this.electrodeControls, "mouseover", (e) => {
+      this._routeWaiting = true;
       var line = AddToPath(e.target.name, path, group, maxDistance);
       if (line) {lines.push(line); scene.add(line);}
     });
 
-    // Add last electrode
-    const mouseup = () => {
-      return new Promise((resolve, reject) => {
-        this.on("mouseup", (e) => {resolve(e);});
-      });
-    };
     e = await mouseup();
+    this._routeWaiting = false;
     AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove events
-    this.off("mouseup");
-    this.off("mouseover");
+    drawHandler.stopListening();
 
     // Remove lines from scene
     for (const [i, line] of lines.entries()){
       this.scene.remove(line);
     }
+
     const localRoute = this.createLocalRoute(path, maxDistance);
 
     if (path.length > 1) {

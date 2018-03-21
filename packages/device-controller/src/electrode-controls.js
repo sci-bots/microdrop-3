@@ -342,7 +342,7 @@ class ElectrodeControls extends MicropedeClient {
       await this.turnOffElectrode(electrodeId);
       this.selectElectrode(neighbour);
     } catch (e) {
-      // console.error(e);
+      console.error(e);
     }
   }
 

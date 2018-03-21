@@ -223,7 +223,7 @@ class DeviceModel extends MicropedeClient {
       let microdrop = new MicropedeAsync("microdrop", undefined, this.port);
       let maxDistance;
       try {
-        maxDistance = await microdrop.getState('device-model', 'max-distance', 500);
+        maxDistance = await microdrop.getState('device-model', 'max-distance', 300);
       } catch (e) {
         maxDistance = ElectrodeControls.MAX_DISTANCE;
       }
