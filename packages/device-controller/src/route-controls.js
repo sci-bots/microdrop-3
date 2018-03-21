@@ -225,7 +225,6 @@ class RouteControls extends MicropedeClient {
     }
 
     const drawHandler = _.extend({}, Backbone.Events);
-    // Add last electrode
     const mouseup = () => {
       return new Promise((resolve, reject) => {
         this.on("mouseup", (e) => {
@@ -260,6 +259,7 @@ class RouteControls extends MicropedeClient {
       if (line) {lines.push(line); scene.add(line);}
     });
 
+    // Add last electrode on mouse up
     e = await mouseup();
     this._routeWaiting = false;
     AddToPath(e.target.name, path, group, maxDistance);
@@ -292,6 +292,9 @@ const AddToPath = (name, path, group, maxDistance=MAX_DISTANCE) => {
   // }
   // if (!_.invert(neighbours)[name] && prev != undefined) return;
   if (path.length > 0) {
+    // validate path before pushing:
+    neighbours = FindAllNeighbours(group, prev, maxDistance);
+    if (!_.invert(neighbours)[name]) return undefined;
     const line = GenerateLineFromElectrodeIds(prev, name, group);
     path.push(name);
     return line;
