@@ -20,25 +20,20 @@ const APPNAME = 'microdrop';
 
 const DEFAULT_HOST = 'localhost';
 
+let mouseDown = 0;
 class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     super(APPNAME, DEFAULT_HOST, port);
 
-    let isRoute = true;
-
     electrodeControls.on("mousedown", async (e) => {
-      isRoute = true;
-      await new Promise((resolve, reject) => {
-        setTimeout(()=> resolve(), 50);
-      });
-      if (isRoute) this.drawRoute(e);
+      ++mouseDown;
+      this.drawRoute(e);
     });
 
     electrodeControls.on("mouseup", (e) => {
-      isRoute = false;
+      --mouseDown;
       this.trigger("mouseup", e);
     });
-
 
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
     this.electrodeControls = electrodeControls;
@@ -226,15 +221,6 @@ class RouteControls extends MicropedeClient {
       return;
     }
 
-    const drawHandler = _.extend({}, Backbone.Events);
-    const mouseup = () => {
-      return new Promise((resolve, reject) => {
-        this.on("mouseup", (e) => {
-          resolve(e);
-        });
-      });
-    };
-
     /* Draw a route starting with electrode that triggered this event*/
     const lines = [];
     const path = [];
@@ -251,19 +237,32 @@ class RouteControls extends MicropedeClient {
     }
 
     // Add start electrode
+    if (!mouseDown) return;
     path.push(e.target.name);
     var line = AddToPath(e.target.name, path, group, maxDistance);
 
+    const drawHandler = _.extend({}, Backbone.Events);
+
+    const mouseup = () => {
+      return new Promise((resolve, reject) => {
+        drawHandler.listenTo(this.electrodeControls, "mouseup", (e) => {
+          resolve(e);
+        });
+      });
+    };
+
     // Add all electrodes that are hovered over
     const mouseover = drawHandler.listenTo(this.electrodeControls, "mouseover", (e) => {
-      this._routeWaiting = true;
+      if (!mouseDown) {
+        this.electrodeControls.trigger("mouseup");
+        return;
+      }
       var line = AddToPath(e.target.name, path, group, maxDistance);
       if (line) {lines.push(line); scene.add(line);}
     });
 
     // Add last electrode on mouse up
     e = await mouseup();
-    this._routeWaiting = false;
     AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove events
