@@ -124,9 +124,16 @@ class WebServer extends MicropedeClient {
     // Track pids of child processes
     setInterval(async () => {
       let p = process.pid;
-      let children = await new Promise((r, b) => {psTree(p, (e, c) => r(c))});
-      let pids = JSON.stringify(_.map(children, 'PID'));
-      storage.setItem('microdrop:pids', pids);
+      let children = await new Promise((r, b) => {
+        psTree(p, (e, c) => r(c));
+        setTimeout(() => { r([]); }, 500);
+      });
+      let pids = [];
+      if (storage.getItem('microdrop:pids') !== null) {
+        pids = JSON.parse(storage.getItem('microdrop:pids'));
+      }
+      pids = _.uniq([...pids, ..._.map(children, 'PID')]);
+      storage.setItem('microdrop:pids', JSON.stringify(pids));
     }, 500);
 
     this.findPlugins();
