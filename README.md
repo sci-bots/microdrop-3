@@ -8,17 +8,44 @@ MicroDrop with MQTT communication and web front end
 
 ## Installing From Source (Latest)
 
+### Prerequisites:
+- git 
+- node / npm
+
+### Installation:
 ```sh
 git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
-npm i --global yarn
-yarn global add lerna @yac/yac npm-check-updates
-
+npm i --global yarn electron @yac/yac npm-check-updates
 yarn upgrade:micropede
 yarn upgrade:yac
 yarn bootstrap
-yarn build
+yarn build # This can sometimes appear to hang on windows when it has actually complected. Press <Enter> and/or Ctrl+C if it appears to have stalled for over 30s or so
 yarn start
+```
+
+## Installing From NPM:
+
+### Prerequisites:
+- git 
+- node / npm
+
+### Installation:
+```sh
+npm install --global @microdrop/application
+```
+
+### Start:
+```sh
+  >> microdrop # Ensure microdrop-2 is not in path
+```
+
+## Building an installer:
+
+```sh
+cd microdrop-3
+cd packages/builder
+yarn builder
 ```
 
 ## Docs
