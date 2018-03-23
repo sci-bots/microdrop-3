@@ -24,14 +24,15 @@
         "appId": "com.sci-bots.microdrop",
         "productName": "microdrop",
         "copyright": "Copyright © 2018 Sci-Bots",
-        "nsis": {
-            "oneClick": true,
-            "perMachine": true
-        },
-        "fileAssociations": {
-            "ext": "microdrop"
-        },
-        "asar": false
+        "files": [
+          "!nsis",
+          "!packager",
+          "!dist_*"
+        ],
+        "asar": true,
+        "win": {
+		"target": "nsis"
+	}
     },
     "keywords": [
         "yac-project"
