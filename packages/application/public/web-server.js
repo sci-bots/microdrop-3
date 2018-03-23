@@ -156,6 +156,45 @@ class WebServer extends MicropedeClient {
         res.status(500).json({ error: e.toString() });
       }
     });
+
+    this.get('/write-key-to-storage', (req, res) => {
+      const LABEL = 'webserver:write-key-to-storage';
+      try {
+        const pluginName = req.param("pluginName");
+        const key = req.param("key");
+        const val = JSON.stringify(JSON.parse(req.param("val")));
+
+        // Convert into mosca message
+        let msg = {};
+        msg.topic = `microdrop/${pluginName}/state/${key}`;
+        msg.payload = Buffer.from(val);
+        msg.messageId = `id_${parseInt(Math.random()*1e10)}`;
+        msg.qos = 0;
+        msg.retain = true;
+
+        const storageKey = `${APPNAME}!!retained!${APPNAME}/${pluginName}/state/${key}`;
+        const encodedVal = `Buff:${d64.encode(msgpack.encode(msg).slice())}`;
+        this.storage.setItem(storageKey, encodedVal);
+        res.send({key, encodedVal});
+      } catch (e) {
+        console.error(LABEL, e);
+        res.status(500).json({error: e.toString()});
+      }
+    });
+
+    this.get('/get-from-storage', (req, res) => {
+      const LABEL = 'webserver:get-from-storage';
+      try {
+        const key = req.param("key");
+        const encodedVal = localStorage.getItem(key);
+        const val = msgpack.decode(d64.decode(encodedVal.substring(5)));
+        res.send({key, encodedVal, val});
+      } catch (e) {
+        console.error(LABEL, e);
+        res.status(500).json({error: e.toString()});
+      }
+    });
+
     this.get('/process-plugins', (_, res) => {
       const style = `
         position: absolute;
@@ -185,7 +224,6 @@ class WebServer extends MicropedeClient {
       let args = [];
       for (const [i, plugin] of Object.entries(env.defaultEnabled)) {
         let _path = path.dirname(require.resolve(path.join(plugin, 'package.json')));
-        console.log({_path});
         args.push(_path);
       }
       FindUserDefinedPlugins(args, this.storage || localStorage, this.onPluginFound.bind(this));

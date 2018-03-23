@@ -47,6 +47,8 @@ class RouteControls extends MicropedeClient {
     this.onStateMsg("routes-model", "routes", this.renderRoutes.bind(this));
     this.bindPutMsg("routes-model", "route", "put-route");
     this.bindStateMsg("selected-route", "set-selected-route");
+
+    
   }
   get routes() {
     return _.cloneDeep(this.model.get("routes"));

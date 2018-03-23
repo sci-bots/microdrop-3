@@ -332,6 +332,7 @@ class ElectrodeControls extends MicropedeClient {
       let microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
       const electrodeId = this.selectedElectrode.name;
       let neighbours;
+
       neighbours = (await microdrop.triggerPlugin('device-model',
         'get-neighbouring-electrodes', {electrodeId}, 500)).response;
 
