@@ -9,7 +9,8 @@
         "test": "echo \"Error: no test specified\" && exit 0",
         "start": "./node_modules/.bin/electron node_modules/@microdrop/application/bin/microdrop",
         "builder": "./node_modules/.bin/electron-builder",
-        "packager": "node electron-packager.config.js"
+        "packager": "node electron-packager.config.js",
+        "release": "build"
     },
     "license": "BSD-2-Clause",
     "devDependencies": {
@@ -21,18 +22,24 @@
         "@microdrop/application": "^1.1.46"
     },
     "build": {
-        "appId": "com.sci-bots.microdrop",
-        "productName": "microdrop",
-        "copyright": "Copyright © 2018 Sci-Bots",
-        "files": [
-          "!nsis",
-          "!packager",
-          "!dist_*"
-        ],
-        "asar": true,
-        "win": {
-		"target": "nsis"
-	}
+      "appId": "com.sci-bots.microdrop",
+      "productName": "microdrop",
+      "copyright": "Copyright © 2018 Sci-Bots",
+      "artifactName": "microdrop-v${version}-${os}-${arch}.${ext}",
+      "files": [
+        "!nsis",
+        "!packager",
+        "!dist_*"
+      ],
+      "asar": true,
+      "win": {
+	      "target": "nsis"
+      },
+      "publish": {
+        "provider": "github",
+        "repo": "microdrop-3",
+        "owner": "sci-bots"
+      }
     },
     "keywords": [
         "yac-project"
