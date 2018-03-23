@@ -157,7 +157,7 @@ class WebServer extends MicropedeClient {
       }
     });
 
-    this.get('/write-key-to-storage', (req, res) => {
+    this.get('/write-state', (req, res) => {
       const LABEL = 'webserver:write-key-to-storage';
       try {
         const pluginName = req.query["pluginName"];
