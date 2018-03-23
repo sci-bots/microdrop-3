@@ -37,7 +37,7 @@ npm install --global @microdrop/application
 
 ### Start:
 ```sh
-  >> microdrop # Ensure no microdrop-2 is not in path
+  >> microdrop # Ensure microdrop-2 is not in path
 ```
 
 ## Building an installer:
