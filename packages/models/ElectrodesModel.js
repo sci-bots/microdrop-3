@@ -119,7 +119,7 @@ class ElectrodesModel extends MicropedeClient {
       let activeElectrodes;
       try {
         // activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
-        activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 200);
+        activeElectrodes = await this.getState('active-electrodes');
       } catch (e) { activeElectrodes = [] }
 
       // Add or remove the connected electrodes depending on state

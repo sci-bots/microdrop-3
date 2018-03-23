@@ -31,15 +31,12 @@
         "fileAssociations": {
             "ext": "microdrop"
         },
-        "files": [
-            "node_modules/@microdrop/application/**/*"
-        ],
-        "publishConfig": {
-            "access": "public"
-        },
         "asar": false
     },
     "keywords": [
         "yac-project"
-    ]
+    ],
+    "publishConfig": {
+      "access": "public"
+    }
 }

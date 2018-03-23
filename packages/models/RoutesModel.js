@@ -169,8 +169,7 @@ class RoutesModel extends MicropedeClient {
       // Get previously stored routes (if failure then set to empty array)
       let routes;
       try {
-        // routes = await microdrop.routes.routes(500);
-        routes = await microdrop.getState('routes-model', 'routes', 500);
+        routes = await this.getState('routes');
       } catch (e) { routes = []; }
 
       // Check if route exists, and if so override
