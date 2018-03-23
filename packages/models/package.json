@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/models",
-  "version": "1.1.45",
+  "version": "1.1.46",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@microdrop/device-controller": "^1.1.45",
+    "@microdrop/device-controller": "^1.1.46",
     "@micropede/client": "0.0.31",
     "ajv": "^6.1.1",
     "lodash": "^4.17.5",
