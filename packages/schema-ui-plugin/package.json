@@ -14,7 +14,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@microdrop/ui-plugin": "^1.1.45",
-    "@micropede/client": "^0.0.30",
+    "@micropede/client": "^0.0.31",
     "ajv": "^6.2.0",
     "bootstrap": "^4.0.0",
     "browser-request": "^0.3.3",
