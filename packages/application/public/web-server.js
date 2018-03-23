@@ -160,9 +160,9 @@ class WebServer extends MicropedeClient {
     this.get('/write-key-to-storage', (req, res) => {
       const LABEL = 'webserver:write-key-to-storage';
       try {
-        const pluginName = req.param("pluginName");
-        const key = req.param("key");
-        const val = JSON.stringify(JSON.parse(req.param("val")));
+        const pluginName = req.query["pluginName"];
+        const key = req.query["key"];
+        const val = JSON.stringify(JSON.parse(req.query["val"]));
 
         // Convert into mosca message
         let msg = {};
@@ -185,7 +185,7 @@ class WebServer extends MicropedeClient {
     this.get('/get-from-storage', (req, res) => {
       const LABEL = 'webserver:get-from-storage';
       try {
-        const key = req.param("key");
+        const key = req.query["key"];
         const encodedVal = localStorage.getItem(key);
         const val = msgpack.decode(d64.decode(encodedVal.substring(5)));
         res.send({key, encodedVal, val});
@@ -401,7 +401,8 @@ class WebServer extends MicropedeClient {
   }
 
   fetchFile(req) {
-    let file = req.param("file");
+
+    let file = req.query["file"];
     return fs.readFileSync(file);
   }
 
