@@ -8,13 +8,14 @@
       const pkginfo = require('pkginfo')(module);
       const DeviceModel = require('../DeviceModel.js');
 
-      const appname = host = n = options = undefined;
+      const appname = host = n = undefined;
       const version = module.exports.version;
 
       electron.ipcRenderer.on('ports', (e, data) => {
-        const {mqtt_tcp_port} = JSON.parse(data);
+        const {mqtt_tcp_port, http_port} = JSON.parse(data);
         const port = mqtt_tcp_port;
-
+        let storageUrl = `http://localhost:${http_port}`;
+        const options = {storageUrl: storageUrl, resubscribe: false};
         model = new DeviceModel(appname, host, port, n, version, options, electron);
       });
 

@@ -8,7 +8,7 @@ const options = {
   show: false
 };
 
-function initAsElectronProcesses(electron, ports) {
+function initAsElectronProcesses(electron, ports, host='localhost') {
   const {BrowserWindow} = electron;
 
   const sendPorts = (win) => {

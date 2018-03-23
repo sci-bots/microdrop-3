@@ -182,15 +182,17 @@ class WebServer extends MicropedeClient {
       }
     });
 
-    this.get('/get-from-storage', (req, res) => {
-      const LABEL = 'webserver:get-from-storage';
+    this.get('/get-state', (req, res) => {
+      const LABEL = 'webserver:get-state';
       try {
         const key = req.query["key"];
-        const encodedVal = localStorage.getItem(key);
-        const val = msgpack.decode(d64.decode(encodedVal.substring(5)));
-        res.send({key, encodedVal, val});
+        const pluginName = req.query["pluginName"];
+        const storageKey = `${APPNAME}!!retained!${APPNAME}/${pluginName}/state/${key}`;
+
+        const encodedVal = localStorage.getItem(storageKey);
+        const val = JSON.parse(msgpack.decode(d64.decode(encodedVal.substring(5))).payload);
+        res.send({storageKey, encodedVal, val});
       } catch (e) {
-        console.error(LABEL, e);
         res.status(500).json({error: e.toString()});
       }
     });

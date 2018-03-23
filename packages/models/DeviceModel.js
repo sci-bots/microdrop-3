@@ -72,6 +72,13 @@ class DeviceModel extends MicropedeClient {
   }
 
   async listen() {
+    // Load defaults:
+    try {
+      await this.getState('max-distance');
+    } catch (e) {
+      await this.loadDefaults({keys: ['max-distance']});
+    }
+
     this.onStateMsg('device-model', 'ppi', this.setPPI.bind(this));
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
     this.onTriggerMsg("get-neighbouring-electrodes", this.getNeighbouringElectrodes.bind(this));
@@ -93,11 +100,10 @@ class DeviceModel extends MicropedeClient {
   async loadDefaultDevice(payload, params) {
     const LABEL = 'device-model:loadDefaultDevice'; console.log(LABEL);
     try {
-      const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
       let threeObject;
 
       try {
-        threeObject = await microdrop.getState('device-model', 'threeObject', 500);
+        threeObject = await this.getState('threeObject');
       } catch (e) {
         threeObject = require(path.resolve(__dirname, 'default.json'));
         await this.putThreeObject({threeObject});
@@ -166,8 +172,7 @@ class DeviceModel extends MicropedeClient {
 
       let maxDistance;
       try {
-        let microdrop = new MicropedeAsync('microdrop', undefined, this.port);
-        maxDistance = await microdrop.getState('device-model', 'max-distance', 500);
+        maxDistance = await this.getState('max-distance');
       } catch (e) {
         maxDistance = ElectrodeControls.MAX_DISTANCE;
       }
@@ -220,10 +225,9 @@ class DeviceModel extends MicropedeClient {
       if (!this.group) throw("group undefined");
       if (!payload.electrodeId) throw("expected 'electrodeId' in payload");
       const electrodeId = payload.electrodeId;
-      let microdrop = new MicropedeAsync("microdrop", undefined, this.port);
       let maxDistance;
       try {
-        maxDistance = await microdrop.getState('device-model', 'max-distance', 300);
+        maxDistance = await this.getState('max-distance');
       } catch (e) {
         maxDistance = ElectrodeControls.MAX_DISTANCE;
       }
@@ -254,13 +258,12 @@ class DeviceModel extends MicropedeClient {
   async putOverlay(payload) {
     const LABEL = `<DeviceModel::putOverlay>`;
     // console.log(LABEL);
-    const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
     try {
       payload = this.validateOverlay(payload);
 
       let overlays;
       try {
-        overlays = await microdrop.getState('device-model', "overlays", 500);
+        overlays = await this.getState("overlays");
       } catch (e) {
         overlays = [];
       }

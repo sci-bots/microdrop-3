@@ -13,8 +13,10 @@
       const version = module.exports.version;
 
       ipcRenderer.on('ports', (e, data) => {
-        const {mqtt_tcp_port} = JSON.parse(data);
-        model = new RoutesModel(appname, host, mqtt_tcp_port, n, version);
+        const {mqtt_tcp_port, http_port} = JSON.parse(data);
+        let storageUrl = `http://localhost:${http_port}`;
+        const options = {storageUrl: storageUrl, resubscribe: false};
+        model = new RoutesModel(appname, host, mqtt_tcp_port, n, version, options);
       });
 
     </script>
