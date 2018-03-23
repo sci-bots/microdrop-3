@@ -30,12 +30,13 @@ function fetchMiniconda(callback) {
 
 };
 
-module.exports.moveMicrodropOutput = moveMicrodropOutput;
-module.exports.fetchMiniconda = fetchMiniconda;
 module.exports = (callback) => {
   moveMicrodropOutput();
   fetchMiniconda(callback);
 }
+
+module.exports.moveMicrodropOutput = moveMicrodropOutput;
+module.exports.fetchMiniconda = fetchMiniconda;
 
 if (require.main === module) {
   moveMicrodropOutput();

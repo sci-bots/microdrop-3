@@ -5,9 +5,9 @@ const options = {
   overwrite: true,
   packageManager: false,
   name: 'MicroDrop',
-  asar: true,
+  asar: false,
   out: `${__dirname}/packager`,
-  ignore: /(nsis|node_modules\/\@microdrop\/application\/node_modules\/\@microdrop\/dropbot-plugin)/
+  ignore: /(nsis)/
 };
 
 packager(options).then((d) => {
