@@ -143,7 +143,8 @@ const loadSvg = (electron, ports, file=undefined) => {
 }
 
 const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=true, skipReady=false, debug=false) => {
-  electron._autoUpdater.checkForUpdatesAndNotify()
+  electron._autoUpdater.checkForUpdatesAndNotify();
+
 
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;
@@ -212,7 +213,15 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           protocol: 'file:',
           slashes: true
         }));
-        // win.webContents.openDevTools();
+
+        electron._autoUpdater.on('update-available', function (info) {
+          dialog.showMessageBox(win, {
+            title: "MicroDrop Auto Updater",
+            message: `Auto updating to version: ${info.version}`
+          });
+        });
+
+        if (debug) win.webContents.openDevTools();
 
         sendReadyPing(win, {ports});
 
