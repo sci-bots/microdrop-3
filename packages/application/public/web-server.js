@@ -144,32 +144,34 @@ class WebServer extends MicropedeClient {
         setTimeout(() => { r([]); }, 500);
       });
 
-      // Get prev pids
+      // console.log("children");
+      // console.log(children);
       let pids = {};
-      if (storage.getItem('microdrop:pids') !== null) {
-        pids = JSON.parse(storage.getItem('microdrop:pids'));
-      }
-
+      let prevPids = JSON.parse(storage.getItem('microdrop:pids') || '{}');
       // Fetch startime for each child process id
       for (let c of [...children]) {
         try {
-          let stats;
-          try {
-            stats = await pidusage(parseInt(c.PID));
-          } catch (e) {
-            delete pids[c.PID];
-            continue;
+          if (prevPids[c.PID]) {
+            pids[c.PID] = prevPids[c.PID];
+          } else {
+            let stats;
+            try {
+              stats = await pidusage(parseInt(c.PID));
+            } catch (e) {
+              delete pids[c.PID];
+              continue;
+            }
+            console.log("Microdrop started a new process: ", stats);
+            let startTime = (new Date()).getTime() - stats.elapsed;
+            pids[stats.pid] = {pid: stats.pid, startTime: startTime, command: c.COMMAND};
           }
-          console.log({stats});
-          let startTime = (new Date()).getTime() - stats.elapsed;
-          pids[stats.pid] = {pid: stats.pid, startTime: startTime };
         } catch (e) {
           console.error(e);
         }
       }
 
       storage.setItem('microdrop:pids', JSON.stringify(pids));
-    }, 500);
+    }, 1500);
 
     this.findPlugins();
 
