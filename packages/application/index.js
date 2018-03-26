@@ -143,6 +143,7 @@ const loadSvg = (electron, ports, file=undefined) => {
 }
 
 const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=true, skipReady=false, debug=false) => {
+  electron._autoUpdater.checkForUpdatesAndNotify()
 
   return new Promise((resolve, reject) => {
     const {app, dialog, ipcMain, BrowserWindow} = electron;

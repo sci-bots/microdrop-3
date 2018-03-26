@@ -2,6 +2,8 @@
 require('pkginfo')(module);
 const MicroDrop = require('../index.js');
 const electron = require('electron');
+electron._autoUpdater = require("electron-updater").autoUpdater;
+
 const isDev = require('electron-is-dev');
 
 // const PKG_NAME = module.exports.name;
