@@ -12,7 +12,9 @@ const {MicropedeClient} = require('@micropede/client/src/client.js');
 
 const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 
+const Arrow = require('./arrow')(THREE);
 const ElectrodeControls = require('./electrode-controls');
+
 const FindAllNeighbours = ElectrodeControls.FindAllNeighbours;
 const MAX_DISTANCE = ElectrodeControls.MAX_DISTANCE;
 
@@ -48,7 +50,7 @@ class RouteControls extends MicropedeClient {
     this.bindPutMsg("routes-model", "route", "put-route");
     this.bindStateMsg("selected-route", "set-selected-route");
 
-    
+
   }
   get routes() {
     return _.cloneDeep(this.model.get("routes"));
@@ -62,6 +64,7 @@ class RouteControls extends MicropedeClient {
       'electrodes-from-routes', {routes})).response;
 
     const removeLine = (line) => {
+      if (line.arrow) this.scene.remove(line.arrow);
       this.scene.remove(line);
       delete this.lines[line.uuid];
     }
@@ -91,6 +94,9 @@ class RouteControls extends MicropedeClient {
       // Otherwise get the electrodeIds from the route, and draw a new line
       const line = GenerateLinesFromIds(ids, group);
       this.scene.add(line);
+      line.arrow = Arrow(ids, group);
+      this.scene.add( line.arrow );
+
       line.visited = true;
       line.uuid = uuid;
       line.hash = hash;
@@ -272,6 +278,7 @@ class RouteControls extends MicropedeClient {
 
     // Remove lines from scene
     for (const [i, line] of lines.entries()){
+      if (line.arrow) this.scene.remove(line.arrow);
       this.scene.remove(line);
     }
 
@@ -348,7 +355,8 @@ function GenerateLinesFromIds(ids, group) {
   }
 
   const line = new MeshLine();
-  line.setGeometry(geometry)
+  line.setGeometry(geometry);
+
   return new THREE.Mesh(line.geometry, material);
 }
 
