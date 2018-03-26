@@ -39,6 +39,7 @@
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git",
     "msgpack5": "^4.0.1",
+    "pidusage": "^2.0.6",
     "pkginfo": "^0.4.1",
     "ps-tree": "^1.1.0",
     "request": "^2.83.0",

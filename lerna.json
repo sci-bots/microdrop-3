@@ -15,7 +15,6 @@
     "packages/ui",
     "packages/models",
     "packages/microdrop",
-    "packages/builder",
     "packages/dropbot-plugin",
     "packages/schema-ui-plugin",
     "packages/helpers",

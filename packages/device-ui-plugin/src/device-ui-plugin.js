@@ -199,12 +199,11 @@ class DeviceUIPlugin extends UIPlugin {
   }
 
   static async CreateDatGUI(container=null, menu={}) {
-
     let mediaDevices = await navigator.mediaDevices.enumerateDevices();
     mediaDevices = _.filter(mediaDevices, {kind: 'videoinput'});
     const keys = _.map(mediaDevices, (v, i) => {return i + ' ' + v.label });
     const deviceOptions = _.zipObject(keys, _.map(mediaDevices, 'deviceId'));
-    const gui = new Dat.GUI({autoPlace: false});
+    const gui = new Dat.GUI({autoPlace: false, closed: true});
     let anchorState;
 
     const getVideoFeeds = async () => {
@@ -303,7 +302,7 @@ class DeviceUIPlugin extends UIPlugin {
     gui.add(devices, 'flipVertical');
     gui.add(devices, 'offOpacity', 0, 1);
     gui.add(devices, 'onOpacity', 0, 1);
-
+    gui.closed = true;
     // Get list of video feeds, and restore if present
     const allFeeds = await getVideoFeeds();
     const lastFeed = localStorage.getItem('microdrop:last-webcam');

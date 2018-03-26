@@ -14,9 +14,9 @@
     },
     "license": "BSD-2-Clause",
     "devDependencies": {
-        "electron": "^1.7.12",
-        "electron-builder": "^19.56.0",
-        "electron-packager": "^11.0.0"
+        "electron": "^1.8.4",
+        "electron-builder": "^20.6.2",
+        "electron-packager": "^11.2.0"
     },
     "dependencies": {
         "@microdrop/application": "^1.1.47"

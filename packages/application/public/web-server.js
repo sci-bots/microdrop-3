@@ -13,6 +13,7 @@ const express = require('express');
 const {ipcRenderer} = require('electron');
 const msgpack = require('msgpack5')();
 const pkginfo = require('pkginfo')(module);
+const pidusage = require('pidusage');
 const psTree = require('ps-tree');
 const terminate = require('terminate');
 const yac = require('@yac/api');
@@ -108,11 +109,23 @@ class WebServer extends MicropedeClient {
 
     // Terminate zombies processes from prev yac instance:
     let prevPids = storage.getItem('microdrop:pids');
+
     if (prevPids) {
-      let pids = JSON.parse(prevPids);
-      _.each(pids, (pid) => {
-        terminate(pid);
-      });
+      let children = JSON.parse(prevPids);
+      const EPS = 5;
+      for (let [k,c] of Object.entries(children)) {
+        try {
+          let stats = await pidusage(c.pid);
+          let startTime = (new Date()).getTime() - stats.elapsed;
+          if (startTime - c.startTime > EPS) return; // Process has been reassigned
+          await new Promise((res, rej) => {
+            terminate(c.pid, (err) => {
+              res();
+            });
+          });
+        } catch (e) {}
+      }
+      storage.setItem('microdrop:pids', JSON.stringify({}));
     }
 
     // Start yac dashboard
@@ -124,15 +137,37 @@ class WebServer extends MicropedeClient {
     // Track pids of child processes
     setInterval(async () => {
       let p = process.pid;
+
+      // Get all child processes
       let children = await new Promise((r, b) => {
         psTree(p, (e, c) => r(c));
         setTimeout(() => { r([]); }, 500);
       });
-      let pids = [];
+
+      // Get prev pids
+      let pids = {};
       if (storage.getItem('microdrop:pids') !== null) {
         pids = JSON.parse(storage.getItem('microdrop:pids'));
       }
-      pids = _.uniq([...pids, ..._.map(children, 'PID')]);
+
+      // Fetch startime for each child process id
+      for (let c of [...children]) {
+        try {
+          let stats;
+          try {
+            stats = await pidusage(parseInt(c.PID));
+          } catch (e) {
+            delete pids[c.PID];
+            continue;
+          }
+          console.log({stats});
+          let startTime = (new Date()).getTime() - stats.elapsed;
+          pids[stats.pid] = {pid: stats.pid, startTime: startTime };
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       storage.setItem('microdrop:pids', JSON.stringify(pids));
     }, 500);
 
