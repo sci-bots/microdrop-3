@@ -46,10 +46,18 @@ class SelectedUI extends UIPlugin {
     </div>`);
 
     this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
+
+    let prevHeight;
+    this.on("updateRequest", () => {
+      let h = this.element.style.height;
+      if (h == prevHeight) return;
+      if (h != prevHeight) prevHeight = h;
+      this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
+    });
+
   }
 
   onChange() {
-    console.log("Editor changed!");
     if (this.innerContent.view == 'electrode') this.changeElectrode();
     if (this.innerContent.view == 'route') this.changeRoute();
   }
@@ -63,7 +71,6 @@ class SelectedUI extends UIPlugin {
     _.extend(threeObject[index], electrodeData);
     let payload = {threeObject, electrodeId: this.selectedElectrode};
     microdrop.putPlugin('device-model', 'three-object', payload);
-    console.log(this.deviceJSON);
   }
 
   changeRoute() {
@@ -76,7 +83,6 @@ class SelectedUI extends UIPlugin {
       _.extend(routes[index], route);
     });
     microdrop.putPlugin('routes-model', 'routes', routes);
-    console.log(this.routeJSON);
   }
 
   listen() {
@@ -138,7 +144,6 @@ class SelectedUI extends UIPlugin {
 
     const prev = sha256(JSON.stringify(this.editor.get()));
     const next = sha256(JSON.stringify(this._routeJSON || {}));
-    console.log({prev, next});
     if (prev == next) return;
     this.editor.set(this._routeJSON || {});
     this.editor.expandAll();

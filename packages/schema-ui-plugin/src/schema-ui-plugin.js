@@ -123,7 +123,7 @@ class SchemaUIPlugin extends UIPlugin {
       </div>`;
 
     this.steps = yo`<div></div>`;
-    this.content = yo`<div style="zoom:0.8"></div>`;
+    this.content = yo`<div></div>`;
     this.element.appendChild(yo`
       <div class="container-fluid" style="padding: 0px;">
         <div class="row">
@@ -162,6 +162,14 @@ class SchemaUIPlugin extends UIPlugin {
       search: false,
       indentation: 0
     });
+    let prevHeight;
+    this.on("updateRequest", () => {
+      let h = this.element.style.height;
+      if (h == prevHeight) return;
+      if (h != prevHeight) prevHeight = h;
+      this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
+    });
+
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
     Styles.apply(elem);
   }
