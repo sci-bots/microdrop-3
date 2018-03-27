@@ -2,6 +2,7 @@ require('./jsoneditorstyles.js');
 const JSONEditor = require('jsoneditor');
 const yo = require('yo-yo');
 const _ = require('lodash');
+const sha256 = require('sha256');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
@@ -13,7 +14,9 @@ const CreateEditor = (container, callback) => {
     onChange: _.debounce(callback.bind(this), 750).bind(this),
     navigationBar: false,
     statusBar: false,
-    search: false
+    search: false,
+    expand_height: true,
+    collapsed: false
   });
 };
 
@@ -35,7 +38,6 @@ class SelectedUI extends UIPlugin {
 
     this.deviceJSON = {};
     this.routeJSON = {};
-
     this.innerContent = yo`<div></div>`;
 
     this.element.appendChild(yo`<div>
@@ -43,6 +45,7 @@ class SelectedUI extends UIPlugin {
       ${this.innerContent}
     </div>`);
 
+    this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
   }
 
   onChange() {
@@ -57,7 +60,7 @@ class SelectedUI extends UIPlugin {
     // Modify the deviceJSON objects
     const threeObject = _.get(this.deviceJSON, 'three-object');
     let index = _.findIndex(threeObject, {id: this.selectedElectrode})
-    threeObject[index] = electrodeData;
+    _.extend(threeObject[index], electrodeData);
     let payload = {threeObject, electrodeId: this.selectedElectrode};
     microdrop.putPlugin('device-model', 'three-object', payload);
     console.log(this.deviceJSON);
@@ -66,9 +69,12 @@ class SelectedUI extends UIPlugin {
   changeRoute() {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let routeData = this.editor.get();
+
     const routes = _.get(this.routeJSON, 'routes');
-    let index = _.findIndex(routes, {uuid: this.selectedRoute});
-    routes[index] = routeData;
+    _.each(routeData, (route) => {
+      let index = _.findIndex(routes, {uuid: route.uuid});
+      _.extend(routes[index], route);
+    });
     microdrop.putPlugin('routes-model', 'routes', routes);
     console.log(this.routeJSON);
   }
@@ -79,8 +85,8 @@ class SelectedUI extends UIPlugin {
       this.electrodeView();
     });
 
-    this.onStateMsg('route-controls', 'selected-route', (payload) => {
-      this.selectedRoute = payload;
+    this.onStateMsg('route-controls', 'selected-routes', (payload) => {
+      this.selectedRoutes = payload;
       this.routeView();
     });
 
@@ -99,24 +105,43 @@ class SelectedUI extends UIPlugin {
     _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
     this.menu.children[ELECTRODE_MENU_INDEX].style.fontWeight = 'bold';
 
-    this.innerContent.innerHTML = '';
+    // this.innerContent.innerHTML = '';
     this.innerContent.view = 'electrode';
-    this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
+
+    // this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
     const threeObject = _.get(this.deviceJSON, 'three-object');
     let electrodeJSON = _.find(threeObject, {id: this.selectedElectrode});
+
+    electrodeJSON = _.omit(electrodeJSON, ['translation', 'shape']);
+    const prev = sha256(JSON.stringify(this.editor.get()));
+    const next = sha256(JSON.stringify(electrodeJSON || {}));
+
+    if (prev == next) return;
     this.editor.set(electrodeJSON || {});
+    this.editor.expandAll();
   }
 
   routeView(e) {
     _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
     this.menu.children[ROUTE_MENU_INDEX].style.fontWeight = 'bold';
 
-    this.innerContent.innerHTML = '';
+    // this.innerContent.innerHTML = '';
     this.innerContent.view = 'route';
-    this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
+
+    // this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
     const routes = _.get(this.routeJSON, 'routes');
-    this._routeJSON = _.find(routes, {uuid: this.selectedRoute});
+    let uuids = _.map(this.selectedRoutes, 'uuid');
+    this._routeJSON = _.filter(routes, (r) => _.includes(uuids, r.uuid));
+    this._routeJSON = _.map(this._routeJSON, (r) => {
+      return _.omit(r, [])
+    });
+
+    const prev = sha256(JSON.stringify(this.editor.get()));
+    const next = sha256(JSON.stringify(this._routeJSON || {}));
+    console.log({prev, next});
+    if (prev == next) return;
     this.editor.set(this._routeJSON || {});
+    this.editor.expandAll();
   }
 }
 

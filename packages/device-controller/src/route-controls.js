@@ -44,13 +44,13 @@ class RouteControls extends MicropedeClient {
     this.model = new Backbone.Model({routes: []});
     this.model.on("change:routes", this.renderRoutes.bind(this));
     this.port = port;
+    this.selectedRoutes = [];
   }
+
   listen() {
     this.onStateMsg("routes-model", "routes", this.renderRoutes.bind(this));
     this.bindPutMsg("routes-model", "route", "put-route");
-    this.bindStateMsg("selected-route", "set-selected-route");
-
-
+    this.bindStateMsg("selected-routes", "set-selected-routes");
   }
   get routes() {
     return _.cloneDeep(this.model.get("routes"));
@@ -147,33 +147,40 @@ class RouteControls extends MicropedeClient {
     const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
         'electrodes-from-routes', {routes})).response;
 
-    let selectedRoutes = [];
-
-    const colorSelectedRoutes = (str) => {
+    const colorSelectedRoutes = (str, routes) => {
+      routes = routes || this.selectedRoutes;
       const color = new THREE.Color(str);
-      for (const [i, route] of selectedRoutes.entries()){
-        this.lines[route.uuid].material = new MeshLineMaterial({color, lineWidth});
+      for (const [i, route] of routes.entries()){
+        if (this.lines[route.uuid]) {
+          this.lines[route.uuid].material = new MeshLineMaterial({color, lineWidth});
+        } else {
+          console.error('route with id:', route.uuid, 'no longer exists');
+        }
       }
     }
+
+    colorSelectedRoutes("rgb(99, 246, 255)");
+    this.selectedRoutes = [];
 
     // Check which routes contain the id selected
     for (const [i, electrodes] of absoluteRoutes.entries()){
       const selected = _.includes(electrodes.ids, id);
       const uuid = electrodes.uuid;
       if (selected)
-        selectedRoutes.push(_.find(routes, {uuid}));
+        this.selectedRoutes.push(_.find(routes, {uuid}));
     }
 
-    // Write selected route to microdrop's state:
-    if (selectedRoutes.length < 1) return;
-    this.trigger("set-selected-route", selectedRoutes[0].uuid);
+    if (this.selectedRoutes.length < 1) return;
 
     // Turn selected routes yellow
     colorSelectedRoutes("yellow");
 
+    // Write selected routes to microdrop state
+    this.trigger("set-selected-routes", this.selectedRoutes);
+
     // Listen for context menu action
     const clearCallback = (e) => {
-      const uuids = _.map(selectedRoutes, 'uuid');
+      const uuids = _.map(this.selectedRoutes, 'uuid');
       routes = _.filter(routes, (r) => !_.includes(uuids, r.uuid));
       const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
       microdrop.putPlugin('routes-model', 'routes', routes);
@@ -183,15 +190,15 @@ class RouteControls extends MicropedeClient {
 
     const execCallback = (e) => {
       const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
-      if (selectedRoutes.length <= 0 ) return;
+      if (this.selectedRoutes.length <= 0 ) return;
       switch (e.key) {
         case "executeRoute":
           microdrop.triggerPlugin('routes-model', 'execute',
-            {routes: selectedRoutes}, -1);
+            {routes: this.selectedRoutes}, -1);
           break;
         case "executeRoutes":
           microdrop.triggerPlugin('routes-model', 'execute',
-            {routes: selectedRoutes}, -1);
+            {routes: this.selectedRoutes}, -1);
           break;
       }
       this.off("clear-route");
@@ -215,11 +222,10 @@ class RouteControls extends MicropedeClient {
     };
 
     e = await mousedown();
-    colorSelectedRoutes("rgb(99, 246, 255)");
+    // colorSelectedRoutes("rgb(99, 246, 255)");
     // XXX: Find a better way to identify if should execute...
     if (e.target.innerText == 'Execute Route') return;
     if (e.target.innerText == 'Clear Route') return;
-      selectedRoutes = [];
   }
 
   async drawRoute(e) {
