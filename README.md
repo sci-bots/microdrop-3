@@ -16,10 +16,10 @@ MicroDrop with MQTT communication and web front end
 ```sh
 git clone --recursive https://github.com/sci-bots/microdrop-3
 cd microdrop-3
-npm i --global yarn electron @yac/yac npm-check-updates
+npm i --global yarn electron @yac/yac npm-check-updates lerna
 yarn upgrade:micropede
 yarn upgrade:yac
-yarn bootstrap
+lerna bootstrap
 yarn build # This can sometimes appear to hang on windows when it has actually complected. Press <Enter> and/or Ctrl+C if it appears to have stalled for over 30s or so
 yarn start
 ```
