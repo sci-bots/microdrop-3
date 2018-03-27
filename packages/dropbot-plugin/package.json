@@ -12,7 +12,7 @@
     ],
     "scripts": {
         "dev": "yac dev ../../Micropede/packages/python micropede",
-        "build": "./node_modules/.bin/webpack && yac install && yarn dev"
+        "build": "./node_modules/.bin/webpack && yac install && yarn dev || exit 0"
     },
     "dependencies": {
         "@microdrop/ui-plugin": "^1.1.48",
