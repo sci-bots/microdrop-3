@@ -162,7 +162,7 @@ class VideoControls {
   }
 
   adjustVideoAnchors() {
-      if (this.display_anchors) return;
+      if (this.displayAnchors) return;
       const domEvents = new THREEx.DomEvents(this.camera, this.canvas);
 
       var anchors, transform;
@@ -231,15 +231,15 @@ class VideoControls {
   }
 
   destroyVideoAnchors() {
-      if (!this.display_anchors) return;
+      if (!this.displayAnchors) return;
       this.scene.remove(this.anchors.group);
   }
 
-  get display_anchors() { return this._display_anchors || false; }
-  set display_anchors(value) {
+  get displayAnchors() { return this._displayAnchors || false; }
+  set displayAnchors(value) {
     if (value) { this.adjustVideoAnchors(); }
     else { this.destroyVideoAnchors(); }
-    this._display_anchors = value;
+    this._displayAnchors = value;
   }
 
 }

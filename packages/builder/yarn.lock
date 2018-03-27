@@ -42,19 +42,19 @@
     "7zip-bin-mac" "~1.0.1"
     "7zip-bin-win" "~2.2.0"
 
-"@microdrop/application@^1.1.47":
-  version "1.1.47"
-  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.47.tgz#bdc4ba01dc08a4354c2d69f1e82d32694f59f9a4"
+"@microdrop/application@^1.1.51":
+  version "1.1.51"
+  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.51.tgz#639f90e2f24ad1ed77ab26dc5b2904fba0adf1cc"
   dependencies:
-    "@microdrop/device-controller" "^1.1.46"
-    "@microdrop/device-ui-plugin" "^1.1.46"
-    "@microdrop/dropbot-plugin" "^1.1.46"
-    "@microdrop/models" "^1.1.47"
-    "@microdrop/schema-ui-plugin" "^1.1.46"
-    "@microdrop/selected-ui" "^1.1.46"
-    "@microdrop/ui" "^1.1.46"
+    "@microdrop/device-controller" "^1.1.51"
+    "@microdrop/device-ui-plugin" "^1.1.51"
+    "@microdrop/dropbot-plugin" "^1.1.48"
+    "@microdrop/models" "^1.1.51"
+    "@microdrop/schema-ui-plugin" "^1.1.48"
+    "@microdrop/selected-ui" "^1.1.48"
+    "@microdrop/ui" "^1.1.48"
     "@micropede/broker" "0.0.28"
-    "@micropede/client" "0.0.31"
+    "@micropede/client" "0.0.32"
     "@yac/api" "0.0.24"
     ascoltatori "git+https://github.com/Lucaszw/ascoltatori.git"
     cors "^2.8.4"
@@ -67,6 +67,7 @@
     lodash "^4.17.4"
     mosca "git+https://github.com/Lucaszw/mosca.git"
     msgpack5 "^4.0.1"
+    pidusage "^2.0.6"
     pkginfo "^0.4.1"
     ps-tree "^1.1.0"
     request "^2.83.0"
@@ -74,12 +75,12 @@
     yargs "^11.0.0"
     yo-yo "^1.4.1"
 
-"@microdrop/device-controller@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.46.tgz#54f660963ea5a54559d5c9f5674f7e9f4d98c4b1"
+"@microdrop/device-controller@^1.1.51":
+  version "1.1.51"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.51.tgz#d6eaa2325eaa290d22dbf1fd27dac064429f48a4"
   dependencies:
     "@microdrop/helpers" "^1.1.42"
-    "@micropede/client" "^0.0.31"
+    "@micropede/client" "^0.0.32"
     backbone "^1.3.3"
     colormap "^2.3.0"
     jquery "^3.2.1"
@@ -99,13 +100,13 @@
     two.js "github:jonobr1/two.js#dev"
     yo-yo "^1.4.1"
 
-"@microdrop/device-ui-plugin@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.46.tgz#c9ba2fc06c2d7f5378e9ddb3edc2a073347cadf4"
+"@microdrop/device-ui-plugin@^1.1.51":
+  version "1.1.51"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.51.tgz#6ac36f848bb8010750d22d898d73be23c3826558"
   dependencies:
-    "@microdrop/device-controller" "^1.1.46"
-    "@microdrop/ui-plugin" "^1.1.46"
-    "@micropede/client" "0.0.31"
+    "@microdrop/device-controller" "^1.1.51"
+    "@microdrop/ui-plugin" "^1.1.48"
+    "@micropede/client" "0.0.32"
     async-mqtt "^1.0.1"
     dat.gui "^0.7.0"
     jquery "^3.3.1"
@@ -114,12 +115,12 @@
     uuid "^3.1.0"
     yo-yo "^1.4.1"
 
-"@microdrop/dropbot-plugin@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.46.tgz#9b1f007cdfd10a0a5ae421028f645f6d0e3b4a49"
+"@microdrop/dropbot-plugin@^1.1.48":
+  version "1.1.48"
+  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.48.tgz#f03fb48a2f03fa19b4fad201f0b65a28e86be5a7"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.46"
-    "@micropede/client" "^0.0.31"
+    "@microdrop/ui-plugin" "^1.1.48"
+    "@micropede/client" "^0.0.32"
     browser-request "^0.3.3"
     lodash "^4.17.5"
     webpack "3"
@@ -131,24 +132,24 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/models@^1.1.47":
-  version "1.1.47"
-  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.47.tgz#0535f7c4d8a9df903fd9bc6df684e5641d45b08c"
+"@microdrop/models@^1.1.51":
+  version "1.1.51"
+  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.51.tgz#1234c3380206622eedfead244dc722b03121e08c"
   dependencies:
-    "@microdrop/device-controller" "^1.1.46"
-    "@micropede/client" "0.0.31"
+    "@microdrop/device-controller" "^1.1.51"
+    "@micropede/client" "0.0.32"
     ajv "^6.1.1"
     lodash "^4.17.5"
     pkginfo "^0.4.1"
     three "^0.89.0"
     uuid "^3.2.1"
 
-"@microdrop/schema-ui-plugin@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/schema-ui-plugin/-/schema-ui-plugin-1.1.46.tgz#594236c8377455ee996a40ef9ff9ea9456e76c3d"
+"@microdrop/schema-ui-plugin@^1.1.48":
+  version "1.1.48"
+  resolved "https://registry.yarnpkg.com/@microdrop/schema-ui-plugin/-/schema-ui-plugin-1.1.48.tgz#4202603f051f21b93f8ed79505592bb42cf66014"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.46"
-    "@micropede/client" "^0.0.31"
+    "@microdrop/ui-plugin" "^1.1.48"
+    "@micropede/client" "^0.0.32"
     ajv "^6.2.0"
     bootstrap "^4.0.0"
     browser-request "^0.3.3"
@@ -165,12 +166,12 @@
     url-loader "^1.0.1"
     yo-yo "^1.4.1"
 
-"@microdrop/selected-ui@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/selected-ui/-/selected-ui-1.1.46.tgz#d637c3e63bfd6bbc132d7d3ef959d66d04b0161a"
+"@microdrop/selected-ui@^1.1.48":
+  version "1.1.48"
+  resolved "https://registry.yarnpkg.com/@microdrop/selected-ui/-/selected-ui-1.1.48.tgz#9ea986ee375a25c33023f1d3b4319439142c8f71"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.46"
-    "@micropede/client" "^0.0.31"
+    "@microdrop/ui-plugin" "^1.1.48"
+    "@micropede/client" "^0.0.32"
     css-loader "^0.28.10"
     jsoneditor "^5.14.0"
     lodash "^4.17.5"
@@ -178,20 +179,20 @@
     url-loader "^1.0.1"
     yo-yo "^1.4.1"
 
-"@microdrop/ui-plugin@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.46.tgz#5407cd4a8b66e636d78a3e86638919fa9760608c"
+"@microdrop/ui-plugin@^1.1.48":
+  version "1.1.48"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.48.tgz#289bcdb78419abe61a86404ade3ea980de9a16a0"
   dependencies:
-    "@micropede/client" "0.0.31"
+    "@micropede/client" "0.0.32"
     browser-request "^0.3.3"
     keyboard-shortcut "^1.2.0"
 
-"@microdrop/ui@^1.1.46":
-  version "1.1.46"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.46.tgz#741e2d3dc31dfaf5488a85327cdec402a163c348"
+"@microdrop/ui@^1.1.48":
+  version "1.1.48"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.48.tgz#86e947ed3b1aac9e62b0679793fe8614d9a3b690"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.46"
-    "@micropede/client" "0.0.31"
+    "@microdrop/ui-plugin" "^1.1.48"
+    "@micropede/client" "0.0.32"
     "@phosphor/widgets" "^1.5.0"
     browser-request "^0.3.3"
     jquery "^3.2.1"
@@ -210,9 +211,9 @@
     mosca "git+https://github.com/Lucaszw/mosca.git"
     mqtt "^2.15.1"
 
-"@micropede/client@0.0.31", "@micropede/client@^0.0.31":
-  version "0.0.31"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.31.tgz#fa1d71c736a86a5c8195b50c400d383c7b170904"
+"@micropede/client@0.0.32", "@micropede/client@^0.0.32":
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.32.tgz#0850cc7bf728edd466e427c749deabe8cee06026"
   dependencies:
     "@micropede/mixins" "^0.0.23"
     ajv "^6.1.1"
@@ -579,6 +580,10 @@ app-builder-bin-linux@1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/app-builder-bin-linux/-/app-builder-bin-linux-1.8.1.tgz#10e9d344ff8019dbc708e11eca13db91f36607e2"
 
+app-builder-bin-linux@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/app-builder-bin-linux/-/app-builder-bin-linux-1.8.2.tgz#ea3290e8806099f686a859bfae6e94b136f0daeb"
+
 app-builder-bin-mac@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/app-builder-bin-mac/-/app-builder-bin-mac-1.7.2.tgz#c4ee0d950666c97c12a45ac74ec6396be3357644"
@@ -587,6 +592,10 @@ app-builder-bin-mac@1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/app-builder-bin-mac/-/app-builder-bin-mac-1.8.1.tgz#0f3d8ddb3b502cadeebc6db24593a74cd87138d0"
 
+app-builder-bin-mac@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/app-builder-bin-mac/-/app-builder-bin-mac-1.8.2.tgz#15e96ae41604346efc3c3864e7da0f40200bd4e5"
+
 app-builder-bin-win@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/app-builder-bin-win/-/app-builder-bin-win-1.7.2.tgz#7acac890782f4118f09941b343ba06c56452a6f6"
@@ -594,6 +603,10 @@ app-builder-bin-win@1.7.2:
 app-builder-bin-win@1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/app-builder-bin-win/-/app-builder-bin-win-1.8.1.tgz#866ebd5f724143b8f55d365f88c22e221425fa1d"
+
+app-builder-bin-win@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/app-builder-bin-win/-/app-builder-bin-win-1.8.2.tgz#5cf9a7a1d07eb75b03367f8ea80efc456746515e"
 
 app-builder-bin@1.7.2:
   version "1.7.2"
@@ -610,6 +623,14 @@ app-builder-bin@1.8.1:
     app-builder-bin-linux "1.8.1"
     app-builder-bin-mac "1.8.1"
     app-builder-bin-win "1.8.1"
+
+app-builder-bin@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/app-builder-bin/-/app-builder-bin-1.8.2.tgz#a81602e75d1616c80ce29a77762617cbf293c593"
+  optionalDependencies:
+    app-builder-bin-linux "1.8.2"
+    app-builder-bin-mac "1.8.2"
+    app-builder-bin-win "1.8.2"
 
 aproba@^1.0.3:
   version "1.2.0"
@@ -808,7 +829,7 @@ base64-js@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.2.0.tgz#a39992d723584811982be5e290bb6a53d86700f1"
 
-base64-js@^1.0.2:
+base64-js@^1.0.2, base64-js@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.2.3.tgz#fb13668233d9614cf5fb4bce95a9ba4096cdf801"
 
@@ -1071,15 +1092,6 @@ buffers@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/buffers/-/buffers-0.1.1.tgz#b24579c3bed4d6d396aeee6d9a8ae7f5482ab7bb"
 
-builder-util-runtime@4.0.5, builder-util-runtime@^4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/builder-util-runtime/-/builder-util-runtime-4.0.5.tgz#5340cf9886b9283ea6e5b20dc09b5e3e461aef62"
-  dependencies:
-    bluebird-lst "^1.0.5"
-    debug "^3.1.0"
-    fs-extra-p "^4.5.0"
-    sax "^1.2.4"
-
 builder-util-runtime@4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/builder-util-runtime/-/builder-util-runtime-4.1.0.tgz#7dcd042d555d2f161a5538d7a0ea8c292daa0683"
@@ -1089,7 +1101,7 @@ builder-util-runtime@4.1.0:
     fs-extra-p "^4.5.2"
     sax "^1.2.4"
 
-builder-util-runtime@^4.1.0, builder-util-runtime@^4.2.0, builder-util-runtime@~4.2.0:
+builder-util-runtime@4.2.0, builder-util-runtime@^4.1.0, builder-util-runtime@^4.2.0, builder-util-runtime@~4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/builder-util-runtime/-/builder-util-runtime-4.2.0.tgz#c56aa18d34390143da031c418c9d3a055fbd3522"
   dependencies:
@@ -1097,25 +1109,6 @@ builder-util-runtime@^4.1.0, builder-util-runtime@^4.2.0, builder-util-runtime@~
     debug "^3.1.0"
     fs-extra-p "^4.5.2"
     sax "^1.2.4"
-
-builder-util@5.6.5:
-  version "5.6.5"
-  resolved "https://registry.yarnpkg.com/builder-util/-/builder-util-5.6.5.tgz#f2d156541b8df9599456848e057566443dc04c82"
-  dependencies:
-    "7zip-bin" "~3.1.0"
-    app-builder-bin "1.7.2"
-    bluebird-lst "^1.0.5"
-    builder-util-runtime "^4.0.5"
-    chalk "^2.3.2"
-    debug "^3.1.0"
-    fs-extra-p "^4.5.2"
-    is-ci "^1.1.0"
-    js-yaml "^3.11.0"
-    lazy-val "^1.0.3"
-    semver "^5.5.0"
-    source-map-support "^0.5.3"
-    stat-mode "^0.2.2"
-    temp-file "^3.1.1"
 
 builder-util@5.6.7:
   version "5.6.7"
@@ -1136,7 +1129,26 @@ builder-util@5.6.7:
     stat-mode "^0.2.2"
     temp-file "^3.1.1"
 
-builder-util@^5.6.5, builder-util@^5.6.7:
+builder-util@5.7.3, builder-util@^5.7.0, builder-util@^5.7.3:
+  version "5.7.3"
+  resolved "https://registry.yarnpkg.com/builder-util/-/builder-util-5.7.3.tgz#c7150e3a2bd439bd6e29a6b51bcb042001bf131b"
+  dependencies:
+    "7zip-bin" "~3.1.0"
+    app-builder-bin "1.8.2"
+    bluebird-lst "^1.0.5"
+    builder-util-runtime "^4.2.0"
+    chalk "^2.3.2"
+    debug "^3.1.0"
+    fs-extra-p "^4.5.2"
+    is-ci "^1.1.0"
+    js-yaml "^3.11.0"
+    lazy-val "^1.0.3"
+    semver "^5.5.0"
+    source-map-support "^0.5.4"
+    stat-mode "^0.2.2"
+    temp-file "^3.1.1"
+
+builder-util@^5.6.7:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/builder-util/-/builder-util-5.7.2.tgz#049b4365993f34519c9d56589494cda2257b24d3"
   dependencies:
@@ -1892,13 +1904,13 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-dmg-builder@4.1.2:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/dmg-builder/-/dmg-builder-4.1.2.tgz#b4d7245dc2e91812395b4268b12f888443ba5f30"
+dmg-builder@4.1.3:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/dmg-builder/-/dmg-builder-4.1.3.tgz#d336cf398fd331b2dedd7efae4b51b9bfe00aa1c"
   dependencies:
     bluebird-lst "^1.0.5"
-    builder-util "^5.6.5"
-    electron-builder-lib "~20.5.0"
+    builder-util "^5.7.0"
+    electron-builder-lib "~20.6.2"
     fs-extra-p "^4.5.2"
     iconv-lite "^0.4.19"
     js-yaml "^3.11.0"
@@ -1968,7 +1980,40 @@ ejs@^2.5.7:
   version "2.5.7"
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.5.7.tgz#cc872c168880ae3c7189762fd5ffc00896c9518a"
 
-electron-builder-lib@20.6.2:
+ejs@^2.5.8:
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.5.8.tgz#2ab6954619f225e6193b7ac5f7c39c48fefe4380"
+
+electron-builder-lib@20.8.0:
+  version "20.8.0"
+  resolved "https://registry.yarnpkg.com/electron-builder-lib/-/electron-builder-lib-20.8.0.tgz#6bed39a8077594827e2cc8bc7c8ad0adbabe18f0"
+  dependencies:
+    "7zip-bin" "~3.1.0"
+    app-builder-bin "1.8.2"
+    async-exit-hook "^2.0.1"
+    bluebird-lst "^1.0.5"
+    builder-util "5.7.3"
+    builder-util-runtime "4.2.0"
+    chromium-pickle-js "^0.2.0"
+    debug "^3.1.0"
+    ejs "^2.5.8"
+    electron-osx-sign "0.4.10"
+    electron-publish "20.8.0"
+    fs-extra-p "^4.5.2"
+    hosted-git-info "^2.6.0"
+    is-ci "^1.1.0"
+    isbinaryfile "^3.0.2"
+    js-yaml "^3.11.0"
+    lazy-val "^1.0.3"
+    minimatch "^3.0.4"
+    normalize-package-data "^2.4.0"
+    plist "^3.0.1"
+    read-config-file "3.0.0"
+    sanitize-filename "^1.6.1"
+    semver "^5.5.0"
+    temp-file "^3.1.1"
+
+electron-builder-lib@~20.6.2:
   version "20.6.2"
   resolved "https://registry.yarnpkg.com/electron-builder-lib/-/electron-builder-lib-20.6.2.tgz#34f38b6172c05f90d34b6b5ed2f2b6922e731a39"
   dependencies:
@@ -1997,52 +2042,23 @@ electron-builder-lib@20.6.2:
     semver "^5.5.0"
     temp-file "^3.1.1"
 
-electron-builder-lib@~20.5.0:
-  version "20.5.1"
-  resolved "https://registry.yarnpkg.com/electron-builder-lib/-/electron-builder-lib-20.5.1.tgz#c155345c58d25580d316f6437c251a57e8e92d62"
-  dependencies:
-    "7zip-bin" "~3.1.0"
-    app-builder-bin "1.7.2"
-    async-exit-hook "^2.0.1"
-    bluebird-lst "^1.0.5"
-    builder-util "5.6.5"
-    builder-util-runtime "4.0.5"
-    chromium-pickle-js "^0.2.0"
-    debug "^3.1.0"
-    ejs "^2.5.7"
-    electron-osx-sign "0.4.10"
-    electron-publish "20.5.0"
-    fs-extra-p "^4.5.2"
-    hosted-git-info "^2.6.0"
-    is-ci "^1.1.0"
-    isbinaryfile "^3.0.2"
-    js-yaml "^3.11.0"
-    lazy-val "^1.0.3"
-    minimatch "^3.0.4"
-    normalize-package-data "^2.4.0"
-    plist "^2.1.0"
-    read-config-file "3.0.0"
-    sanitize-filename "^1.6.1"
-    semver "^5.5.0"
-    temp-file "^3.1.1"
-
-electron-builder@^20.6.2:
-  version "20.6.2"
-  resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-20.6.2.tgz#40e1d44910ce99c4c0e9200f0b4a18d15d0d00a4"
+electron-builder@^20.8.0:
+  version "20.8.0"
+  resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-20.8.0.tgz#9f7067dc8a3aa9451d08e0231066556d39d0ffef"
   dependencies:
     bluebird-lst "^1.0.5"
-    builder-util "5.6.7"
-    builder-util-runtime "4.1.0"
+    builder-util "5.7.3"
+    builder-util-runtime "4.2.0"
     chalk "^2.3.2"
-    dmg-builder "4.1.2"
-    electron-builder-lib "20.6.2"
+    dmg-builder "4.1.3"
+    electron-builder-lib "20.8.0"
     electron-download-tf "4.3.4"
     fs-extra-p "^4.5.2"
     is-ci "^1.1.0"
     lazy-val "^1.0.3"
     read-config-file "3.0.0"
     sanitize-filename "^1.6.1"
-    update-notifier "^2.3.0"
+    update-notifier "^2.4.0"
     yargs "^11.0.0"
 
 electron-debug@^1.5.0:
@@ -2156,18 +2172,6 @@ electron-packager@^11.2.0:
     semver "^5.3.0"
     yargs-parser "^9.0.2"
 
-electron-publish@20.5.0:
-  version "20.5.0"
-  resolved "https://registry.yarnpkg.com/electron-publish/-/electron-publish-20.5.0.tgz#bcef9949c63899d34680e89110e8d38d1016f1f6"
-  dependencies:
-    bluebird-lst "^1.0.5"
-    builder-util "^5.6.5"
-    builder-util-runtime "^4.0.5"
-    chalk "^2.3.2"
-    fs-extra-p "^4.5.2"
-    lazy-val "^1.0.3"
-    mime "^2.2.0"
-
 electron-publish@20.6.1:
   version "20.6.1"
   resolved "https://registry.yarnpkg.com/electron-publish/-/electron-publish-20.6.1.tgz#1bc8497fc9370f8e39c9212ce0b5857ef1d666fd"
@@ -2175,6 +2179,18 @@ electron-publish@20.6.1:
     bluebird-lst "^1.0.5"
     builder-util "^5.6.7"
     builder-util-runtime "^4.1.0"
+    chalk "^2.3.2"
+    fs-extra-p "^4.5.2"
+    lazy-val "^1.0.3"
+    mime "^2.2.0"
+
+electron-publish@20.8.0:
+  version "20.8.0"
+  resolved "https://registry.yarnpkg.com/electron-publish/-/electron-publish-20.8.0.tgz#c608c87b4d2e787fdc5c3430417bf8412ac62498"
+  dependencies:
+    bluebird-lst "^1.0.5"
+    builder-util "^5.7.3"
+    builder-util-runtime "^4.2.0"
     chalk "^2.3.2"
     fs-extra-p "^4.5.2"
     lazy-val "^1.0.3"
@@ -3270,7 +3286,7 @@ is-builtin-module@^1.0.0:
   dependencies:
     builtin-modules "^1.0.0"
 
-is-ci@^1.1.0:
+is-ci@^1.0.10, is-ci@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-ci/-/is-ci-1.1.0.tgz#247e4162e7860cebbdaf30b774d6b0ac7dcfe7a5"
   dependencies:
@@ -4706,6 +4722,10 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
 
+pidusage@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/pidusage/-/pidusage-2.0.6.tgz#32bc37e57ca828f46b1c1e679a9cfc56ef945850"
+
 pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
@@ -4747,6 +4767,14 @@ plist@^2.0.0, plist@^2.1.0:
   dependencies:
     base64-js "1.2.0"
     xmlbuilder "8.2.2"
+    xmldom "0.1.x"
+
+plist@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/plist/-/plist-3.0.1.tgz#a9b931d17c304e8912ef0ba3bdd6182baf2e1f8c"
+  dependencies:
+    base64-js "^1.2.3"
+    xmlbuilder "^9.0.7"
     xmldom "0.1.x"
 
 point-in-big-polygon@~1.0.0:
@@ -5911,12 +5939,6 @@ source-map-resolve@^0.5.0:
     source-map-url "^0.4.0"
     urix "^0.1.0"
 
-source-map-support@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.3.tgz#2b3d5fff298cfa4d1afd7d4352d569e9a0158e76"
-  dependencies:
-    source-map "^0.6.0"
-
 source-map-support@^0.5.4:
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.4.tgz#54456efa89caa9270af7cd624cc2f123e51fbae8"
@@ -6619,14 +6641,15 @@ upath@^1.0.0:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/upath/-/upath-1.0.4.tgz#ee2321ba0a786c50973db043a50b7bcba822361d"
 
-update-notifier@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/update-notifier/-/update-notifier-2.3.0.tgz#4e8827a6bb915140ab093559d7014e3ebb837451"
+update-notifier@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/update-notifier/-/update-notifier-2.4.0.tgz#f9b4c700fbfd4ec12c811587258777d563d8c866"
   dependencies:
     boxen "^1.2.1"
     chalk "^2.0.1"
     configstore "^3.0.0"
     import-lazy "^2.1.0"
+    is-ci "^1.0.10"
     is-installed-globally "^0.1.0"
     is-npm "^1.0.0"
     latest-version "^3.0.0"
@@ -6894,6 +6917,10 @@ xdg-basedir@^3.0.0:
 xmlbuilder@8.2.2:
   version "8.2.2"
   resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-8.2.2.tgz#69248673410b4ba42e1a6136551d2922335aa773"
+
+xmlbuilder@^9.0.7:
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-9.0.7.tgz#132ee63d2ec5565c557e20f4c22df9aca686b10d"
 
 xmldom@0.1.x:
   version "0.1.27"

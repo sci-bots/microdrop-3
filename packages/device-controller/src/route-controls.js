@@ -271,10 +271,11 @@ class RouteControls extends MicropedeClient {
 
     // Add last electrode on mouse up
     e = await mouseup();
-    AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove events
     drawHandler.stopListening();
+
+    AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove lines from scene
     for (const [i, line] of lines.entries()){

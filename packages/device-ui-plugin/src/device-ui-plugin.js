@@ -293,7 +293,7 @@ class DeviceUIPlugin extends UIPlugin {
     // Setup Dat.GUI
     if (!container) container = document.body;
     gui.add(menu.cameraControls, 'enableRotate');
-    anchorState = gui.add(menu.videoControls, "display_anchors");
+    anchorState = gui.add(menu.videoControls, "displayAnchors");
     gui.add(menu.electrodeControls, "showChannels");
     gui.add(devices, 'device',  _.extend(defaultDeviceOptions, deviceOptions));
     gui.add(devices, 'resetAnchors');
