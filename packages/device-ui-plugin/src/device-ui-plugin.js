@@ -230,10 +230,24 @@ class DeviceUIPlugin extends UIPlugin {
               video: {deviceId: {exact: info.deviceId}}
             };
             navigator.mediaDevices.getUserMedia(constraints)
-              .then(function(stream) {
-                stream.getTracks().forEach(track => track.stop())
-                plane.video.src = URL.createObjectURL(stream);
-                plane.initVideo();
+              .then(function(_stream) {
+                stream = stream || _stream;
+                stream.getTracks().forEach(track => {
+                  console.log({track});
+                  track.stop();
+                });
+                _stream.getTracks().forEach(track => {
+                  console.log({track});
+                  track.stop();
+                });
+                plane.stream.getTracks().forEach(track => {
+                  console.log({track});
+                  track.stop();
+                });
+                console.log({stream});
+                // delete stream;
+                // plane.video.src = URL.createObjectURL(stream);
+                // plane.initVideo();
             });
           });
           return;
@@ -248,10 +262,12 @@ class DeviceUIPlugin extends UIPlugin {
           };
           navigator.mediaDevices.getUserMedia(constraints)
           .then(function(_stream) {
+            if (stream)
+            stream.getTracks().forEach(t => t.stop() );
             stream = _stream;
             localStorage.setItem("microdrop:last-webcam", info.deviceId);
             plane.video.src = URL.createObjectURL(stream);
-            if (!plane.videoTexture) plane.initVideo();
+            // if (!plane.videoTexture) plane.initVideo();
           });
           this._device = _device;
         });

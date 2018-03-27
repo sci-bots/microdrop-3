@@ -8,7 +8,7 @@ const THREEx = {}
 require('threex-domevents')(THREE, THREEx);
 
 const ThreeHelpers = require('three-helpers.svg-paths-group')(THREE);
-const PlaneTransform = require('three.planetransform')(THREE);
+const PlaneTransform = require('three.planetransform/src/three.planetransform.js')(THREE);
 
 const ANCHOR_KEY = 'microdrop:device-controller:anchors';
 

@@ -3295,9 +3295,9 @@ three.meshline@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/three.meshline/-/three.meshline-1.0.3.tgz#85e9190d9de16bbdcffcc083746c3ea82be15a9b"
 
-three.planetransform@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/three.planetransform/-/three.planetransform-1.0.1.tgz#64b7e5fee7cefe8bde1e872188e6ab63f3003869"
+three.planetransform@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/three.planetransform/-/three.planetransform-1.0.2.tgz#03292ff6d489037f5b7dae7640416a45c327e70e"
   dependencies:
     lodash "^4.17.4"
     numeric "^1.2.6"
