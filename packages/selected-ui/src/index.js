@@ -17,6 +17,9 @@ const CreateEditor = (container, callback) => {
   });
 };
 
+const ELECTRODE_MENU_INDEX = 0;
+const ROUTE_MENU_INDEX = 1;
+
 class SelectedUI extends UIPlugin {
   constructor(elem, focusTracker, ...args){
     super(elem, focusTracker, ...args);
@@ -26,7 +29,7 @@ class SelectedUI extends UIPlugin {
         Selected Electrode
       </button>
       <button onclick=${this.routeView.bind(this)}>
-        Selected Routes
+        Selected Route
       </button>
     </div>`;
 
@@ -73,12 +76,12 @@ class SelectedUI extends UIPlugin {
   listen() {
     this.onStateMsg('electrode-controls', 'selected-electrode', (payload) => {
       this.selectedElectrode = payload;
-      if (this.innerContent.view == 'electrode') this.electrodeView();
+      this.electrodeView();
     });
 
     this.onStateMsg('route-controls', 'selected-route', (payload) => {
       this.selectedRoute = payload;
-      if (this.innerContent.view == 'route') this.routeView();
+      this.routeView();
     });
 
     this.onStateMsg('device-model', '{key}', (payload, params) => {
@@ -92,7 +95,10 @@ class SelectedUI extends UIPlugin {
     });
   }
 
-  electrodeView() {
+  electrodeView(e) {
+    _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
+    this.menu.children[ELECTRODE_MENU_INDEX].style.fontWeight = 'bold';
+
     this.innerContent.innerHTML = '';
     this.innerContent.view = 'electrode';
     this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
@@ -101,7 +107,10 @@ class SelectedUI extends UIPlugin {
     this.editor.set(electrodeJSON || {});
   }
 
-  routeView() {
+  routeView(e) {
+    _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
+    this.menu.children[ROUTE_MENU_INDEX].style.fontWeight = 'bold';
+
     this.innerContent.innerHTML = '';
     this.innerContent.view = 'route';
     this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
