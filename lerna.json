@@ -20,6 +20,6 @@
     "packages/helpers",
     "packages/selected-ui"
   ],
-  "version": "1.1.52",
+  "version": "1.1.53",
   "npmClient": "yarn"
 }
