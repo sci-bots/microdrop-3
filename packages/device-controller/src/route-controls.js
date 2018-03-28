@@ -22,20 +22,24 @@ const APPNAME = 'microdrop';
 
 const DEFAULT_HOST = 'localhost';
 
-let mouseDown = 0;
+let mouseDown = false;
 class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     super(APPNAME, DEFAULT_HOST, port);
 
-    electrodeControls.on("mousedown", async (e) => {
-      ++mouseDown;
-      this.drawRoute(e);
-    });
+    if (window) {
+      // Listen for mouse down only on electrodes:
+      electrodeControls.on("mousedown", async (e) => {
+        mouseDown = true;
+        this.drawRoute(e);
+      });
 
-    electrodeControls.on("mouseup", (e) => {
-      --mouseDown;
-      this.trigger("mouseup", e);
-    });
+      // Listen for mouseup anywhere on the page window:
+      window.addEventListener("mouseup", (e) => {
+        mouseDown = false;
+        this.trigger("mouseup", e);
+      });
+    };
 
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
     this.electrodeControls = electrodeControls;
@@ -259,7 +263,7 @@ class RouteControls extends MicropedeClient {
 
     const mouseup = () => {
       return new Promise((resolve, reject) => {
-        drawHandler.listenTo(this.electrodeControls, "mouseup", (e) => {
+        drawHandler.listenTo(this, "mouseup", (e) => {
           resolve(e);
         });
       });
@@ -268,7 +272,7 @@ class RouteControls extends MicropedeClient {
     // Add all electrodes that are hovered over
     const mouseover = drawHandler.listenTo(this.electrodeControls, "mouseover", (e) => {
       if (!mouseDown) {
-        this.electrodeControls.trigger("mouseup");
+        this.trigger("mouseup");
         return;
       }
       var line = AddToPath(e.target.name, path, group, maxDistance);
