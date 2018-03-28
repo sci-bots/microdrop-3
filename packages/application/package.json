@@ -8,7 +8,8 @@
     "test": "node _test.js",
     "remove:links": "rm -rf node_modules && npm install",
     "start": "./node_modules/.bin/electron .",
-    "build": "exit 0"
+    "build": "exit 0",
+    "upgrade:yac": "ncu -u @yac/api"
   },
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
@@ -25,7 +26,7 @@
     "@microdrop/selected-ui": "^1.1.53",
     "@microdrop/ui": "^1.1.53",
     "@micropede/broker": "0.0.28",
-    "@micropede/client": "0.0.33",
+    "@micropede/client": "0.0.34",
     "@yac/api": "0.0.24",
     "ascoltatori": "git+https://github.com/Lucaszw/ascoltatori.git",
     "cors": "^2.8.4",

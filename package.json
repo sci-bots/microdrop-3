@@ -8,7 +8,7 @@
     "test": "npm run --prefix packages/application test",
     "add:defaults": " git add **/yarn.lock",
     "upgrade:micropede": "lerna exec -- ncu -u @micropede/client @micropede/broker",
-    "upgrade:yac": "lerna exec -- ncu -u @yac/api"
+    "upgrade:yac": "lerna exec --scope=@microdrop/application -- yarn run upgrade:yac"
   },
   "repository": "git+https://github.com/Lucaszw/microdrop-3.git",
   "keywords": [

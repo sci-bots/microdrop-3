@@ -41,7 +41,7 @@ StepMixins.executeSteps = async function(e) {
   const steps = await this.getState('steps');
   for (let i =this.loadedStep || 0;i<steps.length; i++ ){
     await this.loadStep(i);
-    const routes = await microdrop.getState('routes-model', 'routes');
+    const routes = await this.getState('routes', 'routes-model');
 
     // TODO: Should be dynamic
     await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
@@ -62,7 +62,6 @@ StepMixins.onStepState = function(payload, params) {
 StepMixins.onStepReorder = async function(evt) {
   const index1 = evt.oldIndex;
   const index2 = evt.newIndex;
-  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevSteps;
   try {
     prevSteps = await this.getState('steps');
@@ -89,7 +88,6 @@ StepMixins.loadStep = async function(index) {
   this.loadedStep = index;
 
   // If a plugin is selected, update the schemas
-  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   if (this.pluginName) {
     await this.loadSchemaByPluginName(this.pluginName);
   }
@@ -102,7 +100,6 @@ StepMixins.loadStep = async function(index) {
 StepMixins.updateStep = async function(pluginName, k, payload) {
 
   if (this.loadedStep != undefined) {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     const steps = await this.getState('steps');
     const step = steps[this.loadedStep];
     _.set(step, [pluginName, k], payload);
@@ -112,7 +109,6 @@ StepMixins.updateStep = async function(pluginName, k, payload) {
 
 StepMixins.loadStatesForStep = async function(states, index) {
   /* Load step data into state, and listen for updates */
-  let microdrop;
 
   // Create another client in the background as to not override the schema
   // plugin
@@ -131,7 +127,7 @@ StepMixins.loadStatesForStep = async function(states, index) {
     return await Promise.all(_.map(states[p], async (v,k) => {
 
       // Call a put on each key
-      microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+      const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
       try { await microdrop.putPlugin(p, k, v); }
       catch (e) { console.error(e);}
 
@@ -148,7 +144,6 @@ StepMixins.loadStatesForStep = async function(states, index) {
 }
 
 StepMixins.deleteStep = async function(index, step, e) {
-  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevSteps;
   try {
     prevSteps = await this.getState('steps');
@@ -165,7 +160,6 @@ StepMixins.createStep = async function (e) {
 
   // Fetch the entire microdrop state
   await Promise.all(_.map(this.plugins, async (plugin) => {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     try {
       let schema    = await this.getSchema(plugin);
       state[plugin] = await this.getStateForPlugin(plugin, schema);
@@ -176,7 +170,6 @@ StepMixins.createStep = async function (e) {
   }));
 
   // Get previous steps
-  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevSteps;
   try {
     prevSteps = await this.getState('steps');

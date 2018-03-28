@@ -239,10 +239,8 @@ class SchemaUIPlugin extends UIPlugin {
   }
 
   async getStateForPlugin(pluginName, schema) {
-    let microdrop;
-
     // Get all subscriptions for the schema
-    microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let subs = await microdrop.getSubscriptions(pluginName, 300);
 
     // Filter subscriptions for those that match a put endpoint
@@ -255,9 +253,8 @@ class SchemaUIPlugin extends UIPlugin {
     // Await the state of every property that has a subscription
     let state = {};
     let dat = _.compact(await Promise.all(_.map(puttableProperties, async (prop) => {
-      microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
       try {
-        return {k: prop, v: await microdrop.getState(pluginName, prop, 500)};
+        return {k: prop, v: await this.getState(prop, pluginName)};
       } catch (e) {
         return undefined;
       }
@@ -287,7 +284,7 @@ class SchemaUIPlugin extends UIPlugin {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let schema;
     try {
-      schema = await microdrop.getState(pluginName, 'schema', 300);
+      schema = await this.getState('schema', pluginName);
     } catch (e) {
       console.error(`Failed to get schema for: ${pluginName}`, e);
     }
