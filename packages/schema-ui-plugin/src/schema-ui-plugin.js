@@ -115,7 +115,7 @@ class SchemaUIPlugin extends UIPlugin {
         <span style="float:right;display:inline-block;">
           ${TabButton('Download', 'oi-data-transfer-download',
             this.saveToFile.bind(this), 'btn-outline-secondary')}
-          ${TabButton('Save', 'oi-file', this.openFile.bind(this),
+          ${TabButton('Upload', 'oi-data-transfer-upload', this.openFile.bind(this),
             'btn-outline-secondary')}
           ${TabButton('Execute', 'oi-media-play', this.executeSteps.bind(this),
             'btn-outline-success')}
