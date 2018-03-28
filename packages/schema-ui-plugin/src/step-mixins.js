@@ -38,7 +38,7 @@ StepMixins.executeSteps = async function(e) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
 
   console.log("Executing Steps!");
-  const steps = await microdrop.getState(this.name, 'steps');
+  const steps = await this.getState('steps');
   for (let i =this.loadedStep || 0;i<steps.length; i++ ){
     await this.loadStep(i);
     const routes = await microdrop.getState('routes-model', 'routes');
@@ -63,7 +63,12 @@ StepMixins.onStepReorder = async function(evt) {
   const index1 = evt.oldIndex;
   const index2 = evt.newIndex;
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-  const prevSteps = await microdrop.getState(this.name, 'steps', 500) || [];
+  let prevSteps;
+  try {
+    prevSteps = await this.getState('steps');
+  } catch (e) {
+    prevSteps = [];
+  }
   const item1 = _.cloneDeep(prevSteps[index1]);
   const item2 = _.cloneDeep(prevSteps[index2]);
   prevSteps[index1] = item2;
@@ -90,7 +95,7 @@ StepMixins.loadStep = async function(index) {
   }
 
   // Load the step data
-  const state = (await microdrop.getState(this.name, 'steps'))[index];
+  const state = (await this.getState('steps'))[index];
   return await this.loadStatesForStep(state, index);
 }
 
@@ -98,7 +103,7 @@ StepMixins.updateStep = async function(pluginName, k, payload) {
 
   if (this.loadedStep != undefined) {
     const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    const steps = await microdrop.getState(this.name, 'steps', 500);
+    const steps = await this.getState('steps');
     const step = steps[this.loadedStep];
     _.set(step, [pluginName, k], payload);
     this.setState('steps', steps);
@@ -132,8 +137,7 @@ StepMixins.loadStatesForStep = async function(states, index) {
 
       // Listen for changes
       this.stepClient.onStateMsg(p,k, async (payload, params) => {
-        microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-        const steps = await microdrop.getState(this.name, 'steps');
+        const steps = await this.getState('steps');
         const step = steps[index];
         _.set(step, [p,k], payload);
         this.setState('steps',steps);
@@ -145,7 +149,13 @@ StepMixins.loadStatesForStep = async function(states, index) {
 
 StepMixins.deleteStep = async function(index, step, e) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-  const prevSteps = await microdrop.getState(this.name, 'steps', 500) || [];
+  let prevSteps;
+  try {
+    prevSteps = await this.getState('steps');
+  } catch (e) {
+    prevSteps = [];
+  }
+
   prevSteps.splice(index, 1);
   this.setState('steps', prevSteps);
 }
@@ -169,7 +179,7 @@ StepMixins.createStep = async function (e) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let prevSteps;
   try {
-    prevSteps = await microdrop.getState(this.name, 'steps', 300);
+    prevSteps = await this.getState('steps');
   } catch (e) { prevSteps = []; }
 
   // Write current state as new step

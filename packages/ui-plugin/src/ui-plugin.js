@@ -10,8 +10,8 @@ if (!window.microdropPlugins)
 const APPNAME = 'microdrop';
 
 class UIPlugin extends MicropedeClient {
-  constructor(element, focusTracker, port) {
-    super(APPNAME, undefined, port);
+  constructor(element, focusTracker, port, options) {
+    super(APPNAME, undefined, port, undefined, undefined, options);
     this.element = element;
     this.focusTracker = focusTracker;
     this.port = port;
@@ -40,7 +40,9 @@ class UIPlugin extends MicropedeClient {
         const widget = new PhosphorWidgets.Widget();
         widget.addClass("content");
         const port = parseInt(body);
-        const plugin = new this(widget.node,focusTracker, port);
+        let storageUrl = window.location.origin;
+        const options = {storageUrl: storageUrl, resubscribe: false};
+        const plugin = new this(widget.node,focusTracker, port, options);
         widget.title.label = plugin.name;
         widget.plugin = plugin;
         widget.title.closable = true;
