@@ -25,7 +25,9 @@ const DEFAULT_HOST = 'localhost';
 let mouseDown = false;
 class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
-    super(APPNAME, DEFAULT_HOST, port);
+    let options = {resubscribe: false};
+    if (window) options.storageUrl = window.location.origin;
+    super(APPNAME, DEFAULT_HOST, port, undefined, undefined, options);
 
     if (window) {
       // Listen for mouse down only on electrodes:
@@ -147,7 +149,7 @@ class RouteControls extends MicropedeClient {
   async selectRoute(id) {
     const lineWidth = 0.3;
     const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
-    let routes = await microdrop.getState('routes-model', 'routes', 500);
+    let routes = await this.getState('routes', 'routes-model');
     const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
         'electrodes-from-routes', {routes})).response;
 
@@ -250,7 +252,7 @@ class RouteControls extends MicropedeClient {
     let maxDistance;
     let microdrop = new MicropedeAsync('microdrop', undefined, this.port);
     try {
-      maxDistance = await microdrop.getState('device-model', 'max-distance', 300);
+      maxDistance = await this.getState('max-distance', 'device-model');
     } catch (e) {
       maxDistance = MAX_DISTANCE;
     }

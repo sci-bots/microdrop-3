@@ -30,7 +30,9 @@ const DEFAULT_HOST = 'localhost';
 class ElectrodeControls extends MicropedeClient {
   constructor(scene, camera, renderer, container=null, port=DEFAULT_PORT) {
     if (!container) container = document.body;
-    super(APPNAME, DEFAULT_HOST, port);
+    let options = {resubscribe: false};
+    if (window) options.storageUrl = window.location.origin;
+    super(APPNAME, DEFAULT_HOST, port, undefined, undefined, options);
 
     this.selectedElectrode = null;
     this.svgGroup = null;
@@ -212,8 +214,7 @@ class ElectrodeControls extends MicropedeClient {
   }
 
   async render() {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    const threeObject = await microdrop.getState('device-model', 'three-object');
+    const threeObject = await this.getState('three-object', 'device-model');
     _.each(this.svgGroup.children, async (child) => {
       child.texture = this.generateTextTextureForElectrode(child, threeObject);
     });
@@ -452,7 +453,7 @@ class ElectrodeControls extends MicropedeClient {
     let activeElectrodes;
     let microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
     try {
-      activeElectrodes = await microdrop.getState('electrodes-model', 'active-electrodes', 300);
+      activeElectrodes = await this.getState('active-electrodes', 'electrodes-model');
     } catch (e) {
       activeElectrodes = [];
     }
