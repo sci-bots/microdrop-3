@@ -137,7 +137,7 @@ class SchemaUIPlugin extends UIPlugin {
                   class="btn btn-sm btn-outline-info"
                   style="width:100%;margin:3px 0px;"
                   onclick=${this.showAll.bind(this)}>
-                  Show All
+                  View All
                 </button>
                 <button
                   class="btn btn-sm btn-outline-success"

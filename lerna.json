@@ -18,7 +18,7 @@
     "packages/dropbot-plugin",
     "packages/schema-ui-plugin",
     "packages/helpers",
-    "packages/selected-ui"
+    "packages/selected-ui-plugin"
   ],
   "version": "1.1.54",
   "npmClient": "yarn"

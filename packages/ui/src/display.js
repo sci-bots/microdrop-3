@@ -18,7 +18,7 @@ const DEFAULT_LAYOUT = {
       "sizes":[0.6,0.4]},
       {"type":"split-area","orientation":"horizontal",
       "children":[
-        {"type":"tab-area","widgets":["selected-ui"],"currentIndex":0},
+        {"type":"tab-area","widgets":["selected-ui-plugin"],"currentIndex":0},
         {"type":"tab-area","widgets":["dropbot-ui-plugin"],"currentIndex":0}
       ],
       "sizes":[0.6,0.4]}
