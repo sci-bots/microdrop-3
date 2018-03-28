@@ -39,6 +39,7 @@ class RouteControls extends MicropedeClient {
         mouseDown = false;
         this.trigger("mouseup", e);
       });
+
     };
 
     electrodeControls.on("mouseover", (e) => this.trigger("mouseover", e));
@@ -143,8 +144,7 @@ class RouteControls extends MicropedeClient {
     }
     return localRoute;
   }
-  async selectRoute(e) {
-    const id = e.target.name;
+  async selectRoute(id) {
     const lineWidth = 0.3;
     const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
     let routes = await microdrop.getState('routes-model', 'routes', 500);
@@ -225,7 +225,7 @@ class RouteControls extends MicropedeClient {
       });
     };
 
-    e = await mousedown();
+    const e = await mousedown();
     // colorSelectedRoutes("rgb(99, 246, 255)");
     // XXX: Find a better way to identify if should execute...
     if (e.target.innerText == 'Execute Route') return;
@@ -235,7 +235,7 @@ class RouteControls extends MicropedeClient {
   async drawRoute(e) {
     if (this.electrodeControls.enabled == false) return;
     if (e.origDomEvent.button == 2) {
-      this.selectRoute(e);
+      this.selectRoute(e.target.name);
       return;
     }
 
@@ -245,6 +245,7 @@ class RouteControls extends MicropedeClient {
     const routes = _.clone(this.model.get("routes"));
     const group = this.electrodeControls.svgGroup;
     const scene = this.scene;
+    let lastElectrode;
 
     let maxDistance;
     let microdrop = new MicropedeAsync('microdrop', undefined, this.port);
@@ -256,6 +257,7 @@ class RouteControls extends MicropedeClient {
 
     // Add start electrode
     if (!mouseDown) return;
+    lastElectrode = e.target.name;
     path.push(e.target.name);
     var line = AddToPath(e.target.name, path, group, maxDistance);
 
@@ -275,17 +277,16 @@ class RouteControls extends MicropedeClient {
         this.trigger("mouseup");
         return;
       }
+      lastElectrode = e.target.name;
       var line = AddToPath(e.target.name, path, group, maxDistance);
       if (line) {lines.push(line); scene.add(line);}
     });
 
-    // Add last electrode on mouse up
+    // Stop here until mouse is up:
     e = await mouseup();
 
     // Remove events
     drawHandler.stopListening();
-
-    AddToPath(e.target.name, path, group, maxDistance);
 
     // Remove lines from scene
     for (const [i, line] of lines.entries()){
@@ -298,8 +299,10 @@ class RouteControls extends MicropedeClient {
     if (path.length > 1) {
       this.trigger("put-route", localRoute);
     } else {
-      if (e.origDomEvent.altKey)
-        this.selectRoute(e);
+      if (e.altKey) {
+        console.log("SELECTING ROUTE!!");
+        this.selectRoute(lastElectrode);
+      }
     }
   }
 }
