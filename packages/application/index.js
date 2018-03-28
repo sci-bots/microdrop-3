@@ -155,9 +155,11 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
       let win;
       const options = {
         webPreferences: {
-          webSecurity: false
+          webSecurity: false,
         },
-        show: false
+        show: false,
+        width: 1200,
+        height: 700
       };
 
       // Load webserver:
