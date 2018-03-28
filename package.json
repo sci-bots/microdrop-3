@@ -25,5 +25,6 @@
   "main": "lerna.json",
   "devDependencies": {
     "lerna": "^2.9.0"
-  }
+  },
+  "version": "v1.5.1"
 }

@@ -185,6 +185,10 @@ class WebServer extends MicropedeClient {
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
     this.get('/fetch-file', (req, res) => {res.send(this.fetchFile(req))});
+    this.get('/reset', (req, res) => {
+      this.reset();
+      res.send("reset complete");
+    });
     this.post('/load-storage', (req, res) => {
       const LABEL = 'webserver:load-storage';
       try {
@@ -448,7 +452,6 @@ class WebServer extends MicropedeClient {
   }
 
   fetchFile(req) {
-
     let file = req.query["file"];
     return fs.readFileSync(file);
   }

@@ -42,19 +42,19 @@
     "7zip-bin-mac" "~1.0.1"
     "7zip-bin-win" "~2.2.0"
 
-"@microdrop/application@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.53.tgz#3f2664561bf16dd3ea9c4a07cca0054dc76d3ac7"
+"@microdrop/application@^1.1.55":
+  version "1.1.55"
+  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.55.tgz#9ccefb1e76559db0c98bd4e64b0a25a2914757f5"
   dependencies:
-    "@microdrop/device-controller" "^1.1.53"
-    "@microdrop/device-ui-plugin" "^1.1.53"
-    "@microdrop/dropbot-plugin" "^1.1.53"
-    "@microdrop/models" "^1.1.53"
-    "@microdrop/schema-ui-plugin" "^1.1.53"
-    "@microdrop/selected-ui" "^1.1.53"
-    "@microdrop/ui" "^1.1.53"
+    "@microdrop/device-controller" "^1.1.54"
+    "@microdrop/device-ui-plugin" "^1.1.55"
+    "@microdrop/dropbot-plugin" "^1.1.54"
+    "@microdrop/models" "^1.1.54"
+    "@microdrop/schema-ui-plugin" "^1.1.55"
+    "@microdrop/selected-ui-plugin" "^1.1.55"
+    "@microdrop/ui" "^1.1.55"
     "@micropede/broker" "0.0.28"
-    "@micropede/client" "0.0.33"
+    "@micropede/client" "0.0.34"
     "@yac/api" "0.0.24"
     ascoltatori "git+https://github.com/Lucaszw/ascoltatori.git"
     cors "^2.8.4"
@@ -74,12 +74,12 @@
     yargs "^11.0.0"
     yo-yo "^1.4.1"
 
-"@microdrop/device-controller@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.53.tgz#bb359b8d330e194cbfbd1b4c6af6ba699e6d295f"
+"@microdrop/device-controller@^1.1.54":
+  version "1.1.54"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.54.tgz#fbd42c3e82bf4bd21b5d7dfe16260ac9f4561db8"
   dependencies:
     "@microdrop/helpers" "^1.1.42"
-    "@micropede/client" "^0.0.33"
+    "@micropede/client" "^0.0.34"
     backbone "^1.3.3"
     colormap "^2.3.0"
     jquery "^3.2.1"
@@ -99,13 +99,13 @@
     two.js "github:jonobr1/two.js#dev"
     yo-yo "^1.4.1"
 
-"@microdrop/device-ui-plugin@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.53.tgz#9a0f888ab20eb10b959d3754ed49fb51a02dabf8"
+"@microdrop/device-ui-plugin@^1.1.55":
+  version "1.1.55"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.55.tgz#959d04b99521ba9fd2234801c0b83d7194825ec1"
   dependencies:
-    "@microdrop/device-controller" "^1.1.53"
-    "@microdrop/ui-plugin" "^1.1.53"
-    "@micropede/client" "0.0.33"
+    "@microdrop/device-controller" "^1.1.54"
+    "@microdrop/ui-plugin" "^1.1.54"
+    "@micropede/client" "0.0.34"
     async-mqtt "^1.0.1"
     dat.gui "^0.7.0"
     jquery "^3.3.1"
@@ -114,12 +114,12 @@
     uuid "^3.1.0"
     yo-yo "^1.4.1"
 
-"@microdrop/dropbot-plugin@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.53.tgz#b28ef7c65c92e342ee3d67ac02166ead5908579d"
+"@microdrop/dropbot-plugin@^1.1.54":
+  version "1.1.54"
+  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.54.tgz#8e3bf973f882da8a55bc60d3688f0c634037fa11"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.53"
-    "@micropede/client" "^0.0.33"
+    "@microdrop/ui-plugin" "^1.1.54"
+    "@micropede/client" "^0.0.34"
     browser-request "^0.3.3"
     lodash "^4.17.5"
     webpack "3"
@@ -131,24 +131,24 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/models@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.53.tgz#411d7f2a21a6861e8b958b08a891ae45b8965b9a"
+"@microdrop/models@^1.1.54":
+  version "1.1.54"
+  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.54.tgz#c7bb9eb4f61c5986277d5c0cd3b4babc6fff1a73"
   dependencies:
-    "@microdrop/device-controller" "^1.1.53"
-    "@micropede/client" "0.0.33"
+    "@microdrop/device-controller" "^1.1.54"
+    "@micropede/client" "0.0.34"
     ajv "^6.1.1"
     lodash "^4.17.5"
     pkginfo "^0.4.1"
     three "^0.89.0"
     uuid "^3.2.1"
 
-"@microdrop/schema-ui-plugin@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/schema-ui-plugin/-/schema-ui-plugin-1.1.53.tgz#c82025d087faeca812857b9ca85fe1d62534737d"
+"@microdrop/schema-ui-plugin@^1.1.55":
+  version "1.1.55"
+  resolved "https://registry.yarnpkg.com/@microdrop/schema-ui-plugin/-/schema-ui-plugin-1.1.55.tgz#8b90c9ed7e38286e6010fab9f382262927b773f2"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.53"
-    "@micropede/client" "^0.0.33"
+    "@microdrop/ui-plugin" "^1.1.54"
+    "@micropede/client" "^0.0.34"
     ajv "^6.2.0"
     bootstrap "^4.0.0"
     browser-request "^0.3.3"
@@ -165,12 +165,12 @@
     url-loader "^1.0.1"
     yo-yo "^1.4.1"
 
-"@microdrop/selected-ui@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/selected-ui/-/selected-ui-1.1.53.tgz#fd282540cc18316c59efca64c1a6997ef640648e"
+"@microdrop/selected-ui-plugin@^1.1.55":
+  version "1.1.55"
+  resolved "https://registry.yarnpkg.com/@microdrop/selected-ui-plugin/-/selected-ui-plugin-1.1.55.tgz#2b34dea8441b279ee9607060ca95f20d38082dbe"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.53"
-    "@micropede/client" "^0.0.33"
+    "@microdrop/ui-plugin" "^1.1.54"
+    "@micropede/client" "^0.0.34"
     css-loader "^0.28.10"
     jsoneditor "^5.14.0"
     lodash "^4.17.5"
@@ -179,20 +179,20 @@
     url-loader "^1.0.1"
     yo-yo "^1.4.1"
 
-"@microdrop/ui-plugin@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.53.tgz#17c638a76c7f031ec0e0ec4f6391e8aa5f782063"
+"@microdrop/ui-plugin@^1.1.54":
+  version "1.1.54"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.54.tgz#cd6aab6940369393405682e9c3bd1f5b2898090c"
   dependencies:
-    "@micropede/client" "0.0.33"
+    "@micropede/client" "0.0.34"
     browser-request "^0.3.3"
     keyboard-shortcut "^1.2.0"
 
-"@microdrop/ui@^1.1.53":
-  version "1.1.53"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.53.tgz#cb60845de88e1a59abb8dee9220ba76b6c353e1a"
+"@microdrop/ui@^1.1.55":
+  version "1.1.55"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.55.tgz#e31fd6b54986f5922a0009702b743197763dc2d6"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.53"
-    "@micropede/client" "0.0.33"
+    "@microdrop/ui-plugin" "^1.1.54"
+    "@micropede/client" "0.0.34"
     "@phosphor/widgets" "^1.5.0"
     browser-request "^0.3.3"
     jquery "^3.2.1"
@@ -211,9 +211,9 @@
     mosca "git+https://github.com/Lucaszw/mosca.git"
     mqtt "^2.15.1"
 
-"@micropede/client@0.0.33", "@micropede/client@^0.0.33":
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.33.tgz#f4b3f6295890fe8f587cc23cb8e64373baa52dbf"
+"@micropede/client@0.0.34", "@micropede/client@^0.0.34":
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.34.tgz#832f09ce47e876887b7b71c3fc6392a6ea33438f"
   dependencies:
     "@micropede/mixins" "^0.0.23"
     ajv "^6.1.1"

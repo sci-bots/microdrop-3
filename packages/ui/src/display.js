@@ -203,7 +203,7 @@ function init() {
 }
 
 module.exports = () => {
-  request('/web-plugins.json', (a, b, c) => {
+  request('/web-plugins.json', (er, b, c) => {
     const webPlugins = JSON.parse(c);
 
     const promises = [];
@@ -223,6 +223,13 @@ module.exports = () => {
         tag.onload = () => {
           resolve('loaded')
         };
+        tag.onerror = () => {
+          reject('failed to load');
+          request('/reset', () => {
+            localStorage.removeItem('microdrop:layout');
+            window.location.reload();
+          });
+        }
       }));
 
     }
