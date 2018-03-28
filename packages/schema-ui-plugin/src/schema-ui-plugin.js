@@ -122,7 +122,7 @@ class SchemaUIPlugin extends UIPlugin {
         </span>
       </div>`;
 
-    this.steps = yo`<div></div>`;
+    this.steps = yo`<div style="overflow-y: auto"></div>`;
     this.content = yo`<div></div>`;
     this.element.appendChild(yo`
       <div class="container-fluid" style="padding: 0px;">
@@ -132,19 +132,20 @@ class SchemaUIPlugin extends UIPlugin {
         <div class="row">
           <div class="col-sm-4" style="padding-right:0px;">
             <div style="${Styles.stepButtonContainer}">
-              <button
-                class="btn btn-sm btn-outline-info"
-                style="width:100%;margin:3px 0px;"
-                onclick=${this.showAll.bind(this)}>
-                Show All
-              </button>
-
-              <button
-                class="btn btn-sm btn-outline-success"
-                style="width:100%"
-                onclick=${this.createStep.bind(this)}>
-                Create Step
-              </button>
+              <div style="margin-bottom:2px">
+                <button
+                  class="btn btn-sm btn-outline-info"
+                  style="width:100%;margin:3px 0px;"
+                  onclick=${this.showAll.bind(this)}>
+                  Show All
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-success"
+                  style="width:100%"
+                  onclick=${this.createStep.bind(this)}>
+                  Create Step
+                </button>
+              </div>
               ${this.steps}
             </div>
           </div>
@@ -168,6 +169,7 @@ class SchemaUIPlugin extends UIPlugin {
       if (h == prevHeight) return;
       if (h != prevHeight) prevHeight = h;
       this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
+      this.steps.style.height = `${parseInt(h)-120}px`;
     });
 
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
