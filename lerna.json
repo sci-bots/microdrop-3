@@ -16,7 +16,7 @@
     "packages/models",
     "packages/microdrop",
     "packages/dropbot-plugin",
-    "packages/schema-ui-plugin",
+    "packages/step-ui-plugin",
     "packages/helpers",
     "packages/selected-ui-plugin"
   ],

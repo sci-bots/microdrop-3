@@ -95,7 +95,7 @@ const TabButton = (title, icon, callback, classes="") => {
 _.findPath  = (...args) => {return FindPath(...args)}
 _.findPaths = (...args) => {return FindPaths(...args)}
 
-class SchemaUIPlugin extends UIPlugin {
+class StepUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
@@ -447,4 +447,4 @@ const Styles = {
   `
 }
 
-module.exports = SchemaUIPlugin;
+module.exports = StepUIPlugin;

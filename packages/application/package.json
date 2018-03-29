@@ -22,7 +22,7 @@
     "@microdrop/device-ui-plugin": "^1.1.55",
     "@microdrop/dropbot-plugin": "^1.1.54",
     "@microdrop/models": "^1.1.54",
-    "@microdrop/schema-ui-plugin": "^1.1.55",
+    "@microdrop/step-ui-plugin": "^1.1.55",
     "@microdrop/selected-ui-plugin": "^1.1.55",
     "@microdrop/ui": "^1.1.56",
     "@micropede/broker": "0.0.28",
@@ -54,7 +54,7 @@
     "host": "localhost",
     "defaultEnabled": [
       "@microdrop/device-ui-plugin",
-      "@microdrop/schema-ui-plugin",
+      "@microdrop/step-ui-plugin",
       "@microdrop/dropbot-plugin",
       "@microdrop/selected-ui-plugin"
     ],

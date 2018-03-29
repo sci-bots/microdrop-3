@@ -1,8 +1,8 @@
 var config = {
-  entry: './src/schema-ui-plugin.js',
+  entry: './src/step-ui-plugin.js',
   output: {
-    filename: './build/schema-ui-plugin.web.js',
-    library: 'SchemaUIPlugin',
+    filename: './build/step-ui-plugin.web.js',
+    library: 'StepUIPlugin',
     libraryTarget: 'var'
   },
   module:{

@@ -13,7 +13,7 @@ const DEFAULT_LAYOUT = {
       "widgets":["device-ui-plugin"],
       "currentIndex":0},
       {"type":"tab-area",
-      "widgets":["schema-ui-plugin"],
+      "widgets":["step-ui-plugin"],
       "currentIndex":0}],
       "sizes":[0.6,0.4]},
       {"type":"split-area","orientation":"horizontal",
