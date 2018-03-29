@@ -27,13 +27,29 @@ const APPNAME = 'microdrop';
 const DEFAULT_PORT = 8083;
 const DEFAULT_HOST = 'localhost';
 
+const ElectrodeSchema = {
+  type: "object",
+  properties: {
+    "selected-electrode": {
+      type: "object",
+      "properties": {
+        id: {type: "string", set_with: 'selected-electrode', per_step: false},
+        channel:  {type: ["string", "number"], set_with: 'selected-electrode', per_step: false}
+      },
+      per_step: false,
+      required: ['id', 'channel']
+    }
+  },
+};
+
+
 class ElectrodeControls extends MicropedeClient {
   constructor(scene, camera, renderer, container=null, port=DEFAULT_PORT) {
     if (!container) container = document.body;
     let options = {resubscribe: false};
     if (window) options.storageUrl = window.location.origin;
     super(APPNAME, DEFAULT_HOST, port, undefined, undefined, options);
-
+    this.schema = ElectrodeSchema;
     this.selectedElectrode = null;
     this.svgGroup = null;
     this.scene = scene;
@@ -52,11 +68,38 @@ class ElectrodeControls extends MicropedeClient {
     this.onOpacity  = DEFAULT_ON_OPACITY;
   }
 
+  async setSelectedElectrode(obj) {
+    this.selectedElectrode = obj;
+    let electrode;
+    if (obj) {
+      let hiddenKeys = ['shape', 'translation'];
+      electrode = _.omit(_.find(this._threeObject, {id: obj.name}), hiddenKeys);
+
+    } else {
+      electrode = null;
+    }
+    await this.setState('selected-electrode', electrode);
+  }
+
+  async putSelectedElectrode(payload, params) {
+    const {id, channel, area} = payload['selected-electrode'];
+
+    let electrode = _.find(this._threeObject, {id});
+    electrode.channel = channel;
+    electrode.area = area;
+
+    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+    await microdrop.putPlugin('device-model', 'three-object', this._threeObject);
+  }
+
   listen() {
     this.onStateMsg("electrodes-model", "active-electrodes", this.drawElectrodes.bind(this));
     this.onStateMsg("device-model", "overlays", this.updateOverlays.bind(this));
-    this.bindStateMsg("selected-electrode", "set-selected-electrode");
+    this.onStateMsg("device-model", "three-object", (payload, params) => {
+      this._threeObject = payload;
+    });
 
+    this.onPutMsg("selected-electrode", this.putSelectedElectrode.bind(this));
     this.render();
   }
 
@@ -396,9 +439,7 @@ class ElectrodeControls extends MicropedeClient {
     material.color = color;
     this.selectedElectrode.outline.material = material;
 
-
-    this.selectedElectrode = null;
-    this.trigger("set-selected-electrode", "null");
+    this.setSelectedElectrode(null);
   }
 
   selectElectrode(electrodeId, turnOn=true) {
@@ -424,8 +465,7 @@ class ElectrodeControls extends MicropedeClient {
     material.color = color;
     electrodeObject.outline.material = material;
 
-    this.selectedElectrode = electrodeObject;
-    this.trigger("set-selected-electrode", electrodeId);
+    this.setSelectedElectrode(electrodeObject);
   }
 
   async mousedown(event) {

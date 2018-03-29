@@ -10,8 +10,11 @@
     "build": "./node_modules/.bin/webpack"
   },
   "dependencies": {
+    "@microdrop/ui-mixins": "^1.1.54",
     "@microdrop/ui-plugin": "^1.1.54",
-    "@micropede/client": "^0.0.34",
+    "@micropede/client": "^0.0.35",
+    "@microdrop/helpers": "^1.1.42",
+    "ajv": "^6.2.0",
     "css-loader": "^0.28.10",
     "jsoneditor": "^5.14.0",
     "lodash": "^4.17.5",

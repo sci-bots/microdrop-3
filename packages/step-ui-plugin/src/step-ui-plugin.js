@@ -16,12 +16,15 @@ const yo = require('yo-yo');
 const _ = require('lodash');
 
 const UIPlugin = require('@microdrop/ui-plugin');
+const TabMenu = require('@microdrop/ui-mixins/src/TabMenu.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
-
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
 const StepMixins = require('./step-mixins');
+const {FindPath, FindPaths} = require('@microdrop/helpers');
+_.findPath  = (...args) => {return FindPath(...args)}
+_.findPaths = (...args) => {return FindPaths(...args)}
 
 const unselect = (b) => {
   if (b == null) return;
@@ -35,52 +38,6 @@ const select = (b) => {
   b.classList.add("btn-primary");
 }
 
-function FindPath(object, deepKey, path="") {
-  /* Get path to nested key (only works if key is unique) */
-
-  // If object contains key then return path
-  if (_.get(object, deepKey)){
-    return `${path}.${deepKey}`.slice(1);
-  }
-
-  // Otherwise, search all child objects:
-  else {
-    let keys =  _.keys(object);
-    let _path;
-    _.each(keys, (k) => {
-      // Skip keys that are not objects:
-      if (!_.isObject(object[k])) return true;
-      // Check if key found along path:
-      let p = FindPath(object[k], deepKey, `${path}.${k}`);
-      // If path isn't false, exit each loop (path has been found):
-      if (p) { _path = p; return false; }
-    });
-
-    // Return path if defined
-    if (_path) return _path;
-  }
-  return false;
-};
-
-const FindPaths = (object, deepKey) => {
-  let paths = [];
-  let lastPath = false;
-  let _object = _.cloneDeep(object);
-  do {
-    lastPath = FindPath(_object, deepKey);
-    if (lastPath != false) {
-      let newPath = _.toPath(lastPath).slice(0,-1);
-      newPath.push(`_${deepKey}`);
-      let oldObj = _.get(_object, lastPath);
-      _.set(_object, newPath, oldObj);
-      _.unset(_object, lastPath);
-      paths.push(lastPath.replace(new RegExp(`_${deepKey}`, "g"), deepKey));
-    }
-  } while (lastPath != false);
-
-  return paths;
-}
-
 const TabButton = (title, icon, callback, classes="") => {
   return yo`
     <button class="btn btn-sm ${classes}"
@@ -92,14 +49,11 @@ const TabButton = (title, icon, callback, classes="") => {
   `;
 }
 
-_.findPath  = (...args) => {return FindPath(...args)}
-_.findPaths = (...args) => {return FindPaths(...args)}
-
 class StepUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
-    this.plugins = ["dropbot", "routes-model", "electrodes-model", "device-model"];
+    this.plugins = ["dropbot", "routes-model", "electrodes-model"];
 
     this.tabs = yo`
       <div style="${Styles.tabs}">
@@ -264,7 +218,6 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async getSchema(pluginName) {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     let schema;
     try {
       schema = await this.getState('schema', pluginName);
@@ -389,7 +342,6 @@ class StepUIPlugin extends UIPlugin {
   }
 
 }
-
 
 const Styles = {
   apply(container) {

@@ -13,8 +13,10 @@
   "author": "Sci-Bots",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "@microdrop/ui-mixins": "^1.1.54",
     "@microdrop/ui-plugin": "^1.1.54",
-    "@micropede/client": "^0.0.34",
+    "@microdrop/helpers": "^1.1.42",
+    "@micropede/client": "^0.0.35",
     "ajv": "^6.2.0",
     "bootstrap": "^4.0.0",
     "browser-request": "^0.3.3",

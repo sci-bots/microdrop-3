@@ -1,4 +1,5 @@
 require('./jsoneditorstyles.js');
+const Ajv = require('ajv');
 const JSONEditor = require('jsoneditor');
 const yo = require('yo-yo');
 const _ = require('lodash');
@@ -6,8 +7,13 @@ const sha256 = require('sha256');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
+const TabMenu = require('@microdrop/ui-mixins/src/TabMenu.js');
+const {FindPath, FindPaths} = require('@microdrop/helpers');
+_.findPath  = (...args) => {return FindPath(...args)}
+_.findPaths = (...args) => {return FindPaths(...args)}
 
 const APPNAME = 'microdrop';
+const ajv = new Ajv({useDefaults: true});
 
 const CreateEditor = (container, callback) => {
   return new JSONEditor(container, {
@@ -20,134 +26,185 @@ const CreateEditor = (container, callback) => {
   });
 };
 
-const ELECTRODE_MENU_INDEX = 0;
-const ROUTE_MENU_INDEX = 1;
+const ExtendSchema = (schema, key) => {
+  const keyPaths = _.findPaths(schema, key);
+  _.each(keyPaths, (keyPath) => {
+    let obj = _.get(schema, keyPath);
+
+    // Remove hidden keys from schema
+    obj = _.pickBy(obj, (v,k)=> {
+      if (k.slice(0,2) == '__' && k.slice(-2) == '__') return false;
+      return true;
+    });
+
+    // Extend schema obj to include variables:
+    _.each(obj, (v,k) => {
+      if (_.includes(v.type, 'string')) return;
+      if (_.isArray(v.type))  v.type.push("string");
+      if (!_.isArray(v.type)) v.type = [v.type, "string"];
+      obj[k].type = _.uniq(v.type);
+      obj[k].pattern = v.pattern || '^[\$]';
+    });
+
+    _.set(schema, keyPath, obj);
+  });
+}
+
 
 class GlobalUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args){
     super(elem, focusTracker, ...args);
 
-    this.menu = yo`<div>
-      <button onclick=${this.electrodeView.bind(this)}>
-        Selected Electrode
-      </button>
-      <button onclick=${this.routeView.bind(this)}>
-        Selected Route
-      </button>
-    </div>`;
+    let items = [
+      {name: 'dropbot', onclick: this.pluginChanged.bind(this)},
+      {name: 'electrode-controls', onclick: this.pluginChanged.bind(this)},
+      {name: 'device-model', onclick: this.pluginChanged.bind(this)}
+    ];
 
-    this.deviceJSON = {};
-    this.routeJSON = {};
+    this.menu = TabMenu(items);
     this.innerContent = yo`<div></div>`;
+    this.editor = CreateEditor(this.innerContent, this.editorChanged.bind(this));
 
     this.element.appendChild(yo`<div>
       ${this.menu}
       ${this.innerContent}
     </div>`);
 
-    this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
+    this.addListeners();
+  }
 
+  addListeners() {
     let prevHeight;
+
     this.on("updateRequest", () => {
       let h = this.element.style.height;
       if (h == prevHeight) return;
       if (h != prevHeight) prevHeight = h;
       this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
     });
-
   }
 
-  onChange() {
-    if (this.innerContent.view == 'electrode') this.changeElectrode();
-    if (this.innerContent.view == 'route') this.changeRoute();
+  getEditorData() {
+    const last = _.last(_.get(this.editor, 'history.history'));
+    const data = this.editor.get();
+    const validate = ajv.compile(this.editor.schema);
+    if (!validate(data)) throw(validate.errors);
+
+    let key = _.get(last, 'params.node.field');
+    // If no key, then likely dealing with a list property
+    if (key == undefined) key = _.get(last, 'params.node.parent.field');
+    let val = data[key];
+
+    // Find path to key in schema (subSchema):
+    let path = _.findPath(this.editor.schema, key);
+    const subSchema = _.get(this.editor.schema, path);
+
+    // If subSchema depends on parent prop, change key accordingly
+    if (_.get(subSchema, 'set_with')) {
+      key = subSchema.set_with;
+      val = data[key];
+    }
+
+    // Ignore variables for now
+    if (`${val}`[0] == '$') return undefined;
+
+    return {plugin: this.pluginName, key: key, val: val};
   }
 
-  changeElectrode() {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port)
-    let electrodeData = this.editor.get();
-    // Modify the deviceJSON objects
-    const threeObject = _.get(this.deviceJSON, 'three-object');
-    let index = _.findIndex(threeObject, {id: this.selectedElectrode})
-    _.extend(threeObject[index], electrodeData);
-    let payload = {threeObject, electrodeId: this.selectedElectrode};
-    microdrop.putPlugin('device-model', 'three-object', payload);
+  async editorChanged(...args) {
+    // Get data changed in editor:
+    const {plugin, key, val} = this.getEditorData();
+
+    // Make put request to modify microdrop state:
+    const topic = `${APPNAME}/put/${plugin}/${key}`;
+    const msg = {};
+    await this.sendMessage(topic, {[key]: val});
   }
 
-  changeRoute() {
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    let routeData = this.editor.get();
+  async getSchema(name) {
+    let schema;
+    try {
+      schema = await this.getState('schema', name);
+    } catch (e) {
+      console.error(`Failed to get schema for: ${name}`, e);
+    }
 
-    const routes = _.get(this.routeJSON, 'routes');
-    _.each(routeData, (route) => {
-      let index = _.findIndex(routes, {uuid: route.uuid});
-      _.extend(routes[index], route);
-    });
-    microdrop.putPlugin('routes-model', 'routes', routes);
+    ExtendSchema(schema, 'properties');
+    ExtendSchema(schema, 'items');
+    return schema;
   }
+
+  schemaHasChanged(schema) {
+    // Only update when schema has changed
+    let hash = sha256(JSON.stringify(schema));
+    if (hash == this.schema_hash) return false;
+    else {
+      this.schema_hash = hash;
+      return true;
+    }
+  }
+
+  async pluginChanged(item) {
+    this.pluginName = item.name;
+    let schema = await this.getSchema(item.name);
+
+    // Only update when schema has changed
+    if (!this.schemaHasChanged(schema)) return;
+
+    // Reset client
+    await this.disconnectClient();
+    await this.connectClient(this.clientId, this.host, this.port);
+    // Connect client removes prev listeners, so must re-add them here:
+    this.addListeners();
+
+
+    // Iterate through properties, and check for a subscription,
+    // otherwise add one
+    const subscriptions = this.subscriptions;
+    this.json = {};
+
+    await Promise.all(_.map(schema.properties, async (v,k) => {
+      if (_.includes(this.subscriptions, `${APPNAME}/${item.name}/state/${k}`)) {
+        return
+      } else {
+        const p = _.findPath(schema, k);
+
+        // Ignore keys marked as (TODO) hidden or where per_step != false
+        if (_.get(schema, `${p}.per_step`) == false) {
+
+          await this.onStateMsg(item.name, k, (payload, params) => {
+            delete payload.__head__;
+            this.json[k] = payload;
+            // Only re-draw if the current displayed content differs from
+            // the new payload
+            let prevHash = sha256(JSON.stringify(this.editor.get()));
+            let hash = sha256(JSON.stringify(this.json));
+
+            if (hash != prevHash) {
+              this.editor.set(this.json);
+              // XXX: Too large of json objects crash w/ expand all
+              if (this.pluginName != 'device-model')
+                this.editor.expandAll();
+            }
+
+          });
+          this.json[k] = v.default;
+        }
+      }
+    }));
+
+    // Update the schema and json data in the editor
+    this.editor.setSchema(schema);
+    this.editor.set(this.json);
+    if (this.pluginName != 'device-model')
+      this.editor.expandAll();
+    this.editor.schema = schema;
+  }
+
 
   listen() {
-    this.onStateMsg('electrode-controls', 'selected-electrode', (payload) => {
-      this.selectedElectrode = payload;
-      this.electrodeView();
-    });
-
-    this.onStateMsg('route-controls', 'selected-routes', (payload) => {
-      this.selectedRoutes = payload;
-      this.routeView();
-    });
-
-    this.onStateMsg('device-model', '{key}', (payload, params) => {
-      this.deviceJSON[params.key] = payload;
-      if (this.innerContent.view == 'electrode') this.electrodeView();
-    });
-
-    this.onStateMsg('routes-model', '{key}', (payload, params) => {
-      this.routeJSON[params.key] = payload;
-      if (this.innerContent.view == 'route') this.routeView();
-    });
   }
 
-  electrodeView(e) {
-    _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
-    this.menu.children[ELECTRODE_MENU_INDEX].style.fontWeight = 'bold';
-
-    // this.innerContent.innerHTML = '';
-    this.innerContent.view = 'electrode';
-
-    // this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
-    const threeObject = _.get(this.deviceJSON, 'three-object');
-    let electrodeJSON = _.find(threeObject, {id: this.selectedElectrode});
-
-    electrodeJSON = _.omit(electrodeJSON, ['translation', 'shape']);
-    const prev = sha256(JSON.stringify(this.editor.get()));
-    const next = sha256(JSON.stringify(electrodeJSON || {}));
-
-    if (prev == next) return;
-    this.editor.set(electrodeJSON || {});
-    this.editor.expandAll();
-  }
-
-  routeView(e) {
-    _.each([...this.menu.children], (c) => c.style.fontWeight = 'normal');
-    this.menu.children[ROUTE_MENU_INDEX].style.fontWeight = 'bold';
-
-    // this.innerContent.innerHTML = '';
-    this.innerContent.view = 'route';
-
-    // this.editor = CreateEditor(this.innerContent, this.onChange.bind(this));
-    const routes = _.get(this.routeJSON, 'routes');
-    let uuids = _.map(this.selectedRoutes, 'uuid');
-    this._routeJSON = _.filter(routes, (r) => _.includes(uuids, r.uuid));
-    this._routeJSON = _.map(this._routeJSON, (r) => {
-      return _.omit(r, [])
-    });
-
-    const prev = sha256(JSON.stringify(this.editor.get()));
-    const next = sha256(JSON.stringify(this._routeJSON || {}));
-    if (prev == next) return;
-    this.editor.set(this._routeJSON || {});
-    this.editor.expandAll();
-  }
 }
 
 module.exports = GlobalUIPlugin;
