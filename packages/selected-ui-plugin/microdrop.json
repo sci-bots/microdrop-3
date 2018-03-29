@@ -1,5 +1,0 @@
-{
-  "name": "selected-ui-plugin",
-  "type": "ui",
-  "script": "build/selected-ui.web.js"
-}

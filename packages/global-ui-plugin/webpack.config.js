@@ -1,7 +1,7 @@
 var config = {
   entry: './src/index.js',
   output: {
-    filename: './build/selected-ui.web.js',
+    filename: './build/global-ui-plugin.web.js',
     library: 'SelectedUIPlugin',
     libraryTarget: 'var'
   },

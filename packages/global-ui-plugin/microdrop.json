@@ -1,0 +1,5 @@
+{
+  "name": "global-ui-plugin",
+  "type": "ui",
+  "script": "build/global-ui-plugin.web.js"
+}

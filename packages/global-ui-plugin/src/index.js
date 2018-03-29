@@ -23,7 +23,7 @@ const CreateEditor = (container, callback) => {
 const ELECTRODE_MENU_INDEX = 0;
 const ROUTE_MENU_INDEX = 1;
 
-class SelectedUIPlugin extends UIPlugin {
+class GlobalUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args){
     super(elem, focusTracker, ...args);
 
@@ -150,4 +150,4 @@ class SelectedUIPlugin extends UIPlugin {
   }
 }
 
-module.exports = SelectedUIPlugin;
+module.exports = GlobalUIPlugin;

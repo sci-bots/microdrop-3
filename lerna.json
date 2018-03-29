@@ -18,7 +18,7 @@
     "packages/dropbot-plugin",
     "packages/step-ui-plugin",
     "packages/helpers",
-    "packages/selected-ui-plugin"
+    "packages/global-ui-plugin"
   ],
   "version": "1.1.56",
   "npmClient": "yarn"

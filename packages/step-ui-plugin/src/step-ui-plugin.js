@@ -134,12 +134,6 @@ class StepUIPlugin extends UIPlugin {
             <div style="${Styles.stepButtonContainer}">
               <div style="margin-bottom:2px">
                 <button
-                  class="btn btn-sm btn-outline-info"
-                  style="width:100%;margin:3px 0px;"
-                  onclick=${this.showAll.bind(this)}>
-                  View All
-                </button>
-                <button
                   class="btn btn-sm btn-outline-success"
                   style="width:100%"
                   onclick=${this.createStep.bind(this)}>
@@ -209,19 +203,6 @@ class StepUIPlugin extends UIPlugin {
 
     const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
     fileinput.click();
-  }
-
-  async showAll(e) {
-    // Remove client for steps:
-    if (this.stepClient) {
-      try { await this.stepClient.disconnectClient();} catch (e) {}
-      delete this.stepClient;
-    }
-
-    // Load all states based on last loaded schema
-    this.schema_hash = '';
-    this.loadedStep = undefined;
-    this.changeSchema(this.pluginName);
   }
 
   async changeSchema(pluginName) {
@@ -341,20 +322,25 @@ class StepUIPlugin extends UIPlugin {
       if (_.includes(this.subscriptions, `${APPNAME}/${pluginName}/state/${k}`)) {
         return
       } else {
-        await this.onStateMsg(pluginName, k, (payload, params) => {
-          this.json[k] = payload;
+        const p = _.findPath(schema, k);
 
-          // Only re-draw if the current displayed content differs from
-          // the new payload
-          let prevHash = sha256(JSON.stringify(this.editor.get()));
-          let hash = sha256(JSON.stringify(this.json));
+        // Ignore keys marked as (TODO) hidden or where per_step == false
+        if (_.get(schema, `${p}.per_step`) != false) {
 
-          if (hash != prevHash) {
-            this.editor.set(this.json);
-          }
+          await this.onStateMsg(pluginName, k, (payload, params) => {
+            this.json[k] = payload;
+            // Only re-draw if the current displayed content differs from
+            // the new payload
+            let prevHash = sha256(JSON.stringify(this.editor.get()));
+            let hash = sha256(JSON.stringify(this.json));
 
-        });
-        this.json[k] = v.default;
+            if (hash != prevHash) {
+              this.editor.set(this.json);
+            }
+
+          });
+          this.json[k] = v.default;
+        }
       }
     }));
 
