@@ -19,7 +19,7 @@
         "electron-packager": "^11.2.0"
     },
     "dependencies": {
-        "@microdrop/application": "^1.1.56",
+        "@microdrop/application": "^1.1.57",
         "yarn.lock": "^1.0.3"
     },
     "build": {
