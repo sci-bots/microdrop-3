@@ -197,7 +197,7 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           });
 
           if (file !== undefined) {
-            client.onNotifyMsg("schema-ui-plugin", "connected", (a,b,topic) => {
+            client.onNotifyMsg("step-ui-plugin", "connected", (a,b,topic) => {
               fs.readFile(file, 'utf8', (err, data) => {
                 const _topic = 'microdrop/file-launcher/state/last-opened-file';
                 client.sendMessage(_topic, JSON.parse(data)).then((d) => {
@@ -216,10 +216,10 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
           slashes: true
         }));
 
-        electron._autoUpdater.on('update-available', function (info) {
+        electron._autoUpdater.on('update-downloaded', function (info) {
           dialog.showMessageBox(win, {
             title: "MicroDrop Auto Updater",
-            message: `Auto updating to version: ${info.version}`
+            message: `Auto updating to version: ${info.version} on quit`
           });
         });
 
