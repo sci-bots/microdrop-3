@@ -67,12 +67,24 @@ class RoutesModel extends MicropedeClient {
     this.onPutMsg("routes", this.putRoutes.bind(this));
     this.onPutMsg("route", this.putRoute.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
+    this.onTriggerMsg("stop", this.stop.bind(this));
   }
 
   // ** Getters and Setters **
   get channel() {return "microdrop/routes-data-controller";}
   get filepath() {return __dirname;}
   get isPlugin() {return true}
+
+  async stop(payload) {
+    const LABEL = "<RoutesModel::stop>"; // console.log(LABEL);
+    try {
+      // TODO: Verify exection stopped before notifying sender
+      this.running = false;
+      return this.notifySender(payload, {status: 'stopped'}, 'stop');
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), 'stop', 'failed');
+    }
+  }
 
   async execute(payload, interval=1000) {
     const LABEL = "<RoutesModel::execute>"; // console.log(LABEL);
@@ -136,7 +148,7 @@ class RoutesModel extends MicropedeClient {
             resolve("complete");
           }
           this.running = true;
-          ExecutionLoop(seq, interval, 0, maxTime, onComplete, this.port);
+          this.ExecutionLoop(seq, interval, 0, maxTime, onComplete, this.port);
         });
       };
 
@@ -204,6 +216,32 @@ class RoutesModel extends MicropedeClient {
       return this.notifySender(payload, DumpStack(LABEL, e), 'routes', 'failed');
     }
   }
+
+  async ExecutionLoop(elecs, interval, currentTime, maxTime, callback, port) {
+    try {
+      // If running set to false manually, return immediately
+      if (!this.running) {
+        console.log("Execution aborted");
+        callback();
+        return;
+      }
+
+      // Execute Loop continuously until maxTime is reached
+      await wait(interval);
+
+      const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
+      await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
+        'active-electrodes': _.map(active, "id")
+      });
+
+      if (remaining.length == 0) {callback(); return}
+      if (currentTime+interval >= maxTime) {callback(); return}
+      this.ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback, port);
+    } catch (e) {
+      console.error(DumpStack('ExecutionLoop', e));
+    }
+ }
 }
 
 const wait = (interval) => {
@@ -236,25 +274,6 @@ async function ActiveElectrodeIntervals(r, port) {
     times.push({id, on, off, index});
   }
   return times;
-}
-
- async function ExecutionLoop(elecs, interval, currentTime, maxTime, callback, port) {
-   try {
-     // Execute Loop continuously until maxTime is reached
-     await wait(interval);
-
-     const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
-     const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
-     await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
-       'active-electrodes': _.map(active, "id")
-     });
-
-     if (remaining.length == 0) {callback(); return}
-     if (currentTime+interval >= maxTime) {callback(); return}
-     ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback, port);
-   } catch (e) {
-     console.error(DumpStack('ExecutionLoop', e));
-   }
 }
 
 module.exports = RoutesModel;

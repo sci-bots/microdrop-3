@@ -48,19 +48,29 @@ StepMixins.getAvailablePlugins = async function() {
   return availablePlugins;
 }
 
-StepMixins.executeSteps = async function(e) {
+StepMixins.executeSteps = async function(item, btn) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+
+  if (btn.innerText != 'Stop') {
+    this.running = false;
+    await microdrop.triggerPlugin('routes-model', 'stop', {});
+    return;
+  }
+
+  this.running = true;
   const steps = await this.getState('steps');
   // Before loading steps, get a list of plugins still listening:
   const availablePlugins = await this.getAvailablePlugins();
 
   for (let i =this.loadedStep || 0;i<steps.length; i++ ){
+    if (!this.running) break;
     await this.loadStep(i, availablePlugins);
     const routes = await this.getState('routes', 'routes-model');
 
     // TODO: Should be dynamic
     await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
   }
+  this.running = false;
   console.log("Done!");
 }
 

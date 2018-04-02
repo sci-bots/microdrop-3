@@ -62,7 +62,7 @@ class StepUIPlugin extends UIPlugin {
       {name: 'electrodes-model', onclick: this.changeSchema.bind(this)},
       {name: 'Download', onclick:  this.saveToFile.bind(this)},
       {name: 'Upload', onclick: this.openFile.bind(this)},
-      {name: 'Execute', onclick: this.executeSteps.bind(this)}
+      {name: 'Execute', name2: 'Stop', onclick: this.executeSteps.bind(this)}
     ];
     this.menu = TabMenu(items);
     this.steps = yo`<div style="overflow-y: auto"></div>`;
