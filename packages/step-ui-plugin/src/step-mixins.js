@@ -1,5 +1,10 @@
+const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 const _ = require('lodash');
+const $ = window.$ = require('jquery');
+window.Popper = require('popper.js');
+const BootstrapMenu = require('bootstrap-menu');
+
 const APPNAME = 'microdrop';
 
 const StepMixins = {};
@@ -15,15 +20,57 @@ const select = (b) => {
 }
 
 const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
+
+  const id = `step-group-${uuid()}`;
+
+  let btn = yo`
+    <button
+      id="step-${index}"
+      class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
+      style="flex-grow: 1;"
+      onclick=${clickCallback.bind(this, index, null)}>
+      ${state.__name__}
+    </button>
+  `;
+
+  const onNameChange = (e, ...args)=> {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    console.log("Name Change!", e, ...args);
+  }
+
+  const onInputChange = (e, ...args) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    console.log("Name Change!", e, ...args);
+  }
+
+  var menu = new BootstrapMenu(`#${id}`, {
+    actions: [{
+      name: 'Rename',
+      onClick: () => {
+        btn.innerHTML = '';
+        btn.appendChild(yo`
+          <div>
+            <input value="${state.__name__}"
+              oninput=${onInputChange.bind(this)}
+              onsubmit=${onInputChange.bind(this)}
+              onblur=${onInputChange.bind(this)}
+              onchange=${onNameChange.bind(this)} />
+          </div>
+        `);
+        btn.children[0].children[0].focus();
+      }
+    }]
+  });
+
   return yo`
-    <div class="btn-group" style="width:100%;margin: 3px 0px;">
-      <button
-        id="step-${index}"
-        class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
-        style="flex-grow: 1;"
-        onclick=${clickCallback.bind(this, index, null)}>
-        Step ${state.__name__}
-      </button>
+    <div id="${id}"
+      class="btn-group" style="width:100%;margin: 3px 0px;">
+      ${btn}
       <button
         class="btn btn-sm btn-outline-danger"
         onclick=${deleteCallback.bind(this, index, state)}
@@ -202,7 +249,7 @@ StepMixins.createStep = async function (e) {
   } catch (e) { prevSteps = []; }
 
   // Write current state as new step
-  state.__name__ = prevSteps.length;
+  state.__name__ = `Step ${prevSteps.length}`;
   prevSteps.push(state);
   await this.setState('steps', prevSteps);
 }
