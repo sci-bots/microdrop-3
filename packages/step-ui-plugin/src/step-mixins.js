@@ -21,7 +21,7 @@ const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
         id="step-${index}"
         class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
         style="flex-grow: 1;"
-        onclick=${clickCallback.bind(this, index)}>
+        onclick=${clickCallback.bind(this, index, null)}>
         Step ${state.__name__}
       </button>
       <button
@@ -123,8 +123,8 @@ StepMixins.updateStep = async function(pluginName, k, payload) {
 }
 
 StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
-  availablePlugins = availablePlugins || this.plugins;
   /* Load step data into state, and listen for updates */
+  availablePlugins = availablePlugins || this.plugins;
 
   // Create another client in the background as to not override the schema
   // plugin

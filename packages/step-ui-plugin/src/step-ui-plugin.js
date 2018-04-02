@@ -246,7 +246,6 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async loadSchemaByPluginName(pluginName) {
-
     const schema = await this.getSchema(pluginName);
 
     // Only update when schema has changed
@@ -260,16 +259,15 @@ class StepUIPlugin extends UIPlugin {
     // otherwise add one
     const subscriptions = this.subscriptions;
 
-    this.json = {};
     await Promise.all(_.map(schema.properties, async (v,k) => {
       if (_.includes(this.subscriptions, `${APPNAME}/${pluginName}/state/${k}`)) {
         return
       } else {
+        this.json = {};
         const p = _.findPath(schema, k);
 
         // Ignore keys marked as (TODO) hidden or where per_step == false
         if (_.get(schema, `${p}.per_step`) != false) {
-
           await this.onStateMsg(pluginName, k, (payload, params) => {
             this.json[k] = payload;
             // Only re-draw if the current displayed content differs from
@@ -284,13 +282,12 @@ class StepUIPlugin extends UIPlugin {
           });
           this.json[k] = v.default;
         }
+        // Update the schema and json data in the editor
+        this.editor.setSchema(schema);
+        this.editor.set(this.json);
+        this.editor.schema = schema;
       }
     }));
-
-    // Update the schema and json data in the editor
-    this.editor.setSchema(schema);
-    this.editor.set(this.json);
-    this.editor.schema = schema;
   }
 
   async listen() {
