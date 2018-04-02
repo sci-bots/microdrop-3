@@ -22,6 +22,7 @@ const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
 const StepMixins = require('./step-mixins');
+
 const {FindPath, FindPaths} = require('@microdrop/helpers');
 _.findPath  = (...args) => {return FindPath(...args)}
 _.findPaths = (...args) => {return FindPaths(...args)}
@@ -55,33 +56,22 @@ class StepUIPlugin extends UIPlugin {
     _.extend(this, StepMixins);
     this.plugins = ["dropbot", "routes-model", "electrodes-model"];
 
-    this.tabs = yo`
-      <div style="${Styles.tabs}">
-        ${_.map(this.plugins, (n) => yo`
-            <button id="tab-${n}"
-            class="tab-btn btn btn-sm btn-outline-secondary"
-            style="${Styles.tabButton}; font-size: 11px;"
-            onclick=${this.changeSchema.bind(this,n)}>
-              ${n}
-            </button>
-          `
-        )}
-        <span style="float:right;display:inline-block;">
-          ${TabButton('Download', 'oi-data-transfer-download',
-            this.saveToFile.bind(this), 'btn-outline-secondary')}
-          ${TabButton('Upload', 'oi-data-transfer-upload', this.openFile.bind(this),
-            'btn-outline-secondary')}
-          ${TabButton('Execute', 'oi-media-play', this.executeSteps.bind(this),
-            'btn-outline-success')}
-        </span>
-      </div>`;
-
+    let items = [
+      {name: 'dropbot', onclick: this.changeSchema.bind(this)},
+      {name: 'routes-model', onclick: this.changeSchema.bind(this)},
+      {name: 'electrodes-model', onclick: this.changeSchema.bind(this)},
+      {name: 'Download', onclick:  this.saveToFile.bind(this)},
+      {name: 'Upload', onclick: this.openFile.bind(this)},
+      {name: 'Execute', onclick: this.executeSteps.bind(this)}
+    ];
+    this.menu = TabMenu(items);
     this.steps = yo`<div style="overflow-y: auto"></div>`;
     this.content = yo`<div></div>`;
+
     this.element.appendChild(yo`
       <div class="container-fluid" style="padding: 0px;">
         <div class="row">
-          <div class="col-sm-12">${this.tabs}</div>
+          <div class="col-sm-12">${this.menu}</div>
         </div>
         <div class="row">
           <div class="col-sm-4" style="padding-right:0px;">
@@ -159,20 +149,20 @@ class StepUIPlugin extends UIPlugin {
     fileinput.click();
   }
 
-  async changeSchema(pluginName) {
+  async changeSchema(item, e) {
     // Reset client
     await this.disconnectClient();
     await this.connectClient(this.clientId, this.host, this.port);
 
-    this.pluginName = pluginName;
-    let pluginBtns = [...this.tabs.querySelectorAll('.tab-btn')];
-    let selectedBtn = this.tabs.querySelector(`#tab-${this.pluginName}`);
+    this.pluginName = item.name;
+    let pluginBtns = [...this.menu.querySelectorAll('.tab-btn')];
+    let selectedBtn = this.menu.querySelector(`#tab-${this.pluginName}`);
 
     // Change the select button to the one containing this plugin name
     _.each(pluginBtns, unselect);
     select(selectedBtn);
 
-    await this.loadSchemaByPluginName(pluginName);
+    await this.loadSchemaByPluginName(this.pluginName);
   }
 
   async getStateForPlugin(pluginName, schema) {

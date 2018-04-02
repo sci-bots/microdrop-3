@@ -34,13 +34,28 @@ const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
   `;
 }
 
+StepMixins.getAvailablePlugins = async function() {
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+  let availablePlugins = [];
+  for (let [i, plugin] of this.plugins.entries()) {
+    try {
+      let pong = await microdrop.triggerPlugin(plugin, 'ping', {}, 200);
+      if (pong) availablePlugins.push(plugin);
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  return availablePlugins;
+}
+
 StepMixins.executeSteps = async function(e) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-
-  console.log("Executing Steps!");
   const steps = await this.getState('steps');
+  // Before loading steps, get a list of plugins still listening:
+  const availablePlugins = await this.getAvailablePlugins();
+
   for (let i =this.loadedStep || 0;i<steps.length; i++ ){
-    await this.loadStep(i);
+    await this.loadStep(i, availablePlugins);
     const routes = await this.getState('routes', 'routes-model');
 
     // TODO: Should be dynamic
@@ -75,7 +90,7 @@ StepMixins.onStepReorder = async function(evt) {
   this.setState('steps', prevSteps);
 }
 
-StepMixins.loadStep = async function(index) {
+StepMixins.loadStep = async function(index, availablePlugins) {
   this.schema_hash = '';
   // Change unloaded steps to secondary buttons, and loaded step
   // to primary button
@@ -94,7 +109,7 @@ StepMixins.loadStep = async function(index) {
 
   // Load the step data
   const state = (await this.getState('steps'))[index];
-  return await this.loadStatesForStep(state, index);
+  return await this.loadStatesForStep(state, index, availablePlugins);
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
@@ -107,7 +122,8 @@ StepMixins.updateStep = async function(pluginName, k, payload) {
   }
 }
 
-StepMixins.loadStatesForStep = async function(states, index) {
+StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
+  availablePlugins = availablePlugins || this.plugins;
   /* Load step data into state, and listen for updates */
 
   // Create another client in the background as to not override the schema
@@ -123,7 +139,7 @@ StepMixins.loadStatesForStep = async function(states, index) {
     this.port, clientName);
 
   // Iterate through each plugin + key
-  return await Promise.all(_.map(this.plugins, async (p) => {
+  return await Promise.all(_.map(availablePlugins, async (p) => {
     return await Promise.all(_.map(states[p], async (v,k) => {
 
       // Call a put on each key
