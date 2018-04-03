@@ -37,6 +37,10 @@ const ElectrodesSchema = {
         pattern:'^electrode',
         set_with: 'active-electrodes'
       }
+    },
+    "min-duration": {
+      type: "number",
+      default: 100
     }
   }
 };
@@ -77,8 +81,15 @@ class ElectrodesModel extends MicropedeClient {
     this.schema = ElectrodesSchema;
   }
 
-  listen() {
+  async listen() {
+    try {
+      await this.getState('min-duration');
+    } catch (e) {
+      await this.loadDefaults({keys: ['min-duration']});
+    }
+
     this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
+    this.onPutMsg("min-duration", this.putMinDuration.bind(this));
     this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
   }
@@ -89,10 +100,26 @@ class ElectrodesModel extends MicropedeClient {
   async execute(payload) {
     const LABEL = "<ElectrodesModel::execute>"; //console.log(LABEL);
     try {
-      await timeout(1000);
+      // Put active electrodes in payload
+      const activeElectrodes = payload['active-electrodes'];
+      const minDuration = await this.getState("min-duration");
+      if (payload['active-electrodes']) {
+        await this.putActiveElectrodes({'active-electrodes': activeElectrodes});
+        await timeout(minDuration);
+      }
       return this.notifySender(payload, "complete", "execute");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "execute", "failed");
+    }
+  }
+
+  async putMinDuration(payload) {
+    const LABEL = "<ElectrodesModel::putMinDuration>"; //console.log(LABEL);
+    try {
+      await this.setState('min-duration', payload['min-duration']);
+      return this.notifySender(payload, payload['min-duration'], "min-duration");
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), "min-duration", "failed");
     }
   }
 

@@ -231,9 +231,9 @@ class RoutesModel extends MicropedeClient {
 
       const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
       const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
-      await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
+      await microdrop.triggerPlugin('electrodes-model', 'execute', {
         'active-electrodes': _.map(active, "id")
-      });
+      }, -1);
 
       if (remaining.length == 0) {callback(); return}
       if (currentTime+interval >= maxTime) {callback(); return}
