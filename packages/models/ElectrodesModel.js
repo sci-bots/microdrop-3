@@ -99,14 +99,21 @@ class ElectrodesModel extends MicropedeClient {
 
   async execute(payload) {
     const LABEL = "<ElectrodesModel::execute>"; //console.log(LABEL);
+    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     try {
-      // Put active electrodes in payload
-      const activeElectrodes = payload['active-electrodes'];
-      const minDuration = await this.getState("min-duration");
-      if (payload['active-electrodes']) {
+      const ids = payload['active-electrodes'];
+      // const minDuration = await this.getState("min-duration");
+      if (ids) {
+        // Add electrodes to running route sequence:
+        const triggerName = 'add-electrode-to-sequence';
+        await microdrop.triggerPlugin('routes-model', triggerName, {ids});
+
+        // Call put endpoint
         await this.putActiveElectrodes({'active-electrodes': activeElectrodes});
-        await timeout(minDuration);
       }
+
+      // Ensure the electrodes have an on-time of at least the minDuration
+      await timeout(this.getState('min-duration'));
       return this.notifySender(payload, "complete", "execute");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "execute", "failed");

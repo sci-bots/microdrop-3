@@ -97,7 +97,7 @@ StepMixins.getAvailablePlugins = async function() {
 }
 
 StepMixins.executeSteps = async function(item, btn) {
-  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+  let microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   // Fetch all subscriptions including the term execute
 
   if (btn.innerText != 'Stop') {
@@ -126,10 +126,13 @@ StepMixins.executeSteps = async function(item, btn) {
     await this.loadStep(i, availablePlugins);
     const routes = await this.getState('routes', 'routes-model');
 
-    for (let ii = 0; ii < executablePlugins.length; ii++) {
-      const p = executablePlugins[ii];
-      await microdrop.triggerPlugin(p, 'execute', {}, -1);
-    }
+    // Wait for all executable plugins to finish
+    await Promise.all(_.map(executablePlugins, (p) => {
+      //XXX: Right now microdrop async clients can only handle one task
+      // at a time (so need to have different client for each executable)
+      microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+      return microdrop.triggerPlugin(p, 'execute', {}, -1);
+    }));
 
   }
   this.running = false;

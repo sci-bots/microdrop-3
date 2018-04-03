@@ -66,6 +66,7 @@ class RoutesModel extends MicropedeClient {
   listen() {
     this.onPutMsg("routes", this.putRoutes.bind(this));
     this.onPutMsg("route", this.putRoute.bind(this));
+    this.onTriggerMsg("add-electrode-to-sequence", this.addElectrodeToSequence.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
     this.onTriggerMsg("stop", this.stop.bind(this));
   }
@@ -86,58 +87,105 @@ class RoutesModel extends MicropedeClient {
     }
   }
 
+  async addElectrodeToSequence(payload, params) {
+    /* Add electrode to running sequence */
+    const LABEL = "<RoutesModel::addElectrodeToSequence>";
+    const name = 'add-electrode-to-sequence';
+    try {
+      if (!this.running) {
+        return this.notifySender(payload, 'already running', name);
+      }
+
+      // Add active electrodes to scheduler with on time of 0, off time of max,
+      // so long as they are not part of any route
+      _.each(payload.ids, (id) => {
+        if (_.find(this.seq, {id}) == undefined) {
+          this.seq.push({id: id, on: 0, off: maxTime});
+        }
+      });
+
+      return this.notifySender(payload, 'already running', name);
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), name, 'failed');
+    }
+  }
+
+  async cacluateExecutionFrames() {
+    /* Calculate execution fromes using routes and active electrodes */
+    const LABEL = "<RouteModel::calcuateExecutionFrames>";
+    const routes = await this.getState("routes");
+    const electrodes = await this.getState("active-electrodes", "electrodes-model");
+    const tms = "transitionDurationMilliseconds";
+    let seq = [];
+
+    // Extend path based on number of repeats
+    for (const [i, route] of routes.entries()) {
+      const repeats = route.repeatDurationSeconds;
+      const trans = route.transitionDurationMilliseconds;
+      const len = route.path.length;
+
+      let numRepeats;
+      const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
+
+      // Check if route contains a loop before continuing
+      const ids = (await microdrop.triggerPlugin('device-model',
+        'electrodes-from-routes', {routes: [route]})).response[0].ids;
+
+      if (ids[0] != _.last(ids)) {
+        const times = await ActiveElectrodeIntervals(route, this.port);
+        seq = seq.concat(times);
+        continue;
+      }
+
+      // Calculate number of repeats based on total route exec time
+      numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
+
+      // Override with manual step number if larger then calculated value
+      if (route.routeRepeats > numRepeats)
+        numRepeats = route.routeRepeats;
+
+      // Extend the path
+      const org = _.clone(route.path);
+      for (let j = 0; j < numRepeats-1; j++) {
+        route.path = route.path.concat(org);
+      }
+      const times = await ActiveElectrodeIntervals(route, this.port);
+      seq = seq.concat(times);
+    }
+
+    // Calculate scheduler properties
+    const lengths  = _.map(routes, (r)=>r.path.length);
+    const interval = _.min(_.map(routes, tms)) / routes.length;
+    const maxInterval = _.max(_.map(routes, tms));
+    const maxTime = maxInterval * _.max(lengths) * 2;
+
+    // Add active electrodes to scheduler with on time if 0, off time of max,
+    // so long as they are not part of any route
+    _.each(electrodes, (id) => {
+      if (_.find(seq, {id}) == undefined) {
+        seq.push({id: id, on: 0, off: maxTime});
+      }
+    });
+
+    return {lengths, interval, maxInterval, maxTime, seq};
+  }
+
   async execute(payload, interval=1000) {
     const LABEL = "<RoutesModel::execute>"; // console.log(LABEL);
     try {
       let routes = payload.routes;
-      const tms = "transitionDurationMilliseconds";
       if (!routes) routes = await this.getState('routes');
+      if (routes.length == 0) {
+        // If no routes, return immediately
+        return this.notifySender(payload, {status: 'stopped'}, 'execute');
+      }
       if (!routes[0].start) throw("missing start in route");
       if (!routes[0].path) throw("missing path in route");
       if (this.running == true) throw("already running");
 
-      let seq = [];
-
-      // Extend path based on number of repeats
-      for (const [i, route] of routes.entries()) {
-        const repeats = route.repeatDurationSeconds;
-        const trans = route.transitionDurationMilliseconds;
-        const len = route.path.length;
-
-        let numRepeats;
-        const microdrop = new MicropedeAsync(APPNAME, 'localhost', this.port);
-
-        // Check if route contains a loop before continuing
-        // const ids = (await microdrop.device.electrodesFromRoute(route)).ids;
-        const ids = (await microdrop.triggerPlugin('device-model',
-          'electrodes-from-routes', {routes: [route]})).response[0].ids;
-
-        if (ids[0] != _.last(ids)) {
-          const times = await ActiveElectrodeIntervals(route, this.port);
-          seq = seq.concat(times);
-          continue;
-        }
-
-        // Calculate number of repeats based on total route exec time
-        numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
-
-        // Override with manual step number if larger then calculated value
-        if (route.routeRepeats > numRepeats)
-          numRepeats = route.routeRepeats;
-
-        // Extend the path
-        const org = _.clone(route.path);
-        for (let j = 0; j < numRepeats-1; j++) {
-          route.path = route.path.concat(org);
-        }
-        const times = await ActiveElectrodeIntervals(route, this.port);
-        seq = seq.concat(times);
-      }
-
-      const lengths  = _.map(routes, (r)=>r.path.length);
-      const interval = _.min(_.map(routes, tms)) / routes.length;
-      const maxInterval = _.max(_.map(routes, tms));
-      const maxTime = maxInterval * _.max(lengths) * 2;
+      const {lengths, interval, maxInterval, maxTime, seq} =
+        await this.cacluateExecutionFrames();
+      this.seq = seq;
 
       await this.setState('status', 'running');
 
@@ -148,7 +196,7 @@ class RoutesModel extends MicropedeClient {
             resolve("complete");
           }
           this.running = true;
-          this.ExecutionLoop(seq, interval, 0, maxTime, onComplete, this.port);
+          this.ExecutionLoop(interval, 0, maxTime, onComplete, this.port);
         });
       };
 
@@ -156,7 +204,7 @@ class RoutesModel extends MicropedeClient {
 
       await this.setState('status', 'stopped');
 
-      return this.notifySender(payload, {status: 'running'}, 'execute');
+      return this.notifySender(payload, {status: 'stopped'}, 'execute');
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), 'execute', 'failed');
     }
@@ -217,7 +265,7 @@ class RoutesModel extends MicropedeClient {
     }
   }
 
-  async ExecutionLoop(elecs, interval, currentTime, maxTime, callback, port) {
+  async ExecutionLoop(interval, currentTime, maxTime, callback, port) {
     try {
       // If running set to false manually, return immediately
       if (!this.running) {
@@ -229,15 +277,15 @@ class RoutesModel extends MicropedeClient {
       // Execute Loop continuously until maxTime is reached
       await wait(interval);
 
-      const {active, remaining} = ActiveElectrodesAtTime(elecs, currentTime);
+      const {active, remaining} = ActiveElectrodesAtTime(this.seq, currentTime);
       const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
-      await microdrop.triggerPlugin('electrodes-model', 'execute', {
+      await microdrop.putPlugin('electrodes-model', 'active-electrodes', {
         'active-electrodes': _.map(active, "id")
-      }, -1);
+      });
 
       if (remaining.length == 0) {callback(); return}
       if (currentTime+interval >= maxTime) {callback(); return}
-      this.ExecutionLoop(elecs, interval, currentTime+interval, maxTime, callback, port);
+      this.ExecutionLoop(interval, currentTime+interval, maxTime, callback, port);
     } catch (e) {
       console.error(DumpStack('ExecutionLoop', e));
     }
