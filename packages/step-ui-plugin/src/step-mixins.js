@@ -1,9 +1,6 @@
 const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 const _ = require('lodash');
-const $ = window.$ = require('jquery');
-window.Popper = require('popper.js');
-const BootstrapMenu = require('bootstrap-menu');
 
 const APPNAME = 'microdrop';
 
@@ -19,61 +16,64 @@ const select = (b) => {
   b.classList.add("btn-primary");
 }
 
-const Step = (state, index, clickCallback, deleteCallback, isLoaded) => {
-
+const Step = (state, index, options) => {
+  /* Create a Step element with callbacks */
   const id = `step-group-${uuid()}`;
 
-  let btn = yo`
+  const inputChanged = (e, ...args) => {
+    /* Called when step is being renamed */
+    if (e.key == "Enter" || e.type == "blur") {
+      options.renameCallback(e.target.value, index);
+      return;
+    }
+  };
+
+  let btn;
+  const onClick = (e, ...args) => {
+    /* Called when main button is clicked */
+    if (btn.classList.contains("btn-outline-secondary")) {
+      //If btn is seconday (not loaded) call the load callback
+      btn.classList.remove("btn-outline-secondary");
+      options.loadCallback(index, null);
+    } else {
+      // Else if the button is selected then add an input field
+      if (btn.innerHTML.trim() == state.__name__.trim()) {
+        btn.innerHTML = '';
+        let input = yo`
+          <input
+            value="${state.__name__}"
+            onkeypress=${inputChanged.bind(this)}
+            onblur=${inputChanged.bind(this)}
+          />`;
+        btn.appendChild(input);
+        input.focus();
+      }
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  // Define the main button in the step (used to attach click and rename)
+  // callbacks
+  btn = yo`
     <button
       id="step-${index}"
-      class="step-main btn btn-sm ${isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
+      class="step-main btn btn-sm ${options.isLoaded ? 'btn-primary' : 'btn-outline-secondary'}"
       style="flex-grow: 1;"
-      onclick=${clickCallback.bind(this, index, null)}>
+      onclick=${onClick}>
       ${state.__name__}
     </button>
   `;
 
-  const onNameChange = (e, ...args)=> {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    console.log("Name Change!", e, ...args);
-  }
-
-  const onInputChange = (e, ...args) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    console.log("Name Change!", e, ...args);
-  }
-
-  var menu = new BootstrapMenu(`#${id}`, {
-    actions: [{
-      name: 'Rename',
-      onClick: () => {
-        btn.innerHTML = '';
-        btn.appendChild(yo`
-          <div>
-            <input value="${state.__name__}"
-              oninput=${onInputChange.bind(this)}
-              onsubmit=${onInputChange.bind(this)}
-              onblur=${onInputChange.bind(this)}
-              onchange=${onNameChange.bind(this)} />
-          </div>
-        `);
-        btn.children[0].children[0].focus();
-      }
-    }]
-  });
-
+  // Wrap btn in container, with a delete button as its sibling
   return yo`
     <div id="${id}"
-      class="btn-group" style="width:100%;margin: 3px 0px;">
+      class="btn-group"
+      style="width:100%;margin: 3px 0px;">
       ${btn}
       <button
         class="btn btn-sm btn-outline-danger"
-        onclick=${deleteCallback.bind(this, index, state)}
+        onclick=${options.deleteCallback.bind(this, index, state)}
         style="width:10px;">
         <span style="left: -3px; position: relative;">x</span>
       </button>
@@ -123,11 +123,17 @@ StepMixins.executeSteps = async function(item, btn) {
 
 StepMixins.onStepState = function(payload, params) {
   const steps = payload;
-
   const loadedStep = this.loadedStep;
   this.steps.innerHTML = "";
+
   _.each(steps, (s, i) => {
-    this.steps.appendChild(Step(s, i, this.loadStep.bind(this), this.deleteStep.bind(this), i==loadedStep));
+    let options = {
+      loadCallback: this.loadStep.bind(this),
+      deleteCallback: this.deleteStep.bind(this),
+      renameCallback: this.renameStep.bind(this),
+      isLoaded: i==loadedStep
+    };
+    this.steps.appendChild(Step(s, i, options));
   });
 }
 
@@ -170,7 +176,6 @@ StepMixins.loadStep = async function(index, availablePlugins) {
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
-
   if (this.loadedStep != undefined) {
     const steps = await this.getState('steps');
     const step = steps[this.loadedStep];
@@ -215,6 +220,18 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
     }));
   }));
 }
+
+StepMixins.renameStep = async function(name, index) {
+  const LABEL = "StepMixins::renameStep";
+  try {
+    const steps = await this.getState('steps');
+    const step = steps[index];
+    step.__name__ = name;
+    this.setState('steps', steps);
+  } catch (e) {
+    console.error(LABEL, e);
+  }
+};
 
 StepMixins.deleteStep = async function(index, step, e) {
   let prevSteps;

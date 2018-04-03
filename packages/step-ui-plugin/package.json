@@ -19,7 +19,6 @@
     "@micropede/client": "^0.0.35",
     "ajv": "^6.2.0",
     "bootstrap": "^4.0.0",
-    "bootstrap-menu": "^1.0.14",
     "browser-request": "^0.3.3",
     "css-loader": "0.28.7",
     "file-saver": "^1.3.3",
