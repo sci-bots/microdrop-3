@@ -136,6 +136,7 @@ StepMixins.executeSteps = async function(item, btn) {
 
   }
   this.running = false;
+  btn.toggle2();
   console.log("Done!");
 }
 

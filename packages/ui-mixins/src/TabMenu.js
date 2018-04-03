@@ -20,19 +20,29 @@ const TabButton = (item) => {
 const TabToggleButton = (item) => {
   const onclick = item.onclick;
 
+
   let btn;
   item.onclick = (item) => {
-    if (btn.classList.contains("btn-outline-secondary")) {
+    let toggle1 = () => {
       btn.setAttribute("id", `tab-${item.name2}`);
       btn.classList.remove("btn-outline-secondary");
       btn.classList.add("btn-outline-danger");
       btn.innerText = item.name2;
-    } else {
+    };
+
+    let toggle2 = () => {
       btn.setAttribute("id", `tab-${item.name}`);
       btn.classList.remove("btn-outline-danger");
       btn.classList.add("btn-outline-secondary");
       btn.innerText = item.name;
     }
+    if (btn.classList.contains("btn-outline-secondary")) {
+      toggle1();
+    } else {
+      toggle2();
+    }
+    btn.toggle1 = toggle1;
+    btn.toggle2 = toggle2;
     onclick(item, btn);
   };
 
