@@ -10,16 +10,16 @@ const DEFAULT_LAYOUT = {
     {"type":"split-area","orientation":"horizontal",
     "children":[
       {"type":"tab-area",
-      "widgets":["device-ui-plugin"],
+      "widgets":["Device"],
       "currentIndex":0},
       {"type":"tab-area",
-      "widgets":["step-ui-plugin"],
+      "widgets":["Step"],
       "currentIndex":0}],
       "sizes":[0.6,0.4]},
       {"type":"split-area","orientation":"horizontal",
       "children":[
-        {"type":"tab-area","widgets":["global-ui-plugin"],"currentIndex":0},
-        {"type":"tab-area","widgets":["dropbot-ui-plugin"],"currentIndex":0}
+        {"type":"tab-area","widgets":["Global"],"currentIndex":0},
+        {"type":"tab-area","widgets":["Dropbot"],"currentIndex":0}
       ],
       "sizes":[0.6,0.4]}
     ],

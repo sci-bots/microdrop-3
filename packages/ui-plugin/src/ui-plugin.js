@@ -9,6 +9,10 @@ if (!window.microdropPlugins)
 
 const APPNAME = 'microdrop';
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 class UIPlugin extends MicropedeClient {
   constructor(element, focusTracker, port, options) {
     super(APPNAME, undefined, port, undefined, undefined, options);
@@ -43,7 +47,7 @@ class UIPlugin extends MicropedeClient {
         let storageUrl = window.location.origin;
         const options = {storageUrl: storageUrl, resubscribe: false};
         const plugin = new this(widget.node,focusTracker, port, options);
-        widget.title.label = plugin.name;
+        widget.title.label = plugin.name.replace("-ui-plugin", "").capitalize();
         widget.plugin = plugin;
         widget.title.closable = true;
         dock.addWidget(widget);

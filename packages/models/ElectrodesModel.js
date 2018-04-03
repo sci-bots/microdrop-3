@@ -113,7 +113,7 @@ class ElectrodesModel extends MicropedeClient {
       }
 
       // Ensure the electrodes have an on-time of at least the minDuration
-      await timeout(this.getState('min-duration'));
+      await timeout(await this.getState('min-duration'));
       return this.notifySender(payload, "complete", "execute");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "execute", "failed");
