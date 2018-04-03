@@ -5,6 +5,7 @@ const _ = require('lodash');
 const APPNAME = 'microdrop';
 
 const StepMixins = {};
+const timeout = ms => new Promise(res => setTimeout(res, ms))
 
 const unselect = (b) => {
   b.classList.remove("btn-primary");
@@ -97,6 +98,7 @@ StepMixins.getAvailablePlugins = async function() {
 
 StepMixins.executeSteps = async function(item, btn) {
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+  // Fetch all subscriptions including the term execute
 
   if (btn.innerText != 'Stop') {
     this.running = false;
@@ -106,16 +108,29 @@ StepMixins.executeSteps = async function(item, btn) {
 
   this.running = true;
   const steps = await this.getState('steps');
+
   // Before loading steps, get a list of plugins still listening:
   const availablePlugins = await this.getAvailablePlugins();
 
-  for (let i =this.loadedStep || 0;i<steps.length; i++ ){
+  // Find which functions have an "execute" function
+  let executablePlugins = [];
+
+  await Promise.all(_.map(availablePlugins, async (p) => {
+    let subs = await microdrop.getSubscriptions(p, 200);
+    subs = _.filter(subs, (s)=>_.includes(s, "execute"));
+    if (subs.length > 0 ) executablePlugins.push(p);
+  }));
+
+  for (let i = this.loadedStep || 0;i<steps.length; i++ ){
     if (!this.running) break;
     await this.loadStep(i, availablePlugins);
     const routes = await this.getState('routes', 'routes-model');
 
-    // TODO: Should be dynamic
-    await microdrop.triggerPlugin('routes-model', 'execute', {routes}, -1);
+    for (let ii = 0; ii < executablePlugins.length; ii++) {
+      const p = executablePlugins[ii];
+      await microdrop.triggerPlugin(p, 'execute', {}, -1);
+    }
+
   }
   this.running = false;
   console.log("Done!");

@@ -89,9 +89,9 @@ class RoutesModel extends MicropedeClient {
   async execute(payload, interval=1000) {
     const LABEL = "<RoutesModel::execute>"; // console.log(LABEL);
     try {
-      const routes = payload.routes;
+      let routes = payload.routes;
       const tms = "transitionDurationMilliseconds";
-      if (!routes) throw("missing routes in payload");
+      if (!routes) routes = await this.getState('routes');
       if (!routes[0].start) throw("missing start in route");
       if (!routes[0].path) throw("missing path in route");
       if (this.running == true) throw("already running");

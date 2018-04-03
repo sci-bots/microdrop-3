@@ -6,6 +6,8 @@ const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const console = new Console(process.stdout, process.stderr);
+const timeout = ms => new Promise(res => setTimeout(res, ms))
+
 window.addEventListener('unhandledrejection', function(event) {
     console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
 });
@@ -78,10 +80,21 @@ class ElectrodesModel extends MicropedeClient {
   listen() {
     this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
     this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
+    this.onTriggerMsg("execute", this.execute.bind(this));
   }
 
   get isPlugin() {return true}
   get filepath() {return __dirname;}
+
+  async execute(payload) {
+    const LABEL = "<ElectrodesModel::execute>"; //console.log(LABEL);
+    try {
+      await timeout(1000);
+      return this.notifySender(payload, "complete", "execute");
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), "execute", "failed");
+    }
+  }
 
   async putActiveElectrodes(payload) {
     const LABEL = "<ElectrodesModel::putActiveElectrodes>"; //console.log(LABEL);
