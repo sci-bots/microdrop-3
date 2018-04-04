@@ -9,6 +9,7 @@ const Ajv = require('ajv');
 const FileSaver = require('file-saver');
 const generateName = require('sillyname');
 const JSONEditor = require('jsoneditor');
+const key = require("keyboard-shortcut");
 const request = require('browser-request');
 const sha256 = require('sha256');
 const Sortable = require('sortablejs');
@@ -296,6 +297,25 @@ class StepUIPlugin extends UIPlugin {
         return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
       }
     });
+
+    key('up', async (e) => {
+      if (!this.hasFocus) return;
+      if (this.loadedStep <= 0) {
+        this.loadStep((await this.getState('steps')).length-1);
+      } else {
+        this.loadStep(this.loadedStep-1);
+      }
+    });
+
+    key('down', async (e) => {
+      if (!this.hasFocus) return;
+      if (this.loadedStep >= (await this.getState('steps')).length-1) {
+        this.loadStep(0);
+      } else {
+        this.loadStep(this.loadedStep+1);
+      }
+    });
+
   }
 
   async onChange(...args) {

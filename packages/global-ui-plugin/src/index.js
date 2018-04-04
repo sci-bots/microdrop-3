@@ -148,8 +148,8 @@ class GlobalUIPlugin extends UIPlugin {
     this.pluginName = item.name;
     let schema = await this.getSchema(item.name);
 
-    // Only update when schema has changed (XXX: Sometimes this is necessary)
-    // if (!this.schemaHasChanged(schema)) return;
+    // Only update when schema has changed (XXX: Sometimes this may be necessary)
+    if (!this.schemaHasChanged(schema)) return;
 
     // Reset client
     await this.disconnectClient();

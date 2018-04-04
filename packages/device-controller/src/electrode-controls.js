@@ -68,19 +68,15 @@ class ElectrodeControls extends MicropedeClient {
     this.onOpacity  = DEFAULT_ON_OPACITY;
   }
 
-  async setSelectedElectrode(obj) {
+  setSelectedElectrode(obj) {
     this.selectedElectrode = obj;
     let electrode;
     if (obj) {
       let hiddenKeys = ['shape', 'translation'];
       electrode = _.omit(_.find(this._threeObject, {id: obj.name}), hiddenKeys);
-
-    } else {
-      electrode = null;
+      this.trigger('change-schema', {name: 'electrode-controls'});
+      this.setState('selected-electrode', electrode);
     }
-    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
-    await microdrop.triggerPlugin('global-ui-plugin', 'change-schema', {name: 'electrode-controls'});
-    await this.setState('selected-electrode', electrode);
   }
 
   async putSelectedElectrode(payload, params) {
@@ -101,6 +97,7 @@ class ElectrodeControls extends MicropedeClient {
       this._threeObject = payload;
     });
 
+    this.bindTriggerMsg("global-ui-plugin", "change-schema", "change-schema");
     this.onPutMsg("selected-electrode", this.putSelectedElectrode.bind(this));
     this.render();
   }

@@ -233,21 +233,14 @@ class DeviceUIPlugin extends UIPlugin {
               .then(function(_stream) {
                 stream = stream || _stream;
                 stream.getTracks().forEach(track => {
-                  console.log({track});
                   track.stop();
                 });
                 _stream.getTracks().forEach(track => {
-                  console.log({track});
                   track.stop();
                 });
                 plane.stream.getTracks().forEach(track => {
-                  console.log({track});
                   track.stop();
                 });
-                console.log({stream});
-                // delete stream;
-                // plane.video.src = URL.createObjectURL(stream);
-                // plane.initVideo();
             });
           });
           return;
