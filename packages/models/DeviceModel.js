@@ -15,6 +15,7 @@ const ElectrodeControls =
 
 const APPNAME = 'microdrop';
 const DEFAULT_PPI = 96;
+const timeout = ms => new Promise(res => setTimeout(res, ms))
 
 const ajv = new Ajv({useDefaults: true});
 const console = new Console(process.stdout, process.stderr);
@@ -168,11 +169,14 @@ class DeviceModel extends MicropedeClient {
     const LABEL = `<DeviceModel::electrodesFromRoutes>`; //console.log(LABEL);
     try {
       let routes = payload.routes;
-      let length = routes.length;
+      let length = _.get(routes, "length");
 
       let maxDistance;
       try {
-        maxDistance = await this.getState('max-distance');
+        maxDistance = await Promise.race([
+          this.getState('max-distance'),
+          timeout(1000)
+        ]);
       } catch (e) {
         maxDistance = ElectrodeControls.MAX_DISTANCE;
       }
@@ -180,7 +184,10 @@ class DeviceModel extends MicropedeClient {
       // Validate input payload:
       if (!routes) throw("expecting routes in payload");
       if (!_.isArray(routes)) throw("routes should be array");
-
+      if (routes.length <= 0) {
+        console.log("No routes, notifying sender...");
+        return this.notifySender(payload, [], "electrodes-from-routes");
+      }
       // Create new uuid if only one route
 
       if (length == 1 && routes[0].uuid == undefined) {

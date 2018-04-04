@@ -311,7 +311,7 @@ async function ActiveElectrodeIntervals(r, port) {
   const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
   // Get electrode intervals based on a routes time properties
   const seq = (await microdrop.triggerPlugin('device-model',
-      'electrodes-from-routes', {routes: [r]})).response[0];
+      'electrodes-from-routes', {routes: [r]}, 1001)).response[0];
 
   // ids, uuid
   const times = [];

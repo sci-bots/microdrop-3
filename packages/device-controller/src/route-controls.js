@@ -68,7 +68,7 @@ class RouteControls extends MicropedeClient {
     const group = this.electrodeControls.svgGroup;
     const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
     const electrodes = (await microdrop.triggerPlugin('device-model',
-      'electrodes-from-routes', {routes})).response;
+      'electrodes-from-routes', {routes}, 1002)).response;
 
     const removeLine = (line) => {
       if (line.arrow) this.scene.remove(line.arrow);
@@ -115,8 +115,6 @@ class RouteControls extends MicropedeClient {
       if (line.visited == true) continue;
       removeLine(line);
     }
-
-    let lines = this.lines;
 
   }
 

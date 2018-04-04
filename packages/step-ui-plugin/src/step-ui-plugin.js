@@ -54,16 +54,20 @@ class StepUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
-    this.plugins = ["dropbot", "routes-model", "electrodes-model"];
+    this.plugins = ["routes-model", "electrodes-model"];
 
     let items = [
-      {name: 'dropbot', onclick: this.changeSchema.bind(this)},
       {name: 'routes-model', onclick: this.changeSchema.bind(this)},
-      {name: 'electrodes-model', onclick: this.changeSchema.bind(this)},
-      {name: 'Download', onclick:  this.saveToFile.bind(this)},
-      {name: 'Upload', onclick: this.openFile.bind(this)},
-      {name: 'Execute', name2: 'Stop', onclick: this.executeSteps.bind(this)}
+      {name: 'electrodes-model', onclick: this.changeSchema.bind(this)}
     ];
+
+    let btns = [
+      {name: 'Download', onclick:  this.saveToFile.bind(this), stat: "secondary"},
+      {name: 'Upload', onclick: this.openFile.bind(this), stat: "secondary"},
+      {name: 'Execute', onclick: this.executeSteps.bind(this), stat: "primary"},
+      {name: 'Create Step', onclick: this.createStep.bind(this), stat: "success"}
+    ];
+
     this.menu = TabMenu(items);
     this.steps = yo`<div style="overflow-y: auto"></div>`;
     this.content = yo`<div></div>`;
@@ -76,14 +80,18 @@ class StepUIPlugin extends UIPlugin {
         <div class="row">
           <div class="col-sm-4" style="padding-right:0px;">
             <div style="${Styles.stepButtonContainer}">
-              <div style="margin-bottom:2px">
-                <button
-                  class="btn btn-sm btn-outline-success"
-                  style="width:100%"
-                  onclick=${this.createStep.bind(this)}>
-                  Create Step
-                </button>
-              </div>
+              ${_.map(btns, (b) => {
+                let btn;
+                btn = yo`
+                  <button
+                    class="btn btn-sm btn-outline-${b.stat}"
+                    style="width:100%;margin-bottom:2px;"
+                    onclick=${()=>b.onclick(btn)}>
+                    ${b.name}
+                  </button>
+                `;
+                return btn;
+              })}
               ${this.steps}
             </div>
           </div>
@@ -183,6 +191,7 @@ class StepUIPlugin extends UIPlugin {
       try {
         return {k: prop, v: await this.getState(prop, pluginName)};
       } catch (e) {
+        console.warn(`Could not fetch ${plugnName} ${k} . Will not be adding to editor`);
         return undefined;
       }
     })));

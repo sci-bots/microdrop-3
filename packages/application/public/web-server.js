@@ -238,6 +238,10 @@ class WebServer extends MicropedeClient {
         const storageKey = `${APPNAME}!!retained!${APPNAME}/${pluginName}/state/${key}`;
 
         const encodedVal = localStorage.getItem(storageKey);
+        if (!encodedVal){
+          res.send({storageKey, encodedVal: undefined, val: undefined});
+          return;
+        }
         const val = JSON.parse(msgpack.decode(d64.decode(encodedVal.substring(5))).payload);
         if (val == undefined) throw `${LABEL}: ${pluginName}.${key} does not exist`;
         res.send({storageKey, encodedVal, val});

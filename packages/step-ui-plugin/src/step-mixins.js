@@ -1,6 +1,8 @@
 const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 const _ = require('lodash');
+const {MicropedeClient} = require('@micropede/client/src/client.js');
+const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const APPNAME = 'microdrop';
 
@@ -96,17 +98,31 @@ StepMixins.getAvailablePlugins = async function() {
   return availablePlugins;
 }
 
-StepMixins.executeSteps = async function(item, btn) {
-  let microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+StepMixins.executeSteps = async function(btn) {
+  let [state1, state2] = ['btn-outline-primary', 'btn-outline-danger'];
+  let microdrop;
   // Fetch all subscriptions including the term execute
 
-  if (btn.innerText != 'Stop') {
+  let toggle1 = () => {
+    btn.classList.remove(state1);
+    btn.classList.add(state2);
+  };
+
+  let toggle2 = () => {
+    btn.classList.remove(state2);
+    btn.classList.add(state1);
+  };
+
+  if (btn.classList.contains(state2)) {
     this.running = false;
+    microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     await microdrop.triggerPlugin('routes-model', 'stop', {});
+    toggle2();
     return;
   }
 
   this.running = true;
+  toggle1();
   const steps = await this.getState('steps');
 
   // Before loading steps, get a list of plugins still listening:
@@ -116,7 +132,8 @@ StepMixins.executeSteps = async function(item, btn) {
   let executablePlugins = [];
 
   await Promise.all(_.map(availablePlugins, async (p) => {
-    let subs = await microdrop.getSubscriptions(p, 200);
+    microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+    let subs = await microdrop.getSubscriptions(p, 500);
     subs = _.filter(subs, (s)=>_.includes(s, "execute"));
     if (subs.length > 0 ) executablePlugins.push(p);
   }));
@@ -136,7 +153,7 @@ StepMixins.executeSteps = async function(item, btn) {
 
   }
   this.running = false;
-  btn.toggle2();
+  toggle2();
   console.log("Done!");
 }
 
@@ -209,7 +226,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
 
   // Create another client in the background as to not override the schema
   // plugin
-  const clientName = 'stepClient-${index}-${parseInt(Math.random()*10000)}';
+  const clientName = `stepClient-${index}-${parseInt(Math.random()*10000)}`;
   if (this.stepClient) {
     try {
       await this.stepClient.disconnectClient();
@@ -219,6 +236,13 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
   this.stepClient = new MicropedeClient(APPNAME, undefined,
     this.port, clientName);
 
+  await Promise.race([
+    new Promise((res) => this.stepClient.once("connected", res)),
+    timeout(5000)
+  ]);
+
+  // await new Promise((res) => this.stepClient.on("connected", res));
+
   // Iterate through each plugin + key
   return await Promise.all(_.map(availablePlugins, async (p) => {
     return await Promise.all(_.map(states[p], async (v,k) => {
@@ -226,7 +250,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
       // Call a put on each key
       const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
       try { await microdrop.putPlugin(p, k, v); }
-      catch (e) { console.error(e);}
+      catch (e) { console.error(e, {p,k,v});}
 
       // Listen for changes
       this.stepClient.onStateMsg(p,k, async (payload, params) => {
@@ -273,7 +297,7 @@ StepMixins.createStep = async function (e) {
       let schema    = await this.getSchema(plugin);
       state[plugin] = await this.getStateForPlugin(plugin, schema);
     } catch (e) {
-      console.error(e);
+      console.error(e, {plugin});
     }
     return;
   }));
