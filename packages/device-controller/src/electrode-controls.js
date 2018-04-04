@@ -78,6 +78,8 @@ class ElectrodeControls extends MicropedeClient {
     } else {
       electrode = null;
     }
+    const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+    await microdrop.triggerPlugin('global-ui-plugin', 'change-schema', {name: 'electrode-controls'});
     await this.setState('selected-electrode', electrode);
   }
 

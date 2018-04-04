@@ -16,8 +16,9 @@ const yo = require('yo-yo');
 const _ = require('lodash');
 
 const UIPlugin = require('@microdrop/ui-plugin');
-const TabMenu = require('@microdrop/ui-mixins/src/TabMenu.js');
+const {TabMenu, select, unselect} = require('@microdrop/ui-mixins/src/TabMenu.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
+const {DumpStack} = require('@micropede/client/src/client.js');
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
@@ -27,37 +28,15 @@ const {FindPath, FindPaths} = require('@microdrop/helpers');
 _.findPath  = (...args) => {return FindPath(...args)}
 _.findPaths = (...args) => {return FindPaths(...args)}
 
-const unselect = (b) => {
-  if (b == null) return;
-  b.classList.remove("btn-primary");
-  b.classList.add("btn-outline-secondary");
-}
-
-const select = (b) => {
-  if (b == null) return;
-  b.classList.remove("btn-outline-secondary");
-  b.classList.add("btn-primary");
-}
-
-const TabButton = (title, icon, callback, classes="") => {
-  return yo`
-    <button class="btn btn-sm ${classes}"
-      style="${Styles.tabButton};"
-      onclick=${callback.bind(this)}
-      data-toggle="tooltip" data-placement="bottom" title="${title}">
-      <span class="oi ${icon}"></span>
-    </button>
-  `;
-}
-
 class StepUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
-    this.plugins = ["routes-model", "electrodes-model"];
+    this.plugins = ["routes-model", "route-controls", "electrodes-model"];
 
     let items = [
       {name: 'routes-model', onclick: this.changeSchema.bind(this)},
+      {name: 'route-controls', onclick: this.changeSchema.bind(this)},
       {name: 'electrodes-model', onclick: this.changeSchema.bind(this)}
     ];
 
@@ -157,7 +136,7 @@ class StepUIPlugin extends UIPlugin {
     fileinput.click();
   }
 
-  async changeSchema(item, e) {
+  async changeSchema(item) {
     // Reset client
     await this.disconnectClient();
     await this.connectClient(this.clientId, this.host, this.port);
@@ -257,12 +236,13 @@ class StepUIPlugin extends UIPlugin {
   async loadSchemaByPluginName(pluginName) {
     const schema = await this.getSchema(pluginName);
 
+    // XXX: Sometimes it is necessary
     // Only update when schema has changed
-    let hash = sha256(JSON.stringify(schema));
-    if (hash == this.schema_hash) return;
-    else {
-      this.schema_hash = hash;
-    }
+    // let hash = sha256(JSON.stringify(schema));
+    // if (hash == this.schema_hash) return;
+    // else {
+    //   this.schema_hash = hash;
+    // }
 
     // Iterate through properties, and check for a subscription,
     // otherwise add one
@@ -286,6 +266,7 @@ class StepUIPlugin extends UIPlugin {
 
             if (hash != prevHash) {
               this.editor.set(this.json);
+              this.editor.expandAll();
             }
 
           });
@@ -294,6 +275,7 @@ class StepUIPlugin extends UIPlugin {
         // Update the schema and json data in the editor
         this.editor.setSchema(schema);
         this.editor.set(this.json);
+        this.editor.expandAll();
         this.editor.schema = schema;
       }
     }));
@@ -304,6 +286,15 @@ class StepUIPlugin extends UIPlugin {
     // const _topic = 'microdrop/file-launcher/state/last-opened-file';
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});
+    });
+    this.onTriggerMsg('change-schema', async (payload) => {
+      const LABEL = "step-ui-plugin:change-schema";
+      try {
+        await this.changeSchema(payload);
+        return this.notifySender(payload, 'done', "change-schema");
+      } catch (e) {
+        return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
+      }
     });
   }
 

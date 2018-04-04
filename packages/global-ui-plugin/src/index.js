@@ -7,7 +7,7 @@ const sha256 = require('sha256');
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const UIPlugin = require('@microdrop/ui-plugin');
-const TabMenu = require('@microdrop/ui-mixins/src/TabMenu.js');
+const {TabMenu, select, unselect} = require('@microdrop/ui-mixins/src/TabMenu.js');
 const {FindPath, FindPaths} = require('@microdrop/helpers');
 _.findPath  = (...args) => {return FindPath(...args)}
 _.findPaths = (...args) => {return FindPaths(...args)}
@@ -148,8 +148,8 @@ class GlobalUIPlugin extends UIPlugin {
     this.pluginName = item.name;
     let schema = await this.getSchema(item.name);
 
-    // Only update when schema has changed
-    if (!this.schemaHasChanged(schema)) return;
+    // Only update when schema has changed (XXX: Sometimes this is necessary)
+    // if (!this.schemaHasChanged(schema)) return;
 
     // Reset client
     await this.disconnectClient();
@@ -157,6 +157,10 @@ class GlobalUIPlugin extends UIPlugin {
     // Connect client removes prev listeners, so must re-add them here:
     this.addListeners();
 
+    let pluginBtns = [...this.menu.querySelectorAll('.tab-btn')];
+    let selectedBtn = this.menu.querySelector(`#tab-${this.pluginName}`);
+    _.each(pluginBtns, unselect);
+    select(selectedBtn);
 
     // Iterate through properties, and check for a subscription,
     // otherwise add one
@@ -203,6 +207,15 @@ class GlobalUIPlugin extends UIPlugin {
 
 
   listen() {
+    this.onTriggerMsg('change-schema', async (payload) => {
+      const LABEL = "global-ui-plugin:change-schema";
+      try {
+        await this.pluginChanged(payload);
+        return this.notifySender(payload, 'done', "change-schema");
+      } catch (e) {
+        return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
+      }
+    });
   }
 
 }

@@ -62,6 +62,18 @@ const TabMenu = (items=[], options={}) => {
     </div>`;
 };
 
+const unselect = (b) => {
+  if (b == null) return;
+  b.classList.remove("btn-primary");
+  b.classList.add("btn-outline-secondary");
+}
+
+const select = (b) => {
+  if (b == null) return;
+  b.classList.remove("btn-outline-secondary");
+  b.classList.add("btn-primary");
+}
+
 const Styles = {
   tabs: `
     background: #eaeaea;
@@ -76,3 +88,5 @@ const Styles = {
 
 module.exports = TabMenu;
 module.exports.TabMenu = TabMenu;
+module.exports.unselect = unselect;
+module.exports.select = select;

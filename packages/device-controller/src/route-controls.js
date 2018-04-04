@@ -8,7 +8,7 @@ const THREE = require('three');
 const {MeshLine, MeshLineMaterial} = require( 'three.meshline' );
 
 const MicropedeAsync = require('@micropede/client/src/async.js');
-const {MicropedeClient} = require('@micropede/client/src/client.js');
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js');
 
 const THREEx = {}; require('threex-domevents')(THREE, THREEx);
 
@@ -23,6 +23,31 @@ const APPNAME = 'microdrop';
 const DEFAULT_HOST = 'localhost';
 
 let mouseDown = false;
+
+const RouteSchema = {
+  type: "object",
+  properties: {
+    start: {set_with: "selected-routes", type: "string"},
+    path:  {set_with: "selected-routes", type: "array"},
+    trailLength: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1},
+    repeatDurationSeconds: {set_with: "selected-routes", type: "number", minium: 0, default: 1},
+    transitionDurationMilliseconds: {set_with: "selected-routes", type: "integer", minimum: 100, default: 1000},
+    routeRepeats: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1}
+  },
+  required: ['start', 'path']
+}
+
+const RouteControlSchema = {
+  type: "object",
+  properties: {
+    "selected-routes": {
+      type: "array",
+      default: [],
+      "items": RouteSchema,
+    }
+  },
+};
+
 class RouteControls extends MicropedeClient {
   constructor(scene, camera, electrodeControls, port=undefined) {
     let options = {resubscribe: false};
@@ -52,13 +77,39 @@ class RouteControls extends MicropedeClient {
     this.model.on("change:routes", this.renderRoutes.bind(this));
     this.port = port;
     this.selectedRoutes = [];
+    this.schema = RouteControlSchema;
+  }
+
+  async putSelectedRoutes(payload, params) {
+    const LABEL = "RouteControls::putSelectedRoutes";
+    try {
+      // Get prev routes:
+      let routes = await this.getState('routes', 'routes-model');
+      const updatedRoutes = payload['selected-routes'];
+
+      // Update prev routes based on changes:
+      _.each(updatedRoutes, (r) => {
+        let route = _.find(routes, {uuid: r.uuid});
+        _.extend(route, r);
+      });
+
+      // Call put request to routes-model:
+      const microdrop = new MicropedeAsync('microdrop', undefined, this.port);
+      await microdrop.putPlugin('routes-model', 'routes', routes);
+
+      return this.notifySender(payload, 'updated', 'selected-routes');
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e),
+        'selected-routes', 'failed');
+    }
   }
 
   listen() {
     this.onStateMsg("routes-model", "routes", this.renderRoutes.bind(this));
     this.bindPutMsg("routes-model", "route", "put-route");
-    this.bindStateMsg("selected-routes", "set-selected-routes");
+    this.onPutMsg("selected-routes", this.putSelectedRoutes.bind(this));
   }
+
   get routes() {
     return _.cloneDeep(this.model.get("routes"));
   }
@@ -180,7 +231,8 @@ class RouteControls extends MicropedeClient {
     colorSelectedRoutes("yellow");
 
     // Write selected routes to microdrop state
-    this.trigger("set-selected-routes", this.selectedRoutes);
+    await microdrop.triggerPlugin('step-ui-plugin', 'change-schema', {name: 'route-controls'});
+    await this.setState('selected-routes', this.selectedRoutes);
 
     // Listen for context menu action
     const clearCallback = (e) => {

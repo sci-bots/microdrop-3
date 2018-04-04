@@ -110,10 +110,10 @@ class RoutesModel extends MicropedeClient {
     }
   }
 
-  async cacluateExecutionFrames() {
+  async cacluateExecutionFrames(routes) {
     /* Calculate execution fromes using routes and active electrodes */
     const LABEL = "<RouteModel::calcuateExecutionFrames>";
-    const routes = await this.getState("routes");
+    routes = routes || await this.getState("routes");
     const electrodes = await this.getState("active-electrodes", "electrodes-model");
     const tms = "transitionDurationMilliseconds";
     let seq = [];
@@ -184,7 +184,7 @@ class RoutesModel extends MicropedeClient {
       if (this.running == true) throw("already running");
 
       const {lengths, interval, maxInterval, maxTime, seq} =
-        await this.cacluateExecutionFrames();
+        await this.cacluateExecutionFrames(routes);
       this.seq = seq;
 
       await this.setState('status', 'running');
