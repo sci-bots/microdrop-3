@@ -42,19 +42,19 @@
     "7zip-bin-mac" "~1.0.1"
     "7zip-bin-win" "~2.2.0"
 
-"@microdrop/application@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.57.tgz#c26a637c913591abaf369ab1420830ba50bd578e"
+"@microdrop/application@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.58.tgz#fe716c81ab13cad7d74f335bf6d51a1b129b1c20"
   dependencies:
-    "@microdrop/device-controller" "^1.1.57"
-    "@microdrop/device-ui-plugin" "^1.1.57"
-    "@microdrop/dropbot-plugin" "^1.1.57"
-    "@microdrop/global-ui-plugin" "^1.1.57"
-    "@microdrop/models" "^1.1.57"
-    "@microdrop/step-ui-plugin" "^1.1.57"
-    "@microdrop/ui" "^1.1.57"
+    "@microdrop/device-controller" "^1.1.58"
+    "@microdrop/device-ui-plugin" "^1.1.58"
+    "@microdrop/dropbot-plugin" "^1.1.58"
+    "@microdrop/global-ui-plugin" "^1.1.58"
+    "@microdrop/models" "^1.1.58"
+    "@microdrop/step-ui-plugin" "^1.1.58"
+    "@microdrop/ui" "^1.1.58"
     "@micropede/broker" "0.0.28"
-    "@micropede/client" "0.0.35"
+    "@micropede/client" "0.0.36"
     "@yac/api" "0.0.24"
     ascoltatori "git+https://github.com/Lucaszw/ascoltatori.git"
     cors "^2.8.4"
@@ -74,12 +74,12 @@
     yargs "^11.0.0"
     yo-yo "^1.4.1"
 
-"@microdrop/device-controller@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.57.tgz#77b8c62c42cb5c5aae6652968ae1c7e45017e9ba"
+"@microdrop/device-controller@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.58.tgz#bed47c00721927dd2ce2a55d38837140f6c42a43"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@micropede/client" "^0.0.35"
+    "@micropede/client" "^0.0.36"
     backbone "^1.3.3"
     colormap "^2.3.0"
     jquery "^3.2.1"
@@ -99,13 +99,13 @@
     two.js "github:jonobr1/two.js#dev"
     yo-yo "^1.4.1"
 
-"@microdrop/device-ui-plugin@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.57.tgz#cdd1d8b76d7c9175c0764cfada1709d63913b2e5"
+"@microdrop/device-ui-plugin@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.58.tgz#5bf0d6f58e94bd433d0d0fec221f29849f0cf961"
   dependencies:
-    "@microdrop/device-controller" "^1.1.57"
-    "@microdrop/ui-plugin" "^1.1.57"
-    "@micropede/client" "0.0.35"
+    "@microdrop/device-controller" "^1.1.58"
+    "@microdrop/ui-plugin" "^1.1.58"
+    "@micropede/client" "0.0.36"
     async-mqtt "^1.0.1"
     dat.gui "^0.7.0"
     jquery "^3.3.1"
@@ -114,25 +114,25 @@
     uuid "^3.1.0"
     yo-yo "^1.4.1"
 
-"@microdrop/dropbot-plugin@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.57.tgz#02a17ed5eb0f640a9533600db50825d74408c49e"
+"@microdrop/dropbot-plugin@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.58.tgz#53072f2a00099b382d4a4cb8b80ba13ee84ba166"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.57"
-    "@micropede/client" "^0.0.35"
+    "@microdrop/ui-plugin" "^1.1.58"
+    "@micropede/client" "^0.0.36"
     browser-request "^0.3.3"
     lodash "^4.17.5"
     webpack "3"
     yo-yo "^1.4.1"
 
-"@microdrop/global-ui-plugin@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.57.tgz#67b4127155c9a75109ecd36cb77fe556243f60d5"
+"@microdrop/global-ui-plugin@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.58.tgz#abde1fa4a6aad261e1841dd70f7c6756be5cd316"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@microdrop/ui-mixins" "^1.1.57"
-    "@microdrop/ui-plugin" "^1.1.57"
-    "@micropede/client" "^0.0.35"
+    "@microdrop/ui-mixins" "^1.1.58"
+    "@microdrop/ui-plugin" "^1.1.58"
+    "@micropede/client" "^0.0.36"
     ajv "^6.2.0"
     css-loader "^0.28.10"
     jsoneditor "^5.14.0"
@@ -148,45 +148,47 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/models@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.57.tgz#39206ec7142dac9354a0b4c16bf0f453f5bd0dbd"
+"@microdrop/models@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.58.tgz#61a6e7940182af489dfd23b0eb25a1229fdfe94c"
   dependencies:
-    "@microdrop/device-controller" "^1.1.57"
-    "@micropede/client" "0.0.35"
+    "@microdrop/device-controller" "^1.1.58"
+    "@micropede/client" "0.0.36"
     ajv "^6.1.1"
     lodash "^4.17.5"
     pkginfo "^0.4.1"
     three "^0.89.0"
     uuid "^3.2.1"
 
-"@microdrop/step-ui-plugin@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.57.tgz#2954da0209f172bca329d51731214259c6be78e7"
+"@microdrop/step-ui-plugin@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.58.tgz#b41a688d43f6316612b9626f07c9964934c96586"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@microdrop/ui-mixins" "^1.1.57"
-    "@microdrop/ui-plugin" "^1.1.57"
-    "@micropede/client" "^0.0.35"
+    "@microdrop/ui-mixins" "^1.1.58"
+    "@microdrop/ui-plugin" "^1.1.58"
+    "@micropede/client" "^0.0.36"
     ajv "^6.2.0"
     bootstrap "^4.0.0"
     browser-request "^0.3.3"
-    css-loader "^0.28.10"
+    css-loader "0.28.7"
     file-saver "^1.3.3"
     jquery "^3.3.1"
     jsoneditor "^5.14.0"
+    keyboard-shortcut "^1.2.0"
     open-iconic "^1.1.1"
-    popper.js "^1.12.9"
+    popper.js "^1.14.3"
     sha256 "^0.2.0"
     sillyname "^0.1.0"
     sortablejs "^1.7.0"
-    style-loader "^0.20.2"
+    style-loader "0.20.1"
     url-loader "^1.0.1"
+    uuid "^3.2.1"
     yo-yo "^1.4.1"
 
-"@microdrop/ui-mixins@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.57.tgz#081d0807ad2a6d0008fe6c3f5c1c9104145683c8"
+"@microdrop/ui-mixins@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.58.tgz#fe90d7a57c01084f628aa1dc3bb857da15f1828e"
   dependencies:
     bootstrap "^4.0.0"
     jquery "^3.3.1"
@@ -195,20 +197,20 @@
     popper.js "^1.14.1"
     yo-yo "^1.4.1"
 
-"@microdrop/ui-plugin@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.57.tgz#a1cd992bc7e492e1fa014b8e1e38e03d76dd8735"
+"@microdrop/ui-plugin@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-plugin/-/ui-plugin-1.1.58.tgz#0120e71b1712bc1769a9ec579723d0be729159d2"
   dependencies:
-    "@micropede/client" "0.0.35"
+    "@micropede/client" "0.0.36"
     browser-request "^0.3.3"
     keyboard-shortcut "^1.2.0"
 
-"@microdrop/ui@^1.1.57":
-  version "1.1.57"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.57.tgz#ca57eea58295e3a41e554a15e5a01e6c7f5c15ac"
+"@microdrop/ui@^1.1.58":
+  version "1.1.58"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.58.tgz#477e466542f79ecd8297a97a69f3852789449bcf"
   dependencies:
-    "@microdrop/ui-plugin" "^1.1.57"
-    "@micropede/client" "0.0.35"
+    "@microdrop/ui-plugin" "^1.1.58"
+    "@micropede/client" "0.0.36"
     "@phosphor/widgets" "^1.5.0"
     browser-request "^0.3.3"
     jquery "^3.2.1"
@@ -227,9 +229,9 @@
     mosca "git+https://github.com/Lucaszw/mosca.git"
     mqtt "^2.15.1"
 
-"@micropede/client@0.0.35", "@micropede/client@^0.0.35":
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.35.tgz#38cfa135e7a7073006b6382d093987782de8cee2"
+"@micropede/client@0.0.36", "@micropede/client@^0.0.36":
+  version "0.0.36"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.36.tgz#d3d16e7afd361e2d014d9c17199264317de37daa"
   dependencies:
     "@micropede/mixins" "^0.0.23"
     ajv "^6.1.1"
@@ -577,10 +579,6 @@ ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-any-promise@^1.0.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/any-promise/-/any-promise-1.3.0.tgz#abc6afeedcea52e809cdc0376aed3ce39635d17f"
-
 anymatch@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-2.0.0.tgz#bcb24b4f37934d9aa7ac17b4adaf89e7c76ef2eb"
@@ -839,7 +837,7 @@ aws4@^1.2.1, aws4@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.6.0.tgz#83ef5ca860b2b32e4a0deedee8c771b9db57471e"
 
-babel-code-frame@^6.26.0:
+babel-code-frame@^6.11.0, babel-code-frame@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
   dependencies:
@@ -1721,6 +1719,25 @@ css-color-names@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
 
+css-loader@0.28.7:
+  version "0.28.7"
+  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-0.28.7.tgz#5f2ee989dd32edd907717f953317656160999c1b"
+  dependencies:
+    babel-code-frame "^6.11.0"
+    css-selector-tokenizer "^0.7.0"
+    cssnano ">=2.6.1 <4"
+    icss-utils "^2.1.0"
+    loader-utils "^1.0.2"
+    lodash.camelcase "^4.3.0"
+    object-assign "^4.0.1"
+    postcss "^5.0.6"
+    postcss-modules-extract-imports "^1.0.0"
+    postcss-modules-local-by-default "^1.0.1"
+    postcss-modules-scope "^1.0.0"
+    postcss-modules-values "^1.1.0"
+    postcss-value-parser "^3.3.0"
+    source-list-map "^2.0.0"
+
 css-loader@^0.28.10:
   version "0.28.11"
   resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-0.28.11.tgz#c3f9864a700be2711bb5a2462b2389b1a392dab7"
@@ -1752,7 +1769,7 @@ cssesc@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-0.1.0.tgz#c814903e45623371a0477b40109aaafbeeaddbb4"
 
-cssnano@^3.10.0:
+"cssnano@>=2.6.1 <4", cssnano@^3.10.0:
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/cssnano/-/cssnano-3.10.0.tgz#4f38f6cea2b9b17fa01490f23f1dc68ea65c1c38"
   dependencies:
@@ -2204,9 +2221,9 @@ electron-osx-sign@^0.4.1:
     minimist "^1.2.0"
     plist "^2.1.0"
 
-electron-packager@^11.2.0:
-  version "11.2.0"
-  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-11.2.0.tgz#facc17d2b92c10da1bfa1d7c5f58f13774571839"
+electron-packager@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-12.0.0.tgz#b82d24d78a2f21403bbfd166a5b1569894d5cd0c"
   dependencies:
     asar "^0.14.0"
     debug "^3.0.0"
@@ -2214,13 +2231,12 @@ electron-packager@^11.2.0:
     electron-osx-sign "^0.4.1"
     extract-zip "^1.0.3"
     fs-extra "^5.0.0"
+    galactus "^0.2.0"
     get-package-info "^1.0.0"
-    mz "^2.6.0"
     nodeify "^1.0.1"
     parse-author "^2.0.0"
     pify "^3.0.0"
     plist "^2.0.0"
-    pruner "^0.0.7"
     rcedit "^1.0.0"
     resolve "^1.1.6"
     sanitize-filename "^1.6.0"
@@ -2722,6 +2738,13 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+flora-colossus@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/flora-colossus/-/flora-colossus-0.0.2.tgz#7d1be29a1f17fa4f22b1bd61482f86c34e07b901"
+  dependencies:
+    debug "^3.1.0"
+    fs-extra "^4.0.0"
+
 for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -2860,6 +2883,14 @@ function-bind@^1.0.2, function-bind@^1.1.1:
 functional-red-black-tree@^1.0.0, functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
+
+galactus@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/galactus/-/galactus-0.2.0.tgz#c3d63ba5502466fe40ea67cc689085b3dd24a8fc"
+  dependencies:
+    debug "^3.1.0"
+    flora-colossus "^0.0.2"
+    fs-extra "^4.0.0"
 
 gauge@~2.7.3:
   version "2.7.4"
@@ -4310,14 +4341,6 @@ mute-stream@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
 
-mz@^2.6.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/mz/-/mz-2.7.0.tgz#95008057a56cafadc2bc63dde7f9ff6955948e32"
-  dependencies:
-    any-promise "^1.0.0"
-    object-assign "^4.0.1"
-    thenify-all "^1.0.0"
-
 nan@^2.3.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
@@ -4855,6 +4878,10 @@ popper.js@^1.12.9, popper.js@^1.14.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.1.tgz#b8815e5cda6f62fc2042e47618649f75866e6753"
 
+popper.js@^1.14.3:
+  version "1.14.3"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.3.tgz#1438f98d046acf7b4d78cd502bf418ac64d4f095"
+
 posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
@@ -4981,27 +5008,33 @@ postcss-minify-selectors@^2.0.4:
     postcss "^5.0.14"
     postcss-selector-parser "^2.0.0"
 
+postcss-modules-extract-imports@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-1.1.0.tgz#b614c9720be6816eaee35fb3a5faa1dba6a05ddb"
+  dependencies:
+    postcss "^6.0.1"
+
 postcss-modules-extract-imports@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-1.2.0.tgz#66140ecece38ef06bf0d3e355d69bf59d141ea85"
   dependencies:
     postcss "^6.0.1"
 
-postcss-modules-local-by-default@^1.2.0:
+postcss-modules-local-by-default@^1.0.1, postcss-modules-local-by-default@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-local-by-default/-/postcss-modules-local-by-default-1.2.0.tgz#f7d80c398c5a393fa7964466bd19500a7d61c069"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     postcss "^6.0.1"
 
-postcss-modules-scope@^1.1.0:
+postcss-modules-scope@^1.0.0, postcss-modules-scope@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-scope/-/postcss-modules-scope-1.1.0.tgz#d6ea64994c79f97b62a72b426fbe6056a194bb90"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     postcss "^6.0.1"
 
-postcss-modules-values@^1.3.0:
+postcss-modules-values@^1.1.0, postcss-modules-values@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-values/-/postcss-modules-values-1.3.0.tgz#ecffa9d7e192518389f42ad0e83f72aec456ea20"
   dependencies:
@@ -5159,12 +5192,6 @@ prr@~0.0.0:
 prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
-
-pruner@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/pruner/-/pruner-0.0.7.tgz#345fbcb3e80701163a1d7adf56bac229a5a1e4c1"
-  dependencies:
-    fs-extra "^4.0.0"
 
 ps-tree@^1.1.0:
   version "1.1.0"
@@ -6237,6 +6264,13 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
+style-loader@0.20.1:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.20.1.tgz#33ac2bf4d5c65a8906bc586ad253334c246998d0"
+  dependencies:
+    loader-utils "^1.1.0"
+    schema-utils "^0.4.3"
+
 style-loader@^0.20.2, style-loader@^0.20.3:
   version "0.20.3"
   resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.20.3.tgz#ebef06b89dec491bcb1fdb3452e913a6fd1c10c4"
@@ -6350,18 +6384,6 @@ terminate@^2.1.0:
   resolved "https://registry.yarnpkg.com/terminate/-/terminate-2.1.0.tgz#a87ee424be01a1d28f2f301045043a5bcd679a05"
   dependencies:
     ps-tree "^1.1.0"
-
-thenify-all@^1.0.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/thenify-all/-/thenify-all-1.6.0.tgz#1a1918d402d8fc3f98fbf234db0bcc8cc10e9726"
-  dependencies:
-    thenify ">= 3.1.0 < 4"
-
-"thenify@>= 3.1.0 < 4":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/thenify/-/thenify-3.3.0.tgz#e69e38a1babe969b0108207978b9f62b88604839"
-  dependencies:
-    any-promise "^1.0.0"
 
 three-helpers.mouse-event-handler@^1.0.1:
   version "1.0.1"
