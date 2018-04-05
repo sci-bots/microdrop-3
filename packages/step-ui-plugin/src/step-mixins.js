@@ -178,12 +178,7 @@ StepMixins.onStepState = async function(payload, params) {
 StepMixins.onStepReorder = async function(evt) {
   const index1 = evt.oldIndex;
   const index2 = evt.newIndex;
-  let prevSteps;
-  try {
-    prevSteps = await this.getState('steps');
-  } catch (e) {
-    prevSteps = [];
-  }
+  let prevSteps = await this.getState('steps') || [];
   const item1 = _.cloneDeep(prevSteps[index1]);
   const item2 = _.cloneDeep(prevSteps[index2]);
   prevSteps[index1] = item2;
@@ -222,12 +217,8 @@ StepMixins.loadStep = async function(index, availablePlugins) {
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
-  let loadedStep;
-  try {
-    loadedStep = await this.getState('loaded-step');
-  } catch (e) {
-    loadedStep = undefined;
-  }
+  let loadedStep = await this.getState('loaded-step');
+
   if (await this.loadedStep != undefined) {
     const steps = await this.getState('steps');
     const step = steps[this.loadedStep];
@@ -361,13 +352,10 @@ StepMixins.createStep = async function (e) {
   }));
 
   // Get previous steps
-  let prevSteps;
-  try {
-    prevSteps = await this.getState('steps');
-  } catch (e) { prevSteps = []; }
+  let prevSteps = await this.getState('steps') || [];
 
   // Write current state as new step
-  state.__name__ = `Step ${prevSteps.length}`;
+  state.__name__ = `Step ${_.get(prevSteps, 'length') || 0}`;
   prevSteps.push(state);
   await this.setState('steps', prevSteps);
 }

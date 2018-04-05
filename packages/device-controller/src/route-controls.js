@@ -116,6 +116,13 @@ class RouteControls extends MicropedeClient {
   async renderRoutes(routes) {
     const LABEL = "<RouteControls::renderRoutes>";
 
+    let selectedRoutes = await this.getState('selected-routes');
+    
+    // Remove selected routes if now longer presetn
+    if (_.intersection(_.map(routes, 'uuid'), _.map(selectedRoutes, 'uuid')).length <= 0){
+      await this.setState('selected-routes', []);
+    }
+
     const group = this.electrodeControls.svgGroup;
     const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
     const electrodes = (await microdrop.triggerPlugin('device-model',

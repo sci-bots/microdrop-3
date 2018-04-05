@@ -88,7 +88,7 @@ class GlobalUIPlugin extends UIPlugin {
   }
 
   async addListeners() {
-    let prevHeight, showHidden;
+    let prevHeight;
 
     this.on("updateRequest", () => {
       let h = this.element.style.height;
@@ -96,15 +96,6 @@ class GlobalUIPlugin extends UIPlugin {
       if (h != prevHeight) prevHeight = h;
       this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
     });
-
-    try {
-      showHidden = await this.getState('show-hidden');
-    } catch (e) {
-      console.error(e);
-    }
-    if (showHidden == undefined) {
-      this.setState('show-hidden', false);
-    }
   }
 
   getEditorData() {
@@ -148,8 +139,9 @@ class GlobalUIPlugin extends UIPlugin {
     let schema;
     try {
       schema = await this.getState('schema', name);
+      if (schema == undefined) throw `Failed to get schema for: ${name}`;
     } catch (e) {
-      console.error(`Failed to get schema for: ${name}`, e);
+      console.error(e);
     }
     let showHidden = await this.getState('show-hidden');
     await ExtendSchema(schema, 'properties', showHidden);
@@ -229,7 +221,7 @@ class GlobalUIPlugin extends UIPlugin {
   }
 
 
-  listen() {
+  async listen() {
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "global-ui-plugin:change-schema";
       try {
@@ -242,6 +234,10 @@ class GlobalUIPlugin extends UIPlugin {
     this.onPutMsg('show-hidden', async (payload) => {
       await this.setState('show-hidden', payload['show-hidden']);
     });
+    let showHidden = await this.getState('show-hidden');
+    if (showHidden == undefined) {
+      this.setState('show-hidden', false);
+    }
   }
 
 }
