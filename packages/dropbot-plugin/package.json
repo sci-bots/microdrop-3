@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "@microdrop/ui-plugin": "^1.1.57",
-        "@micropede/client": "^0.0.35",
+        "@micropede/client": "^0.0.36",
         "browser-request": "^0.3.3",
         "lodash": "^4.17.5",
         "webpack": "3",

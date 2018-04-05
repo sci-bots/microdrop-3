@@ -13,7 +13,7 @@
     "@microdrop/helpers": "^1.1.57",
     "@microdrop/ui-mixins": "^1.1.57",
     "@microdrop/ui-plugin": "^1.1.57",
-    "@micropede/client": "^0.0.35",
+    "@micropede/client": "^0.0.36",
     "ajv": "^6.2.0",
     "css-loader": "^0.28.10",
     "jsoneditor": "^5.14.0",
