@@ -335,7 +335,6 @@ class StepUIPlugin extends UIPlugin {
     if (key == undefined || key == "") key = _.get(last, 'params.parent.field');
     if (key == undefined || key == "") key = _.get(last, 'params.nodes[0].field');
     let val = data[key];
-    console.log({val, key, last});
 
     // Find path to key in schema (subSchema):
     let path = _.findPath(this.editor.schema, key);

@@ -106,11 +106,13 @@ StepMixins.executeSteps = async function(btn) {
   let toggle1 = () => {
     btn.classList.remove(state1);
     btn.classList.add(state2);
+    btn.innerText = "Stop";
   };
 
   let toggle2 = () => {
     btn.classList.remove(state2);
     btn.classList.add(state1);
+    btn.innerText = "Execute";
   };
 
   if (btn.classList.contains(state2)) {
