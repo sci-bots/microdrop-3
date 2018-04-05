@@ -95,7 +95,7 @@ class StepUIPlugin extends UIPlugin {
       if (h == prevHeight) return;
       if (h != prevHeight) prevHeight = h;
       this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
-      this.steps.style.height = `${parseInt(h)-120}px`;
+      this.steps.style.height = `${parseInt(h)-190}px`;
     });
 
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});

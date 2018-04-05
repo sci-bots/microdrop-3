@@ -191,11 +191,16 @@ StepMixins.onStepReorder = async function(evt) {
 
 StepMixins.loadStep = async function(index, availablePlugins) {
   // Don't permit step load until prevStep is already loaded
+  const state = (await this.getState('steps'))[index];
   if (this.loadingStep == true) {
-    throw `A step is already loading`
+    await new Promise(res=>this.once("step-loaded", res));
   };
 
+  // Load the step data
   this.schema_hash = '';
+  let s = await this.loadStatesForStep(state, index, availablePlugins);
+  if (s.error) throw s.error;
+
   // Change unloaded steps to secondary buttons, and loaded step
   // to primary button
   let stepElements = [...this.steps.querySelectorAll('.step-main')];
@@ -211,11 +216,6 @@ StepMixins.loadStep = async function(index, availablePlugins) {
     await this.loadSchemaByPluginName(this.pluginName);
   }
 
-  // Load the step data
-  const state = (await this.getState('steps'))[index];
-  if (this.loadingStep != true) {
-    await this.loadStatesForStep(state, index, availablePlugins);
-  }
   return;
 }
 
@@ -248,18 +248,19 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
     const stepClient = new MicropedeClient(APPNAME, undefined,
       this.port, clientName);
     await Promise.race([
-      new Promise((res) => stepClient.on("connected", res)),
-      timeout(5000)
+      new Promise(async (res) =>{
+        if (this.stepClient) {
+          // Remove previous client
+          await this.stepClient.disconnectClient();
+        }
+        stepClient.on("connected", res)}),
+      timeout(500)
     ]);
     return stepClient;
   }
 
   try {
     // Create a new MicropedeClient to handles to step state
-    if (this.stepClient) {
-      // Remove previous client
-      await this.stepClient.disconnectClient();
-    }
     this.stepClient = await createClient();
     if (!this.stepClient) {
       throw `Failed to create stepClient`;
@@ -299,15 +300,18 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
             return;
           }));
         })),
-        timeout(3000)
+        timeout(1000)
       ]
     );
+    this.loadingStep = false;
+    this.trigger("step-loaded");
+    return {error: false};
   } catch (e) {
     console.error(e);
+    this.loadingStep = false;
+    this.trigger("step-loaded");
+    return {error: e || true};
   }
-  // Free up fcn for step changes once fully loaded
-  this.loadingStep = false;
-  this.trigger("step-loaded");
 }
 
 StepMixins.renameStep = async function(name, index) {
