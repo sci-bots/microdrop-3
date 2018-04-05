@@ -199,7 +199,7 @@ StepMixins.loadStep = async function(index, availablePlugins) {
   select(btn);
 
   // Change loaded step
-  this.loadedStep = index;
+  await this.setState('loaded-step', index);
 
   // If a plugin is selected, update the schemas
   if (this.pluginName) {
@@ -212,7 +212,13 @@ StepMixins.loadStep = async function(index, availablePlugins) {
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
-  if (this.loadedStep != undefined) {
+  let loadedStep;
+  try {
+    loadedStep = await this.getState('loaded-step');
+  } catch (e) {
+    loadedStep = undefined;
+  }
+  if (await this.loadedStep != undefined) {
     const steps = await this.getState('steps');
     const step = steps[this.loadedStep];
     _.set(step, [pluginName, k], payload);

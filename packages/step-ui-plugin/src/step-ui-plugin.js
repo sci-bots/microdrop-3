@@ -204,14 +204,18 @@ class StepUIPlugin extends UIPlugin {
       console.error(`Failed to get schema for: ${pluginName}`, e);
     }
 
+    let showHidden = await this.getState('show-hidden', 'global-ui-plugin');
+
     const extendSchema = (key) => {
       const keyPaths = _.findPaths(schema, 'properties');
+
       _.each(keyPaths, (keyPath) => {
         let obj = _.get(schema, keyPath);
 
         // Remove hidden keys from schema
-        obj = _.pickBy(obj, (v,k)=> {
-          if (k.slice(0,2) == '__' && k.slice(-2) == '__') return false;
+        obj = _.pickBy(obj, (v,k) => {
+          if (k.slice(0,2) == '__' && k.slice(-2) == '__' && !showHidden) return false;
+          if (_.get(v, 'hidden') == true && !showHidden) return false;
           return true;
         });
 
@@ -284,7 +288,6 @@ class StepUIPlugin extends UIPlugin {
 
   async listen() {
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
-    // const _topic = 'microdrop/file-launcher/state/last-opened-file';
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});
     });

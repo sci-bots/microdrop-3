@@ -15,6 +15,16 @@ _.findPaths = (...args) => {return FindPaths(...args)}
 const APPNAME = 'microdrop';
 const ajv = new Ajv({useDefaults: true});
 
+const GlobalSchema = {
+  type: "object",
+  properties: {
+    "show-hidden": {
+      type: "boolean",
+      default: false
+    }
+  },
+};
+
 const CreateEditor = (container, callback) => {
   return new JSONEditor(container, {
     onChange: _.debounce(callback.bind(this), 750).bind(this),
@@ -26,14 +36,16 @@ const CreateEditor = (container, callback) => {
   });
 };
 
-const ExtendSchema = (schema, key) => {
+const ExtendSchema = (schema, key, showHidden=false) => {
   const keyPaths = _.findPaths(schema, key);
+
   _.each(keyPaths, (keyPath) => {
     let obj = _.get(schema, keyPath);
 
     // Remove hidden keys from schema
     obj = _.pickBy(obj, (v,k)=> {
-      if (k.slice(0,2) == '__' && k.slice(-2) == '__') return false;
+      if (k.slice(0,2) == '__' && k.slice(-2) == '__' && !showHidden) return false;
+      if (_.get(v, 'hidden') == true && !showHidden) return false;
       return true;
     });
 
@@ -58,7 +70,8 @@ class GlobalUIPlugin extends UIPlugin {
     let items = [
       {name: 'dropbot', onclick: this.pluginChanged.bind(this)},
       {name: 'electrode-controls', onclick: this.pluginChanged.bind(this)},
-      {name: 'device-model', onclick: this.pluginChanged.bind(this)}
+      {name: 'device-model', onclick: this.pluginChanged.bind(this)},
+      {name: 'global-ui-plugin', onclick: this.pluginChanged.bind(this)}
     ];
 
     this.menu = TabMenu(items);
@@ -71,10 +84,11 @@ class GlobalUIPlugin extends UIPlugin {
     </div>`);
 
     this.addListeners();
+    this.schema = GlobalSchema;
   }
 
-  addListeners() {
-    let prevHeight;
+  async addListeners() {
+    let prevHeight, showHidden;
 
     this.on("updateRequest", () => {
       let h = this.element.style.height;
@@ -82,6 +96,15 @@ class GlobalUIPlugin extends UIPlugin {
       if (h != prevHeight) prevHeight = h;
       this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
     });
+
+    try {
+      showHidden = await this.getState('show-hidden');
+    } catch (e) {
+      console.error(e);
+    }
+    if (showHidden == undefined) {
+      this.setState('show-hidden', false);
+    }
   }
 
   getEditorData() {
@@ -128,9 +151,9 @@ class GlobalUIPlugin extends UIPlugin {
     } catch (e) {
       console.error(`Failed to get schema for: ${name}`, e);
     }
-
-    ExtendSchema(schema, 'properties');
-    ExtendSchema(schema, 'items');
+    let showHidden = await this.getState('show-hidden');
+    await ExtendSchema(schema, 'properties', showHidden);
+    await ExtendSchema(schema, 'items', showHidden);
     return schema;
   }
 
@@ -174,7 +197,7 @@ class GlobalUIPlugin extends UIPlugin {
         const p = _.findPath(schema, k);
 
         // Ignore keys marked as (TODO) hidden or where per_step != false
-        if (_.get(schema, `${p}.per_step`) == false) {
+        if (_.get(schema, `${p}.per_step`) != true) {
 
           await this.onStateMsg(item.name, k, (payload, params) => {
             delete payload.__head__;
@@ -215,6 +238,9 @@ class GlobalUIPlugin extends UIPlugin {
       } catch (e) {
         return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
       }
+    });
+    this.onPutMsg('show-hidden', async (payload) => {
+      await this.setState('show-hidden', payload['show-hidden']);
     });
   }
 
