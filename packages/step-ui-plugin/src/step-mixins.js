@@ -237,6 +237,8 @@ StepMixins.updateStep = async function(pluginName, k, payload) {
 StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
   /* Load step data into state, and listen for updates */
   availablePlugins = availablePlugins || this.plugins;
+  // TODO: Add an "omit" option to schema
+  availablePlugins = _.without(availablePlugins, 'route-controls');
 
   // Block future calls to loadStep by setting this.loadingStep to true
   this.loadingStep = true;
