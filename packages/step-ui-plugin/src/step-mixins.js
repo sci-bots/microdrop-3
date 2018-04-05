@@ -251,7 +251,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
     const clientName = `stepClient-${index}-${parseInt(Math.random()*10000)}`;
     const stepClient = new MicropedeClient(APPNAME, undefined,
       this.port, clientName);
-    await Promise.race([
+    let result = await Promise.race([
       new Promise(async (res) =>{
         if (this.stepClient) {
           // Remove previous client
@@ -265,8 +265,9 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
 
   try {
     // Create a new MicropedeClient to handles to step state
-    this.stepClient = await createClient();
-    if (!this.stepClient) {
+    try {
+      this.stepClient = await createClient();
+    } catch (e) {
       throw `Failed to create stepClient`;
     }
 
@@ -276,11 +277,14 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
         Promise.all(_.map(availablePlugins, async (p) => {
           return await Promise.all(_.map(states[p], async (v,k) => {
             try {
+              if (!_.get(this, 'stepClient.client.connected')) return;
+
               // Call a put on each key
               const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
               await microdrop.putPlugin(p, k, v);
 
               // Have step listen to any changes mode going forward:
+              if (!_.get(this, 'stepClient.client.connected')) return;
               await this.stepClient.onStateMsg(p,k, async (payload, params) => {
                 /* Maintain subscriptions to all state messages while the
                 step is loaded, and update accordingly */
