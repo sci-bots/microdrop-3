@@ -303,19 +303,21 @@ class StepUIPlugin extends UIPlugin {
 
     key('up', async (e) => {
       if (!this.hasFocus) return;
-      if (this.loadedStep <= 0) {
+      let loadedStep = await this.getState('loaded-step') || 0;
+      if (loadedStep <= 0) {
         this.loadStep((await this.getState('steps')).length-1);
       } else {
-        this.loadStep(this.loadedStep-1);
+        this.loadStep(loadedStep-1);
       }
     });
 
     key('down', async (e) => {
       if (!this.hasFocus) return;
-      if (this.loadedStep >= (await this.getState('steps')).length-1) {
+      let loadedStep = await this.getState('loaded-step') || 0;
+      if (loadedStep >= (await this.getState('steps')).length-1) {
         this.loadStep(0);
       } else {
-        this.loadStep(this.loadedStep+1);
+        this.loadStep(loadedStep+1);
       }
     });
 

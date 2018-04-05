@@ -7,7 +7,7 @@ const MicropedeAsync = require('@micropede/client/src/async.js');
 const APPNAME = 'microdrop';
 
 const StepMixins = {};
-const timeout = ms => new Promise(res => setTimeout(res, ms))
+const timeout = ms => new Promise((__,rej) => setTimeout(rej, ms))
 
 const unselect = (b) => {
   b.classList.remove("btn-primary");
@@ -138,7 +138,7 @@ StepMixins.executeSteps = async function(btn) {
     if (subs.length > 0 ) executablePlugins.push(p);
   }));
 
-  for (let i = this.loadedStep || 0;i<steps.length; i++ ){
+  for (let i = await this.getState('loaded-step') || 0;i<steps.length; i++ ){
     if (!this.running) break;
     await this.loadStep(i, availablePlugins);
     const routes = await this.getState('routes', 'routes-model');
@@ -157,9 +157,9 @@ StepMixins.executeSteps = async function(btn) {
   console.log("Done!");
 }
 
-StepMixins.onStepState = function(payload, params) {
+StepMixins.onStepState = async function(payload, params) {
   const steps = payload;
-  const loadedStep = this.loadedStep;
+  const loadedStep = await this.getState('loaded-step');
   this.steps.innerHTML = "";
 
   _.each(steps, (s, i) => {
@@ -190,6 +190,11 @@ StepMixins.onStepReorder = async function(evt) {
 }
 
 StepMixins.loadStep = async function(index, availablePlugins) {
+  // Don't permit step load until prevStep is already loaded
+  if (this.loadingStep == true) {
+    throw `A step is already loading`
+  };
+
   this.schema_hash = '';
   // Change unloaded steps to secondary buttons, and loaded step
   // to primary button
@@ -208,7 +213,10 @@ StepMixins.loadStep = async function(index, availablePlugins) {
 
   // Load the step data
   const state = (await this.getState('steps'))[index];
-  return await this.loadStatesForStep(state, index, availablePlugins);
+  if (this.loadingStep != true) {
+    await this.loadStatesForStep(state, index, availablePlugins);
+  }
+  return;
 }
 
 StepMixins.updateStep = async function(pluginName, k, payload) {
@@ -230,44 +238,76 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
   /* Load step data into state, and listen for updates */
   availablePlugins = availablePlugins || this.plugins;
 
-  // Create another client in the background as to not override the schema
-  // plugin
-  const clientName = `stepClient-${index}-${parseInt(Math.random()*10000)}`;
-  if (this.stepClient) {
-    try {
-      await this.stepClient.disconnectClient();
-    } catch (e) {}
-    delete this.stepClient;
+  // Block future calls to loadStep by setting this.loadingStep to true
+  this.loadingStep = true;
+
+  const createClient = async () => {
+    /* Create another client in the background as to not override the schema
+       plugin */
+    const clientName = `stepClient-${index}-${parseInt(Math.random()*10000)}`;
+    const stepClient = new MicropedeClient(APPNAME, undefined,
+      this.port, clientName);
+    await Promise.race([
+      new Promise((res) => stepClient.on("connected", res)),
+      timeout(5000)
+    ]);
+    return stepClient;
   }
-  this.stepClient = new MicropedeClient(APPNAME, undefined,
-    this.port, clientName);
 
-  await Promise.race([
-    new Promise((res) => this.stepClient.once("connected", res)),
-    timeout(5000)
-  ]);
+  try {
+    // Create a new MicropedeClient to handles to step state
+    if (this.stepClient) {
+      // Remove previous client
+      await this.stepClient.disconnectClient();
+    }
+    this.stepClient = await createClient();
+    if (!this.stepClient) {
+      throw `Failed to create stepClient`;
+    }
 
-  // await new Promise((res) => this.stepClient.on("connected", res));
+    // Iterate through each plugin + key
+    await Promise.race(
+      [
+        Promise.all(_.map(availablePlugins, async (p) => {
+          return await Promise.all(_.map(states[p], async (v,k) => {
+            try {
+              // Call a put on each key
+              const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+              await microdrop.putPlugin(p, k, v);
 
-  // Iterate through each plugin + key
-  return await Promise.all(_.map(availablePlugins, async (p) => {
-    return await Promise.all(_.map(states[p], async (v,k) => {
+              // Have step listen to any changes mode going forward:
+              await this.stepClient.onStateMsg(p,k, async (payload, params) => {
+                /* Maintain subscriptions to all state messages while the
+                step is loaded, and update accordingly */
+                if ((await this.getState('loaded-step')) != index) {
+                  this.trigger(`${p}-${k}`);
+                  return;
+                }
+                const steps = await this.getState('steps');
+                const step = steps[index];
+                _.set(step, [p,k], payload);
+                await this.setState('steps',steps);
 
-      // Call a put on each key
-      const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-      try { await microdrop.putPlugin(p, k, v); }
-      catch (e) { console.error(e, {p,k,v});}
-
-      // Listen for changes
-      this.stepClient.onStateMsg(p,k, async (payload, params) => {
-        const steps = await this.getState('steps');
-        const step = steps[index];
-        _.set(step, [p,k], payload);
-        this.setState('steps',steps);
-      });
-      return;
-    }));
-  }));
+                // Trigger an event on the data has been loaded:
+                this.trigger(`${p}-${k}`);
+              });
+              // Don't resolve until some state data has come int
+              await new Promise(res => this.once(`${p}-${k}`, res));
+            } catch (e) {
+              console.error(e, {p,k,v});
+            }
+            return;
+          }));
+        })),
+        timeout(3000)
+      ]
+    );
+  } catch (e) {
+    console.error(e);
+  }
+  // Free up fcn for step changes once fully loaded
+  this.loadingStep = false;
+  this.trigger("step-loaded");
 }
 
 StepMixins.renameStep = async function(name, index) {
