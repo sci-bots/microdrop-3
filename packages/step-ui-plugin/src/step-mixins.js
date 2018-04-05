@@ -300,7 +300,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
             return;
           }));
         })),
-        timeout(1000)
+        new Promise(res => setTimeout(res, 1000))
       ]
     );
     this.loadingStep = false;
