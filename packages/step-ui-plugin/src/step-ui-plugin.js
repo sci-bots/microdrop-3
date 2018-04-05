@@ -332,6 +332,8 @@ class StepUIPlugin extends UIPlugin {
     let key = _.get(last, 'params.node.field');
     // If no key, then likely dealing with a list property
     if (key == undefined) key = _.get(last, 'params.node.parent.field');
+    if (key == undefined) key = _.get(last, 'params.parent.field');
+    if (key == undefined) key = _.get(last, 'params.nodes[0].field');
     let val = data[key];
 
     // Find path to key in schema (subSchema):
