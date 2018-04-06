@@ -192,6 +192,12 @@ StepMixins.loadStep = async function(index, availablePlugins, _reverting=false) 
   const prevStep = await this.getState('loaded-step') || 0;
   const state = (await this.getState('steps'))[index];
   if (this.loadingStep == true) return;
+  if (this.editorUpdating == true) {
+    await Promice.race([
+      new Promise(res=>this.once("editor-updated", res)),
+      new Promise(res=>setTimeout(res, 500))
+    ]);
+  }
 
   try {
     // Load the step data

@@ -83,7 +83,10 @@ class StepUIPlugin extends UIPlugin {
     this.json = {};
     this.schema_hash = '';
     this.editor = new JSONEditor(this.content, {
-      onChange: _.debounce(this.onChange.bind(this), 750).bind(this),
+      onChange: () => {
+        this.editorUpdating = true;
+        _.debounce(this.onChange.bind(this), 750).bind(this)();
+      },
       navigationBar: false,
       statusBar: false,
       search: false,
@@ -324,37 +327,46 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async onChange(...args) {
-    const last = _.last(_.get(this.editor, 'history.history'));
-    const data = this.editor.get();
-    const validate = ajv.compile(this.editor.schema);
-    if (!validate(data)) throw(validate.errors);
+    this.editorUpdating = true;
+    try {
+      const last = _.last(_.get(this.editor, 'history.history'));
+      const data = this.editor.get();
+      const validate = ajv.compile(this.editor.schema);
+      if (!validate(data)) throw(validate.errors);
 
-    let key = _.get(last, 'params.node.field');
-    // If no key, then likely dealing with a list property
-    if (key == undefined || key == "") key = _.get(last, 'params.node.parent.field');
-    if (key == undefined || key == "") key = _.get(last, 'params.parent.field');
-    if (key == undefined || key == "") key = _.get(last, 'params.nodes[0].field');
-    let val = data[key];
+      let key = _.get(last, 'params.node.field');
+      // If no key, then likely dealing with a list property
+      if (key == undefined || key == "") key = _.get(last, 'params.node.parent.field');
+      if (key == undefined || key == "") key = _.get(last, 'params.parent.field');
+      if (key == undefined || key == "") key = _.get(last, 'params.nodes[0].field');
+      let val = data[key];
 
-    // Find path to key in schema (subSchema):
-    let path = _.findPath(this.editor.schema, key);
-    const subSchema = _.get(this.editor.schema, path);
+      // Find path to key in schema (subSchema):
+      let path = _.findPath(this.editor.schema, key);
+      const subSchema = _.get(this.editor.schema, path);
 
-    // If subSchema depends on parent prop, change key accordingly
-    if (_.get(subSchema, 'set_with')) {
-      key = subSchema.set_with;
-      val = data[key];
+      // If subSchema depends on parent prop, change key accordingly
+      if (_.get(subSchema, 'set_with')) {
+        key = subSchema.set_with;
+        val = data[key];
+      }
+
+      // Ignore variables for now
+      if (`${val}`[0] == '$') return;
+
+      const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
+      const msg = {};
+
+      await this.sendMessage(topic, {[key]: val});
+    } catch (e) {
+      console.error(e);
     }
-
-    // Ignore variables for now
-    if (`${val}`[0] == '$') return;
-
-    const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
-    const msg = {};
-
-    await this.sendMessage(topic, {[key]: val});
+    // XXX: Add delay before allowing editor to update again
+    setTimeout(()=> {
+      this.editorUpdating = false;
+      this.trigger("editor-updated");
+    }, 500);
   }
-
 }
 
 const Styles = {
