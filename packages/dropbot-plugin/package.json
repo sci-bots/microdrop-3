@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.1.58",
+    "version": "1.1.60",
     "main": "python dropbot_plugin/__init__.py",
     "license": "BSD-2-Clause",
     "keywords": [
@@ -15,7 +15,7 @@
         "build": "./node_modules/.bin/webpack && yac install && yarn dev || exit 0"
     },
     "dependencies": {
-        "@microdrop/ui-plugin": "^1.1.58",
+        "@microdrop/ui-plugin": "^1.1.60",
         "@micropede/client": "^0.0.37",
         "browser-request": "^0.3.3",
         "lodash": "^4.17.5",
