@@ -183,36 +183,41 @@ StepMixins.onStepReorder = async function(evt) {
   const item2 = _.cloneDeep(prevSteps[index2]);
   prevSteps[index1] = item2;
   prevSteps[index2] = item1;
-  this.setState('steps', prevSteps);
+  await this.setState('steps', prevSteps);
+  await this.setState('loaded-step', index2);
 }
 
-StepMixins.loadStep = async function(index, availablePlugins) {
+StepMixins.loadStep = async function(index, availablePlugins, _reverting=false) {
   // Don't permit step load until prevStep is already loaded
+  const prevStep = await this.getState('loaded-step') || 0;
   const state = (await this.getState('steps'))[index];
-  if (this.loadingStep == true) {
-    await new Promise(res=>this.once("step-loaded", res));
-  };
+  if (this.loadingStep == true) return;
 
-  // Load the step data
-  this.schema_hash = '';
-  let s = await this.loadStatesForStep(state, index, availablePlugins);
-  if (s.error) throw s.error;
+  try {
+    // Load the step data
+    this.schema_hash = '';
+    let s = await this.loadStatesForStep(state, index, availablePlugins);
+    if (s.error) throw s.error;
 
-  // Change unloaded steps to secondary buttons, and loaded step
-  // to primary button
-  let stepElements = [...this.steps.querySelectorAll('.step-main')];
-  let btn = this.steps.querySelector(`#step-${index}`);
-  _.each(stepElements, unselect);
-  select(btn);
+    // Change unloaded steps to secondary buttons, and loaded step
+    // to primary button
+    let stepElements = [...this.steps.querySelectorAll('.step-main')];
+    let btn = this.steps.querySelector(`#step-${index}`);
+    _.each(stepElements, unselect);
+    select(btn);
 
-  // Change loaded step
-  await this.setState('loaded-step', index);
+    // Change loaded step
+    await this.setState('loaded-step', index);
 
-  // If a plugin is selected, update the schemas
-  if (this.pluginName) {
-    await this.loadSchemaByPluginName(this.pluginName);
+    // If a plugin is selected, update the schemas
+    if (this.pluginName) {
+      await this.loadSchemaByPluginName(this.pluginName);
+    }
+  } catch (e) {
+    // If error occurs during load, revert to previous step
+    if (_reverting == false)
+      await this.loadStep(prevStep, availablePlugins, true);
   }
-
   return;
 }
 
@@ -235,6 +240,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
 
   // Block future calls to loadStep by setting this.loadingStep to true
   this.loadingStep = true;
+  let waitingFor = [];
 
   const createClient = async () => {
     /* Create another client in the background as to not override the schema
@@ -249,7 +255,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
           await this.stepClient.disconnectClient();
         }
         stepClient.on("connected", res)}),
-      timeout(500)
+      timeout(1200)
     ]);
     return stepClient;
   }
@@ -268,6 +274,7 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
         Promise.all(_.map(availablePlugins, async (p) => {
           return await Promise.all(_.map(states[p], async (v,k) => {
             try {
+              waitingFor.push({p,k});
               if (!_.get(this, 'stepClient.client.connected')) return;
 
               // Set the state of each plugin to match step
@@ -292,13 +299,20 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
               });
               // Don't resolve until some state data has come int
               await new Promise(res => this.once(`${p}-${k}`, res));
+              _.remove(waitingFor, {p,k});
             } catch (e) {
               console.error(e, {p,k,v});
             }
             return;
           }));
         })),
-        new Promise(res => setTimeout(res, 1000))
+        new Promise((res,rej) => setTimeout(()=>{
+          if (waitingFor.length != 0) {
+            console.error("Not all states updated correctly:");
+            console.error({waitingFor});
+          }
+          rej({waitingFor});
+        }, 2500))
       ]
     );
     this.loadingStep = false;

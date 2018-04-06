@@ -2,7 +2,7 @@
     "name": "@microdrop/builder",
     "productName": "MicroDrop",
     "author": "Sci-Bots",
-    "version": "1.1.59",
+    "version": "1.1.60",
     "description": "Digital Microfluidic Control Software",
     "main": "node_modules/@microdrop/application/bin/microdrop",
     "scripts": {
@@ -19,7 +19,7 @@
         "electron-packager": "^12.0.0"
     },
     "dependencies": {
-        "@microdrop/application": "^1.1.59",
+        "@microdrop/application": "^1.1.60",
         "yarn.lock": "^1.0.3"
     },
     "build": {
