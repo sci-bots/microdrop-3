@@ -270,9 +270,8 @@ StepMixins.loadStatesForStep = async function(states, index, availablePlugins) {
             try {
               if (!_.get(this, 'stepClient.client.connected')) return;
 
-              // Call a put on each key
-              const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-              await microdrop.putPlugin(p, k, v);
+              // Set the state of each plugin to match step
+              await this.dangerouslySetState(k,v,p);
 
               // Have step listen to any changes mode going forward:
               if (!_.get(this, 'stepClient.client.connected')) return;

@@ -24,6 +24,10 @@ const argv = require('yargs')
     describe: 'Dont load electron ui',
     type: 'boolean'
   })
+  .option('debug', {
+    describe: 'Open with debug console',
+    type: 'boolean'
+  })
   .default('http-port', env.HTTP_PORT)
   .default('mqtt-ws-port', env.MQTT_WS_PORT)
   .default('mqtt-tcp-port', env.MQTT_TCP_PORT)
@@ -47,6 +51,7 @@ const argv = require('yargs')
     process.exit();
   })
   .command('$0 [file]', 'the default command', () => {}, (argv) => {
-    MicroDrop(electron, Ports(argv), argv.withPlugins, argv.file, !argv.headless);
+    MicroDrop(electron, Ports(argv), argv.withPlugins, argv.file,
+      !argv.headless, undefined, argv.debug);
   })
   .argv;

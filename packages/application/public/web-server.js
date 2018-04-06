@@ -205,7 +205,34 @@ class WebServer extends MicropedeClient {
       }
     });
 
+    this.post('/set-state', (req, res) => {
+      /* Sets state of microdrop directly via local storage */
+      const LABEL = 'webserver:set-state';
+      try {
+        // Parse request
+        const {plugin, key, val} = req.body;
+
+        // Convert into mosca message
+        let msg = {};
+        msg.topic = `${APPNAME}/${plugin}/state/${key}`;
+        msg.payload = Buffer.from(JSON.stringify(val));
+        msg.messageId = `id_${parseInt(Math.random()*1e10)}`;
+        msg.qos = 0;
+        msg.retain = true;
+
+        // Encode and write to storage
+        const storageKey = `${APPNAME}!!retained!${APPNAME}/${plugin}/state/${key}`;
+        const encodedVal = `Buff:${d64.encode(msgpack.encode(msg).slice())}`;
+        this.storage.setItem(storageKey, encodedVal);
+        res.send({plugin, key, encodedVal});
+      } catch (e) {
+        console.error(LABEL, e);
+        res.status(500).json({error: e.toString()});
+      }
+    });
+
     this.get('/write-state', (req, res) => {
+      /* Depricating for set-state */
       const LABEL = 'webserver:write-key-to-storage';
       try {
         const pluginName = req.query["pluginName"];
