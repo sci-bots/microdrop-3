@@ -378,7 +378,7 @@ StepMixins.getStateForPlugin = async (pluginName, schema) => {
     try {
       return {k: prop, v: await this.getState(prop, pluginName)};
     } catch (e) {
-      console.warn(`Could not fetch ${plugnName} ${k} . Will not be adding to editor`);
+      console.warn(`Could not fetch ${pluginName} ${prop}. Will not be adding to editor`);
       return undefined;
     }
   })));
