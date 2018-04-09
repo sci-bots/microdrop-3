@@ -82,11 +82,9 @@ class ElectrodesModel extends MicropedeClient {
   }
 
   async listen() {
-    try {
-      await this.getState('min-duration');
-    } catch (e) {
+    let minDuration = await this.getState('min-duration');
+    if (minDuration == undefined)
       await this.loadDefaults({keys: ['min-duration']});
-    }
 
     this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
     this.onPutMsg("min-duration", this.putMinDuration.bind(this));
@@ -163,11 +161,7 @@ class ElectrodesModel extends MicropedeClient {
       const connectedElectrodes = channels[electrodeChannel];
 
       // Get all the currently active electrodes
-      let activeElectrodes;
-      try {
-        // activeElectrodes = await microdrop.electrodes.activeElectrodes(500);
-        activeElectrodes = await this.getState('active-electrodes');
-      } catch (e) { activeElectrodes = [] }
+      let activeElectrodes = await this.getState('active-electrodes') || [];
 
       // Add or remove the connected electrodes depending on state
       if (state == true)  {

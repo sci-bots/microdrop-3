@@ -74,11 +74,8 @@ class DeviceModel extends MicropedeClient {
 
   async listen() {
     // Load defaults:
-    try {
-      await this.getState('max-distance');
-    } catch (e) {
-      await this.loadDefaults({keys: ['max-distance']});
-    }
+    let maxDistance = await this.getState('max-distance');
+    if (maxDistance == undefined) await this.loadDefaults({keys: ['max-distance']});
 
     this.onStateMsg('device-model', 'ppi', this.setPPI.bind(this));
     this.onStateMsg("device-model", "three-object", this.setThreeObject.bind(this));
@@ -101,11 +98,8 @@ class DeviceModel extends MicropedeClient {
   async loadDefaultDevice(payload, params) {
     const LABEL = 'device-model:loadDefaultDevice'; console.log(LABEL);
     try {
-      let threeObject;
-
-      try {
-        threeObject = await this.getState('threeObject');
-      } catch (e) {
+      let threeObject = await this.getState('threeObject');
+      if (threeObject == undefined) {
         threeObject = require(path.resolve(__dirname, 'default.json'));
         await this.putThreeObject({threeObject});
       }
@@ -232,12 +226,7 @@ class DeviceModel extends MicropedeClient {
       if (!this.group) throw("group undefined");
       if (!payload.electrodeId) throw("expected 'electrodeId' in payload");
       const electrodeId = payload.electrodeId;
-      let maxDistance;
-      try {
-        maxDistance = await this.getState('max-distance');
-      } catch (e) {
-        maxDistance = ElectrodeControls.MAX_DISTANCE;
-      }
+      let maxDistance = await this.getState('max-distance') || ElectrodeControls.MAX_DISTANCE;
       const neighbours = ElectrodeControls.FindAllNeighbours(this.group, electrodeId, maxDistance);
       return this.notifySender(payload, neighbours,
         "get-neighbouring-electrodes");
@@ -268,12 +257,8 @@ class DeviceModel extends MicropedeClient {
     try {
       payload = this.validateOverlay(payload);
 
-      let overlays;
-      try {
-        overlays = await this.getState("overlays");
-      } catch (e) {
-        overlays = [];
-      }
+      let overlays = await this.getState("overlays") || [];
+
       const index = _.findIndex(overlays, {name: payload.name});
       if (index == -1) {
         overlays.push(payload);

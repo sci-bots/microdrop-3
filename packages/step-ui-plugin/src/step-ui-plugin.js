@@ -3,15 +3,11 @@ window.Popper = require('popper.js');
 require('bootstrap/dist/css/bootstrap.min.css');
 require('bootstrap/js/dist/tooltip.js');
 require('open-iconic/font/css/open-iconic-bootstrap.css');
-require('./jsoneditorstyles.js');
 
-const Ajv = require('ajv');
 const FileSaver = require('file-saver');
 const generateName = require('sillyname');
-const JSONEditor = require('jsoneditor');
 const key = require("keyboard-shortcut");
 const request = require('browser-request');
-const sha256 = require('sha256');
 const Sortable = require('sortablejs');
 const yo = require('yo-yo');
 const _ = require('lodash');
@@ -21,8 +17,8 @@ const {TabMenu, select, unselect} = require('@microdrop/ui-mixins/src/TabMenu.js
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const {DumpStack} = require('@micropede/client/src/client.js');
 const APPNAME = 'microdrop';
-const ajv = new Ajv({useDefaults: true});
 
+const JsonEditorMixins = require('@microdrop/jsoneditor-mixins');
 const StepMixins = require('./step-mixins');
 
 const {FindPath, FindPaths} = require('@microdrop/helpers');
@@ -33,12 +29,15 @@ class StepUIPlugin extends UIPlugin {
   constructor(elem, focusTracker, ...args) {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
+    _.extend(this, JsonEditorMixins);
     this.plugins = ["routes-model", "route-controls", "electrodes-model"];
 
+    const changeSchema = (item) => this.pluginInEditorChanged(item, 'step');
+
     let items = [
-      {name: 'routes-model', onclick: this.changeSchema.bind(this)},
-      {name: 'route-controls', onclick: this.changeSchema.bind(this)},
-      {name: 'electrodes-model', onclick: this.changeSchema.bind(this)}
+      {name: 'routes-model', onclick: changeSchema.bind(this)},
+      {name: 'route-controls', onclick: changeSchema.bind(this)},
+      {name: 'electrodes-model', onclick: changeSchema.bind(this)}
     ];
 
     let btns = [
@@ -82,16 +81,8 @@ class StepUIPlugin extends UIPlugin {
 
     this.json = {};
     this.schema_hash = '';
-    this.editor = new JSONEditor(this.content, {
-      onChange: () => {
-        this.editorUpdating = true;
-        _.debounce(this.onChange.bind(this), 750).bind(this)();
-      },
-      navigationBar: false,
-      statusBar: false,
-      search: false,
-      indentation: 0
-    });
+    this.editor = this.createEditor(this.content);
+
     let prevHeight;
     this.on("updateRequest", () => {
       let h = this.element.style.height;
@@ -140,155 +131,6 @@ class StepUIPlugin extends UIPlugin {
     fileinput.click();
   }
 
-  async changeSchema(item) {
-    // Reset client
-    await this.disconnectClient();
-    await this.connectClient(this.clientId, this.host, this.port);
-
-    this.pluginName = item.name;
-    let pluginBtns = [...this.menu.querySelectorAll('.tab-btn')];
-    let selectedBtn = this.menu.querySelector(`#tab-${this.pluginName}`);
-
-    // Change the select button to the one containing this plugin name
-    _.each(pluginBtns, unselect);
-    select(selectedBtn);
-
-    await this.loadSchemaByPluginName(this.pluginName);
-  }
-
-  async getStateForPlugin(pluginName, schema) {
-    // Get all subscriptions for the schema
-    const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-    let subs = await microdrop.getSubscriptions(pluginName, 300);
-
-    // Filter subscriptions for those that match a put endpoint
-    let puttableProperties = _.compact(_.map(subs, (s) => {
-      if (_.includes(s, '/put/')) {
-        return s.split(`${APPNAME}/put/${pluginName}/`)[1];
-      }
-    }));
-
-    // Await the state of every property that has a subscription
-    let state = {};
-    let dat = _.compact(await Promise.all(_.map(puttableProperties, async (prop) => {
-      try {
-        return {k: prop, v: await this.getState(prop, pluginName)};
-      } catch (e) {
-        console.warn(`Could not fetch ${plugnName} ${k} . Will not be adding to editor`);
-        return undefined;
-      }
-    })));
-    _.each(dat, (o) => {state[o.k] = o.v});
-
-    // Validate against the schema (which also applies defaults)
-    let validate = ajv.compile(schema);
-    validate(state);
-
-    // Remove hidden properties, and those that are not changeable on a
-    // per step basis
-    _.each(_.keys(state), (k) => {
-      if (k.slice(0,2) == '__' && k.slice(-2) == '__') {
-        delete state[k];
-      } else {
-        // Get path to prop in schema:
-        const p = _.findPath(schema, k);
-        if (_.get(schema, `${p}.per_step`) == false)
-          delete state[k];
-      }
-    });
-    return state;
-  }
-
-  async getSchema(pluginName) {
-    let schema;
-    try {
-      schema = await this.getState('schema', pluginName);
-    } catch (e) {
-      console.error(`Failed to get schema for: ${pluginName}`, e);
-    }
-
-    let showHidden = await this.getState('show-hidden', 'global-ui-plugin');
-
-    const extendSchema = (key) => {
-      const keyPaths = _.findPaths(schema, 'properties');
-
-      _.each(keyPaths, (keyPath) => {
-        let obj = _.get(schema, keyPath);
-
-        // Remove hidden keys from schema
-        obj = _.pickBy(obj, (v,k) => {
-          if (k.slice(0,2) == '__' && k.slice(-2) == '__' && !showHidden) return false;
-          if (_.get(v, 'hidden') == true && !showHidden) return false;
-          return true;
-        });
-
-        // Extend schema obj to include variables:
-        _.each(obj, (v,k) => {
-          if (_.includes(v.type, 'string')) return;
-          if (_.isArray(v.type))  v.type.push("string");
-          if (!_.isArray(v.type)) v.type = [v.type, "string"];
-          obj[k].type = _.uniq(v.type);
-          obj[k].pattern = v.pattern || '^[\$]';
-        });
-
-        _.set(schema, keyPath, obj);
-      });
-    }
-
-    extendSchema('properties');
-    extendSchema('items');
-
-    return schema;
-  }
-
-  async loadSchemaByPluginName(pluginName) {
-    const schema = await this.getSchema(pluginName);
-
-    // XXX: Sometimes it is necessary
-    // Only update when schema has changed
-    // let hash = sha256(JSON.stringify(schema));
-    // if (hash == this.schema_hash) return;
-    // else {
-    //   this.schema_hash = hash;
-    // }
-
-    // Iterate through properties, and check for a subscription,
-    // otherwise add one
-    const subscriptions = this.subscriptions;
-
-    await Promise.all(_.map(schema.properties, async (v,k) => {
-      if (_.includes(this.subscriptions, `${APPNAME}/${pluginName}/state/${k}`)) {
-        return
-      } else {
-        this.json = {};
-        const p = _.findPath(schema, k);
-
-        // Ignore keys marked as (TODO) hidden or where per_step == false
-        if (_.get(schema, `${p}.per_step`) != false) {
-          await this.onStateMsg(pluginName, k, (payload, params) => {
-            this.json[k] = payload;
-            // Only re-draw if the current displayed content differs from
-            // the new payload
-            let prevHash = sha256(JSON.stringify(this.editor.get()));
-            let hash = sha256(JSON.stringify(this.json));
-
-            if (hash != prevHash) {
-              this.editor.set(this.json);
-              this.editor.expandAll();
-            }
-
-          });
-          this.json[k] = v.default;
-        }
-        // Update the schema and json data in the editor
-        this.editor.setSchema(schema);
-        this.editor.set(this.json);
-        this.editor.expandAll();
-        this.editor.schema = schema;
-      }
-    }));
-  }
-
   async listen() {
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
@@ -297,7 +139,7 @@ class StepUIPlugin extends UIPlugin {
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "step-ui-plugin:change-schema";
       try {
-        await this.changeSchema(payload);
+        await this.pluginInEditorChanged(payload, 'step');
         return this.notifySender(payload, 'done', "change-schema");
       } catch (e) {
         return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
@@ -326,47 +168,6 @@ class StepUIPlugin extends UIPlugin {
 
   }
 
-  async onChange(...args) {
-    this.editorUpdating = true;
-    try {
-      const last = _.last(_.get(this.editor, 'history.history'));
-      const data = this.editor.get();
-      const validate = ajv.compile(this.editor.schema);
-      if (!validate(data)) throw(validate.errors);
-
-      let key = _.get(last, 'params.node.field');
-      // If no key, then likely dealing with a list property
-      if (key == undefined || key == "") key = _.get(last, 'params.node.parent.field');
-      if (key == undefined || key == "") key = _.get(last, 'params.parent.field');
-      if (key == undefined || key == "") key = _.get(last, 'params.nodes[0].field');
-      let val = data[key];
-
-      // Find path to key in schema (subSchema):
-      let path = _.findPath(this.editor.schema, key);
-      const subSchema = _.get(this.editor.schema, path);
-
-      // If subSchema depends on parent prop, change key accordingly
-      if (_.get(subSchema, 'set_with')) {
-        key = subSchema.set_with;
-        val = data[key];
-      }
-
-      // Ignore variables for now
-      if (`${val}`[0] == '$') return;
-
-      const topic = `${APPNAME}/put/${this.pluginName}/${key}`;
-      const msg = {};
-
-      await this.sendMessage(topic, {[key]: val});
-    } catch (e) {
-      console.error(e);
-    }
-    // XXX: Add delay before allowing editor to update again
-    setTimeout(()=> {
-      this.editorUpdating = false;
-      this.trigger("editor-updated");
-    }, 500);
-  }
 }
 
 const Styles = {

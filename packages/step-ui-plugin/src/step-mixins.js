@@ -1,3 +1,4 @@
+const Ajv = require('ajv');
 const uuid = require('uuid/v4');
 const yo = require('yo-yo');
 const _ = require('lodash');
@@ -5,6 +6,7 @@ const {MicropedeClient} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 
 const APPNAME = 'microdrop';
+const ajv = new Ajv({useDefaults: true});
 
 const StepMixins = {};
 const timeout = ms => new Promise((__,rej) => setTimeout(rej, ms))
@@ -217,10 +219,12 @@ StepMixins.loadStep = async function(index, availablePlugins, _reverting=false) 
 
     // If a plugin is selected, update the schemas
     if (this.pluginName) {
-      await this.loadSchemaByPluginName(this.pluginName);
+      await this.pluginInEditorChanged({name: this.pluginName}, 'step');
     }
   } catch (e) {
     // If error occurs during load, revert to previous step
+    console.error("Error occured during load, reverting to prev step.");
+    console.error(e);
     if (_reverting == false)
       await this.loadStep(prevStep, availablePlugins, true);
   }
@@ -354,6 +358,49 @@ StepMixins.deleteStep = async function(index, step, e) {
 
   prevSteps.splice(index, 1);
   this.setState('steps', prevSteps);
+}
+
+StepMixins.getStateForPlugin = async (pluginName, schema) => {
+  // Get all subscriptions for the schema
+  const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
+  let subs = await microdrop.getSubscriptions(pluginName, 300);
+
+  // Filter subscriptions for those that match a put endpoint
+  let puttableProperties = _.compact(_.map(subs, (s) => {
+    if (_.includes(s, '/put/')) {
+      return s.split(`${APPNAME}/put/${pluginName}/`)[1];
+    }
+  }));
+
+  // Await the state of every property that has a subscription
+  let state = {};
+  let dat = _.compact(await Promise.all(_.map(puttableProperties, async (prop) => {
+    try {
+      return {k: prop, v: await this.getState(prop, pluginName)};
+    } catch (e) {
+      console.warn(`Could not fetch ${plugnName} ${k} . Will not be adding to editor`);
+      return undefined;
+    }
+  })));
+  _.each(dat, (o) => {state[o.k] = o.v});
+
+  // Validate against the schema (which also applies defaults)
+  let validate = ajv.compile(schema);
+  validate(state);
+
+  // Remove hidden properties, and those that are not changeable on a
+  // per step basis
+  _.each(_.keys(state), (k) => {
+    if (k.slice(0,2) == '__' && k.slice(-2) == '__') {
+      delete state[k];
+    } else {
+      // Get path to prop in schema:
+      const p = _.findPath(schema, k);
+      if (_.get(schema, `${p}.per_step`) == false)
+        delete state[k];
+    }
+  });
+  return state;
 }
 
 StepMixins.createStep = async function (e) {

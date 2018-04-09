@@ -227,10 +227,8 @@ class RoutesModel extends MicropedeClient {
         'electrodes-from-routes', {routes: [route]}))[0];
 
       // Get previously stored routes (if failure then set to empty array)
-      let routes;
-      try {
-        routes = await this.getState('routes');
-      } catch (e) { routes = []; }
+      let routes = await this.getState('routes');
+      if (routes == undefined) routes = [];
 
       // Check if route exists, and if so override
       var index = _.findIndex(routes, {uuid: route.uuid});

@@ -14,6 +14,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@microdrop/helpers": "^1.1.57",
+    "@microdrop/jsoneditor-mixins": "^1.1.60",
     "@microdrop/ui-mixins": "^1.1.58",
     "@microdrop/ui-plugin": "^1.1.60",
     "@micropede/client": "^0.0.37",
@@ -23,7 +24,6 @@
     "css-loader": "0.28.7",
     "file-saver": "^1.3.3",
     "jquery": "^3.3.1",
-    "jsoneditor": "^5.14.0",
     "keyboard-shortcut": "^1.2.0",
     "open-iconic": "^1.1.1",
     "popper.js": "^1.14.3",
