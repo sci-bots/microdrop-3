@@ -360,7 +360,7 @@ StepMixins.deleteStep = async function(index, step, e) {
   this.setState('steps', prevSteps);
 }
 
-StepMixins.getStateForPlugin = async (pluginName, schema) => {
+StepMixins.getStateForPlugin = async function(pluginName, schema) {
   // Get all subscriptions for the schema
   const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
   let subs = await microdrop.getSubscriptions(pluginName, 300);
@@ -376,12 +376,16 @@ StepMixins.getStateForPlugin = async (pluginName, schema) => {
   let state = {};
   let dat = _.compact(await Promise.all(_.map(puttableProperties, async (prop) => {
     try {
-      return {k: prop, v: await this.getState(prop, pluginName)};
+      let k = prop;
+      let v = await this.getState(prop, pluginName);
+      if (v != undefined) return {k, v};
+      if (v == undefined) return undefined;
     } catch (e) {
-      console.warn(`Could not fetch ${pluginName} ${prop}. Will not be adding to editor`);
+      console.error(e);
       return undefined;
     }
   })));
+
   _.each(dat, (o) => {state[o.k] = o.v});
 
   // Validate against the schema (which also applies defaults)

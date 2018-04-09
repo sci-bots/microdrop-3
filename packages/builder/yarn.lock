@@ -42,16 +42,16 @@
     "7zip-bin-mac" "~1.0.1"
     "7zip-bin-win" "~2.2.0"
 
-"@microdrop/application@^1.1.60":
-  version "1.1.60"
-  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.60.tgz#a2d67e37949f9048e50e09e1370ca46cffcdaca6"
+"@microdrop/application@^1.1.62":
+  version "1.1.62"
+  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.62.tgz#2c166c0eda7d6880a24c0cbbe0847316c1e1b98d"
   dependencies:
     "@microdrop/device-controller" "^1.1.60"
     "@microdrop/device-ui-plugin" "^1.1.60"
     "@microdrop/dropbot-plugin" "^1.1.60"
-    "@microdrop/global-ui-plugin" "^1.1.60"
-    "@microdrop/models" "^1.1.60"
-    "@microdrop/step-ui-plugin" "^1.1.60"
+    "@microdrop/global-ui-plugin" "^1.1.61"
+    "@microdrop/models" "^1.1.61"
+    "@microdrop/step-ui-plugin" "^1.1.62"
     "@microdrop/ui" "^1.1.60"
     "@micropede/broker" "0.0.28"
     "@micropede/client" "0.0.37"
@@ -125,11 +125,12 @@
     webpack "3"
     yo-yo "^1.4.1"
 
-"@microdrop/global-ui-plugin@^1.1.60":
-  version "1.1.60"
-  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.60.tgz#d91ed3de28516ab6b60b7ea82726493d8d92a182"
+"@microdrop/global-ui-plugin@^1.1.61":
+  version "1.1.61"
+  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.61.tgz#3ba3a87d0c92ede62c6f7f3955e002fb888448f9"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
+    "@microdrop/jsoneditor-mixins" "^1.1.61"
     "@microdrop/ui-mixins" "^1.1.58"
     "@microdrop/ui-plugin" "^1.1.60"
     "@micropede/client" "^0.0.37"
@@ -148,9 +149,20 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/models@^1.1.60":
-  version "1.1.60"
-  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.60.tgz#4f4cf2fb4b1e1082937c0f7c10d204acaa7b25ac"
+"@microdrop/jsoneditor-mixins@^1.1.61":
+  version "1.1.61"
+  resolved "https://registry.yarnpkg.com/@microdrop/jsoneditor-mixins/-/jsoneditor-mixins-1.1.61.tgz#e999fa0213a441c658fe76694626d141d39ef4e9"
+  dependencies:
+    "@microdrop/helpers" "^1.1.57"
+    "@microdrop/ui-mixins" "^1.1.58"
+    ajv "^6.4.0"
+    jsoneditor "^5.14.1"
+    lodash "^4.17.5"
+    sha256 "^0.2.0"
+
+"@microdrop/models@^1.1.61":
+  version "1.1.61"
+  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.61.tgz#d9f8943ba44b45a49eb3c51cbfd7c64aab2166bb"
   dependencies:
     "@microdrop/device-controller" "^1.1.60"
     "@micropede/client" "0.0.37"
@@ -160,11 +172,12 @@
     three "^0.89.0"
     uuid "^3.2.1"
 
-"@microdrop/step-ui-plugin@^1.1.60":
-  version "1.1.60"
-  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.60.tgz#5bf06a898ee08e4645d8dc5bb6ab4526677d02e9"
+"@microdrop/step-ui-plugin@^1.1.62":
+  version "1.1.62"
+  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.62.tgz#c4d9627acef6daf9d86ebd5ad018b61acd0e8363"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
+    "@microdrop/jsoneditor-mixins" "^1.1.61"
     "@microdrop/ui-mixins" "^1.1.58"
     "@microdrop/ui-plugin" "^1.1.60"
     "@micropede/client" "^0.0.37"
@@ -174,7 +187,6 @@
     css-loader "0.28.7"
     file-saver "^1.3.3"
     jquery "^3.3.1"
-    jsoneditor "^5.14.0"
     keyboard-shortcut "^1.2.0"
     open-iconic "^1.1.1"
     popper.js "^1.14.3"
@@ -532,6 +544,15 @@ ajv@^6.1.0, ajv@^6.1.1, ajv@^6.2.0:
     fast-deep-equal "^1.0.0"
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
+
+ajv@^6.4.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.4.0.tgz#d3aff78e9277549771daf0164cff48482b754fc6"
+  dependencies:
+    fast-deep-equal "^1.0.0"
+    fast-json-stable-stringify "^2.0.0"
+    json-schema-traverse "^0.3.0"
+    uri-js "^3.0.2"
 
 align-text@^0.1.1, align-text@^0.1.3:
   version "0.1.4"
@@ -3666,7 +3687,7 @@ json5@^0.5.0, json5@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
 
-jsoneditor@^5.14.0:
+jsoneditor@^5.14.0, jsoneditor@^5.14.1:
   version "5.14.1"
   resolved "https://registry.yarnpkg.com/jsoneditor/-/jsoneditor-5.14.1.tgz#30fbb4b78ae431d46ab31b2d79401339a7367ad9"
   dependencies:
@@ -5287,6 +5308,10 @@ punycode@^1.2.4, punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
 
+punycode@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.0.tgz#5f863edc89b96db09074bad7947bf09056ca4e7d"
+
 q@^1.1.2:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
@@ -6732,6 +6757,12 @@ update-notifier@^2.4.0:
     latest-version "^3.0.0"
     semver-diff "^2.0.0"
     xdg-basedir "^3.0.0"
+
+uri-js@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-3.0.2.tgz#f90b858507f81dea4dcfbb3c4c3dbfa2b557faaa"
+  dependencies:
+    punycode "^2.1.0"
 
 urix@^0.1.0:
   version "0.1.0"
