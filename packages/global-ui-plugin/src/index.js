@@ -22,7 +22,6 @@ class GlobalUIPlugin extends UIPlugin {
     _.extend(this, JsonEditorMixins);
 
     let items = [
-      {name: 'dropbot', onclick: this.pluginInEditorChanged.bind(this)},
       {name: 'electrode-controls', onclick: this.pluginInEditorChanged.bind(this)},
       {name: 'device-model', onclick: this.pluginInEditorChanged.bind(this)},
       {name: 'global-ui-plugin', onclick: this.pluginInEditorChanged.bind(this)}

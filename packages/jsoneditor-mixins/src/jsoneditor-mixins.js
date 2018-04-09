@@ -65,8 +65,6 @@ JsonEditorMixins.extendSchema = function (schema, key, showHidden=false) {
 }
 
 JsonEditorMixins.createEditor = function (container, callback) {
-  console.log("this:", this);
-
   callback = callback || this.publishEditorChanges.bind(this);
   return new JSONEditor(container, {
     onChange: () => {
@@ -84,7 +82,6 @@ JsonEditorMixins.createEditor = function (container, callback) {
 JsonEditorMixins.getEditorData = function () {
   const last = _.last(_.get(this.editor, 'history.history'));
   const data = this.editor.get();
-  console.log({schema: this.editor.schema});
   const validate = ajv.compile(this.editor.schema);
   if (!validate(data)) throw(validate.errors);
 
@@ -144,7 +141,6 @@ JsonEditorMixins.addEditorListeners = function () {
 JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   this.pluginName = item.name;
   let schema = await this.getSchema(item.name);
-  console.log({schema});
 
   // Only update when schema has changed (XXX: Sometimes this may be necessary)
   if (!this.schemaHasChanged(schema)) return;
