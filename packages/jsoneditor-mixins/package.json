@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/jsoneditor-mixins",
-  "version": "1.1.60",
+  "version": "1.1.61",
   "description": "Mixins for UI Plugins that incorporate jsoneditor",
   "main": "src/jsoneditor-mixins.js",
   "author": "Sci-Bots",
