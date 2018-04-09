@@ -179,7 +179,6 @@ class DeviceModel extends MicropedeClient {
       if (!routes) throw("expecting routes in payload");
       if (!_.isArray(routes)) throw("routes should be array");
       if (routes.length <= 0) {
-        console.log("No routes, notifying sender...");
         return this.notifySender(payload, [], "electrodes-from-routes");
       }
       // Create new uuid if only one route
