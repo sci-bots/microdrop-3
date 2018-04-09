@@ -68,6 +68,7 @@ JsonEditorMixins.createEditor = function (container, callback) {
   callback = callback || this.publishEditorChanges.bind(this);
   return new JSONEditor(container, {
     onChange: () => {
+      if (this.editorUpdating == true) return;
       this.editorUpdating = true;
       _.debounce(callback.bind(this), 750)()
     },
@@ -113,10 +114,10 @@ JsonEditorMixins.publishEditorChanges = async function () {
   this.editorUpdating = true;
   try {
     const {plugin, key, val} = this.getEditorData();
-
     // Make put request to modify microdrop state:
     const topic = `${APPNAME}/put/${plugin}/${key}`;
     const msg = {};
+    console.log(`Making put call for ${plugin}/${key}`);
     await this.sendMessage(topic, {[key]: val});
   } catch (e) {
     console.error(e);
@@ -162,16 +163,18 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   const subscriptions = this.subscriptions;
   this.json = {};
 
+
   await Promise.all(_.map(schema.properties, async (v,k) => {
     if (_.includes(this.subscriptions, `${APPNAME}/${item.name}/state/${k}`)) {
       return
     } else {
       const p = _.findPath(schema, k);
+      let perStep = _.get(schema, `${p}.per_step`);
 
       // If showing globals hide per_step properties:
-      if (_.get(schema, `${p}.per_step`) != false && mode == 'global') return;
+      if (perStep != false && mode == 'global') return;
       // If showing step properties, hide global properties
-      if (_.get(schema, `${p}.per_step`) == false && mode != 'global') return;
+      if (perStep == false && mode != 'global') return;
 
       await this.onStateMsg(item.name, k, (payload, params) => {
         delete payload.__head__;

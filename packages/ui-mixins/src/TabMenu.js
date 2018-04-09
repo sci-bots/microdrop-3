@@ -6,12 +6,12 @@ require('open-iconic/font/css/open-iconic-bootstrap.css');
 const yo = require('yo-yo');
 const _  = require('lodash');
 
-const TabButton = (item) => {
+const TabButton = (item, ...args) => {
   return yo`
   <button id="tab-${item.name}"
   class="tab-btn btn btn-sm btn-outline-secondary"
   style="${Styles.tabButton}; font-size: 11px;"
-  onclick=${item.onclick.bind(this, item)}>
+  onclick=${item.onclick.bind(this, item, ...args)}>
     ${item.name}
   </button>
   `;
@@ -55,8 +55,9 @@ const TabMenu = (items=[], options={}) => {
   return yo`
     <div style="${Styles.tabs}">
       ${_.map(items, (item) => {
-        if (item.name2 == undefined) return TabButton(item);
-        if (item.name2 != undefined) return TabToggleButton(item);
+        let args = item.args || [];
+        if (item.name2 == undefined) return TabButton(item, ...args);
+        if (item.name2 != undefined) return TabToggleButton(item, ...args);
       }
       )}
     </div>`;

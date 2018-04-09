@@ -11,7 +11,8 @@ const GlobalSchema = {
   properties: {
     "show-hidden": {
       type: "boolean",
-      default: false
+      default: false,
+      "per_step": false
     }
   },
 };
@@ -22,9 +23,9 @@ class GlobalUIPlugin extends UIPlugin {
     _.extend(this, JsonEditorMixins);
 
     let items = [
-      {name: 'electrode-controls', onclick: this.pluginInEditorChanged.bind(this)},
-      {name: 'device-model', onclick: this.pluginInEditorChanged.bind(this)},
-      {name: 'global-ui-plugin', onclick: this.pluginInEditorChanged.bind(this)}
+      {name: 'electrode-controls', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)},
+      {name: 'device-model', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)},
+      {name: 'global-ui-plugin', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)}
     ];
 
     this.menu = TabMenu(items);
@@ -44,7 +45,7 @@ class GlobalUIPlugin extends UIPlugin {
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "global-ui-plugin:change-schema";
       try {
-        await this.pluginInEditorChanged(payload);
+        await this.pluginInEditorChanged(payload, 'global');
         return this.notifySender(payload, 'done', "change-schema");
       } catch (e) {
         return this.notifySender(payload, DumpStack(LABEL, e), "change-schema", "failed");
