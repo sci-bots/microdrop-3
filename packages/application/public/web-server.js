@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const d64 = require('d64');
 const express = require('express');
-const {ipcRenderer} = require('electron');
+const {ipcRenderer, remote} = require('electron');
 const msgpack = require('msgpack5')();
 const pkginfo = require('pkginfo')(module);
 const pidusage = require('pidusage');
@@ -19,7 +19,7 @@ const terminate = require('terminate');
 const yac = require('@yac/api');
 
 const Broker = require('@micropede/broker/src/index.js');
-const {MicropedeClient, GetReceiver} = require('@micropede/client/src/client.js');
+const {MicropedeClient, GetReceiver, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const MicroDropUI = require('@microdrop/ui/index.js');
 const FindUserDefinedPlugins = require('../utils/find-microdrop-plugins.js');
@@ -144,8 +144,6 @@ class WebServer extends MicropedeClient {
         setTimeout(() => { r([]); }, 500);
       });
 
-      // console.log("children");
-      // console.log(children);
       let pids = {};
       let prevPids = JSON.parse(storage.getItem('microdrop:pids') || '{}');
       // Fetch startime for each child process id
@@ -176,6 +174,7 @@ class WebServer extends MicropedeClient {
     this.findPlugins();
 
     /* Listen for http, mqtt, and local events */
+    // TODO: Clean up REST api (separate into mixins based on function)
     this.get('/', this.onShowIndex.bind(this));
     this.get('/http-port',     (_, res) => {res.send(`${this.ports.http_port}`)});
     this.get('/mqtt-tcp-port', (_, res) => {res.send(`${this.ports.mqtt_tcp_port}`)});
@@ -185,6 +184,38 @@ class WebServer extends MicropedeClient {
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
     this.get('/fetch-file', (req, res) => {res.send(this.fetchFile(req))});
+    this.get('/open-device', (req, res) => {
+      // Trigger file open menu
+      const options = {
+        properties: [ 'openFile'],
+        filters: [{name: 'Device SVG File', extensions: ['svg']}]
+      };
+      remote.dialog.showOpenDialog(options, (paths) => {
+        fs.readFile(paths[0], 'utf8', (err, data) => {
+          if (err) console.error(err);
+          let content = data.toString();
+          this.trigger('load-device', content);
+          res.send('device loaded');
+        });
+      });
+    });
+
+    this.get('/open-protocol', (req, res) => {
+      // Trigger file open menu
+      const options = {
+        properties: ['openFile'],
+        filters: [{name: 'MicroDrop Protocol', extensions: ['udrp']}]
+      };
+      remote.dialog.showOpenDialog(options, (paths) => {
+        fs.readFile(paths[0], 'utf8', (err, data) => {
+          if (err) console.error(err);
+          let content = JSON.parse(data.toString());
+          this.loadStorage(content);
+          res.send('protocol loaded');
+        });
+      });
+    });
+
     this.get('/exit', (req, res) => {res.send(this.exit())});
     this.get('/reset', (req, res) => {
       this.reset();
@@ -193,12 +224,7 @@ class WebServer extends MicropedeClient {
     this.post('/load-storage', (req, res) => {
       const LABEL = 'webserver:load-storage';
       try {
-        const storage = req.body;
-        _.each(storage, (v,k) => {
-          if (_.includes(k, 'microdrop!!')) {
-            this.storage.setItem(k,v);
-          }
-        });
+        this.loadStorage(req.body);
         res.send('done');
       } catch (e) {
         console.error(LABEL, e);
@@ -284,6 +310,13 @@ class WebServer extends MicropedeClient {
     this._listen(this.ports.http_port);
   }
 
+  loadStorage(content) {
+    _.each(content, (v,k) => {
+      if (_.includes(k, 'microdrop!!')) {
+        this.storage.setItem(k,v);
+      }
+    });
+  }
 
   get filepath() {return __dirname;}
   findPlugins() {

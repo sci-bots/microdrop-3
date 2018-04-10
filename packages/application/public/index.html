@@ -8,6 +8,8 @@
     <script>
       // You can also require other files to run in this process
       const {ipcRenderer, remote} = require('electron');
+      const FileSaver = require('file-saver');
+      const generateName = require('sillyname');
       const pkginfo = require('pkginfo')(module);
       const request = require('request');
       const {Menu, MenuItem} = remote;
@@ -16,13 +18,11 @@
 
       ipcRenderer.on('ready', (e, data) => {
         var ports = JSON.parse(data).ports;
-        console.log({ports});
-
         const content = yo`<div style="height:100%"></div>`;
-
+        let view;
         const switchView = (tab) => {
           content.innerHTML = '';
-          const view = yo`
+          view = yo`
             <webview src="http://localhost:${ports.http_port}/${tab}"
             style="
             top: 0px;
@@ -34,7 +34,6 @@
             ">
             </webview>
           `;
-
           content.appendChild(view);
         }
 
@@ -43,6 +42,31 @@
         let display = {label: 'Display', click: switchView.bind(this, 'display')};
         let uiManager = {label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')};
         let processManager = {label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')};
+        let openDevice = {label: 'Open Device', click: () => {
+          request(`http://localhost:${ports.http_port}/open-device`, (e, b, d) => {
+            if (e) {console.error(e)}
+          });
+        }};
+        let openProtocol = {label: 'Open Protocol', click: () => {
+          request(`http://localhost:${ports.http_port}/open-protocol`, (e, b, d) => {
+            if (e) {console.error(e)}
+            view.reload();
+          });
+        }};
+        let openDevTools = {label: 'Open Dev Tools', click: () => {
+          view.openDevTools();
+          remote.getCurrentWindow().openDevTools();
+        }};
+
+        let saveProtocol = {label: 'Save Protocol', click: () => {
+          const type = "application/json;charset=utf-8";
+          const url = `http://localhost:${ports.http_port}/storage-raw`;
+          request(url, (response, err, body) => {
+            const blob = new Blob([body], {type});
+            FileSaver.saveAs(blob, `${generateName()}.udrp`);
+          });
+        }};
+
         let about = {label: 'About', click: () => {
           alert(`
             ${module.exports.productName}
@@ -57,12 +81,16 @@
         const template = [
           {},
           {
+            label: 'File',
+            submenu: [ openDevice, openProtocol, saveProtocol ]
+          },
+          {
             label: 'Show',
             submenu: [ display, uiManager, processManager ]
           },
           {
             label: 'Help',
-            submenu: [ about, reset ]
+            submenu: [ about, reset , openDevTools]
           }
         ];
         menu = Menu.buildFromTemplate(template);

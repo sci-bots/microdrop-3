@@ -34,6 +34,7 @@
     "electron-debug": "^1.5.0",
     "electron-updater": "^2.21.3",
     "express": "^4.16.2",
+    "file-saver": "^1.3.3",
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
     "mosca": "git+https://github.com/Lucaszw/mosca.git",
@@ -42,6 +43,7 @@
     "pkginfo": "^0.4.1",
     "ps-tree": "^1.1.0",
     "request": "^2.83.0",
+    "sillyname": "^0.1.0",
     "terminate": "^2.1.0",
     "yargs": "^11.0.0",
     "yo-yo": "^1.4.1"

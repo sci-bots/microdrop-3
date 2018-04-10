@@ -7,7 +7,7 @@ const yo = require('yo-yo');
 
 const DeviceController = require('@microdrop/device-controller/src/device-controller');
 const MicropedeAsync = require('@micropede/client/src/async.js');
-const {MicropedeClient} = require('@micropede/client/src/client.js')
+const {MicropedeClient, DumpStack} = require('@micropede/client/src/client.js')
 const UIPlugin = require('@microdrop/ui-plugin');
 
 const {
@@ -40,6 +40,8 @@ class DeviceUIPlugin extends UIPlugin {
         await microdrop.triggerPlugin('device-model', 'load-default');
       }
     });
+
+    this.onTriggerMsg('load-device', this.loadDevice.bind(this));
 
     this.bindPutMsg('device-model', 'three-object', 'put-device');
 
@@ -96,15 +98,26 @@ class DeviceUIPlugin extends UIPlugin {
     this.gui = await CreateDatGUI(this.element, this.controls);
   }
 
+  loadDevice(payload) {
+    const LABEL = 'device-ui-plugin:loadDevice';
+    try {
+      let content = payload.content;
+      const svg = ParseSVGFromString(content);
+      const objects = ConstructObjectsFromSVG(svg);
+      this.trigger('put-device', {'three-object': objects, ppi: objects.ppi});
+      return this.notifySender(payload, 'success', "load-device");
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), "load-device", "failed");
+    }
+  }
+
   changeDevice() {
     const handler = (e) => {
       const f = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target.result;
-        const svg = ParseSVGFromString(content);
-        const objects = ConstructObjectsFromSVG(svg);
-        this.trigger('put-device', {'three-object': objects, ppi: objects.ppi});
+        this.loadDevice({content});
       };
       reader.readAsText(f);
     }
