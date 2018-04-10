@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@microdrop/device-controller": "^1.1.60",
-    "@micropede/client": "0.0.37",
+    "@micropede/client": "0.0.38",
     "ajv": "^6.1.1",
     "lodash": "^4.17.5",
     "pkginfo": "^0.4.1",
