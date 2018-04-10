@@ -9,12 +9,15 @@
       // You can also require other files to run in this process
       const {ipcRenderer, remote} = require('electron');
       const pkginfo = require('pkginfo')(module);
+      const request = require('request');
       const {Menu, MenuItem} = remote;
       const yo = require('yo-yo');
       const _ = require('lodash');
 
       ipcRenderer.on('ready', (e, data) => {
         var ports = JSON.parse(data).ports;
+        console.log({ports});
+
         const content = yo`<div style="height:100%"></div>`;
 
         const switchView = (tab) => {
@@ -46,15 +49,20 @@
             ${module.exports.version}
           `);
         }};
+        let reset = {label: 'Reset', click: () => {
+          request(`http://localhost:${ports.http_port}/reset`, (e, b, d) => {
+            if (e) {console.error(e)}
+          });
+        }};
         const template = [
           {},
           {
             label: 'Show',
-            submenu: [ display, uiManager, processManager]
+            submenu: [ display, uiManager, processManager ]
           },
           {
             label: 'Help',
-            submenu: [ about]
+            submenu: [ about, reset ]
           }
         ];
         menu = Menu.buildFromTemplate(template);

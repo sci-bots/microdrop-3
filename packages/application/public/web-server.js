@@ -185,6 +185,7 @@ class WebServer extends MicropedeClient {
     this.get('/plugins.json', (_,res) => {res.send(this.storage.getItem('microdrop:plugins'))})
     this.get('/web-plugins.json', (_, res) => {res.send(this.WebPlugins())});
     this.get('/fetch-file', (req, res) => {res.send(this.fetchFile(req))});
+    this.get('/exit', (req, res) => {res.send(this.exit())});
     this.get('/reset', (req, res) => {
       this.reset();
       res.send("reset complete");
@@ -294,9 +295,14 @@ class WebServer extends MicropedeClient {
       FindUserDefinedPlugins(args, this.storage || localStorage, this.onPluginFound.bind(this));
   }
 
+  exit() {
+    ipcRenderer.send('exit');
+    return "MicroDrop Terminated"
+  }
+
   reset() {
     this.storage.clear();
-    ipcRenderer.sendSync('reset-db-success');
+    ipcRenderer.send('reset-db-success');
   }
 
   addWebPlugin(packageData, pluginDir) {

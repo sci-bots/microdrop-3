@@ -167,11 +167,22 @@ const init = (electron, ports, defaultRunningPlugins=[], file=undefined, show=tr
       launchWebserver(win);
       sendReadyPing(win, {ports, defaultRunningPlugins});
 
+      ipcMain.on('exit', () => {
+        console.log("Exiting...");
+        app.exit(0);
+      });
+
+      ipcMain.on('reset-db-success', () => {
+        console.log("Relauncing...");
+        app.relaunch();
+        app.exit(0);
+      });
+
       // Load main window
       ipcMain.on('broker-ready', (event, arg) => {
         // Load models
         MicroDropModels.initAsElectronProcesses(electron, ports);
-        
+
         let filedata;
 
         const client = new MicropedeClient(APPNAME, "localhost", ports.mqtt_tcp_port, APPNAME);
