@@ -33,7 +33,7 @@ const ElectrodeSchema = {
     "selected-electrode": {
       type: "object",
       "properties": {
-        id: {type: "string", set_with: 'selected-electrode', per_step: false},
+        id: {type: "string", set_with: 'selected-electrode', per_step: false, editable: false},
         channel:  {type: ["string", "number"], set_with: 'selected-electrode', per_step: false}
       },
       per_step: false,

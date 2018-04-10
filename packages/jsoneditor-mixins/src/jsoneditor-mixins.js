@@ -27,10 +27,12 @@ JsonEditorMixins.schemaHasChanged = function (schema) {
 JsonEditorMixins.listEditablePlugins = async function() {
   let pluginNames = await this.listPlugins();
   let plugins = {};
+  let schemas = {};
 
   await Promise.all(_.map( pluginNames, async (pluginName) => {
     // Check if the plugin contains a schema
     let s = await this.getState('schema', pluginName);
+    schemas[pluginName] = s;
     if (_.get(s, 'properties') == undefined) return;
     plugins[pluginName] = {};
     // If it does, check if the plugin has global and step based
@@ -41,7 +43,7 @@ JsonEditorMixins.listEditablePlugins = async function() {
     });
   }));
 
-  return plugins;
+  return {plugins, schemas};
 }
 
 JsonEditorMixins.getSchema = async function (name) {
@@ -85,6 +87,26 @@ JsonEditorMixins.extendSchema = function (schema, key, showHidden=false) {
   });
 }
 
+JsonEditorMixins.getSchemaForNode = function (node) {
+  let pluginName = this.pluginName;
+  let key = node.field;
+  let s = _.get(this.schemas, pluginName);
+  if (s == undefined) return true;
+
+  // let s = await this.getState('schema', pluginName);
+  let paths = [..._.findPaths(s, 'properties'), ..._.findPaths(s, 'items')];
+
+  let isEditable = true;
+  for (const p of paths) {
+    let props = _.get(s, p);
+    if (_.get(props, key) != undefined) {
+      if (props[key].editable == false) isEditable = false;
+      break;
+    }
+  }
+  return isEditable;
+}
+
 JsonEditorMixins.createEditor = function (container, callback) {
   callback = callback || this.publishEditorChanges.bind(this);
   return new JSONEditor(container, {
@@ -92,6 +114,10 @@ JsonEditorMixins.createEditor = function (container, callback) {
       if (this.editorUpdating == true) return;
       this.editorUpdating = true;
       _.debounce(callback.bind(this), 750)()
+    },
+    onEditable: (node) => {
+      let isEditable = this.getSchemaForNode(node);
+      return isEditable;
     },
     navigationBar: false,
     statusBar: false,

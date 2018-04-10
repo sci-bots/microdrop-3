@@ -39,10 +39,12 @@ class GlobalUIPlugin extends UIPlugin {
 
   async listen() {
     // Setup meny using plugins with global properties:
-    let plugins = _.keys(_.pickBy(await this.listEditablePlugins(), {global: true}));
+    let {plugins, schemas} = await this.listEditablePlugins();
+    this.plugins = _.keys(_.pickBy(plugins, {global: true}));
+    this.schemas = schemas;
     let args = ['global'];
     let onclick = this.pluginInEditorChanged.bind(this);
-    let items = _.map(plugins, name => {return {name, args, onclick}});
+    let items = _.map(this.plugins, name => {return {name, args, onclick}});
     this.menu.innerHTML = '';
     this.menu.appendChild(TabMenu(items));
 

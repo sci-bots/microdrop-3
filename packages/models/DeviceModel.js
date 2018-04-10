@@ -37,7 +37,12 @@ const DeviceSchema = {
         id: {
           type: "string",
           pattern: "^electrode",
-          set_with: "three-object"
+          set_with: "three-object",
+          editable: false
+        },
+        channel: {
+          type: "integer",
+          set_with: "three-object",
         },
         translation: {
           type: "integer"
