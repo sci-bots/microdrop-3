@@ -118,6 +118,7 @@ StepMixins.executeSteps = async function(btn) {
   };
 
   if (btn.classList.contains(state2)) {
+    // TODO: Should call a 'stop' trigger on all executable plugins
     this.running = false;
     microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     await microdrop.triggerPlugin('routes-model', 'stop', {});
@@ -145,7 +146,6 @@ StepMixins.executeSteps = async function(btn) {
   for (let i = await this.getState('loaded-step') || 0;i<steps.length; i++ ){
     if (!this.running) break;
     await this.loadStep(i, availablePlugins);
-    const routes = await this.getState('routes', 'routes-model');
 
     // Wait for all executable plugins to finish
     await Promise.all(_.map(executablePlugins, (p) => {

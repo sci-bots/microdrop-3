@@ -231,32 +231,6 @@ class WebServer extends MicropedeClient {
       }
     });
 
-    this.get('/write-state', (req, res) => {
-      /* Depricating for set-state */
-      const LABEL = 'webserver:write-key-to-storage';
-      try {
-        const pluginName = req.query["pluginName"];
-        const key = req.query["key"];
-        const val = JSON.stringify(JSON.parse(req.query["val"]));
-
-        // Convert into mosca message
-        let msg = {};
-        msg.topic = `microdrop/${pluginName}/state/${key}`;
-        msg.payload = Buffer.from(val);
-        msg.messageId = `id_${parseInt(Math.random()*1e10)}`;
-        msg.qos = 0;
-        msg.retain = true;
-
-        const storageKey = `${APPNAME}!!retained!${APPNAME}/${pluginName}/state/${key}`;
-        const encodedVal = `Buff:${d64.encode(msgpack.encode(msg).slice())}`;
-        this.storage.setItem(storageKey, encodedVal);
-        res.send({key, encodedVal});
-      } catch (e) {
-        console.error(LABEL, e);
-        res.status(500).json({error: e.toString()});
-      }
-    });
-
     this.get('/get-state', (req, res) => {
       const LABEL = 'webserver:get-state';
       try {
@@ -275,6 +249,15 @@ class WebServer extends MicropedeClient {
       } catch (e) {
         res.status(500).json({error: e.toString()});
       }
+    });
+
+    this.get('/list-micropede-plugins', (req, res) => {
+      const storageData = this.storageClean();
+      let keys = _.keys(storageData);
+      let s1 = `${APPNAME}!!retained!${APPNAME}/`;
+      let s2 = '/state';
+      keys = _.uniq(_.map(keys, k => k.replace(s1, '').split(s2)[0]));
+      res.send(keys);
     });
 
     this.get('/process-plugins', (_, res) => {

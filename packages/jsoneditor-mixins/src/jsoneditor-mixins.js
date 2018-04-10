@@ -23,6 +23,27 @@ JsonEditorMixins.schemaHasChanged = function (schema) {
   }
 }
 
+
+JsonEditorMixins.listEditablePlugins = async function() {
+  let pluginNames = await this.listPlugins();
+  let plugins = {};
+
+  await Promise.all(_.map( pluginNames, async (pluginName) => {
+    // Check if the plugin contains a schema
+    let s = await this.getState('schema', pluginName);
+    if (_.get(s, 'properties') == undefined) return;
+    plugins[pluginName] = {};
+    // If it does, check if the plugin has global and step based
+    // modifiable properties
+    _.each(s.properties, (v, k) => {
+      if (v.per_step == false) plugins[pluginName].global = true;
+      if (v.per_step != false) plugins[pluginName].step = true;
+    });
+  }));
+
+  return plugins;
+}
+
 JsonEditorMixins.getSchema = async function (name) {
   let schema;
   try {

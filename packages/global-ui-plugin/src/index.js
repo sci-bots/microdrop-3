@@ -6,6 +6,7 @@ const UIPlugin = require('@microdrop/ui-plugin');
 const {TabMenu, select, unselect} = require('@microdrop/ui-mixins/src/TabMenu.js');
 const JsonEditorMixins = require('@microdrop/jsoneditor-mixins');
 
+const APPNAME = 'microdrop';
 const GlobalSchema = {
   type: "object",
   properties: {
@@ -22,16 +23,11 @@ class GlobalUIPlugin extends UIPlugin {
     super(elem, focusTracker, ...args);
     _.extend(this, JsonEditorMixins);
 
-    let items = [
-      {name: 'electrode-controls', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)},
-      {name: 'device-model', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)},
-      {name: 'global-ui-plugin', args: ['global'], onclick: this.pluginInEditorChanged.bind(this)}
-    ];
-
-    this.menu = TabMenu(items);
+    this.menu = yo`<div></div>`;
     this.innerContent = yo`<div></div>`;
     this.editor = this.createEditor(this.innerContent);
 
+    this.element.style.padding = '0px';
     this.element.appendChild(yo`<div>
       ${this.menu}
       ${this.innerContent}
@@ -42,6 +38,14 @@ class GlobalUIPlugin extends UIPlugin {
   }
 
   async listen() {
+    // Setup meny using plugins with global properties:
+    let plugins = _.keys(_.pickBy(await this.listEditablePlugins(), {global: true}));
+    let args = ['global'];
+    let onclick = this.pluginInEditorChanged.bind(this);
+    let items = _.map(plugins, name => {return {name, args, onclick}});
+    this.menu.innerHTML = '';
+    this.menu.appendChild(TabMenu(items));
+
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "global-ui-plugin:change-schema";
       try {

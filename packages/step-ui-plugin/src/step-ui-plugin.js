@@ -30,15 +30,7 @@ class StepUIPlugin extends UIPlugin {
     super(elem, focusTracker, ...args);
     _.extend(this, StepMixins);
     _.extend(this, JsonEditorMixins);
-    this.plugins = ["routes-model", "route-controls", "electrodes-model"];
-
     const changeSchema = (item) => this.pluginInEditorChanged(item, 'step');
-
-    let items = [
-      {name: 'routes-model', onclick: changeSchema.bind(this)},
-      {name: 'route-controls', onclick: changeSchema.bind(this)},
-      {name: 'electrodes-model', onclick: changeSchema.bind(this)}
-    ];
 
     let btns = [
       {name: 'Download', onclick:  this.saveToFile.bind(this), stat: "secondary"},
@@ -47,7 +39,7 @@ class StepUIPlugin extends UIPlugin {
       {name: 'Create Step', onclick: this.createStep.bind(this), stat: "success"}
     ];
 
-    this.menu = TabMenu(items);
+    this.menu = yo`<div></div>`;
     this.steps = yo`<div style="overflow-y: auto"></div>`;
     this.content = yo`<div></div>`;
 
@@ -132,6 +124,14 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async listen() {
+    // Setup meny using plugins with global properties:
+    this.plugins = _.keys(_.pickBy(await this.listEditablePlugins(), {step: true}));
+    let args = ['step'];
+    let onclick = this.pluginInEditorChanged.bind(this);
+    let items = _.map(this.plugins, name => {return {name, args, onclick}});
+    this.menu.innerHTML = '';
+    this.menu.appendChild(TabMenu(items));
+
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});
