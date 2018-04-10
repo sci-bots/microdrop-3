@@ -76,13 +76,17 @@ class StepUIPlugin extends UIPlugin {
     this.editor = this.createEditor(this.content);
 
     let prevHeight;
-    this.on("updateRequest", () => {
-      let h = this.element.style.height;
-      if (h == prevHeight) return;
-      if (h != prevHeight) prevHeight = h;
-      this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
-      this.steps.style.height = `${parseInt(h)-190}px`;
-    });
+    this.addEditorListeners = () => {
+      /* Override default editor listeners to include step */
+      this.on("updateRequest", () => {
+        let h = this.element.style.height;
+        if (h == prevHeight) return;
+        if (h != prevHeight) prevHeight = h;
+        this.editor.frame.parentElement.style.height = `${parseInt(h)-50}px`;
+        this.steps.style.height = `${parseInt(h)-190}px`;
+      });
+    }
+    this.addEditorListeners();
 
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
     Styles.apply(elem);
@@ -124,8 +128,12 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async listen() {
-    // Setup meny using plugins with global properties:
-    this.plugins = _.keys(_.pickBy(await this.listEditablePlugins(), {step: true}));
+    // Setup meny using plugins with global properties:]
+    let {schema, plugins} = await this.listEditablePlugins();
+
+    this.plugins = _.keys(_.pickBy(plugins, {step: true}));
+    this.schema = schema;
+    
     let args = ['step'];
     let onclick = this.pluginInEditorChanged.bind(this);
     let items = _.map(this.plugins, name => {return {name, args, onclick}});
