@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.1.64",
+    "version": "1.1.65",
     "main": "python dropbot_plugin/__init__.py",
     "license": "BSD-2-Clause",
     "keywords": [
