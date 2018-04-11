@@ -29,10 +29,10 @@ const RouteSchema = {
   properties: {
     start: {set_with: "selected-routes", type: "string"},
     path:  {set_with: "selected-routes", type: "array", hidden: true},
-    trailLength: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1},
-    repeatDurationSeconds: {set_with: "selected-routes", type: "number", minium: 0, default: 1},
-    transitionDurationMilliseconds: {set_with: "selected-routes", type: "integer", minimum: 100, default: 1000},
-    routeRepeats: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1}
+    "trail-length": {set_with: "selected-routes", type: "integer", minimum: 1, default: 1},
+    "repeat-duration-seconds": {set_with: "selected-routes", type: "number", minium: 0, default: 1},
+    "transition-duration-milliseconds": {set_with: "selected-routes", type: "integer", minimum: 100, default: 1000},
+    "route-repeats": {set_with: "selected-routes", type: "integer", minimum: 1, default: 1}
   },
   required: ['start']
 }

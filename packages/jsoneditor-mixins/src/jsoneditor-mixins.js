@@ -199,6 +199,9 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
       if (_.get(schema, `${_path}.hidden`)) {
         delete obj[k];
       }
+      if (k.slice(0,2) == '__' && k.slice(-2) == '__') {
+        delete obj[k];
+      }
     });
   };
 
