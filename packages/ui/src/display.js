@@ -3,30 +3,24 @@ const request = require('browser-request');
 const yo = require('yo-yo');
 
 const DEFAULT_LAYOUT = {
-"main":{
-  "type":"split-area",
-  "orientation":"vertical",
-  "children":[
-    {"type":"split-area","orientation":"horizontal",
+  "main": {
+    "type":"split-area",
+    "orientation":"horizontal",
     "children":[
-      {"type":"tab-area",
-      "widgets":["Device"],
-      "currentIndex":0},
-      {"type":"tab-area",
-      "widgets":["Step"],
-      "currentIndex":0}],
-      "sizes":[0.6,0.4]},
-      {"type":"split-area","orientation":"horizontal",
-      "children":[
-        {"type":"tab-area","widgets":["Global"],"currentIndex":0},
-        {"type":"tab-area","widgets":["Dropbot"],"currentIndex":0}
-      ],
-      "sizes":[0.6,0.4]}
+      {
+        "type":"tab-area",
+        "widgets":["Device"],
+        "currentIndex":0
+      },
+      {
+        "type":"tab-area",
+        "widgets":["Step","Global"],
+        "currentIndex":0
+      }
     ],
-    "sizes":[0.7,0.3]
+    "sizes":[0.5,0.5]
   }
 };
-
 
 function init() {
   // Add all window objects that extend UIPlugin to microdropPlugin list
@@ -98,8 +92,12 @@ function init() {
     for (const [pluginName,pluginClass] of microdropPlugins) {
       // const dock = docks[pluginClass.position()];
       const widget = await pluginClass.Widget(panel, focusTracker, PhosphorWidgets);
-      widgetMap.set(widget.title.label, widget);
-      if (widget.plugin) pluginInstances.push(widget.plugin);
+      if (widget.plugin) {
+        if (widget.plugin.noPanel != true) {
+          widgetMap.set(widget.title.label, widget);
+        }
+        pluginInstances.push(widget.plugin);
+      }
     }
     // dock.dispose();
 
