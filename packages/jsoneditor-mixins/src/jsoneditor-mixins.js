@@ -190,8 +190,10 @@ JsonEditorMixins.addEditorListeners = function () {
 JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   this.pluginName = item.name;
   let schema = await this.getSchema(item.name);
+  let showHidden = await this.getState('show-hidden', 'global-ui-plugin') || false;
 
   const removeHidden = (obj) => {
+    if (showHidden == true) return;
     _.each(obj, (v,k) => {
       let _path = _.findPath(schema, k);
       if (_.get(schema, `${_path}.hidden`)) {
@@ -228,7 +230,6 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
       const p = _.findPath(schema, k);
       let perStep = _.get(schema, `${p}.per_step`);
 
-      let hidden = _.get(schema, `${p}.hidden`);
       // If showing globals hide per_step properties:
       if (perStep != false && mode == 'global') return;
       // If showing step properties, hide global properties
