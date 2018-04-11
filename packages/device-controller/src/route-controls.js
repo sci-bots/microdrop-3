@@ -28,13 +28,13 @@ const RouteSchema = {
   type: "object",
   properties: {
     start: {set_with: "selected-routes", type: "string"},
-    path:  {set_with: "selected-routes", type: "array"},
+    path:  {set_with: "selected-routes", type: "array", hidden: true},
     trailLength: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1},
     repeatDurationSeconds: {set_with: "selected-routes", type: "number", minium: 0, default: 1},
     transitionDurationMilliseconds: {set_with: "selected-routes", type: "integer", minimum: 100, default: 1000},
     routeRepeats: {set_with: "selected-routes", type: "integer", minimum: 1, default: 1}
   },
-  required: ['start', 'path']
+  required: ['start']
 }
 
 const RouteControlSchema = {
@@ -117,7 +117,7 @@ class RouteControls extends MicropedeClient {
     const LABEL = "<RouteControls::renderRoutes>";
 
     let selectedRoutes = await this.getState('selected-routes');
-    
+
     // Remove selected routes if now longer presetn
     if (_.intersection(_.map(routes, 'uuid'), _.map(selectedRoutes, 'uuid')).length <= 0){
       await this.setState('selected-routes', []);
