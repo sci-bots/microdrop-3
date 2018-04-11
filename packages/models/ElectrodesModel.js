@@ -41,6 +41,16 @@ const ElectrodesSchema = {
     "min-duration": {
       type: "number",
       default: 100
+    },
+    "voltage": {
+      type: "string",
+      pattern: "^([0-9]+)V",
+      default: "100V"
+    },
+    "frequency": {
+      type: "string",
+      pattern: "^([0-9]+)Hz",
+      default: "1000Hz"
     }
   }
 };
@@ -88,6 +98,8 @@ class ElectrodesModel extends MicropedeClient {
 
     this.onPutMsg("active-electrodes", this.putActiveElectrodes.bind(this));
     this.onPutMsg("min-duration", this.putMinDuration.bind(this));
+    this.onPutMsg("voltage", this.putVoltage.bind(this));
+    this.onPutMsg("frequency", this.putFrequency.bind(this));
     this.onTriggerMsg("toggle-electrode", this.toggleElectrode.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
   }
@@ -115,6 +127,26 @@ class ElectrodesModel extends MicropedeClient {
       return this.notifySender(payload, "complete", "execute");
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), "execute", "failed");
+    }
+  }
+
+  async putVoltage(payload) {
+    const LABEL = "<ElectrodesModel::putVoltage>"; //console.log(LABEL);
+    try {
+      await this.setState('voltage', payload['voltage']);
+      return this.notifySender(payload, payload['voltage'], "voltage");
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), "voltage", "failed");
+    }
+  }
+
+  async putFrequency(payload) {
+    const LABEL = "<ElectrodesModel::putFrequency>"; //console.log(LABEL);
+    try {
+      await this.setState('frequency', payload['frequency']);
+      return this.notifySender(payload, payload['frequency'], "frequency");
+    } catch (e) {
+      return this.notifySender(payload, DumpStack(LABEL, e), "frequency", "failed");
     }
   }
 
