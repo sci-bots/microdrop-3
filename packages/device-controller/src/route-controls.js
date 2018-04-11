@@ -77,6 +77,7 @@ class RouteControls extends MicropedeClient {
     this.model.on("change:routes", this.renderRoutes.bind(this));
     this.port = port;
     this.selectedRoutes = [];
+    this.highlightedRoutes = [];
     this.schema = RouteControlSchema;
   }
 
@@ -209,8 +210,8 @@ class RouteControls extends MicropedeClient {
     const absoluteRoutes = (await microdrop.triggerPlugin('device-model',
         'electrodes-from-routes', {routes})).response;
 
-    const colorSelectedRoutes = (str, routes) => {
-      routes = routes || this.selectedRoutes;
+    const colorRoutes = (str, routes) => {
+      routes = routes || this.highlightedRoutes;
       const color = new THREE.Color(str);
       for (const [i, route] of routes.entries()){
         if (this.lines[route.uuid]) {
@@ -221,55 +222,68 @@ class RouteControls extends MicropedeClient {
       }
     }
 
-    colorSelectedRoutes("rgb(99, 246, 255)");
-    this.selectedRoutes = [];
+    console.log("Restting routes: ", this.highlightedRoutes);
+
+    colorRoutes("rgb(99, 246, 255)", this.highlightedRoutes);
+    this.highlightedRoutes = [];
 
     // Check which routes contain the id selected
     for (const [i, electrodes] of absoluteRoutes.entries()){
       const selected = _.includes(electrodes.ids, id);
       const uuid = electrodes.uuid;
       if (selected)
-        this.selectedRoutes.push(_.find(routes, {uuid}));
+        this.highlightedRoutes.push(_.find(routes, {uuid}));
     }
 
-    if (this.selectedRoutes.length < 1) return;
+    if (this.highlightedRoutes.length < 1) return;
 
     // Turn selected routes yellow
-    colorSelectedRoutes("yellow");
-
-    // Write selected routes to microdrop state
-    await microdrop.triggerPlugin('step-ui-plugin', 'change-schema', {name: 'route-controls'});
-    await this.setState('selected-routes', this.selectedRoutes);
+    colorRoutes("yellow", this.highlightedRoutes);
 
     // Listen for context menu action
+    const selectCallback = async (e) => {
+      colorRoutes("red", this.highlightedRoutes);
+      await microdrop.triggerPlugin('step-ui-plugin', 'change-schema', {name: 'route-controls'});
+      colorRoutes("rgb(99, 246, 255)", this.selectedRoutes);
+      this.selectedRoutes = _.clone(this.highlightedRoutes);
+      this.highlightedRoutes = [];
+      await this.setState('selected-routes', this.selectedRoutes);
+      this.off("clear-route");
+      this.off("execute-route");
+      this.off("select-route");
+    }
+
     const clearCallback = (e) => {
-      const uuids = _.map(this.selectedRoutes, 'uuid');
+      const uuids = _.map(this.highlightedRoutes, 'uuid');
       routes = _.filter(routes, (r) => !_.includes(uuids, r.uuid));
       const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
       microdrop.putPlugin('routes-model', 'routes', routes);
       this.off("clear-route");
       this.off("execute-route");
+      this.off("select-route");
     }
 
     const execCallback = (e) => {
       const microdrop = new MicropedeAsync(APPNAME, DEFAULT_HOST, this.port);
-      if (this.selectedRoutes.length <= 0 ) return;
+      if (this.highlightedRoutes.length <= 0 ) return;
       switch (e.key) {
         case "executeRoute":
           microdrop.triggerPlugin('routes-model', 'execute',
-            {routes: this.selectedRoutes}, -1);
+            {routes: this.highlightedRoutes}, -1);
           break;
         case "executeRoutes":
           microdrop.triggerPlugin('routes-model', 'execute',
-            {routes: this.selectedRoutes}, -1);
+            {routes: this.highlightedRoutes}, -1);
           break;
       }
       this.off("clear-route");
       this.off("execute-route");
+      this.off("select-route");
     }
 
     this.on("clear-route", clearCallback.bind(this));
     this.on("execute-route", execCallback.bind(this));
+    this.on("select-route", selectCallback.bind(this));
 
     // Wait for another click before returning to original color
     const mousedown = () => {
@@ -285,7 +299,7 @@ class RouteControls extends MicropedeClient {
     };
 
     const e = await mousedown();
-    // colorSelectedRoutes("rgb(99, 246, 255)");
+    // colorRoutes("rgb(99, 246, 255)");
     // XXX: Find a better way to identify if should execute...
     if (e.target.innerText == 'Execute Route') return;
     if (e.target.innerText == 'Clear Route') return;

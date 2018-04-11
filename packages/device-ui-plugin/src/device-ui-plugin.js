@@ -156,6 +156,9 @@ class DeviceUIPlugin extends UIPlugin {
         const id = _.get(this._lastElectrodeRightClick, 'target.name');
         this.controls.electrodeControls.selectElectrode(id, false);
         break;
+      case "selectRoute":
+      if (!this.controls) return true;
+        this.controls.routeControls.trigger("select-route", {key, options});
     }
     return true;
   }
