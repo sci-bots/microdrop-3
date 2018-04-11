@@ -11,6 +11,7 @@
     "@microdrop/ui-mixins": "^1.1.64",
     "@micropede/client": "^0.0.38",
     "ajv": "^6.4.0",
+    "deep-object-diff": "^1.1.0",
     "jsoneditor": "^5.14.1",
     "lodash": "^4.17.5",
     "sha256": "^0.2.0"

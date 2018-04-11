@@ -28,13 +28,13 @@ const RoutesSchema = {
         type: "object",
         properties: {
           start: {type: "string", set_with: 'routes'},
-          path:  {type: "array", set_with: 'routes', default: []},
+          path:  {type: "array", set_with: 'routes', default: [], hidden: true},
           trailLength: {type: "integer", minimum: 1, default: 1, set_with: 'routes'},
           repeatDurationSeconds: {type: "number", minium: 0, default: 1, set_with: 'routes'},
           transitionDurationMilliseconds: {type: "integer", minimum: 100, default: 1000, set_with: 'routes'},
           routeRepeats: {type: "integer", minimum: 1, default: 1, set_with: 'routes'}
         },
-        required: ["start", "path"]
+        required: ["start"]
       }
     }
   }

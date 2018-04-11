@@ -8,9 +8,9 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/ui-mixins@^1.1.58":
-  version "1.1.58"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.58.tgz#fe90d7a57c01084f628aa1dc3bb857da15f1828e"
+"@microdrop/ui-mixins@^1.1.64":
+  version "1.1.64"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.64.tgz#6f46184658147af1b9a45b3e572e22cc446129ed"
   dependencies:
     bootstrap "^4.0.0"
     jquery "^3.3.1"
@@ -19,9 +19,9 @@
     popper.js "^1.14.1"
     yo-yo "^1.4.1"
 
-"@micropede/client@^0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.37.tgz#54c4b4910367ba9dd415c2e08d89d6a5746a5204"
+"@micropede/client@^0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.38.tgz#adcefa368a00d1895093abd9bf5c5ae2ca2c0a49"
   dependencies:
     "@micropede/mixins" "^0.0.23"
     ajv "^6.1.1"
@@ -211,6 +211,10 @@ dashdash@^1.12.0:
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
   dependencies:
     assert-plus "^1.0.0"
+
+deep-object-diff@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/deep-object-diff/-/deep-object-diff-1.1.0.tgz#d6fabf476c2ed1751fc94d5ca693d2ed8c18bc5a"
 
 delayed-stream@~1.0.0:
   version "1.0.0"

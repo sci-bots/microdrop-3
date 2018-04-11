@@ -1,5 +1,6 @@
 require('./jsoneditor-styles.js');
 const Ajv = require('ajv');
+const {diff} = require('deep-object-diff');
 const JSONEditor = require('jsoneditor');
 const sha256 = require('sha256');
 const _ = require('lodash');
@@ -66,15 +67,8 @@ JsonEditorMixins.extendSchema = function (schema, key, showHidden=false) {
   _.each(keyPaths, (keyPath) => {
     let obj = _.get(schema, keyPath);
 
-    // Remove hidden keys from schema
-    obj = _.pickBy(obj, (v,k)=> {
-      if (k.slice(0,2) == '__' && k.slice(-2) == '__' && !showHidden) return false;
-      if (_.get(v, 'hidden') == true && !showHidden) return false;
-      return true;
-    });
-
-    // Extend schema obj to include variables:
     _.each(obj, (v,k) => {
+      // Extend schema obj to include variables:
       if (v.type == undefined) return;
       if (_.includes(v.type, 'string')) return;
       if (_.isArray(v.type))  v.type.push("string");
@@ -129,7 +123,15 @@ JsonEditorMixins.createEditor = function (container, callback) {
 
 JsonEditorMixins.getEditorData = function () {
   const last = _.last(_.get(this.editor, 'history.history'));
-  const data = this.editor.get();
+
+  // Find the differences (will pick up this change and also hidden keys)
+  let diffs = diff(this._json, this.editor.get());
+
+  // Merge diffs using _.merge (as this won't extend to things being set
+  // to undefined [ie hidden keys wont be removed])
+  _.merge(this._json, diffs);
+  const data = this._json;
+
   const validate = ajv.compile(this.editor.schema);
   if (!validate(data)) throw(validate.errors);
 
@@ -164,7 +166,6 @@ JsonEditorMixins.publishEditorChanges = async function () {
     // Make put request to modify microdrop state:
     const topic = `${APPNAME}/put/${plugin}/${key}`;
     const msg = {};
-    console.log(`Making put call for ${plugin}/${key}`);
     await this.sendMessage(topic, {[key]: val});
   } catch (e) {
     console.error(e);
@@ -190,6 +191,15 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   this.pluginName = item.name;
   let schema = await this.getSchema(item.name);
 
+  const removeHidden = (obj) => {
+    _.each(obj, (v,k) => {
+      let _path = _.findPath(schema, k);
+      if (_.get(schema, `${_path}.hidden`)) {
+        delete obj[k];
+      }
+    });
+  };
+
   // Only update when schema has changed (XXX: Sometimes this may be necessary)
   if (!this.schemaHasChanged(schema)) return;
 
@@ -209,7 +219,7 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   // otherwise add one
   const subscriptions = this.subscriptions;
   this.json = {};
-
+  this._json = {};
 
   await Promise.all(_.map(schema.properties, async (v,k) => {
     if (_.includes(this.subscriptions, `${APPNAME}/${item.name}/state/${k}`)) {
@@ -218,13 +228,21 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
       const p = _.findPath(schema, k);
       let perStep = _.get(schema, `${p}.per_step`);
 
+      let hidden = _.get(schema, `${p}.hidden`);
       // If showing globals hide per_step properties:
       if (perStep != false && mode == 'global') return;
       // If showing step properties, hide global properties
       if (perStep == false && mode != 'global') return;
 
       await this.onStateMsg(item.name, k, (payload, params) => {
-        delete payload.__head__;
+        this._json[k] = _.cloneDeep(payload);
+
+        // Remove hidden properties from payload before setting json
+        if (_.isPlainObject(payload)) removeHidden(payload);
+        if (_.isArray(payload)) {
+          _.each(payload, (item) => removeHidden(item));
+        }
+
         this.json[k] = payload;
         // Only re-draw if the current displayed content differs from
         // the new payload
@@ -240,6 +258,7 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
 
       });
       this.json[k] = v.default;
+      this._json[k] = v.default;
     }
   }));
 
