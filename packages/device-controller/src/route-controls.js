@@ -222,8 +222,6 @@ class RouteControls extends MicropedeClient {
       }
     }
 
-    console.log("Restting routes: ", this.highlightedRoutes);
-
     colorRoutes("rgb(99, 246, 255)", this.highlightedRoutes);
     this.highlightedRoutes = [];
 

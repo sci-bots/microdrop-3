@@ -12,7 +12,7 @@ const TabButton = (item, ...args) => {
   class="tab-btn btn btn-sm btn-outline-secondary"
   style="${Styles.tabButton}; font-size: 11px;"
   onclick=${item.onclick.bind(this, item, ...args)}>
-    ${item.name}
+    ${item.name.replace("-ui-plugin", " ").replace("-", " ")}
   </button>
   `;
 }
