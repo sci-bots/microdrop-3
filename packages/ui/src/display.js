@@ -92,6 +92,7 @@ function init() {
     for (const [pluginName,pluginClass] of microdropPlugins) {
       // const dock = docks[pluginClass.position()];
       const widget = await pluginClass.Widget(panel, focusTracker, PhosphorWidgets);
+      
       if (widget.plugin) {
         if (widget.plugin.noPanel != true) {
           widgetMap.set(widget.title.label, widget);

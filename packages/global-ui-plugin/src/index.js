@@ -55,6 +55,7 @@ class GlobalUIPlugin extends UIPlugin {
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "global-ui-plugin:change-schema";
       try {
+        this.trigger("activate-tab");
         await this.pluginInEditorChanged(payload, 'global');
         return this.notifySender(payload, 'done', "change-schema");
       } catch (e) {

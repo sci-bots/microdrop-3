@@ -143,7 +143,7 @@ class StepUIPlugin extends UIPlugin {
 
   async listen() {
     this.trigger("listening");
-    
+
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});
@@ -151,6 +151,7 @@ class StepUIPlugin extends UIPlugin {
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "step-ui-plugin:change-schema";
       try {
+        this.trigger("activate-tab")
         await this.pluginInEditorChanged(payload, 'step');
         return this.notifySender(payload, 'done', "change-schema");
       } catch (e) {
