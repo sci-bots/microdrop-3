@@ -42,17 +42,17 @@
     "7zip-bin-mac" "~1.0.1"
     "7zip-bin-win" "~2.2.0"
 
-"@microdrop/application@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.64.tgz#33577456ff3100a360f58da23f78eea35732dc89"
+"@microdrop/application@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/application/-/application-1.1.65.tgz#01536b2a64aa189b66e697e4a6222c981cfc406d"
   dependencies:
-    "@microdrop/device-controller" "^1.1.64"
-    "@microdrop/device-ui-plugin" "^1.1.64"
-    "@microdrop/dropbot-plugin" "^1.1.64"
-    "@microdrop/global-ui-plugin" "^1.1.64"
-    "@microdrop/models" "^1.1.64"
-    "@microdrop/step-ui-plugin" "^1.1.64"
-    "@microdrop/ui" "^1.1.64"
+    "@microdrop/device-controller" "^1.1.65"
+    "@microdrop/device-ui-plugin" "^1.1.65"
+    "@microdrop/dropbot-plugin" "^1.1.65"
+    "@microdrop/global-ui-plugin" "^1.1.65"
+    "@microdrop/models" "^1.1.65"
+    "@microdrop/step-ui-plugin" "^1.1.65"
+    "@microdrop/ui" "^1.1.65"
     "@micropede/broker" "0.0.28"
     "@micropede/client" "0.0.38"
     "@yac/api" "0.0.24"
@@ -62,6 +62,7 @@
     electron-debug "^1.5.0"
     electron-updater "^2.21.3"
     express "^4.16.2"
+    file-saver "^1.3.3"
     fs-extra "^5.0.0"
     lodash "^4.17.4"
     mosca "git+https://github.com/Lucaszw/mosca.git"
@@ -70,13 +71,14 @@
     pkginfo "^0.4.1"
     ps-tree "^1.1.0"
     request "^2.83.0"
+    sillyname "^0.1.0"
     terminate "^2.1.0"
     yargs "^11.0.0"
     yo-yo "^1.4.1"
 
-"@microdrop/device-controller@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.64.tgz#10ff9f3dc4f097f53608bfc389396462b7f78bff"
+"@microdrop/device-controller@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-controller/-/device-controller-1.1.65.tgz#879ab2b94c87b2aba0328efbb0689fb79153940b"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
     "@micropede/client" "^0.0.38"
@@ -99,11 +101,11 @@
     two.js "github:jonobr1/two.js#dev"
     yo-yo "^1.4.1"
 
-"@microdrop/device-ui-plugin@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.64.tgz#d39c2576804c8a88d533743827b4777c9858d17a"
+"@microdrop/device-ui-plugin@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/device-ui-plugin/-/device-ui-plugin-1.1.65.tgz#38d5c9f73c68dc22afbd3029dc057e62656ac815"
   dependencies:
-    "@microdrop/device-controller" "^1.1.64"
+    "@microdrop/device-controller" "^1.1.65"
     "@microdrop/ui-plugin" "^1.1.64"
     "@micropede/client" "0.0.38"
     async-mqtt "^1.0.1"
@@ -114,9 +116,9 @@
     uuid "^3.1.0"
     yo-yo "^1.4.1"
 
-"@microdrop/dropbot-plugin@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.64.tgz#b3f86e22b52fa37fd7241b7e6b2fa8257d80abec"
+"@microdrop/dropbot-plugin@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/dropbot-plugin/-/dropbot-plugin-1.1.65.tgz#c69747fdf3dfc2b6c792785cbb007fe9910357a3"
   dependencies:
     "@microdrop/ui-plugin" "^1.1.64"
     "@micropede/client" "^0.0.38"
@@ -125,13 +127,13 @@
     webpack "3"
     yo-yo "^1.4.1"
 
-"@microdrop/global-ui-plugin@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.64.tgz#1e2037eeb52282cefb7725cd23b3b689a2ad9028"
+"@microdrop/global-ui-plugin@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/global-ui-plugin/-/global-ui-plugin-1.1.65.tgz#15ff8ece384fa8a321c0348cb8b7298aec2b63a9"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@microdrop/jsoneditor-mixins" "^1.1.64"
-    "@microdrop/ui-mixins" "^1.1.64"
+    "@microdrop/jsoneditor-mixins" "^1.1.65"
+    "@microdrop/ui-mixins" "^1.1.65"
     "@microdrop/ui-plugin" "^1.1.64"
     "@micropede/client" "^0.0.38"
     ajv "^6.2.0"
@@ -149,23 +151,24 @@
   dependencies:
     detect-node "^2.0.3"
 
-"@microdrop/jsoneditor-mixins@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/jsoneditor-mixins/-/jsoneditor-mixins-1.1.64.tgz#f6d4bd3ffa9d4bd4d4b142d23f875cfcceb2e5dd"
+"@microdrop/jsoneditor-mixins@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/jsoneditor-mixins/-/jsoneditor-mixins-1.1.65.tgz#0301aa5a726d4ef2f32d87e24360c6cf2028ff9c"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@microdrop/ui-mixins" "^1.1.64"
+    "@microdrop/ui-mixins" "^1.1.65"
     "@micropede/client" "^0.0.38"
     ajv "^6.4.0"
+    deep-object-diff "^1.1.0"
     jsoneditor "^5.14.1"
     lodash "^4.17.5"
     sha256 "^0.2.0"
 
-"@microdrop/models@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.64.tgz#765011d99d42af593f60f57f4a5b9be6a2baf600"
+"@microdrop/models@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/models/-/models-1.1.65.tgz#b0607aa5b34cfeb8a76cbed54426dfa285edaee6"
   dependencies:
-    "@microdrop/device-controller" "^1.1.64"
+    "@microdrop/device-controller" "^1.1.65"
     "@micropede/client" "0.0.38"
     ajv "^6.1.1"
     lodash "^4.17.5"
@@ -173,13 +176,13 @@
     three "^0.89.0"
     uuid "^3.2.1"
 
-"@microdrop/step-ui-plugin@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.64.tgz#b4766f6f370fd6c1886306f2e9f2e22e405990a3"
+"@microdrop/step-ui-plugin@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/step-ui-plugin/-/step-ui-plugin-1.1.65.tgz#1a4e0fe7869ff140c7d84bd7c9f4e6ab097f70ec"
   dependencies:
     "@microdrop/helpers" "^1.1.57"
-    "@microdrop/jsoneditor-mixins" "^1.1.64"
-    "@microdrop/ui-mixins" "^1.1.64"
+    "@microdrop/jsoneditor-mixins" "^1.1.65"
+    "@microdrop/ui-mixins" "^1.1.65"
     "@microdrop/ui-plugin" "^1.1.64"
     "@micropede/client" "^0.0.38"
     ajv "^6.2.0"
@@ -199,9 +202,9 @@
     uuid "^3.2.1"
     yo-yo "^1.4.1"
 
-"@microdrop/ui-mixins@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.64.tgz#6f46184658147af1b9a45b3e572e22cc446129ed"
+"@microdrop/ui-mixins@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui-mixins/-/ui-mixins-1.1.65.tgz#63c6e0b8662dc0b922136ed677afcdfb6fddc6ff"
   dependencies:
     bootstrap "^4.0.0"
     jquery "^3.3.1"
@@ -218,9 +221,9 @@
     browser-request "^0.3.3"
     keyboard-shortcut "^1.2.0"
 
-"@microdrop/ui@^1.1.64":
-  version "1.1.64"
-  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.64.tgz#7adb9d4deb415e4adfe87d7349f5d645d10f3fcd"
+"@microdrop/ui@^1.1.65":
+  version "1.1.65"
+  resolved "https://registry.yarnpkg.com/@microdrop/ui/-/ui-1.1.65.tgz#8c051595045a5a8e702849a8dc0966d42f37e450"
   dependencies:
     "@microdrop/ui-plugin" "^1.1.64"
     "@micropede/client" "0.0.38"
@@ -1909,6 +1912,10 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
 
+deep-object-diff@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/deep-object-diff/-/deep-object-diff-1.1.0.tgz#d6fabf476c2ed1751fc94d5ca693d2ed8c18bc5a"
+
 deepcopy@^0.6.1:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/deepcopy/-/deepcopy-0.6.3.tgz#634780f2f8656ab771af8fa8431ed1ccee55c7b0"
@@ -2243,9 +2250,9 @@ electron-osx-sign@^0.4.1:
     minimist "^1.2.0"
     plist "^2.1.0"
 
-electron-packager@^12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-12.0.0.tgz#b82d24d78a2f21403bbfd166a5b1569894d5cd0c"
+electron-packager@^12.0.1:
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-12.0.1.tgz#6634edc00eb98b98d212095fc7623d94b003095f"
   dependencies:
     asar "^0.14.0"
     debug "^3.0.0"
@@ -2253,7 +2260,7 @@ electron-packager@^12.0.0:
     electron-osx-sign "^0.4.1"
     extract-zip "^1.0.3"
     fs-extra "^5.0.0"
-    galactus "^0.2.0"
+    galactus "^0.2.1"
     get-package-info "^1.0.0"
     nodeify "^1.0.1"
     parse-author "^2.0.0"
@@ -2263,7 +2270,7 @@ electron-packager@^12.0.0:
     resolve "^1.1.6"
     sanitize-filename "^1.6.0"
     semver "^5.3.0"
-    yargs-parser "^9.0.2"
+    yargs-parser "^10.0.0"
 
 electron-publish@20.6.1:
   version "20.6.1"
@@ -2760,9 +2767,9 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
-flora-colossus@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/flora-colossus/-/flora-colossus-0.0.2.tgz#7d1be29a1f17fa4f22b1bd61482f86c34e07b901"
+flora-colossus@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/flora-colossus/-/flora-colossus-1.0.0.tgz#54729c361edecee014dd441679e1a37c1d773a45"
   dependencies:
     debug "^3.1.0"
     fs-extra "^4.0.0"
@@ -2906,12 +2913,12 @@ functional-red-black-tree@^1.0.0, functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
 
-galactus@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/galactus/-/galactus-0.2.0.tgz#c3d63ba5502466fe40ea67cc689085b3dd24a8fc"
+galactus@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/galactus/-/galactus-0.2.1.tgz#cbed2d20a40c1f5679a35908e2b9415733e78db9"
   dependencies:
     debug "^3.1.0"
-    flora-colossus "^0.0.2"
+    flora-colossus "^1.0.0"
     fs-extra "^4.0.0"
 
 gauge@~2.7.3:
@@ -7056,6 +7063,12 @@ y18n@^3.2.1:
 yallist@^2.0.0, yallist@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.1.2.tgz#1c11f9218f076089a47dd512f93c6699a6a81d52"
+
+yargs-parser@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-10.0.0.tgz#c737c93de2567657750cb1f2c00be639fd19c994"
+  dependencies:
+    camelcase "^4.1.0"
 
 yargs-parser@^7.0.0:
   version "7.0.0"
