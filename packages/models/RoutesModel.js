@@ -31,7 +31,7 @@ const RoutesSchema = {
           path:  {type: "array", set_with: 'routes', default: [], hidden: true},
           "trail-length": {type: "integer", minimum: 1, default: 1, set_with: 'routes'},
           "repeat-duration-seconds": {type: "number", minium: 0, default: 1, set_with: 'routes'},
-          "transition-duration-milliseconds": {type: "integer", minimum: 100, default: 1000, set_with: 'routes'},
+          "transition-duration-seconds": {type: "number", minimum: 0.1, default: 1, set_with: 'routes'},
           "route-repeats": {type: "integer", minimum: 1, default: 1, set_with: 'routes'}
         },
         required: ["start"]
@@ -47,7 +47,7 @@ const RouteSchema = {
     path:  {type: "array"},
     "trail-length": {type: "integer", minimum: 1, default: 1},
     "repeat-duration-seconds": {type: "number", minium: 0, default: 1},
-    "transition-duration-milliseconds": {type: "integer", minimum: 100, default: 1000},
+    "transition-duration-seconds": {type: "number", minimum: 0.1, default: 1},
     "route-repeats": {type: "integer", minimum: 1, default: 1}
   },
   required: ['start', 'path']
@@ -115,13 +115,13 @@ class RoutesModel extends MicropedeClient {
     const LABEL = "<RouteModel::calcuateExecutionFrames>";
     routes = routes || await this.getState("routes");
     const electrodes = await this.getState("active-electrodes", "electrodes-model");
-    const tms = "transition-duration-milliseconds";
+    const tms = "transition-duration-seconds";
     let seq = [];
 
     // Extend path based on number of repeats
     for (const [i, route] of routes.entries()) {
       const repeats = route['repeat-duration-seconds'];
-      const trans = route['transition-duration-milliseconds'];
+      const trans = route['transition-duration-seconds'];
       const len = route.path.length;
 
       let numRepeats;
@@ -138,7 +138,7 @@ class RoutesModel extends MicropedeClient {
       }
 
       // Calculate number of repeats based on total route exec time
-      numRepeats = Math.floor(( repeats * 1000 ) / (trans *  len) + 1);
+      numRepeats = Math.floor(( repeats ) / (trans *  len) + 1);
 
       // Override with manual step number if larger then calculated value
       if (route["route-repeats"] > numRepeats)
@@ -170,7 +170,7 @@ class RoutesModel extends MicropedeClient {
     return {lengths, interval, maxInterval, maxTime, seq};
   }
 
-  async execute(payload, interval=1000) {
+  async execute(payload, interval=1) {
     const LABEL = "<RoutesModel::execute>"; // console.log(LABEL);
     try {
       let routes = payload.routes;
@@ -273,7 +273,7 @@ class RoutesModel extends MicropedeClient {
       }
 
       // Execute Loop continuously until maxTime is reached
-      await wait(interval);
+      await wait(interval*1000.0);
 
       const {active, remaining} = ActiveElectrodesAtTime(this.seq, currentTime);
       const microdrop = new MicropedeAsync(APPNAME, 'localhost', port);
@@ -314,8 +314,8 @@ async function ActiveElectrodeIntervals(r, port) {
   // ids, uuid
   const times = [];
   for (const [i, id] of seq.ids.entries()) {
-    const on  = r['transition-duration-milliseconds'] * (i-r['trail-length']+1);
-    const off = r['transition-duration-milliseconds'] * (i+1);
+    const on  = r['transition-duration-seconds'] * (i-r['trail-length']+1);
+    const off = r['transition-duration-seconds'] * (i+1);
     const index = i;
     times.push({id, on, off, index});
   }

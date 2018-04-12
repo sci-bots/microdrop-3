@@ -53,7 +53,7 @@
             view.reload();
           });
         }};
-        let openDevTools = {label: 'Open Dev Tools', click: () => {
+        let openDevTools = {label: 'Dev Tools', click: () => {
           view.openDevTools();
           remote.getCurrentWindow().openDevTools();
         }};
@@ -85,12 +85,12 @@
             submenu: [ openDevice, openProtocol, saveProtocol ]
           },
           {
-            label: 'Show',
-            submenu: [ display, uiManager, processManager ]
+            label: 'View',
+            submenu: [ display, uiManager, processManager, openDevTools ]
           },
           {
             label: 'Help',
-            submenu: [ about, reset , openDevTools]
+            submenu: [ about, reset]
           }
         ];
         menu = Menu.buildFromTemplate(template);

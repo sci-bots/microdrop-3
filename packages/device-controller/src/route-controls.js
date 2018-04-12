@@ -31,7 +31,7 @@ const RouteSchema = {
     path:  {set_with: "selected-routes", type: "array", hidden: true},
     "trail-length": {set_with: "selected-routes", type: "integer", minimum: 1, default: 1},
     "repeat-duration-seconds": {set_with: "selected-routes", type: "number", minium: 0, default: 1},
-    "transition-duration-milliseconds": {set_with: "selected-routes", type: "integer", minimum: 100, default: 1000},
+    "transition-duration-seconds": {set_with: "selected-routes", type: "number", minimum: 0.1, default: 1},
     "route-repeats": {set_with: "selected-routes", type: "integer", minimum: 1, default: 1}
   },
   required: ['start']

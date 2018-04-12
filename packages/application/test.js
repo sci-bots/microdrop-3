@@ -125,7 +125,7 @@ describe('MicroDrop', async function() {
       await microdrop.putPlugin('electrodes-model', 'active-electrodes', []);
       // var route = (await microdrop.routes.routes())[0];
       var route = (await microdrop.getState('routes-model', 'routes'))[0];
-      route['transition-duration-milliseconds'] = 100;
+      route['transition-duration-seconds'] = 0.1;
       // await microdrop.routes.execute([route], -1);
       await microdrop.triggerPlugin('routes-model', 'execute',
         {routes: [route]}, -1);

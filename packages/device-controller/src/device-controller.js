@@ -18,12 +18,12 @@ function animate(nowMsec) {
   var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
   lastTimeMsec	= nowMsec;
 
-  if (Date.now() % 4 != 0 ) {
+  if (Date.now() % 6 == 0 ) {
     updateFcts.forEach(function(updateFn){
       updateFn(deltaMsec/1000, nowMsec/1000);
     });
   }
-  
+
   renderer.render( scene, camera );
 }
 
