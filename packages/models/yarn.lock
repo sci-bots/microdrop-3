@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@micropede/client@0.0.35":
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.35.tgz#38cfa135e7a7073006b6382d093987782de8cee2"
+"@micropede/client@0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@micropede/client/-/client-0.0.38.tgz#adcefa368a00d1895093abd9bf5c5ae2ca2c0a49"
   dependencies:
     "@micropede/mixins" "^0.0.23"
     ajv "^6.1.1"

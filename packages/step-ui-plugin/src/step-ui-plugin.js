@@ -90,6 +90,20 @@ class StepUIPlugin extends UIPlugin {
 
     this.sortable = Sortable.create(this.steps, {onEnd: this.onStepReorder.bind(this)});
     Styles.apply(elem);
+
+    this.once("listening", async () => {
+      // Setup meny using plugins with global properties:]
+      let {schema, plugins} = await this.listEditablePlugins();
+
+      this.plugins = _.keys(_.pickBy(plugins, {step: true}));
+      this.schema = schema;
+
+      let args = ['step'];
+      let onclick = this.pluginInEditorChanged.bind(this);
+      let items = _.map(this.plugins, name => {return {name, args, onclick}});
+      this.menu.innerHTML = '';
+      this.menu.appendChild(TabMenu(items));
+    });
   }
 
   async saveToFile(e) {
@@ -128,18 +142,8 @@ class StepUIPlugin extends UIPlugin {
   }
 
   async listen() {
-    // Setup meny using plugins with global properties:]
-    let {schema, plugins} = await this.listEditablePlugins();
-
-    this.plugins = _.keys(_.pickBy(plugins, {step: true}));
-    this.schema = schema;
+    this.trigger("listening");
     
-    let args = ['step'];
-    let onclick = this.pluginInEditorChanged.bind(this);
-    let items = _.map(this.plugins, name => {return {name, args, onclick}});
-    this.menu.innerHTML = '';
-    this.menu.appendChild(TabMenu(items));
-
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});

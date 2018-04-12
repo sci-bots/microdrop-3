@@ -35,18 +35,22 @@ class GlobalUIPlugin extends UIPlugin {
 
     this.addEditorListeners();
     this.schema = GlobalSchema;
+
+    this.once("listening", async () => {
+      // Setup meny using plugins with global properties:
+      let {plugins, schemas} = await this.listEditablePlugins();
+      this.plugins = _.keys(_.pickBy(plugins, {global: true}));
+      this.schemas = schemas;
+      let args = ['global'];
+      let onclick = this.pluginInEditorChanged.bind(this);
+      let items = _.map(this.plugins, name => {return {name, args, onclick}});
+      this.menu.innerHTML = '';
+      this.menu.appendChild(TabMenu(items));
+    });
   }
 
   async listen() {
-    // Setup meny using plugins with global properties:
-    let {plugins, schemas} = await this.listEditablePlugins();
-    this.plugins = _.keys(_.pickBy(plugins, {global: true}));
-    this.schemas = schemas;
-    let args = ['global'];
-    let onclick = this.pluginInEditorChanged.bind(this);
-    let items = _.map(this.plugins, name => {return {name, args, onclick}});
-    this.menu.innerHTML = '';
-    this.menu.appendChild(TabMenu(items));
+    this.trigger("listening");
 
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "global-ui-plugin:change-schema";
