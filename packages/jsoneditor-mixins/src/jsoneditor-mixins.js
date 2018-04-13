@@ -189,6 +189,7 @@ JsonEditorMixins.addEditorListeners = function () {
 
 JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   this.pluginName = item.name;
+  let override = item.override || false;
   let schema = await this.getSchema(item.name);
   let showHidden = await this.getState('show-hidden', 'global-ui-plugin') || false;
 
@@ -206,7 +207,7 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   };
 
   // Only update when schema has changed (XXX: Sometimes this may be necessary)
-  if (!this.schemaHasChanged(schema)) return;
+  if (override == false && !this.schemaHasChanged(schema)) return;
 
   // Reset client
   await this.disconnectClient();

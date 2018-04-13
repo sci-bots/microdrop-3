@@ -74,6 +74,7 @@ class StepUIPlugin extends UIPlugin {
     this.json = {};
     this.schema_hash = '';
     this.editor = this.createEditor(this.content);
+    this.prevHiddenState = undefined;
 
     let prevHeight;
     this.addEditorListeners = () => {
@@ -147,6 +148,13 @@ class StepUIPlugin extends UIPlugin {
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {
       console.log({payload, params});
+    });
+    this.onStateMsg('global-ui-plugin', 'show-hidden', (showHidden) => {
+      console.log("GLOBAL UI PLUGIN CHANGED!");
+      if (this.prevHiddenState != showHidden) {
+        this.prevHiddenState = showHidden;
+        this.pluginInEditorChanged({name: this.pluginName, override: true}, 'step');
+      }
     });
     this.onTriggerMsg('change-schema', async (payload) => {
       const LABEL = "step-ui-plugin:change-schema";

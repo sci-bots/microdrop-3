@@ -35,7 +35,7 @@ class GlobalUIPlugin extends UIPlugin {
 
     this.addEditorListeners();
     this.schema = GlobalSchema;
-
+    this.prevHiddenState = undefined;
     this.once("listening", async () => {
       // Setup meny using plugins with global properties:
       let {plugins, schemas} = await this.listEditablePlugins();
@@ -64,6 +64,10 @@ class GlobalUIPlugin extends UIPlugin {
     });
     this.onPutMsg('show-hidden', async (payload) => {
       await this.setState('show-hidden', payload['show-hidden']);
+      if (payload['show-hidden'] != this.prevState) {
+        this.prevState = payload['show-hidden'];
+        this.pluginInEditorChanged({name: this.pluginName, override: true});
+      }
     });
     let showHidden = await this.getState('show-hidden');
     if (showHidden == undefined) {
