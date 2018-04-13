@@ -24,6 +24,7 @@
     "@microdrop/global-ui-plugin": "^1.1.66",
     "@microdrop/models": "^1.1.66",
     "@microdrop/step-ui-plugin": "^1.1.66",
+    "@microdrop/version-info": "^1.1.66",
     "@microdrop/ui": "^1.1.66",
     "@micropede/broker": "0.0.28",
     "@micropede/client": "0.0.38",

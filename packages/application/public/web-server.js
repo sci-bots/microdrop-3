@@ -22,6 +22,7 @@ const Broker = require('@micropede/broker/src/index.js');
 const {MicropedeClient, GetReceiver, DumpStack} = require('@micropede/client/src/client.js');
 const MicropedeAsync = require('@micropede/client/src/async.js');
 const MicroDropUI = require('@microdrop/ui/index.js');
+const VersionInfo = require('@microdrop/version-info');
 const FindUserDefinedPlugins = require('../utils/find-microdrop-plugins.js');
 
 const env = module.exports.environment;
@@ -48,6 +49,7 @@ class WebServer extends MicropedeClient {
       'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
     }));
     this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
+    this.use(express.static(VersionInfo.GetPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
     this.use(bodyParser.json({limit: '50mb'}));
     this.storage = storage;
