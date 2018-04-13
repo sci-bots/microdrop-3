@@ -14,15 +14,14 @@ var electrodeControls, camera, cameraControls, renderer,
 
 function animate(nowMsec) {
   requestAnimationFrame( animate.bind(this) );
+  if (Date.now() % 4 != 0 ) return;
   lastTimeMsec	= lastTimeMsec || nowMsec - 1000/60;
   var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
   lastTimeMsec	= nowMsec;
 
-  if (Date.now() % 6 == 0 ) {
-    updateFcts.forEach(function(updateFn){
-      updateFn(deltaMsec/1000, nowMsec/1000);
-    });
-  }
+  updateFcts.forEach(function(updateFn){
+    updateFn(deltaMsec/1000, nowMsec/1000);
+  });
 
   renderer.render( scene, camera );
 }
