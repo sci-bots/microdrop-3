@@ -1,6 +1,6 @@
 {
   "name": "@microdrop/step-ui-plugin",
-  "version": "1.1.65",
+  "version": "1.1.66",
   "description": "UI Plugin for loading microdrop steps",
   "main": "microdrop.json",
   "scripts": {
@@ -14,9 +14,9 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@microdrop/helpers": "^1.1.57",
-    "@microdrop/jsoneditor-mixins": "^1.1.65",
+    "@microdrop/jsoneditor-mixins": "^1.1.66",
     "@microdrop/ui-mixins": "^1.1.65",
-    "@microdrop/ui-plugin": "^1.1.64",
+    "@microdrop/ui-plugin": "^1.1.66",
     "@micropede/client": "^0.0.38",
     "ajv": "^6.2.0",
     "bootstrap": "^4.0.0",
