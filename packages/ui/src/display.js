@@ -1,6 +1,7 @@
 const PhosphorWidgets = require('@phosphor/widgets');
 const request = require('browser-request');
 const yo = require('yo-yo');
+const _ = require('lodash');
 
 const DEFAULT_LAYOUT = {
   "main": {
@@ -92,7 +93,7 @@ function init() {
     for (const [pluginName,pluginClass] of microdropPlugins) {
       // const dock = docks[pluginClass.position()];
       const widget = await pluginClass.Widget(panel, focusTracker, PhosphorWidgets);
-      
+
       if (widget.plugin) {
         if (widget.plugin.noPanel != true) {
           widgetMap.set(widget.title.label, widget);

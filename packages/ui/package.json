@@ -14,6 +14,7 @@
     "browser-request": "^0.3.3",
     "jquery": "^3.2.1",
     "keyboard-shortcut": "^1.2.0",
+    "lodash": "^4.17.5",
     "yo-yo": "^1.4.1"
   },
   "author": "Sci-Bots",

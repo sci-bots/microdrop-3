@@ -15,11 +15,10 @@
       const {Menu, MenuItem} = remote;
       const yo = require('yo-yo');
       const _ = require('lodash');
-
+      let view;
       ipcRenderer.on('ready', (e, data) => {
         var ports = JSON.parse(data).ports;
         const content = yo`<div style="height:100%"></div>`;
-        let view;
         const switchView = (tab) => {
           content.innerHTML = '';
           view = yo`
@@ -74,6 +73,11 @@
           `);
         }};
         let reset = {label: 'Reset', click: () => {
+          view.executeJavaScript(`_.each(_.keys(localStorage), (k) => {
+            if (_.includes(k, "microdrop")) {
+              localStorage.removeItem(k);
+            }
+          })`);
           request(`http://localhost:${ports.http_port}/reset`, (e, b, d) => {
             if (e) {console.error(e)}
           });
