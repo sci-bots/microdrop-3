@@ -111,7 +111,7 @@ class StepUIPlugin extends UIPlugin {
     const type = "application/json;charset=utf-8";
     request('/storage-raw', (response, err, body) => {
       const blob = new Blob([body], {type});
-      FileSaver.saveAs(blob, `${generateName()}.microdrop`);
+      FileSaver.saveAs(blob, `${generateName()}.udrp`);
     });
   }
 

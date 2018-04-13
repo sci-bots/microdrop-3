@@ -1,7 +1,9 @@
 require('bootstrap/dist/css/bootstrap.min.css');
 const d64 = require('d64');
+const FileSaver = require('file-saver');
 const msgpack = require('msgpack5')();
 const request = require('browser-request');
+const generateName = require('sillyname');
 const yo = require('yo-yo');
 const _ = require('lodash');
 const MicropedeClient = require('@micropede/client');
@@ -19,10 +21,18 @@ const decodeStorage = (storage) => {
   });
 }
 
+const encodeStorage = (storage) => {
+  return _.mapValues(storage, function (msg) {
+    msg.payload = JSON.stringify(msg.payload);
+    return `Buff:${d64.encode(msgpack.encode(msg).slice())}`;
+  });
+}
+
 class VersionInfo {
   constructor(element) {
     this.element = element;
     this.plugins = [];
+    this.storage = null;
     request('/mqtt-ws-port', (er, response, body) => {
       const port = parseInt(body);
       let storageUrl = window.location.origin;
@@ -34,7 +44,15 @@ class VersionInfo {
           let name = params.name;
           let plugin = _.find(this.plugins, {name});
           if (plugin == undefined) {
-            this.plugins.push({name, version});
+            plugin = {
+              name,
+              version,
+              get needsUpdating() {
+                return this.version > (this.fileVersion || "0.0.0")
+              }
+            };
+
+            this.plugins.push(plugin);
           } else {
             plugin.version = version;
           }
@@ -42,6 +60,7 @@ class VersionInfo {
         });
       }
     });
+    console.log(this);
   }
   compareVersions(storage) {
     const rep = (s) => s.replace("microdrop/","").replace("/state/version", "");
@@ -63,6 +82,7 @@ class VersionInfo {
       reader.onload = (e) => {
         const content = e.target.result;
         const storage = decodeStorage(JSON.parse(content));
+        this.storage = storage;
         callback.bind(this)(storage);
       };
       reader.readAsText(f);
@@ -71,13 +91,45 @@ class VersionInfo {
     const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
     fileinput.click();
   }
+  async updateState() {
+    await Promise.all(_.map(this.plugins, async (p) => {
+      await this.client.dangerouslySetState("version", p.version, p.name);
+    }));
+  }
+  updateFile() {
+    _.each(this.plugins, (p) => {
+      if (p.fileVersion == undefined) return;
+      let storageKey = `${APPNAME}!!retained!${APPNAME}/${p.name}/state/version`;
+      let storageItem = this.storage[storageKey];
+      if (storageItem == undefined) return;
+      storageItem.payload = p.fileVersion;
+    });
+
+    const type = "application/json;charset=utf-8";
+    const body = JSON.stringify(encodeStorage(this.storage));
+    const blob = new Blob([body], {type});
+    FileSaver.saveAs(blob, `${generateName()}.udrp`);
+    console.log(decodeStorage(encodeStorage(this.storage)));
+  }
   renderPlugins() {
+
+    const inputChanged = (p, key, e) => {
+      p[key] = e.target.value;
+      this.renderPlugins();
+    }
+
     this.element.innerHTML = '';
     const navigation = yo`
     <nav class="navbar navbar-light bg-light justify-content-between">
       <a class="navbar-brand">Microdrop Version Info</a>
-      <button class="btn btn-outline-secondary"
-        onclick=${this.uploadFile.bind(this, this.compareVersions)}>Upload File</button>
+      <div style="float:right">
+        <button class="btn btn-outline-secondary"
+          onclick=${this.uploadFile.bind(this, this.compareVersions)}>Upload File</button>
+        <button class="btn btn-outline-secondary"
+          onclick=${this.updateState.bind(this)}>Update State</button>
+        <button class="btn btn-outline-secondary"
+          onclick=${this.updateFile.bind(this)}>Update File</button>
+      </div>
     </nav>
     `;
     const table = yo`
@@ -91,10 +143,18 @@ class VersionInfo {
         </thead>
         <tbody>
           ${_.map(this.plugins, p => yo`
-            <tr>
+            <tr class="${p.needsUpdating ? 'table-danger' : ''}">
               <td>${p.name}</td>
-              <td>${p.version}</td>
-              <td>${p.fileVersion || ""}</td>
+              <td>
+                <input
+                  onchange=${inputChanged.bind(this, p, "version")}
+                  value="${p.version}">
+              </td>
+              <td>
+                <input
+                  onchange=${inputChanged.bind(this, p, "fileVersion")}
+                  value="${p.fileVersion || ''}">
+              </td>
             </tr>
           `)}
         </tbody>
