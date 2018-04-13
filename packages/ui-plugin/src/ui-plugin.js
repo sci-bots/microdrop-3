@@ -49,7 +49,7 @@ class UIPlugin extends MicropedeClient {
         const plugin = new this(widget.node,focusTracker, port, options);
         widget.title.label = plugin.name.replace("-ui-plugin", "").capitalize();
         widget.plugin = plugin;
-        widget.title.closable = true;
+        widget.title.closable = false;
         dock.addWidget(widget);
         plugin.on("activate-tab", ()=> {
           dock.activateWidget(widget);
