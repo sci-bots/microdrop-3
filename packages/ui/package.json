@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@microdrop/ui-plugin": "^1.1.66",
-    "@micropede/client": "0.0.38",
+    "@micropede/client": "0.0.39",
     "@phosphor/widgets": "^1.5.0",
     "browser-request": "^0.3.3",
     "jquery": "^3.2.1",

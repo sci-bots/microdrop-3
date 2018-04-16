@@ -14,7 +14,7 @@
     "@microdrop/jsoneditor-mixins": "^1.1.66",
     "@microdrop/ui-mixins": "^1.1.65",
     "@microdrop/ui-plugin": "^1.1.66",
-    "@micropede/client": "^0.0.38",
+    "@micropede/client": "^0.0.39",
     "ajv": "^6.2.0",
     "css-loader": "^0.28.10",
     "jsoneditor": "^5.14.0",

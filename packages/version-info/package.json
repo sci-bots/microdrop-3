@@ -16,7 +16,7 @@
     "build": "webpack"
   },
   "dependencies": {
-    "@micropede/client": "^0.0.38",
+    "@micropede/client": "^0.0.39",
     "bootstrap": "^4.1.0",
     "browser-request": "^0.3.3",
     "d64": "^1.0.0",
