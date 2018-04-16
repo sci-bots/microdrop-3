@@ -41,6 +41,8 @@
         let display = {label: 'Display', click: switchView.bind(this, 'display')};
         let uiManager = {label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')};
         let processManager = {label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')};
+        let versionManager = {label: 'Version Manager (Advanced Users Only)', click: switchView.bind(this, 'version-info')};
+
         let openDevice = {label: 'Open Device', click: () => {
           request(`http://localhost:${ports.http_port}/open-device`, (e, b, d) => {
             if (e) {console.error(e)}
@@ -52,7 +54,7 @@
             view.reload();
           });
         }};
-        let openDevTools = {label: 'Dev Tools', click: () => {
+        let openDevTools = {label: 'Dev Tools (Advanced Users Only)', click: () => {
           view.openDevTools();
           remote.getCurrentWindow().openDevTools();
         }};
@@ -65,7 +67,6 @@
             FileSaver.saveAs(blob, `${generateName()}.udrp`);
           });
         }};
-
         let about = {label: 'About', click: () => {
           alert(`
             ${module.exports.productName}
@@ -90,7 +91,7 @@
           },
           {
             label: 'View',
-            submenu: [ display, uiManager, processManager, openDevTools ]
+            submenu: [ display, uiManager, processManager, versionManager, openDevTools ]
           },
           {
             label: 'Help',
