@@ -32,12 +32,18 @@ class StepUIPlugin extends UIPlugin {
     _.extend(this, JsonEditorMixins);
     const changeSchema = (item) => this.pluginInEditorChanged(item, 'step');
 
-    let btns = [
-      {name: 'Download', onclick:  this.saveToFile.bind(this), stat: "secondary"},
-      {name: 'Upload', onclick: this.openFile.bind(this), stat: "secondary"},
+    let btns = [];
+    if (!_.includes(window.navigator.userAgent, "Electron")){
+      btns = [
+        {name: 'Download', onclick:  this.saveToFile.bind(this), stat: "secondary"},
+        {name: 'Upload', onclick: this.openFile.bind(this), stat: "secondary"},
+      ];
+    };
+
+    btns = [...btns, ...[
       {name: 'Execute', onclick: this.executeSteps.bind(this), stat: "primary"},
       {name: 'Create Step', onclick: this.createStep.bind(this), stat: "success"}
-    ];
+    ]];
 
     this.menu = yo`<div></div>`;
     this.steps = yo`<div style="overflow-y: auto"></div>`;
