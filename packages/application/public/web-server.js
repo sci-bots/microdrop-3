@@ -53,7 +53,7 @@ class WebServer extends MicropedeClient {
     this.use(express.static(VersionInfo.GetPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
     this.use(bodyParser.json({limit: '50mb'}));
-    VersionInfo.InitVersionManager(this, {ports});
+    this.manager = VersionInfo.InitVersionManager(this, {ports});
 
     this.storage = storage;
     this.broker = broker;
@@ -205,8 +205,10 @@ class WebServer extends MicropedeClient {
       });
     });
 
+    // Pt1
     this.get('/open-protocol', (req, res) => {
-      // Trigger file open menu
+      // Trigger file open menu, and then send update procedure to user
+      // to obtain confirmation. Follow this api call with "restore-protocol"
       const options = {
         properties: ['openFile'],
         filters: [{name: 'MicroDrop Protocol', extensions: ['udrp']}]
@@ -215,10 +217,26 @@ class WebServer extends MicropedeClient {
         fs.readFile(paths[0], 'utf8', (err, data) => {
           if (err) console.error(err);
           let content = JSON.parse(data.toString());
-          this.loadStorage(content);
-          res.send('protocol loaded');
+          let plugins = this.manager.validateProcotol(this.manager.decodeStorage(content));
+          res.json(plugins);
         });
       });
+    });
+
+    // Pt2
+    this.get('/upgrade-outdated-file', (req, res) => {
+      /* Must call open-protocol first! */
+      const {name} = req.query;
+      const storageFile = manager.performUpgrade(name);
+    });
+
+    // Pt3
+    this.get('/load-protocol', (req, res) => {
+      /* Must call open-protocol & upgrade-outdated-file first! */
+      const file = this.manager.encodeStorage(this.manager.getStorageFile());
+      this.loadStorage(file);
+      this.manager.clearActiveStorageFile();
+      res.send("load complete!");
     });
 
     this.get('/exit', (req, res) => {res.send(this.exit())});

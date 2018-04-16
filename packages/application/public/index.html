@@ -38,6 +38,8 @@
 
         let menu;
 
+        const urlPrefix = `http://localhost:${ports.http_port}`;
+
         let display = {label: 'Display', click: switchView.bind(this, 'display')};
         let uiManager = {label: 'UI Plugin Manager', click: switchView.bind(this, 'ui-plugins')};
         let processManager = {label: 'Process Plugin Manager',  click: switchView.bind(this, 'process-plugins')};
@@ -48,10 +50,41 @@
             if (e) {console.error(e)}
           });
         }};
-        let openProtocol = {label: 'Open Protocol', click: () => {
-          request(`http://localhost:${ports.http_port}/open-protocol`, (e, b, d) => {
+
+        let openProtocol = {label: 'Open Protocol', click: async () => {
+          // Open Protocol File
+          request(`${urlPrefix}/open-protocol`, async (e, b, d) => {
             if (e) {console.error(e)}
-            view.reload();
+            let data = JSON.parse(d);
+
+            // Check if file is out of date
+            let needsUpdating = _.includes(_.map(data, "needsUpdating"), true);
+            let outdated = _.map(_.filter(data, {needsUpdating: true}), "name");
+
+            let shouldUpdate = false;
+            if (needsUpdating)
+              shouldUpdate = confirm(`The follwing plugins are out of date: ${outdated.join(" ")}. Would you like microdrop to attempt an update?`);
+
+            // If out of date, ask for confirmation to modify
+            if (shouldUpdate == true) {
+              const url = `${urlPrefix}/upgrade-outdated-file`;
+              await Promise.all(_.map(outdated, (name) => {
+                return new Promise((resolve, reject) => {
+                  request(`${url}?name=${name}`, (e, b, d) => {
+                    if (e) reject(e);
+                    resolve(d);
+                  });
+                });
+              }));
+            }
+
+            // Load contents to localStorage
+            if (needsUpdating == false || (needsUpdating && shouldUpdate)) {
+              request(`${urlPrefix}/load-protocol`, (e, b, d) => {
+                if (e) throw(e);
+                view.reload();
+              });
+            }
           });
         }};
         let openDevTools = {label: 'Dev Tools (Advanced Users Only)', click: () => {

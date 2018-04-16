@@ -37,20 +37,15 @@ class VersionInfo {
     this.storage = null;
     request('/version-manager-plugins', (e, r, body) => {
       if (e) throw(e);
-      console.log({body});
       this.plugins = JSON.parse(body);
-      console.log({plugins: this.plugins});
-
       this.renderPlugins();
     });
   }
   compareVersions(storage) {
-    console.log({storage});
     let body = JSON.stringify(storage);
     const req = {method:'POST', url:'/validate-file', body: body, json:true};
     request(req, (e, res, body) => {
       if (e) throw(e);
-      console.log({body});
       this.plugins = body;
       this.renderPlugins();
     });
@@ -91,7 +86,6 @@ class VersionInfo {
     const body = JSON.stringify(encodeStorage(this.storage));
     const blob = new Blob([body], {type});
     FileSaver.saveAs(blob, `${generateName()}.udrp`);
-    console.log(decodeStorage(encodeStorage(this.storage)));
   }
   async performUpgrade(p) {
     request(`/perform-upgrade?name=${p.name}`, (e, res, body) => {
