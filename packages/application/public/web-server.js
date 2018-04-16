@@ -48,10 +48,13 @@ class WebServer extends MicropedeClient {
       'origin': '*',
       'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
     }));
+
     this.use(express.static(MicroDropUI.GetUIPath(), {extensions:['html']}));
     this.use(express.static(VersionInfo.GetPath(), {extensions:['html']}));
     this.use(express.static(path.join(__dirname,"resources")));
     this.use(bodyParser.json({limit: '50mb'}));
+    VersionInfo.InitVersionManager(this, {ports});
+
     this.storage = storage;
     this.broker = broker;
     this.ports = ports;

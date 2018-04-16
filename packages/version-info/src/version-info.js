@@ -35,64 +35,43 @@ class VersionInfo {
     this.element = element;
     this.plugins = [];
     this.storage = null;
-    request('/mqtt-ws-port', (er, response, body) => {
-      const port = parseInt(body);
-      this.port = port;
-      let storageUrl = window.location.origin;
-      const options = {storageUrl: storageUrl, resubscribe: false};
-      let u = undefined;
-      this.client = new MicropedeClient("microdrop", u, port, "VersionInfo", u, options);
-      this.client.listen = () => {
-        this.client.onStateMsg("{name}", "version", (version, params) => {
-          let name = params.name;
-          let plugin = _.find(this.plugins, {name});
-          if (plugin == undefined) {
-            plugin = {
-              name,
-              version,
-              get needsUpdating() {
-                return this.version > (this.fileVersion || "0.0.0")
-              }
-            };
+    request('/version-manager-plugins', (e, r, body) => {
+      if (e) throw(e);
+      console.log({body});
+      this.plugins = JSON.parse(body);
+      console.log({plugins: this.plugins});
 
-            this.plugins.push(plugin);
-          } else {
-            plugin.version = version;
-          }
-          this.renderPlugins();
-        });
-      }
+      this.renderPlugins();
     });
-    console.log(this);
   }
   compareVersions(storage) {
-    const rep = (s) => s.replace("microdrop/","").replace("/state/version", "");
-    let versionsMsgs = _.filter(storage, (v,k)=>_.includes(k,"/version"));
-    let versions = _.map(versionsMsgs, (msg) => {
-      return {name: rep(msg.topic), version: msg.payload}
+    console.log({storage});
+    let body = JSON.stringify(storage);
+    const req = {method:'POST', url:'/validate-file', body: body, json:true};
+    request(req, (e, res, body) => {
+      if (e) throw(e);
+      console.log({body});
+      this.plugins = body;
+      this.renderPlugins();
     });
-    _.each(this.plugins, (p) => {
-      // fileVersion
-      let plugin = _.find(versions, {name: p.name});
-      p.fileVersion = plugin.version;
-    });
-    this.renderPlugins();
   }
   uploadFile(callback) {
+    let fileinput;
+
     const handler = (e) => {
       const f = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target.result;
         const storage = decodeStorage(JSON.parse(content));
-        this.storage = storage;
         callback.bind(this)(storage);
       };
       reader.readAsText(f);
     }
 
-    const fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
+    fileinput = yo`<input type='file' onchange=${handler.bind(this)} />`;
     fileinput.click();
+    fileinput = null;
   }
   async updateStateVersions() {
     await Promise.all(_.map(this.plugins, async (p) => {
@@ -101,11 +80,11 @@ class VersionInfo {
   }
   downloadFile() {
     _.each(this.plugins, (p) => {
-      if (p.fileVersion == undefined) return;
+      if (p.storageVersion == undefined) return;
       let storageKey = `${APPNAME}!!retained!${APPNAME}/${p.name}/state/version`;
       let storageItem = this.storage[storageKey];
       if (storageItem == undefined) return;
-      storageItem.payload = p.fileVersion;
+      storageItem.payload = p.storageVersion;
     });
 
     const type = "application/json;charset=utf-8";
@@ -115,40 +94,30 @@ class VersionInfo {
     console.log(decodeStorage(encodeStorage(this.storage)));
   }
   async performUpgrade(p) {
-    // Call upgrade action on particular plugin
-    let storageVersion = p.fileVersion;
-    let pluginVersion = p.version;
-    let storageKeyPrefix = `${APPNAME}!!retained!${APPNAME}/${p.name}/state`;
-    let stats = [];
-    let responses = {};
-
-    await Promise.all(_.map(this.storage, async (v, k) => {
-      if (_.includes(k, storageKeyPrefix)) {
-        if (k == `${storageKeyPrefix}/version`) return;
-        let state = this.storage[k].payload;
-        let payload = {state, storageVersion, pluginVersion};
-        const microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
-        let d = await microdrop.triggerPlugin(p.name, 'update-version', payload);
-        stats.push(d.status == "success");
-        responses[k] = {key: k, val: d.response};
-      }
-    }));
-    let plugin = _.find(this.plugins, {name: p.name});
-    plugin.response = _.map(_.values(responses), JSON.stringify).join("\n");
-    if (!_.includes(stats, false)) {
-      plugin.fileVersion = plugin.version;
-      await Promise.all(_.map(responses, async (v, k) => {
-        await this.client.dangerouslySetState(k, v, p.name);
-      }));
-    }
-    this.renderPlugins();
+    request(`/perform-upgrade?name=${p.name}`, (e, res, body) => {
+      if (e) throw(e);
+      let updatedPlugin = JSON.parse(body);
+      let plugin = _.find(this.plugins, {name: updatedPlugin.name});
+      _.extend(plugin, updatedPlugin);
+      this.renderPlugins();
+    });
   }
 
   renderPlugins() {
 
     const inputChanged = (p, key, e) => {
-      p[key] = e.target.value;
-      this.renderPlugins();
+      let url;
+
+      if (key == "version") url = '/modify-plugin-version';
+      if (key == "storageVersion") url = '/modify-storage-version';
+
+      request(`${url}?name=${p.name}&val=${e.target.value}`, (e, r, body) => {
+        if (e) throw(e);
+        let updatedPlugin = JSON.parse(body);
+        let plugin = _.find(this.plugins, {name: p.name});
+        _.extend(plugin, updatedPlugin);
+        this.renderPlugins();
+      });
     }
 
     this.element.innerHTML = '';
@@ -186,8 +155,8 @@ class VersionInfo {
               </td>
               <td>
                 <input
-                  onchange=${inputChanged.bind(this, p, "fileVersion")}
-                  value="${p.fileVersion || ''}">
+                  onchange=${inputChanged.bind(this, p, "storageVersion")}
+                  value="${p.storageVersion || ''}">
               </td>
               <td>
                 ${p.needsUpdating ? yo`
