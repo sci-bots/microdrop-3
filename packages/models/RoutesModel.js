@@ -317,7 +317,10 @@ async function ActiveElectrodeIntervals(r, port) {
   const times = [];
   for (const [i, id] of seq.ids.entries()) {
     const on  = r['transition-duration-seconds'] * (i-r['trail-length']+1);
-    const off = r['transition-duration-seconds'] * (i+1);
+    let off = r['transition-duration-seconds'] * (i+1);
+    if (i == (seq.ids.length - 1)) {
+      off = 1e10;
+    }
     const index = i;
     times.push({id, on, off, index});
   }
