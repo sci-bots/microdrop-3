@@ -21,6 +21,18 @@ const select = (b) => {
   b.classList.add("btn-primary");
 }
 
+const disableDiv = (div) => {
+  div.style.pointerEvents = "none";
+  div.style.opacity = 0.5;
+  div.style.backgroundColor = "lightgray";
+}
+
+const enableDiv = (div) => {
+  div.style.pointerEvents = "all";
+  div.style.opacity = 1;
+  div.style.backgroundColor = "white";
+}
+
 const Step = (state, index, options) => {
   /* Create a Step element with callbacks */
   const id = `step-group-${uuid()}`;
@@ -109,12 +121,14 @@ StepMixins.executeSteps = async function(btn) {
     btn.classList.remove(state1);
     btn.classList.add(state2);
     btn.innerText = "Stop";
+    disableDiv(this.steps);
   };
 
   let toggle2 = () => {
     btn.classList.remove(state2);
     btn.classList.add(state1);
     btn.innerText = "Execute";
+    enableDiv(this.steps);
   };
 
   if (btn.classList.contains(state2)) {
