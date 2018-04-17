@@ -3,7 +3,6 @@ channels:
 - dropbot
 - lucaszw
 - sci-bots
-- scibots-unstable
 - wheeler-microfluidics
 - conda-forge
 - microdrop-plugins
@@ -35,7 +34,7 @@ dependencies:
 - protobuf=3.5.2=py36_vc14_0
 - pycparser=2.18=py36_0
 - pydash=4.4.0=py_0
-- pyopenssl=17.5.0=py36_0
+- pyopenssl
 - pyparsing=2.2.0=py36_0
 - pysocks=1.6.8=py36_1
 - pytables=3.4.2=py36_7
