@@ -1,4 +1,5 @@
 import asyncio
+import json
 import threading
 from threading import Thread
 
@@ -71,22 +72,19 @@ APPNAME = "microdrop"
 class DropBot(MicropedeClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.schema = SCHEMA
 
     async def update_board_info(self):
-        print("Updating board info")
         info = {}
-        info['number of channels'] = int(self.control_board.number_of_channels)
-        info['high voltage enabled'] = self.control_board.hv_output_enabled
-        info['port'] = self.control_board.port
-        info['hardware version'] = str(self.control_board.hardware_version.decode('utf8'))
-        info['hv_output_selected'] = self.control_board.hv_output_selected
+        _.assign(info, json.loads(self.control_board.config.to_json()))
+        _.assign(info, json.loads(self.control_board.state.to_json()))
+        _.assign(info, json.loads(self.control_board.properties.to_json()))
         await self.set_state('info', info)
 
     def listen(self):
         setup_serial_proxy(self)
         self.control_board.hv_output_enabled = True
         self.control_board.hv_output_selected = True
+
         self.on_put_msg("frequency", self.put_frequency)
         self.on_put_msg("voltage", self.put_voltage)
         self.on_trigger_msg("connect-dropbot", self.connect_dropbot)
@@ -94,7 +92,16 @@ class DropBot(MicropedeClient):
         self.on_trigger_msg("measure-voltage", self.measure_voltage)
         self.on_trigger_msg("put-voltage-frequency", self.put_voltage_frequency)
         self.on_state_msg("electrodes-model", "active-electrodes", self.turn_on_electrodes)
+        self.on_state_msg("electrodes-model", "voltage", self.change_voltage)
+        self.on_state_msg("electrodes-model", "frequency", self.change_frequency)
+        self.on_state_msg("dropbot-ui-plugin", "{key}", self.modify_status)
         self.wait_for(self.update_board_info())
+
+    async def change_voltage(self, payload, params):
+        pass
+
+    async def change_frequency(self, payload, params):
+        pass
 
     async def put_voltage_frequency(self, payload, params):
         self.control_board.voltage = float(payload["voltage"])
@@ -102,7 +109,6 @@ class DropBot(MicropedeClient):
         pass
 
     async def turn_on_electrodes(self, payload, params):
-        print("TURNING ON ELECTRODES!!!!!")
         # Get the three object from device-model
         microdrop = MicropedeAsync(APPNAME,port=self.port,loop=self.loop)
         three_object = await microdrop.get_state('device-model', 'three-object')
