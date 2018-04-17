@@ -285,9 +285,6 @@ class DeviceUIPlugin extends UIPlugin {
         menu.videoControls.reset();
         anchorState.setValue(false);
       },
-      rotateVideo() {
-        menu.videoControls.rotate();
-      },
       flipHorizontal() {
         menu.videoControls.flipHorizontal();
       },
@@ -317,12 +314,10 @@ class DeviceUIPlugin extends UIPlugin {
 
     // Setup Dat.GUI
     if (!container) container = document.body;
-    gui.add(menu.cameraControls, 'enableRotate');
     anchorState = gui.add(menu.videoControls, "displayAnchors");
     gui.add(menu.electrodeControls, "showChannels");
     gui.add(devices, 'camera',  _.extend(defaultCameraOptions, cameraOptions));
     gui.add(devices, 'resetAnchors');
-    gui.add(devices, 'rotateVideo');
     gui.add(devices, 'flipHorizontal');
     gui.add(devices, 'flipVertical');
     gui.add(devices, 'offOpacity', 0, 1);
