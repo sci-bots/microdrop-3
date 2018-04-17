@@ -33,6 +33,23 @@ const enableDiv = (div) => {
   div.style.backgroundColor = "white";
 }
 
+let [state1, state2] = ['btn-outline-primary', 'btn-outline-danger'];
+let changeButtonToStop = (btn, div) => {
+  btn.classList.remove(state1);
+  btn.classList.add(state2);
+  btn.innerText = "Stop";
+  btn.running = true;
+  disableDiv(div);
+};
+
+let changeButtonToExecute = (btn, div) => {
+  btn.classList.remove(state2);
+  btn.classList.add(state1);
+  btn.innerText = "Execute";
+  btn.running = false;
+  enableDiv(div);
+};
+
 const Step = (state, index, options) => {
   /* Create a Step element with callbacks */
   const id = `step-group-${uuid()}`;
@@ -112,36 +129,24 @@ StepMixins.getAvailablePlugins = async function() {
   return availablePlugins;
 }
 
+StepMixins.toggleExecuteButton = async function(btn, state) {
+  if (state == "stopped") changeButtonToExecute(btn, this.steps);
+  if (state == "running") changeButtonToStop(btn, this.steps);
+}
+
 StepMixins.executeSteps = async function(btn) {
-  let [state1, state2] = ['btn-outline-primary', 'btn-outline-danger'];
   let microdrop;
   // Fetch all subscriptions including the term execute
-
-  let toggle1 = () => {
-    btn.classList.remove(state1);
-    btn.classList.add(state2);
-    btn.innerText = "Stop";
-    disableDiv(this.steps);
-  };
-
-  let toggle2 = () => {
-    btn.classList.remove(state2);
-    btn.classList.add(state1);
-    btn.innerText = "Execute";
-    enableDiv(this.steps);
-  };
 
   if (btn.classList.contains(state2)) {
     // TODO: Should call a 'stop' trigger on all executable plugins
     this.running = false;
     microdrop = new MicropedeAsync(APPNAME, undefined, this.port);
     await microdrop.triggerPlugin('routes-model', 'stop', {});
-    toggle2();
     return;
   }
 
   this.running = true;
-  toggle1();
   const steps = await this.getState('steps');
 
   // Before loading steps, get a list of plugins still listening:
@@ -170,8 +175,9 @@ StepMixins.executeSteps = async function(btn) {
     }));
 
   }
+
   this.running = false;
-  toggle2();
+  await microdrop.triggerPlugin('routes-model', 'stop', {});
   console.log("Done!");
 }
 

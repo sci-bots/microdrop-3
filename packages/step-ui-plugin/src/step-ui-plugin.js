@@ -61,6 +61,7 @@ class StepUIPlugin extends UIPlugin {
                 let btn;
                 btn = yo`
                   <button
+                    id="btn-${b.name}"
                     class="btn btn-sm btn-outline-${b.stat}"
                     style="width:100%;margin-bottom:2px;"
                     onclick=${()=>b.onclick(btn)}>
@@ -150,6 +151,17 @@ class StepUIPlugin extends UIPlugin {
 
   async listen() {
     this.trigger("listening");
+
+    let toggleHandler = (state) => {
+      let btn = document.querySelector("#btn-Execute");
+      this.toggleExecuteButton(btn, state);
+    };
+
+    let sub1 = `${APPNAME}/trigger/routes-model/execute`;
+    let sub2 = `${APPNAME}/trigger/routes-model/stop`;
+    this.addSubscription(sub1, toggleHandler.bind(this, "running"));
+    this.addSubscription(sub2, toggleHandler.bind(this, "stopped"));
+    this.onSignalMsg("routes-model", "complete", toggleHandler.bind(this, "stopped"));
 
     await this.onStateMsg(this.name, 'steps', this.onStepState.bind(this));
     await this.onStateMsg('file-launcher', 'last-opened-file', (payload, params) => {

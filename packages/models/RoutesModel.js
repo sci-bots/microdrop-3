@@ -69,6 +69,7 @@ class RoutesModel extends MicropedeClient {
     this.onTriggerMsg("add-electrode-to-sequence", this.addElectrodeToSequence.bind(this));
     this.onTriggerMsg("execute", this.execute.bind(this));
     this.onTriggerMsg("stop", this.stop.bind(this));
+    this.bindSignalMsg("complete", "execution-complete");
   }
 
   // ** Getters and Setters **
@@ -81,6 +82,7 @@ class RoutesModel extends MicropedeClient {
     try {
       // TODO: Verify exection stopped before notifying sender
       this.running = false;
+      this.trigger("execution-complete", {});
       return this.notifySender(payload, {status: 'stopped'}, 'stop');
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), 'stop', 'failed');
@@ -203,7 +205,7 @@ class RoutesModel extends MicropedeClient {
       await complete();
 
       await this.setState('status', 'stopped');
-
+      this.trigger("execution-complete", {});
       return this.notifySender(payload, {status: 'stopped'}, 'execute');
     } catch (e) {
       return this.notifySender(payload, DumpStack(LABEL, e), 'execute', 'failed');
