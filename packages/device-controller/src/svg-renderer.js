@@ -236,9 +236,10 @@ const init = async (url='/default.svg', scene, camera, renderer, container,
     for (const [i, group] of svgGroup.children.entries()) {
       group.outline.material.resolution = resolution;
 
-      const addListener = (name) => {
+      const addListener = (name, trigger) => {
+        trigger = trigger || name;
         domEvents.addEventListener(group.fill, name, (e) => {
-          controller.trigger(name, e)
+          controller.trigger(trigger, e)
         }, false);
       };
 
@@ -248,6 +249,8 @@ const init = async (url='/default.svg', scene, camera, renderer, container,
       addListener('mouseup');
       addListener('mouseover');
       addListener('mouseout');
+      addListener('touchstart', 'mousedown');
+      addListener('touchend', 'mouseout');
     }
 
     // scene.add(svgGroup);

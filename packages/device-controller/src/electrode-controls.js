@@ -63,6 +63,7 @@ class ElectrodeControls extends MicropedeClient {
     // Mouse event assigned using THREEx.DomEvents in svg-renderer
     this.enabled = true;
     this.on("mousedown", this.mousedown.bind(this));
+    this.on("touchstart", this.mousedown.bind(this));
     this.layers = 1;
     this.offOpacity = DEFAULT_OFF_OPACITY;
     this.onOpacity  = DEFAULT_ON_OPACITY;
