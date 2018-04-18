@@ -44,13 +44,13 @@ const ElectrodesSchema = {
     },
     "voltage": {
       type: "string",
-      pattern: "^([0-9]+)V",
-      default: "100V"
+      pattern: "^([0-9]+) V",
+      default: "100 V"
     },
     "frequency": {
       type: "string",
-      pattern: "^([0-9]+)Hz",
-      default: "1000Hz"
+      pattern: "^([0-9]+) Hz",
+      default: "1000 Hz"
     }
   }
 };
