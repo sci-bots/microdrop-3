@@ -1,7 +1,7 @@
 {
   "name": "@microdrop/application",
   "productName": "microdrop",
-  "version": "1.1.67",
+  "version": "1.1.68",
   "description": "",
   "main": "bin/microdrop",
   "scripts": {
@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@microdrop/device-controller": "^1.1.67",
-    "@microdrop/device-ui-plugin": "^1.1.67",
-    "@microdrop/dropbot-plugin": "^1.1.67",
+    "@microdrop/device-ui-plugin": "^1.1.68",
+    "@microdrop/dropbot-plugin": "^1.1.68",
     "@microdrop/global-ui-plugin": "^1.1.67",
-    "@microdrop/models": "^1.1.67",
-    "@microdrop/step-ui-plugin": "^1.1.67",
+    "@microdrop/models": "^1.1.68",
+    "@microdrop/step-ui-plugin": "^1.1.68",
     "@microdrop/ui": "^1.1.67",
     "@microdrop/version-info": "^1.1.67",
     "@micropede/broker": "0.0.28",
