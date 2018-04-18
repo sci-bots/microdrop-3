@@ -194,6 +194,7 @@ JsonEditorMixins.pluginInEditorChanged = async function (item, mode='global') {
   let showHidden = await this.getState('show-hidden', 'global-ui-plugin') || false;
 
   const removeHidden = (obj) => {
+    if (!_.isPlainObject(obj)) return;
     if (showHidden == true) return;
     _.each(obj, (v,k) => {
       let _path = _.findPath(schema, k);
