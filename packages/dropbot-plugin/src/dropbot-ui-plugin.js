@@ -5,38 +5,25 @@ const UIPlugin = require('@microdrop/ui-plugin');
 
 const APPNAME = 'microdrop';
 
+const keys = ["i2c_address", "switching_board_i2c_address", "R7", "pot_max",
+"max_voltage", "min_frequency", "max_frequency", "id", "capacitance_n_samples",
+"hv_output_enabled", "hv_output_selected", "channel_count",
+"capacitance_update_interval_ms", "target_capacitance",
+"base_node_software_version", "package_name", "display_name", "manufacturer",
+"url", "software_version", "uuid", "voltage", "frequency"];
+
+let properties =_.zipObject(keys, _.map(keys, () => {return {editable: false, hidden: true}}));
+
 const DropBotSchema = {
   type: "object",
   properties: {
-    "connection-status": {
-      type: "string",
-      default: "disconnected",
-      per_step: false,
-      editable: false
-    },
-    "channel-count": {
-      type: "integer",
-      default: 120,
-      per_step: false,
-      editable: false
-    },
-    "firmware-version": {
-      type: "string",
-      default: "unknown",
-      per_step: false,
-      editable: false
-    },
-    "hardware-version": {
-      type: "string",
-      default: "unknown",
-      per_step: false,
-      editable: false
-    },
-    "control-board-uuid": {
-      type: "string",
-      default: "unknown",
-      per_step: false,
-      editable: false
+    "info": {
+      type: "object",
+      properties: _.extend(properties, {
+        voltage: {hidden: false},
+        frequency: {hidden: false}
+      }),
+      per_step: false
     }
   }
 };
@@ -48,6 +35,11 @@ class DropbotUIPlugin extends UIPlugin {
     this.schema = DropBotSchema;
   }
   listen() {
+    this.onStateMsg("dropbot", "info", (payload, params) => {
+      this.setState("info", _.omit(payload, "__head__"));
+      console.log("DROPBOT INFO:::");
+      console.log({payload, params});
+    });
     console.log("Dropbot UI is Listening!");
   }
 }

@@ -5,6 +5,7 @@ from threading import Thread
 
 import numpy as np
 import pydash as _
+from si_prefix import si_format, si_parse
 
 from dropbot import SerialProxy
 from micropede.client import MicropedeClient , dump_stack
@@ -78,6 +79,7 @@ class DropBot(MicropedeClient):
         _.assign(info, json.loads(self.control_board.config.to_json()))
         _.assign(info, json.loads(self.control_board.state.to_json()))
         _.assign(info, json.loads(self.control_board.properties.to_json()))
+        _.assign(info, {"uuid": str(self.control_board.uuid)})
         await self.set_state('info', info)
 
     def listen(self):
@@ -97,16 +99,33 @@ class DropBot(MicropedeClient):
         self.on_state_msg("dropbot-ui-plugin", "{key}", self.modify_status)
         self.wait_for(self.update_board_info())
 
-    async def change_voltage(self, payload, params):
-        pass
+    async def change_voltage(self, voltage, params):
+        try:
+            print("CHANGING :) VOLTAGE!!!")
+            # Convert payload from si_unit string to number
+            print("CALLING PSI PARSE:", voltage);
+            voltage = si_parse(_.replace(voltage, "V", ""))
+            print("ITS NOW: ", voltage)
+            await self.put_voltage({"voltage": voltage}, {})
+            await self.update_board_info()
+        except Exception as e:
+            print("Error setting voltage")
+            print(e)
 
-    async def change_frequency(self, payload, params):
-        pass
+    async def change_frequency(self, frequency, params):
+        try:
+            print("FREQ", frequency)
+            frequency = si_parse(_.replace(frequency, "Hz", ""))
+            await self.put_frequency({"frequency": frequency}, params)
+            await self.update_board_info()
+        except Exception as e:
+            print("Error setting frequency")
+            print(e)
 
     async def put_voltage_frequency(self, payload, params):
         self.control_board.voltage = float(payload["voltage"])
         self.control_board.frequency = float(payload["frequency"])
-        pass
+        await self.update_board_info()
 
     async def turn_on_electrodes(self, payload, params):
         # Get the three object from device-model
@@ -125,7 +144,7 @@ class DropBot(MicropedeClient):
         channel_states[channels] = 1
         self.control_board.set_state_of_channels(channel_states)
         print(self.control_board.state_of_channels)
-        self.wait_for(self.update_board_info())
+        await self.update_board_info()
 
     async def measure_voltage(self, payload, params):
         try:
@@ -166,8 +185,8 @@ class DropBot(MicropedeClient):
         try:
             self.validate_schema(payload)
             self.control_board.frequency = float(payload["frequency"])
-            await self.set_state("frequency", payload["frequency"])
-            self.notify_sender(payload, payload["frequency"], "frequency")
+            await self.update_board_info()
+            self.notify_sender(payload, self.control_board.frequency, "frequency")
         except Exception as e:
             print(e)
             self.notify_sender(payload, dump_stack(self.client.name, e),
@@ -176,12 +195,14 @@ class DropBot(MicropedeClient):
     async def put_voltage(self, payload, params):
         """ Set the on voltage for fluxels"""
         try:
+            print("PUT VOLTAGE CALLED!")
             self.validate_schema(payload)
             self.control_board.voltage = float(payload["voltage"])
             print("SETTING STATE OF VOLTAGE TO:", payload["voltage"])
-            await self.set_state("voltage", payload["voltage"])
+            print("SETTING STATE!!")
+            await self.update_board_info()
             print("SET SUCCESSFUL")
-            self.notify_sender(payload, payload["voltage"], "voltage")
+            self.notify_sender(payload, self.control_board.voltage, "voltage")
         except Exception as e:
             print(e)
             self.notify_sender(payload, dump_stack(self.client.name, e),
