@@ -46,7 +46,7 @@ class StepUIPlugin extends UIPlugin {
     ]];
 
     this.menu = yo`<div></div>`;
-    this.steps = yo`<div style="overflow-y: auto"></div>`;
+    this.steps = yo`<div id="step-container" style="overflow-y: auto"></div>`;
     this.content = yo`<div></div>`;
 
     this.element.appendChild(yo`
@@ -185,24 +185,35 @@ class StepUIPlugin extends UIPlugin {
       }
     });
 
+    let stepContainer = document.querySelector("#step-container");
     key('up', async (e) => {
       if (!this.hasFocus) return;
       let loadedStep = await this.getState('loaded-step') || 0;
       if (loadedStep <= 0) {
-        this.loadStep((await this.getState('steps')).length-1);
+        loadedStep = (await this.getState('steps')).length-1;
       } else {
-        this.loadStep(loadedStep-1);
+        loadedStep -= 1;
       }
+      this.loadStep(loadedStep);
+      let stepItem =  document.querySelector(`#step-${loadedStep}`);
+      stepItem.focus();
+      let {top} = stepItem.getBoundingClientRect();
+      stepContainer.scrollTop = top;
     });
 
     key('down', async (e) => {
       if (!this.hasFocus) return;
       let loadedStep = await this.getState('loaded-step') || 0;
       if (loadedStep >= (await this.getState('steps')).length-1) {
-        this.loadStep(0);
+        loadedStep = 0;
       } else {
-        this.loadStep(loadedStep+1);
+        loadedStep += 1;
       }
+      this.loadStep(loadedStep);
+      let stepItem =  document.querySelector(`#step-${loadedStep}`);
+      stepItem.focus();
+      let {top} = stepItem.getBoundingClientRect();
+      stepContainer.scrollTop = top;
     });
 
   }

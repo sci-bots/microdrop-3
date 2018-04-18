@@ -162,9 +162,12 @@ StepMixins.executeSteps = async function(btn) {
     if (subs.length > 0 ) executablePlugins.push(p);
   }));
 
+  let stepContainer = document.querySelector("#step-container");
   for (let i = await this.getState('loaded-step') || 0;i<steps.length; i++ ){
     if (!this.running) break;
     await this.loadStep(i, availablePlugins);
+    let {top} = document.querySelector(`#step-${i}`).getBoundingClientRect();
+    stepContainer.scrollTop = top;
 
     // Wait for all executable plugins to finish
     await Promise.all(_.map(executablePlugins, (p) => {
